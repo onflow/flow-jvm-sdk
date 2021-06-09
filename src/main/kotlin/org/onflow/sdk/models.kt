@@ -96,6 +96,11 @@ enum class HashAlgorithm(
 }
 
 interface Signer {
+    companion object {
+        const val TRANSACTION_DOMAIN_TAG = "FLOW-V0.0-transaction"
+        const val USER_DOMAIN_TAG = "FLOW-V0.0-user"
+    }
+    var domainTag: String?
     fun sign(bytes: ByteArray): ByteArray
 }
 

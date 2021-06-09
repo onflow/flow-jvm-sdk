@@ -31,7 +31,7 @@ annotation class FlowEmulatorTest(
 
     val port: Int = 3570,
 
-    val httpPort: Int = 8081,
+    val httpPort: Int = 8182,
 
     /**
      * Location of flow.json, can also be in the classpath or

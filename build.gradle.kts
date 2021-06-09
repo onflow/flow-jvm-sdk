@@ -1,7 +1,7 @@
 // configuration variables
 val javaTargetVersion = "1.8"
 val defaultGroupId = "org.onflow"
-val defaultVersion = "0.2.4-SNAPSHOT"
+val defaultVersion = "0.2.5-SNAPSHOT"
 
 // other variables
 
@@ -39,7 +39,7 @@ repositories {
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlin:kotlin-reflect:1.5.0")
+    api("org.jetbrains.kotlin:kotlin-reflect:1.5.0")
     dokkaHtmlPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:1.4.20")
 
     api("org.onflow:flow:0.21")

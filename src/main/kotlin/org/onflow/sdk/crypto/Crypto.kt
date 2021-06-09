@@ -1,15 +1,5 @@
 package org.onflow.sdk.crypto
 
-import java.math.BigInteger
-import java.security.KeyFactory
-import java.security.KeyPairGenerator
-import java.security.SecureRandom
-import java.security.Security
-import java.security.Signature
-import java.security.spec.ECGenParameterSpec
-import java.security.spec.ECPublicKeySpec
-import kotlin.experimental.and
-import kotlin.math.max
 import org.bouncycastle.jce.ECNamedCurveTable
 import org.bouncycastle.jce.ECPointUtil
 import org.bouncycastle.jce.interfaces.ECPrivateKey
@@ -22,6 +12,16 @@ import org.onflow.sdk.SignatureAlgorithm
 import org.onflow.sdk.Signer
 import org.onflow.sdk.bytesToHex
 import org.onflow.sdk.hexToBytes
+import java.math.BigInteger
+import java.security.KeyFactory
+import java.security.KeyPairGenerator
+import java.security.SecureRandom
+import java.security.Security
+import java.security.Signature
+import java.security.spec.ECGenParameterSpec
+import java.security.spec.ECPublicKeySpec
+import kotlin.experimental.and
+import kotlin.math.max
 
 data class KeyPair(
     val private: PrivateKey,
@@ -134,11 +134,23 @@ internal class SignerImpl(
     private val hashAlgo: HashAlgorithm
 ) : Signer {
 
+    override var domainTag: String? = null
+        set(value) {
+            field = when {
+                value == null -> null
+                value.length > 32 -> throw IllegalArgumentException("Domain tags cannot be longer than 32 characters long")
+                value.length < 32 -> value.padEnd(32, '0')
+                else -> value
+            }
+        }
+
     override fun sign(bytes: ByteArray): ByteArray {
+
+        val payload = (domainTag?.toByteArray(Charsets.UTF_8) ?: byteArrayOf()) + bytes
 
         val ecdsaSign = Signature.getInstance(hashAlgo.id)
         ecdsaSign.initSign(privateKey.key)
-        ecdsaSign.update(bytes)
+        ecdsaSign.update(payload)
 
         val signature = ecdsaSign.sign()
         if (privateKey.ecCoupleComponentSize <= 0) {
