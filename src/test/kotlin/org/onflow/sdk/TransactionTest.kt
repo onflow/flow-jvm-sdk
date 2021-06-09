@@ -202,4 +202,69 @@ class TransactionTest {
         }.sendAndWaitForSeal()
         assertThat(result.status).isEqualTo(FlowTransactionStatus.SEALED)
     }
+
+    @Test
+    fun `Can get block header by id`() {
+        val accessAPI = Flow.newAccessApi(MAINNET_HOSTNAME)
+
+        val latestBlock = accessAPI.getLatestBlock(true)
+        assertThat(latestBlock).isNotNull
+        val blockHeaderById = accessAPI.getBlockHeaderById(latestBlock.id)
+        assertThat(blockHeaderById).isNotNull
+    }
+
+    @Test
+    fun `Can get block header by height`() {
+        val accessAPI = Flow.newAccessApi(MAINNET_HOSTNAME)
+
+        val latestBlock = accessAPI.getLatestBlock(true)
+        assertThat(latestBlock).isNotNull
+        val blockHeader = accessAPI.getBlockHeaderByHeight(latestBlock.height)
+        assertThat(blockHeader).isNotNull
+        assertThat(blockHeader?.height).isEqualTo(latestBlock.height)
+    }
+
+    @Test
+    fun `Can get latest block`() {
+        val accessAPI = Flow.newAccessApi(MAINNET_HOSTNAME)
+
+        val latestBlock = accessAPI.getLatestBlock(true)
+        assertThat(latestBlock).isNotNull
+    }
+
+    @Test
+    fun `Can get block by id`() {
+        val accessAPI = Flow.newAccessApi(MAINNET_HOSTNAME)
+
+        val latestBlock = accessAPI.getLatestBlock(true)
+        assertThat(latestBlock).isNotNull
+
+        val blockById = accessAPI.getBlockById(latestBlock.id)
+        assertThat(blockById).isNotNull
+        assertThat(blockById?.id).isEqualTo(latestBlock.id)
+    }
+
+    @Test
+    fun `Can get block by height`() {
+        val accessAPI = Flow.newAccessApi(MAINNET_HOSTNAME)
+
+        val latestBlock = accessAPI.getLatestBlock(true)
+        assertThat(latestBlock).isNotNull
+
+        val blockByHeight = accessAPI.getBlockByHeight(latestBlock.height)
+        assertThat(blockByHeight).isNotNull
+        assertThat(blockByHeight?.height).isEqualTo(latestBlock.height)
+    }
+
+    @Test
+    fun `Can get account by address`() {
+        val accessAPI = Flow.newAccessApi(MAINNET_HOSTNAME)
+
+        val address = FlowAddress("18eb4ee6b3c026d2")
+        val account = accessAPI.getAccountAtLatestBlock(address)!!
+        assertThat(account).isNotNull
+        assertThat(account.address).isEqualTo(address)
+        assertThat(account).isEqualTo(account)
+    }
+
 }
