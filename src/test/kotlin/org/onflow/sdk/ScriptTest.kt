@@ -3,14 +3,18 @@ package org.onflow.sdk
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import org.onflow.sdk.cadence.AddressField
+import org.onflow.sdk.cadence.BooleanField
 import org.onflow.sdk.cadence.CadenceNamespace
 import org.onflow.sdk.cadence.Field
 import org.onflow.sdk.cadence.JsonCadenceConversion
 import org.onflow.sdk.cadence.JsonCadenceConverter
 import org.onflow.sdk.cadence.StringField
 import org.onflow.sdk.cadence.StructField
+import org.onflow.sdk.cadence.UFix64NumberField
 import org.onflow.sdk.cadence.marshall
 import org.onflow.sdk.cadence.unmarshall
+import org.onflow.sdk.crypto.Crypto
 import org.onflow.sdk.test.FlowEmulatorTest
 import java.math.BigDecimal
 
@@ -110,5 +114,111 @@ class ScriptTest {
         assertEquals(BigDecimal("1234"), struct.balance.stripTrailingZeros())
         assertEquals(HashAlgorithm.SHA3_256, struct.hashAlgorithm)
         assertTrue(struct.isValid)
+    }
+
+    @Test
+    fun `Test domain tags`() {
+        val accessAPI = Flow.newAccessApi("localhost", 3570)
+
+        val pairA = Crypto.generateKeyPair()
+        val signerA = Crypto.getSigner(pairA.private, HashAlgorithm.SHA3_256)
+        signerA.domainTag = Signer.USER_DOMAIN_TAG
+
+        val pairB = Crypto.generateKeyPair()
+        val signerB = Crypto.getSigner(pairB.private, HashAlgorithm.SHA3_256)
+        signerB.domainTag = Signer.USER_DOMAIN_TAG
+
+        val toAddress = AddressField("e7d6e0582b0a21c3")
+        val fromAddress = AddressField("e536e1583b0a22d4")
+        val amount = UFix64NumberField("100.00")
+
+        val message = Flow.encodeJsonCadence(toAddress) + Flow.encodeJsonCadence(fromAddress) + Flow.encodeJsonCadence(amount)
+
+        val signatureA = signerA.sign(message)
+        val signatureB = signerB.sign(message)
+
+        val publicKeys = marshall {
+            array {
+                listOf(
+                    string(pairA.public.hex),
+                    string(pairB.public.hex)
+                )
+            }
+        }
+
+        val weights = marshall {
+            array {
+                listOf(
+                    ufix64("100.00"),
+                    ufix64("0.5")
+                )
+            }
+        }
+
+        val signatures = marshall {
+            array {
+                listOf(
+                    string(signatureA.bytesToHex()),
+                    string(signatureB.bytesToHex())
+                )
+            }
+        }
+
+        val result = accessAPI.simpleFlowScript {
+            script {
+                """
+                    import Crypto
+                    pub fun main(
+                      rawPublicKeys: [String],
+                      weights: [UFix64],
+                      signatures: [String],
+                      toAddress: Address,
+                      fromAddress: Address,
+                      amount: UFix64,
+                    ): Bool {
+                      let keyList = Crypto.KeyList()
+                      var i = 0
+                      for rawPublicKey in rawPublicKeys {
+                        keyList.add(
+                          Crypto.PublicKey(
+                            publicKey: rawPublicKey.decodeHex(),
+                            signatureAlgorithm: Crypto.ECDSA_P256
+                          ),
+                          hashAlgorithm: Crypto.SHA3_256,
+                          weight: weights[i],
+                        )
+                        i = i + 1
+                      }
+                      let signatureSet: [Crypto.KeyListSignature] = []
+                      var j = 0
+                      for signature in signatures {
+                        signatureSet.append(
+                          Crypto.KeyListSignature(
+                            keyIndex: j,
+                            signature: signature.decodeHex()
+                          )
+                        )
+                        j = j + 1
+                      }
+                      let message = toAddress.toBytes()
+                        .concat(fromAddress.toBytes())
+                        .concat(amount.toBigEndianBytes())
+                      return keyList.isValid(
+                        signatureSet: signatureSet,
+                        signedData: message,
+                      )
+                    }
+                """
+            }
+            arg { publicKeys }
+            arg { weights }
+            arg { signatures }
+            arg { toAddress }
+            arg { fromAddress }
+            arg { amount }
+        }
+
+        assertTrue(result.jsonCadence is BooleanField)
+        assertTrue((result.jsonCadence as BooleanField).value!!)
     }
 }
