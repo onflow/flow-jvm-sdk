@@ -54,6 +54,9 @@ The jitpack.io repository is necesssary to access some of the dependencies of th
 Check out the [example repository](https://github.com/onflow/flow-java-client-example) for an example
 of how to use this SDK in a Java application.
 
+### Flow Integration Tests
+Tests annotated with `FlowEmulatorTest` depend on the [Flow Emulator](https://github.com/onflow/flow-emulator), which is part of the [Flow CLI](https://github.com/onflow/flow-cli) to be installed on your machine.
+
 ## Contribution
 
 Project is in the very early phase, all contributions are welcomed.
