@@ -96,12 +96,22 @@ enum class HashAlgorithm(
 }
 
 interface Signer {
-    companion object {
-        const val TRANSACTION_DOMAIN_TAG = "FLOW-V0.0-transaction"
-        const val USER_DOMAIN_TAG = "FLOW-V0.0-user"
-    }
-    var domainTag: String?
     fun sign(bytes: ByteArray): ByteArray
+
+    fun signWithDomain(bytes: ByteArray, domain: ByteArray): ByteArray = sign(domain + bytes)
+
+    fun signAsUser(bytes: ByteArray): ByteArray = signWithDomain(bytes, DomainTag.USER_DOMAIN_TAG)
+
+    fun signAsTransaction(bytes: ByteArray): ByteArray = signWithDomain(bytes, DomainTag.TRANSACTION_DOMAIN_TAG)
+
+    fun signWithExpectedDomain(bytes: ByteArray, expectedDomain: ByteArray): ByteArray {
+        val expectedDomainTag = String(expectedDomain, Charsets.UTF_8)
+        val actualDomainTag = String(bytes.sliceArray(0 until 32), Charsets.UTF_8)
+        if (expectedDomainTag != actualDomainTag) {
+            throw IllegalArgumentException("Expected domain $expectedDomain doesn't match actual domain $actualDomainTag")
+        }
+        return sign(bytes)
+    }
 }
 
 data class FlowAccount(
@@ -410,8 +420,9 @@ data class FlowTransaction(
             .addAllEnvelopeSignatures(envelopeSignatures.map { it.builder().build() })
     }
 
-    fun addPayloadSignature(address: FlowAddress, keyIndex: Int, signer: Signer): FlowTransaction {
-        return addPayloadSignature(address, keyIndex, FlowSignature(signer.sign(canonicalPayload)))
+    @JvmOverloads
+    fun addPayloadSignature(address: FlowAddress, keyIndex: Int, signer: Signer, domainTag: ByteArray = DomainTag.TRANSACTION_DOMAIN_TAG): FlowTransaction {
+        return addPayloadSignature(address, keyIndex, FlowSignature(signer.signWithDomain(canonicalPayload, domainTag)))
     }
 
     fun addPayloadSignature(address: FlowAddress, keyIndex: Int, signature: FlowSignature): FlowTransaction {
@@ -429,8 +440,8 @@ data class FlowTransaction(
         ).updateSignerIndices()
     }
 
-    fun addEnvelopeSignature(address: FlowAddress, keyIndex: Int, signer: Signer): FlowTransaction {
-        return addEnvelopeSignature(address, keyIndex, FlowSignature(signer.sign(canonicalAuthorizationEnvelope)))
+    fun addEnvelopeSignature(address: FlowAddress, keyIndex: Int, signer: Signer, domainTag: ByteArray = DomainTag.TRANSACTION_DOMAIN_TAG): FlowTransaction {
+        return addEnvelopeSignature(address, keyIndex, FlowSignature(signer.signWithDomain(canonicalAuthorizationEnvelope, domainTag)))
     }
 
     fun addEnvelopeSignature(address: FlowAddress, keyIndex: Int, signature: FlowSignature): FlowTransaction {

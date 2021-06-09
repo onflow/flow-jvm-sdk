@@ -134,23 +134,11 @@ internal class SignerImpl(
     private val hashAlgo: HashAlgorithm
 ) : Signer {
 
-    override var domainTag: String? = null
-        set(value) {
-            field = when {
-                value == null -> null
-                value.length > 32 -> throw IllegalArgumentException("Domain tags cannot be longer than 32 characters long")
-                value.length < 32 -> value.padEnd(32, '0')
-                else -> value
-            }
-        }
-
     override fun sign(bytes: ByteArray): ByteArray {
-
-        val payload = (domainTag?.toByteArray(Charsets.UTF_8) ?: byteArrayOf()) + bytes
 
         val ecdsaSign = Signature.getInstance(hashAlgo.id)
         ecdsaSign.initSign(privateKey.key)
-        ecdsaSign.update(payload)
+        ecdsaSign.update(bytes)
 
         val signature = ecdsaSign.sign()
         if (privateKey.ecCoupleComponentSize <= 0) {

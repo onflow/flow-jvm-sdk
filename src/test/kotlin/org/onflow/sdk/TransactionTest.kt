@@ -124,7 +124,6 @@ class TransactionTest {
 
         val keyPair = Crypto.generateKeyPair(SignatureAlgorithm.ECDSA_P256)
         val payerSigner = Crypto.getSigner(keyPair.private, payerAccount.keys[0].hashAlgo)
-        payerSigner.domainTag = Signer.USER_DOMAIN_TAG
 
         val newAccountPublicKey = FlowAccountKey(
             publicKey = FlowPublicKey(keyPair.public.hex),
@@ -184,7 +183,6 @@ class TransactionTest {
         val accessAPI = Flow.newAccessApi("localhost", 3570)
         val keyPair = Crypto.generateKeyPair(SignatureAlgorithm.ECDSA_P256)
         val payerSigner = Crypto.getSigner(keyPair.private, HashAlgorithm.SHA3_256)
-        payerSigner.domainTag = Signer.TRANSACTION_DOMAIN_TAG
 
         val result = accessAPI.simpleFlowTransaction(FlowAddress("f8d6e0586b0a20c7"), payerSigner) {
             script {

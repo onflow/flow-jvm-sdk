@@ -122,11 +122,9 @@ class ScriptTest {
 
         val pairA = Crypto.generateKeyPair()
         val signerA = Crypto.getSigner(pairA.private, HashAlgorithm.SHA3_256)
-        signerA.domainTag = Signer.USER_DOMAIN_TAG
 
         val pairB = Crypto.generateKeyPair()
         val signerB = Crypto.getSigner(pairB.private, HashAlgorithm.SHA3_256)
-        signerB.domainTag = Signer.USER_DOMAIN_TAG
 
         val toAddress = AddressField("e7d6e0582b0a21c3")
         val fromAddress = AddressField("e536e1583b0a22d4")
@@ -134,8 +132,8 @@ class ScriptTest {
 
         val message = Flow.encodeJsonCadence(toAddress) + Flow.encodeJsonCadence(fromAddress) + Flow.encodeJsonCadence(amount)
 
-        val signatureA = signerA.sign(message)
-        val signatureB = signerB.sign(message)
+        val signatureA = signerA.signWithDomain(message, DomainTag.USER_DOMAIN_TAG)
+        val signatureB = signerB.signWithDomain(message, DomainTag.USER_DOMAIN_TAG)
 
         val publicKeys = marshall {
             array {
