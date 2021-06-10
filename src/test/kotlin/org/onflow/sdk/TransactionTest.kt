@@ -266,5 +266,4 @@ class TransactionTest {
         assertThat(account.address).isEqualTo(address)
         assertThat(account).isEqualTo(account)
     }
-
 }

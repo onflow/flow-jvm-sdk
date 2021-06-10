@@ -96,7 +96,7 @@ abstract class Field<T> constructor(
 
 open class VoidField : Field<Void>(TYPE_VOID, null)
 
-open class OptionalField<T>(value: Field<T>?) : Field<Field<T>>(TYPE_OPTIONAL, value)
+open class OptionalField(value: Field<*>?) : Field<Field<*>>(TYPE_OPTIONAL, value)
 
 open class BooleanField(value: Boolean) : Field<Boolean>(TYPE_BOOLEAN, value)
 

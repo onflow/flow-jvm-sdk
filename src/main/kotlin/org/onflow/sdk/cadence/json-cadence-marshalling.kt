@@ -120,8 +120,9 @@ class JsonCadenceBuilder {
     fun <T : Any> marshall(value: T, clazz: KClass<out T> = value::class, namespace: FlowAddress): Field<*> = Flow.marshall(value, clazz, namespace)
     fun <T : Any> marshall(value: T, clazz: KClass<out T> = value::class, namespace: CadenceNamespace = CadenceNamespace()): Field<*> = Flow.marshall(value, clazz, namespace)
     fun void(): VoidField = VoidField()
-    fun <T> optional(block: JsonCadenceBuilder.() -> Field<T>?): OptionalField<T> = OptionalField(block())
-    fun <T> optional(value: Field<T>?): OptionalField<T> = OptionalField(value)
+    fun optional(block: JsonCadenceBuilder.() -> Field<*>?): OptionalField = OptionalField(block())
+    fun optional(value: Field<*>?): OptionalField = OptionalField(value)
+    fun <T : Any> optional(value: T?, block: JsonCadenceBuilder.(T) -> Field<*>?): OptionalField = OptionalField(value?.let { block(it) })
     fun boolean(value: Boolean): BooleanField = BooleanField(value)
     fun string(value: String): StringField = StringField(value)
     fun array(value: Iterable<Field<*>>): ArrayField = ArrayField(value)
@@ -164,12 +165,16 @@ class JsonCadenceBuilder {
     fun uint(value: Number): UIntNumberField = UIntNumberField(value.toString())
     fun int8(value: Number): Int8NumberField = Int8NumberField(value.toString())
     fun uint8(value: Number): UInt8NumberField = UInt8NumberField(value.toString())
+    fun uint8(value: UByte): UInt8NumberField = UInt8NumberField(value.toString())
     fun int16(value: Number): Int16NumberField = Int16NumberField(value.toString())
     fun uint16(value: Number): UInt16NumberField = UInt16NumberField(value.toString())
+    fun uint16(value: UShort): UInt16NumberField = UInt16NumberField(value.toString())
     fun int32(value: Number): Int32NumberField = Int32NumberField(value.toString())
     fun uint32(value: Number): UInt32NumberField = UInt32NumberField(value.toString())
+    fun uint32(value: UInt): UInt64NumberField = UInt64NumberField(value.toString())
     fun int64(value: Number): Int64NumberField = Int64NumberField(value.toString())
     fun uint64(value: Number): UInt64NumberField = UInt64NumberField(value.toString())
+    fun uint64(value: ULong): UInt64NumberField = UInt64NumberField(value.toString())
     fun int128(value: Number): Int128NumberField = Int128NumberField(value.toString())
     fun uint128(value: Number): UInt128NumberField = UInt128NumberField(value.toString())
     fun int256(value: Number): Int256NumberField = Int256NumberField(value.toString())
@@ -220,21 +225,12 @@ class JsonCadenceParser {
 
     fun <T : Field<*>> field(name: String): T = compositeValue.getRequiredField(name)
 
-    fun <T> with(composite: CompositeField, block: JsonCadenceParser.() -> T): T {
+    fun <T> withField(composite: CompositeField, block: JsonCadenceParser.() -> T): T {
         push(composite)
         try {
             return block(this)
         } finally {
             pop()
-        }
-    }
-
-    fun <T, F : Field<*>> optional(name: String, block: JsonCadenceParser.(field: F) -> T): T? {
-        val field = compositeValue.getField<F>(name)
-        return if (field != null) {
-            block(field)
-        } else {
-            null
         }
     }
 
@@ -253,27 +249,60 @@ class JsonCadenceParser {
     inline fun <reified T : Any> unmarshall(field: Field<*>, type: KClass<T>, namespace: FlowAddress): T = Flow.unmarshall(type, field, namespace)
 
     fun <T, F : Field<*>> field(name: String, block: JsonCadenceParser.(field: F) -> T): T = block(field(name))
-    fun boolean(name: String): Boolean = field<BooleanField>(name).value!!
-    fun string(name: String): String = field<StringField>(name).value!!
-    fun address(name: String): String = field<AddressField>(name).value!!
-    fun short(name: String): Short = field<NumberField>(name).toShort()!!
-    fun int(name: String): Int = field<NumberField>(name).toInt()!!
-    fun long(name: String): Long = field<NumberField>(name).toLong()!!
-    fun bigInteger(name: String): BigInteger = field<NumberField>(name).toBigInteger()!!
-    fun float(name: String): Float = field<NumberField>(name).toFloat()!!
-    fun double(name: String): Double = field<NumberField>(name).toDouble()!!
-    fun bigDecimal(name: String): BigDecimal = field<NumberField>(name).toBigDecimal()!!
-    fun <T> array(name: String, block: JsonCadenceParser.(field: ArrayField) -> T): T = block(field(name))
-    fun <T> arrayValues(name: String, mapper: JsonCadenceParser.(field: Field<*>) -> T): List<T> = field<ArrayField>(name).value!!.map { mapper(it) }
-    fun byteArray(name: String): ByteArray = arrayValues(name) { (it as UInt8NumberField).toByte()!! }.toByteArray()
-    fun <T> dictionary(name: String, block: JsonCadenceParser.(field: DictionaryField) -> T): T = block(field(name))
-    fun <K, V> dictionaryPairs(name: String, mapper: JsonCadenceParser.(key: Field<*>, value: Field<*>) -> Pair<K, V>): List<Pair<K, V>> = field<DictionaryField>(name).value!!.map { mapper(it.key, it.value) }
-    fun <K, V> dictionaryMap(name: String, mapper: JsonCadenceParser.(key: Field<*>, value: Field<*>) -> Pair<K, V>): Map<K, V> = dictionaryPairs(name, mapper).toMap()
-    inline fun <reified T : Enum<T>, V : Field<*>> enum(name: String, crossinline mapper: (V) -> T): T {
-        return with(field(name)) {
-            val field = compositeValue.getRequiredField<V>("rawValue")
-            mapper(field)
+    fun boolean(field: Field<*>): Boolean = (field as BooleanField).value!!
+    fun string(field: Field<*>): String = (field as StringField).value!!
+    fun address(field: Field<*>): String = (field as AddressField).value!!
+    fun short(field: Field<*>): Short = (field as NumberField).toShort()!!
+    fun ushort(field: Field<*>): UShort = (field as NumberField).toUShort()!!
+    fun int(field: Field<*>): Int = (field as NumberField).toInt()!!
+    fun uint(field: Field<*>): UInt = (field as NumberField).toUInt()!!
+    fun long(field: Field<*>): Long = (field as NumberField).toLong()!!
+    fun ulong(field: Field<*>): ULong = (field as NumberField).toULong()!!
+    fun bigInteger(field: Field<*>): BigInteger = (field as NumberField).toBigInteger()!!
+    fun float(field: Field<*>): Float = (field as NumberField).toFloat()!!
+    fun double(field: Field<*>): Double = (field as NumberField).toDouble()!!
+    fun bigDecimal(field: Field<*>): BigDecimal = (field as NumberField).toBigDecimal()!!
+    fun <T> array(field: Field<*>, block: JsonCadenceParser.(field: ArrayField) -> T): T = block(field as ArrayField)
+    fun <T> arrayValues(field: Field<*>, mapper: JsonCadenceParser.(field: Field<*>) -> T): List<T> = (field as ArrayField).value!!.map { mapper(it) }
+    fun byteArray(field: Field<*>): ByteArray = arrayValues(field) { (it as UInt8NumberField).toByte()!! }.toByteArray()
+    fun <T> dictionary(field: Field<*>, block: JsonCadenceParser.(field: DictionaryField) -> T): T = block(field as DictionaryField)
+    fun <K, V> dictionaryPairs(field: Field<*>, mapper: JsonCadenceParser.(key: Field<*>, value: Field<*>) -> Pair<K, V>): List<Pair<K, V>> = (field as DictionaryField).value!!.map { mapper(it.key, it.value) }
+    fun <K, V> dictionaryMap(field: Field<*>, mapper: JsonCadenceParser.(key: Field<*>, value: Field<*>) -> Pair<K, V>): Map<K, V> = dictionaryPairs(field, mapper).toMap()
+    inline fun <reified T : Enum<T>, V : Field<*>> enum(field: Field<*>, crossinline mapper: (V) -> T): T {
+        return withField(field as CompositeField) {
+            val f = compositeValue.getRequiredField<V>("rawValue")
+            mapper(f)
         }
     }
-    inline fun <reified T : Enum<T>> enum(name: String): T = enum<T, UInt8NumberField>(name) { f -> f.toInt()!!.let { enumValues<T>()[it] } }
+    inline fun <reified T : Enum<T>> enum(field: Field<*>): T = enum<T, UInt8NumberField>(field) { f -> f.toInt()!!.let { enumValues<T>()[it] } }
+    fun <T> optional(field: Field<*>?, block: JsonCadenceParser.(field: Field<*>) -> T): T? {
+        return if (field != null) {
+            block(field)
+        } else {
+            null
+        }
+    }
+
+    fun boolean(name: String): Boolean = boolean(field<BooleanField>(name))
+    fun string(name: String): String = string(field<StringField>(name))
+    fun address(name: String): String = address(field<AddressField>(name))
+    fun short(name: String): Short = short(field<NumberField>(name))
+    fun ushort(name: String): UShort = ushort(field<NumberField>(name))
+    fun int(name: String): Int = int(field<NumberField>(name))
+    fun uint(name: String): UInt = uint(field<NumberField>(name))
+    fun long(name: String): Long = long(field<NumberField>(name))
+    fun ulong(name: String): ULong = ulong(field<NumberField>(name))
+    fun bigInteger(name: String): BigInteger = bigInteger(field<NumberField>(name))
+    fun float(name: String): Float = float(field<NumberField>(name))
+    fun double(name: String): Double = double(field<NumberField>(name))
+    fun bigDecimal(name: String): BigDecimal = bigDecimal(field<NumberField>(name))
+    fun <T> array(name: String, block: JsonCadenceParser.(field: ArrayField) -> T): T = array(field(name), block)
+    fun <T> arrayValues(name: String, mapper: JsonCadenceParser.(field: Field<*>) -> T): List<T> = arrayValues(field<ArrayField>(name), mapper)
+    fun byteArray(name: String): ByteArray = byteArray(field(name))
+    fun <T> dictionary(name: String, block: JsonCadenceParser.(field: DictionaryField) -> T): T = dictionary(field(name), block)
+    fun <K, V> dictionaryPairs(name: String, mapper: JsonCadenceParser.(key: Field<*>, value: Field<*>) -> Pair<K, V>): List<Pair<K, V>> = dictionaryPairs(field<DictionaryField>(name), mapper)
+    fun <K, V> dictionaryMap(name: String, mapper: JsonCadenceParser.(key: Field<*>, value: Field<*>) -> Pair<K, V>): Map<K, V> = dictionaryPairs(name, mapper).toMap()
+    inline fun <reified T : Enum<T>, V : Field<*>> enum(name: String, crossinline mapper: (V) -> T): T = enum(field(name), mapper)
+    inline fun <reified T : Enum<T>> enum(name: String): T = enum(field(name))
+    fun <T> optional(name: String, block: JsonCadenceParser.(field: Field<*>) -> T): T? = optional(compositeValue.getField(name), block)
 }
