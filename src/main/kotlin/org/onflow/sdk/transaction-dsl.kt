@@ -46,8 +46,7 @@ fun FlowAccessApi.simpleFlowTransaction(address: FlowAddress, signer: Signer, ga
         PendingSignature(
             address = payerAccount.address,
             keyIndex = keyIndex,
-            signer = signer,
-            domainTag = DomainTag.TRANSACTION_DOMAIN_TAG
+            signer = signer
         )
     )
 
@@ -334,7 +333,6 @@ class PendingSignature(
     val address: FlowAddress? = null,
     val keyIndex: Int? = null,
     val signer: Signer? = null,
-    val domainTag: ByteArray? = null,
     val signature: FlowSignature? = null,
 ) {
 
@@ -357,7 +355,7 @@ class PendingSignature(
                     address = checkNotNull(address) { "address of FlowTransactionSignature required" },
                     keyIndex = checkNotNull(keyIndex) { "keyIndex of FlowTransactionSignature required" },
                     signer = signer,
-                    domainTag = checkNotNull(domainTag) { "domainTag of FlowTransactionSignature required" }
+                    domainTag = DomainTag.TRANSACTION_DOMAIN_TAG
                 )
             }
             else -> throw IllegalStateException("One of prepared, signature, or signer must be specified for a payload signature")
@@ -375,7 +373,7 @@ class PendingSignature(
                 tx.addEnvelopeSignature(
                     address = checkNotNull(address) { "address of FlowTransactionSignature required" },
                     keyIndex = checkNotNull(keyIndex) { "keyIndex of FlowTransactionSignature required" },
-                    signature = signature
+                    signature = signature,
                 )
             }
             signer != null -> {
@@ -383,7 +381,7 @@ class PendingSignature(
                     address = checkNotNull(address) { "address of FlowTransactionSignature required" },
                     keyIndex = checkNotNull(keyIndex) { "keyIndex of FlowTransactionSignature required" },
                     signer = signer,
-                    domainTag = checkNotNull(domainTag) { "domainTag of FlowTransactionSignature required" }
+                    domainTag = DomainTag.TRANSACTION_DOMAIN_TAG
                 )
             }
             else -> throw IllegalStateException("One of prepared, signature, or signer must be specified for an envelope signature")
@@ -418,7 +416,6 @@ class FlowTransactionSignatureBuilder {
     private var _keyIndex: Int? = null
     private var _signature: FlowSignature? = null
     private var _signer: Signer? = null
-    private var _domainTag: ByteArray = DomainTag.TRANSACTION_DOMAIN_TAG
 
     var address: FlowAddress
         get() { return _address!! }
@@ -451,18 +448,6 @@ class FlowTransactionSignatureBuilder {
     fun signature(signature: ByteArray) = signature(FlowSignature(signature))
     fun signature(signature: () -> FlowSignature) = this.signature(signature())
 
-    var domainTag: ByteArray
-        get() { return _domainTag }
-        set(value) { _domainTag = value }
-
-    fun domainTag(domainTag: String) {
-        this.domainTag = DomainTag.normalize(domainTag)
-    }
-    fun domainTag(domainTag: ByteArray) {
-        this.domainTag = domainTag
-    }
-    fun domainTag(domainTag: () -> ByteArray) = this.domainTag(domainTag())
-
     var signer: Signer
         get() { return _signer!! }
         set(value) { _signer = value }
@@ -488,8 +473,7 @@ class FlowTransactionSignatureBuilder {
                 PendingSignature(
                     address = checkNotNull(_address) { "address of FlowTransactionSignature required" },
                     keyIndex = checkNotNull(_keyIndex) { "keyIndex of FlowTransactionSignature required" },
-                    signer = checkNotNull(_signer) { "signer of FlowTransactionSignature required" },
-                    domainTag = domainTag
+                    signer = checkNotNull(_signer) { "signer of FlowTransactionSignature required" }
                 )
             }
             else -> throw IllegalArgumentException("one of prepared or signer of FlowTransactionSignature required ")
