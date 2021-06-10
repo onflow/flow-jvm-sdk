@@ -12,7 +12,7 @@ object DomainTag {
     fun normalize(tag: String?): ByteArray {
         val normalizedTag = when {
             tag == null -> null
-            tag.length > 32 -> throw IllegalArgumentException("Domain tags cannot be longer than 32 characters long")
+            tag.length > 32 -> throw IllegalArgumentException("Domain tags cannot be longer than 32 characters")
             tag.length < 32 -> tag.padEnd(32, '0')
             else -> tag
         }
