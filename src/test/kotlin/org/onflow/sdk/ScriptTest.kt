@@ -124,7 +124,7 @@ class ScriptTest {
         val pairB = Crypto.generateKeyPair(SignatureAlgorithm.ECDSA_P256)
         val signerB = Crypto.getSigner(pairB.private, HashAlgorithm.SHA3_256)
 
-        val message = signerA.hasher.hash("test message".encodeToByteArray())
+        val message = "test message".encodeToByteArray()
 
         val signatureA = signerA.signAsUser(message)
         val signatureB = signerB.signAsUser(message)
