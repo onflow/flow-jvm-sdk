@@ -114,8 +114,7 @@ class ScriptTest {
         assertTrue(struct.isValid)
     }
 
-    // @Test
-    // TODO: Re-enable this test once the cli has been updated with the latest emulator
+    @Test
     fun `Test domain tags`() {
         val accessAPI = TestUtils.newEmulatorAccessApi()
 
@@ -125,10 +124,10 @@ class ScriptTest {
         val pairB = Crypto.generateKeyPair(SignatureAlgorithm.ECDSA_P256)
         val signerB = Crypto.getSigner(pairB.private, HashAlgorithm.SHA3_256)
 
-        val message = "666f6f"
+        val message = signerA.hasher.hash("test message".encodeToByteArray())
 
-        val signatureA = signerA.signAsUser(message.hexToBytes())
-        val signatureB = signerB.signAsUser(message.hexToBytes())
+        val signatureA = signerA.signAsUser(message)
+        val signatureB = signerB.signAsUser(message)
 
         val publicKeys = marshall {
             array {
@@ -142,7 +141,7 @@ class ScriptTest {
         val weights = marshall {
             array {
                 listOf(
-                    ufix64("100.00"),
+                    ufix64("0.5"),
                     ufix64("0.5")
                 )
             }
@@ -161,14 +160,14 @@ class ScriptTest {
             script {
                 """
                     import Crypto
-                    
+
                     pub fun main(
                       rawPublicKeys: [String],
                       weights: [UFix64],
                       signatures: [String],
-                      message: String,
+                      signedData: String
                     ): Bool {
-                    
+
                       var i = 0
                       let keyList = Crypto.KeyList()
                       for rawPublicKey in rawPublicKeys {
@@ -182,22 +181,22 @@ class ScriptTest {
                         )
                         i = i + 1
                       }
-                      
-                      i = 0
+
                       let signatureSet: [Crypto.KeyListSignature] = []
+                      var j = 0
                       for signature in signatures {
                         signatureSet.append(
                           Crypto.KeyListSignature(
-                            keyIndex: i,
+                            keyIndex: j,
                             signature: signature.decodeHex()
                           )
                         )
-                        i = i + 1
+                        j = j + 1
                       }
-                      
+
                       return keyList.isValid(
                         signatureSet: signatureSet,
-                        signedData: message.decodeHex(),
+                        signedData: signedData.decodeHex(),
                       )
                     }
                 """
@@ -205,7 +204,7 @@ class ScriptTest {
             arg { publicKeys }
             arg { weights }
             arg { signatures }
-            arg { string(message) }
+            arg { string(message.bytesToHex()) }
         }
 
         assertTrue(result.jsonCadence is BooleanField)
