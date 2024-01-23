@@ -21,4 +21,3 @@ class JsonCadenceTest {
         Assertions.assertThat(events).hasSize(4)
     }
 }
-
