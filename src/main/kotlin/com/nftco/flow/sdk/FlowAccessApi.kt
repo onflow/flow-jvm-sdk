@@ -30,11 +30,11 @@ interface FlowAccessApi {
         message = "Behaves identically to getAccountAtLatestBlock",
         replaceWith = ReplaceWith("getAccountAtLatestBlock")
     )
-    fun getAccountByAddress(addresss: FlowAddress): FlowAccount?
+    fun getAccountByAddress(address: FlowAddress): FlowAccount?
 
-    fun getAccountAtLatestBlock(addresss: FlowAddress): FlowAccount?
+    fun getAccountAtLatestBlock(address: FlowAddress): FlowAccount?
 
-    fun getAccountByBlockHeight(addresss: FlowAddress, height: Long): FlowAccount?
+    fun getAccountByBlockHeight(address: FlowAddress, height: Long): FlowAccount?
 
     fun executeScriptAtLatestBlock(script: FlowScript, arguments: Iterable<ByteString> = emptyList()): FlowScriptResponse
 
