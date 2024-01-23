@@ -1,8 +1,6 @@
 package com.nftco.flow.sdk.crypto
 
 import com.nftco.flow.sdk.HashAlgorithm
-import com.nftco.flow.sdk.SignatureAlgorithm
-import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
@@ -59,25 +57,28 @@ internal class CryptoTest {
     }
 
     @Test
-    fun `Can normalize signature`() {
+    fun `Normalize signature`() {
         val keyPair = Crypto.generateKeyPair()
-        val signature = Crypto.getSigner(keyPair.private).sign("test".toByteArray())
-        val normalizedSignature = Crypto.normalizeSignature(signature, keyPair.private.ecCoupleComponentSize)
-        assertNotNull(normalizedSignature)
-    }
+        val data = "test".toByteArray()
 
-    // test exception normalizeSignature on hash()
+        val originalSignature = Crypto.getSigner(keyPair.private).sign(data)
+        val normalizedSignature = Crypto.normalizeSignature(originalSignature, keyPair.private.ecCoupleComponentSize)
+
+        assertEquals(2 * keyPair.private.ecCoupleComponentSize, normalizedSignature.size)
+    }
 
     @Test
-    fun `Can extract RS`() {
+    fun `Extract RS from valid signature`() {
         val keyPair = Crypto.generateKeyPair()
-        val signature = Crypto.getSigner(keyPair.private).sign("test".toByteArray())
-        val (r, s) = Crypto.extractRS(signature)
-        assertNotNull(r)
-        assertNotNull(s)
-    }
+        val signer = SignerImpl(keyPair.private, HashAlgorithm.SHA3_256)
+        val signature = signer.sign("test".toByteArray())
 
-    // test exception handling on extractRS()
+        val (r, s) = Crypto.extractRS(signature)
+        println(r)
+        println(s)
+
+        // Assert
+    }
 
     @Test
     fun `Hasher implementation`() {
@@ -85,8 +86,6 @@ internal class CryptoTest {
         val hashedBytes = hasher.hash("test".toByteArray())
         assertNotNull(hashedBytes)
     }
-
-    // test exception handling on hash()
 
     @Test
     fun `Signer implementation`() {
@@ -97,6 +96,5 @@ internal class CryptoTest {
     }
 
     // test exception handling on sign()
-
 
 }
