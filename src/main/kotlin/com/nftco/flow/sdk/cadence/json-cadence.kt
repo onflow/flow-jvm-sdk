@@ -403,4 +403,3 @@ class CadenceTypeDeserializer(vc: Class<*>?) : StdDeserializer<CadenceType>(vc) 
         }
     }
 }
-
