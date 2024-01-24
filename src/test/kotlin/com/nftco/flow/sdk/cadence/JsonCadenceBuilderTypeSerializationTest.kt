@@ -204,5 +204,106 @@ class JsonCadenceBuilderTypeSerializationTest {
     }
 
     // Composite types
+    @Test
+    fun `Test composite type serialization and deserialization`() {
+        val structType = CompositeType(
+            TYPE_STRUCT,
+            "StructType",
+            "id",
+            emptyArray(),
+            arrayOf(FieldType("field", SimpleType(TYPE_STRING)))
+        )
+        assertCompositeTypeSerializationAndDeserialization(structType)
+
+        val resourceType = CompositeType(
+            TYPE_RESOURCE,
+            "ResourceType",
+            "id",
+            emptyArray(),
+            arrayOf(FieldType("field", SimpleType(TYPE_STRING)))
+        )
+        assertCompositeTypeSerializationAndDeserialization(resourceType)
+
+        val eventType = CompositeType(
+            TYPE_EVENT,
+            "EventType",
+            "id",
+            emptyArray(),
+            arrayOf(FieldType("field", SimpleType(TYPE_STRING)))
+        )
+        assertCompositeTypeSerializationAndDeserialization(eventType)
+
+        val contractType = CompositeType(
+            TYPE_CONTRACT,
+            "ContractType",
+            "id",
+            emptyArray(),
+            arrayOf(FieldType("field", SimpleType(TYPE_STRING)))
+        )
+        assertCompositeTypeSerializationAndDeserialization(contractType)
+
+        val enumType = CompositeType(
+            TYPE_ENUM,
+            "EnumType",
+            "id",
+            emptyArray(), // No initializers
+            arrayOf(FieldType("field", SimpleType(TYPE_STRING)))
+        )
+        assertCompositeTypeSerializationAndDeserialization(enumType)
+
+        val structInterfaceType = CompositeType(
+            TYPE_STRUCT_INTERFACE,
+            "StructInterfaceType",
+            "id",
+            emptyArray(), // No initializers
+            arrayOf(FieldType("field", SimpleType(TYPE_STRING)))
+        )
+        assertCompositeTypeSerializationAndDeserialization(structInterfaceType)
+
+        val resourceInterfaceType = CompositeType(
+            TYPE_RESOURCE_INTERFACE,
+            "ResourceInterfaceType",
+            "id",
+            emptyArray(), // No initializers
+            arrayOf(FieldType("field", SimpleType(TYPE_STRING)))
+        )
+        assertCompositeTypeSerializationAndDeserialization(resourceInterfaceType)
+
+        val contractInterfaceType = CompositeType(
+            TYPE_CONTRACT_INTERFACE,
+            "ContractInterfaceType",
+            "id",
+            emptyArray(), // No initializers
+            arrayOf(FieldType("field", SimpleType(TYPE_STRING)))
+        )
+        assertCompositeTypeSerializationAndDeserialization(contractInterfaceType)
+
+    }
+
+    private fun assertCompositeTypeSerializationAndDeserialization(originalType: CompositeType) {
+        val jsonString = objectMapper.writeValueAsString(originalType)
+        val deserializedType = objectMapper.readValue(jsonString, CompositeType::class.java)
+
+        assertEquals(
+            objectMapper.writeValueAsString(originalType.type),
+            objectMapper.writeValueAsString(deserializedType.type),
+            "Expected type: ${originalType.type}, Actual type: ${deserializedType.type}"
+        )
+        assertEquals(
+            objectMapper.writeValueAsString(originalType.typeID),
+            objectMapper.writeValueAsString(deserializedType.typeID),
+            "Expected typeID: ${originalType.typeID}, Actual typeID: ${deserializedType.typeID}"
+        )
+        assertEquals(
+            objectMapper.writeValueAsString(originalType.initializers),
+            objectMapper.writeValueAsString(deserializedType.initializers),
+            "Expected initializers: ${originalType.initializers}, Actual initializers: ${deserializedType.initializers}"
+        )
+        assertEquals(
+            objectMapper.writeValueAsString(originalType.fields),
+            objectMapper.writeValueAsString(deserializedType.fields),
+            "Expected fields: ${originalType.fields}, Actual fields: ${deserializedType.fields}"
+        )
+    }
 
 }
