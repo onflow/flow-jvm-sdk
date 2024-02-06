@@ -285,7 +285,7 @@ abstract class Field<T> constructor(
             }
 
             is EventField -> {
-                value?.toMap()
+                value
             }
 
             is ContractField -> {
@@ -484,15 +484,42 @@ open class CompositeField(type: String, value: CompositeValue) : Field<Composite
     operator fun contains(name: String): Boolean = value?.getField<Field<*>>(name) != null
 }
 
-open class CompositeAttribute(val name: String, val value: Field<*>) : Serializable
+open class CompositeAttribute(val name: String, val value: Field<*>) : Serializable {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is CompositeAttribute) return false
+
+        if (name != other.name) return false
+        if (value != other.value) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = name.hashCode()
+        result = 31 * result + value.hashCode()
+        return result
+    }
+}
 open class CompositeValue(val id: String, val fields: Array<CompositeAttribute>) : Serializable {
     @Suppress("UNCHECKED_CAST")
     fun <T : Field<*>> getField(name: String): T? = fields.find { it.name == name }?.value as T?
     fun <T : Field<*>> getRequiredField(name: String): T = getField(name) ?: throw IllegalStateException("Value for $name not found")
+    inline operator fun <reified T : Field<*>> get(name: String): T? {
+        val field = fields.find { it.name == name }?.value
+        return if (field is T) {
+            field
+        } else {
+            null
+        }
+    }
 
-    @Suppress("UNCHECKED_CAST")
-    operator fun <T> get(name: String): T? = getField<Field<*>>(name)?.value as T?
     operator fun contains(name: String): Boolean = fields.find { it.name == name } != null
+    override fun hashCode(): Int {
+        var result = id.hashCode()
+        result = 31 * result + fields.contentHashCode()
+        return result
+    }
 }
 
 open class StructField(value: CompositeValue) : CompositeField(TYPE_STRUCT, value)
