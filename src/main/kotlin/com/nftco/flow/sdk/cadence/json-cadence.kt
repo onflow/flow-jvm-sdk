@@ -289,7 +289,7 @@ abstract class Field<T> constructor(
             }
 
             is ContractField -> {
-                value
+                value?.let { toMap(it) }
             }
 
             is DictionaryField -> {
@@ -513,7 +513,6 @@ open class CompositeValue(val id: String, val fields: Array<CompositeAttribute>)
             null
         }
     }
-
     operator fun contains(name: String): Boolean = fields.find { it.name == name } != null
     override fun hashCode(): Int {
         var result = id.hashCode()
