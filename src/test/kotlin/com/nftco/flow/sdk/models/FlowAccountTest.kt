@@ -26,7 +26,7 @@ class FlowAccountTest {
         assertEquals(1, flowAccount.keys.size)
         assertEquals("0x1234", flowAccount.keys[0].publicKey.stringValue)
         assertEquals(2, flowAccount.contracts.size)
-        assertEquals("0x123456", flowAccount.contracts["contract1"]?.stringValue )
+        assertEquals("0x123456", flowAccount.contracts["contract1"]?.stringValue)
         assertEquals("0xabcdef", flowAccount.contracts["contract2"]?.stringValue)
     }
 

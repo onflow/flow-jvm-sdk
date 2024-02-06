@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Test
 import org.onflow.protobuf.entities.AccountOuterClass
 
 class FlowAccountKeyTest {
-
     @Test
     fun `Test creating FlowAccountKey from protobuf`() {
         val protobufKey = AccountOuterClass.AccountKey.newBuilder()
