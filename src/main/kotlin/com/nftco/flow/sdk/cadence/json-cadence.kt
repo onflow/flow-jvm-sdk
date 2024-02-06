@@ -281,7 +281,7 @@ abstract class Field<T> constructor(
             }
 
             is ResourceField -> {
-                value?.toMap()
+                value
             }
 
             is EventField -> {
@@ -289,7 +289,7 @@ abstract class Field<T> constructor(
             }
 
             is ContractField -> {
-                value?.let { toMap(it) }
+                value
             }
 
             is DictionaryField -> {

@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test
 
 class JsonCadenceBuilderEventFieldTest {
     @Test
-    fun `Test EventField value property`() {
+    fun `Test EventField type and value properties`() {
         val fieldValue = CompositeValue("eventId", emptyArray())
         val eventField = EventField(fieldValue)
 
