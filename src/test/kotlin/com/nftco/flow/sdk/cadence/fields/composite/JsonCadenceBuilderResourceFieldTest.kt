@@ -1,12 +1,20 @@
 package com.nftco.flow.sdk.cadence.fields.composite
 
-import com.nftco.flow.sdk.cadence.CompositeValue
-import com.nftco.flow.sdk.cadence.ResourceField
+import com.nftco.flow.sdk.cadence.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Test
 
 class JsonCadenceBuilderResourceFieldTest {
+    @Test
+    fun `Test ResourceField type and value properties`() {
+        val fieldValue = CompositeValue("enumId", emptyArray())
+        val resourceField = ResourceField(fieldValue)
+
+        assertEquals(TYPE_RESOURCE, resourceField.type)
+        assertEquals(fieldValue, resourceField.value)
+    }
+
     @Test
     fun `Test hashCode`() {
         val compositeValue1 = CompositeValue("id1", arrayOf())

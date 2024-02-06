@@ -1,12 +1,19 @@
 package com.nftco.flow.sdk.cadence.fields.composite
 
-import com.nftco.flow.sdk.cadence.CompositeValue
-import com.nftco.flow.sdk.cadence.StructField
+import com.nftco.flow.sdk.cadence.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Test
 
 class JsonCadenceBuilderStructFieldTest {
+    @Test
+    fun `Test StructField type and value properties`() {
+        val fieldValue = CompositeValue("enumId", emptyArray())
+        val structField = StructField(fieldValue)
+
+        assertEquals(TYPE_STRUCT, structField.type)
+        assertEquals(fieldValue, structField.value)
+    }
     @Test
     fun `Test hashCode`() {
         val compositeValue1 = CompositeValue("id1", arrayOf())
