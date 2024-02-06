@@ -49,5 +49,4 @@ class JsonCadenceBuilderContractFieldTest {
         val decodedValue = contractField.decodeToAny()
         assertEquals(compositeValue, decodedValue)
     }
-
 }
