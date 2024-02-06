@@ -4,7 +4,7 @@ import com.nftco.flow.sdk.cadence.TYPE_EVENT
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
-class EventFieldTest {
+class JsonCadenceBuilderEventFieldTest {
     @Test
     fun `Test EventField value property`() {
         val fieldValue = CompositeValue("eventId", emptyArray())

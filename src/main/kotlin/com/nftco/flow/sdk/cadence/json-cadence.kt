@@ -277,7 +277,7 @@ abstract class Field<T> constructor(
             }
 
             is EnumField -> {
-                value?.toMap()
+                value
             }
 
             is ResourceField -> {
