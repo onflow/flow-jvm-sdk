@@ -273,7 +273,7 @@ abstract class Field<T> constructor(
 
             // CompositeValue
             is StructField -> {
-                value?.toMap()
+                value
             }
 
             is EnumField -> {
