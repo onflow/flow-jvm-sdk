@@ -1,6 +1,10 @@
-package com.nftco.flow.sdk
+package com.nftco.flow.sdk.models
 
+import com.nftco.flow.sdk.FlowAddress
+import com.nftco.flow.sdk.hexToBytes
 import org.assertj.core.api.Assertions
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Test
 
 class FlowAddressTest {
@@ -41,5 +45,23 @@ class FlowAddressTest {
         Assertions.assertThatThrownBy { FlowAddress("1").base16Value }
         Assertions.assertThatThrownBy { FlowAddress("0").base16Value }
         Assertions.assertThatThrownBy { FlowAddress("18eb4ee6b3c026d31").bytes }
+    }
+
+    @Test
+    fun `Test equality of FlowAddress instances`() {
+        val address1 = FlowAddress.of(byteArrayOf(0x12, 0x34, 0x56, 0x78, 0x9A.toByte(), 0xBC.toByte(), 0xDE.toByte(), 0xF0.toByte()))
+        val address2 = FlowAddress.of(byteArrayOf(0x12, 0x34, 0x56, 0x78, 0x9A.toByte(), 0xBC.toByte(), 0xDE.toByte(), 0xF0.toByte()))
+
+        val address3 = FlowAddress.of(byteArrayOf(0xAB.toByte(), 0xCD.toByte(), 0xEF.toByte(), 0x01, 0x23, 0x45, 0x67, 0x89.toByte()))
+
+        assertEquals(address1, address2)
+        assertNotEquals(address1, address3)
+    }
+
+    @Test
+    fun `Test hash code of FlowAddress`() {
+        val address = FlowAddress.of(byteArrayOf(0x12, 0x34, 0x56, 0x78, 0x9A.toByte(), 0xBC.toByte(), 0xDE.toByte(), 0xF0.toByte()))
+
+        assertEquals(address.bytes.contentHashCode(), address.hashCode())
     }
 }
