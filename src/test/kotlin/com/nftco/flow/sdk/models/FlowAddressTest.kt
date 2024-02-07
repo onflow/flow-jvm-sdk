@@ -3,8 +3,6 @@ package com.nftco.flow.sdk.models
 import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.hexToBytes
 import org.assertj.core.api.Assertions
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Test
 
 class FlowAddressTest {
