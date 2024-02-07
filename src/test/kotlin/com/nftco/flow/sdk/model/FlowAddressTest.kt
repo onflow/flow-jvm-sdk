@@ -1,5 +1,7 @@
-package com.nftco.flow.sdk
+package com.nftco.flow.sdk.model
 
+import com.nftco.flow.sdk.FlowAddress
+import com.nftco.flow.sdk.hexToBytes
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Test
 
