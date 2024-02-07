@@ -37,8 +37,8 @@ class FlowBlockTest {
             ZoneOffset.UTC
         )
 
-        assert(flowBlock.id.bytes.contentEquals(fixedSize("id".toByteArray(),32)))
-        assert(flowBlock.parentId.bytes.contentEquals(fixedSize("parent_id".toByteArray(),32)))
+        assert(flowBlock.id.bytes.contentEquals(fixedSize("id".toByteArray(), 32)))
+        assert(flowBlock.parentId.bytes.contentEquals(fixedSize("parent_id".toByteArray(), 32)))
         assertEquals(flowBlock.height, 123L)
         assertEquals(
             expectedUtcDateTime,
@@ -63,8 +63,8 @@ class FlowBlockTest {
 
         val blockBuilder = flowBlock.builder()
 
-        assert(blockBuilder.id.toByteArray().contentEquals(fixedSize("id".toByteArray(),32)))
-        assert(blockBuilder.parentId.toByteArray().contentEquals(fixedSize("parent_id".toByteArray(),32)))
+        assert(blockBuilder.id.toByteArray().contentEquals(fixedSize("id".toByteArray(), 32)))
+        assert(blockBuilder.parentId.toByteArray().contentEquals(fixedSize("parent_id".toByteArray(), 32)))
         assert(blockBuilder.height == 123L)
         assert(blockBuilder.timestamp == flowBlock.timestamp.asTimestamp())
         assert(blockBuilder.collectionGuaranteesList.isEmpty())

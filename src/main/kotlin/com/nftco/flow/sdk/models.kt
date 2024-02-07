@@ -759,8 +759,7 @@ data class FlowAddress private constructor(override val bytes: ByteArray) : Seri
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
         other as FlowAddress
-        if (!bytes.contentEquals(other.bytes)) return false
-        return true
+        return bytes.contentEquals(other.bytes)
     }
 
     val formatted: String = "0x$base16Value"
@@ -786,8 +785,7 @@ data class FlowArgument(override val bytes: ByteArray) : Serializable, BytesHold
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
         other as FlowArgument
-        if (!bytes.contentEquals(other.bytes)) return false
-        return true
+        return bytes.contentEquals(other.bytes)
     }
 
     override fun hashCode(): Int {
@@ -801,8 +799,7 @@ data class FlowScript(override val bytes: ByteArray) : Serializable, BytesHolder
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
         other as FlowScript
-        if (!bytes.contentEquals(other.bytes)) return false
-        return true
+        return bytes.contentEquals(other.bytes)
     }
 
     override fun hashCode(): Int {
@@ -826,8 +823,7 @@ data class FlowScriptResponse(override val bytes: ByteArray) : Serializable, Byt
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
         other as FlowScriptResponse
-        if (!bytes.contentEquals(other.bytes)) return false
-        return true
+        return bytes.contentEquals(other.bytes)
     }
 
     override fun hashCode(): Int {
@@ -847,8 +843,7 @@ data class FlowSignature(override val bytes: ByteArray) : Serializable, BytesHol
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
         other as FlowSignature
-        if (!bytes.contentEquals(other.bytes)) return false
-        return true
+        return bytes.contentEquals(other.bytes)
     }
 
     override fun hashCode(): Int {
@@ -866,8 +861,7 @@ data class FlowId private constructor(override val bytes: ByteArray) : Serializa
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
         other as FlowId
-        if (!bytes.contentEquals(other.bytes)) return false
-        return true
+        return bytes.contentEquals(other.bytes)
     }
 
     override fun hashCode(): Int {
@@ -880,8 +874,7 @@ data class FlowCode(override val bytes: ByteArray) : Serializable, BytesHolder {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
         other as FlowCode
-        if (!bytes.contentEquals(other.bytes)) return false
-        return true
+        return bytes.contentEquals(other.bytes)
     }
 
     override fun hashCode(): Int {
@@ -895,8 +888,7 @@ data class FlowPublicKey(override val bytes: ByteArray) : Serializable, BytesHol
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
         other as FlowPublicKey
-        if (!bytes.contentEquals(other.bytes)) return false
-        return true
+        return bytes.contentEquals(other.bytes)
     }
 
     override fun hashCode(): Int {
@@ -909,8 +901,7 @@ data class FlowSnapshot(override val bytes: ByteArray) : Serializable, BytesHold
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
         other as FlowSnapshot
-        if (!bytes.contentEquals(other.bytes)) return false
-        return true
+        return bytes.contentEquals(other.bytes)
     }
 
     override fun hashCode(): Int {
@@ -934,8 +925,7 @@ data class FlowEventPayload(override val bytes: ByteArray) : Serializable, Bytes
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
         other as FlowEventPayload
-        if (!bytes.contentEquals(other.bytes)) return false
-        return true
+        return bytes.contentEquals(other.bytes)
     }
 
     override fun hashCode(): Int {
