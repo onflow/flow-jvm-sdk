@@ -1,8 +1,10 @@
 package com.nftco.flow.sdk.models
 
 import com.nftco.flow.sdk.FlowId
+import com.nftco.flow.sdk.fixedSize
 import com.nftco.flow.sdk.hexToBytes
 import org.assertj.core.api.Assertions
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
 class FlowIdTest {
@@ -41,4 +43,37 @@ class FlowIdTest {
         Assertions.assertThatThrownBy { FlowId("0").base16Value }
         Assertions.assertThatThrownBy { FlowId("0000000000000000000000000000000000000000000000000000000000000001234").bytes }
     }
+
+    @Test
+    fun `Test equality`() {
+        val bytes1 = byteArrayOf(0, 1, 2, 3, 4, 5, 6, 7)
+        val bytes2 = byteArrayOf(0, 1, 2, 3, 4, 5, 6, 7)
+        val flowId1 = FlowId.of(bytes1)
+        val flowId2 = FlowId.of(bytes2)
+        assertEquals(flowId1, flowId2)
+    }
+
+    @Test
+    fun `Test inequality`() {
+        val bytes1 = byteArrayOf(0, 1, 2, 3, 4, 5, 6, 7)
+        val bytes2 = byteArrayOf(1, 2, 3, 4, 5, 6, 7, 8)
+        val flowId1 = FlowId.of(bytes1)
+        val flowId2 = FlowId.of(bytes2)
+        assertEquals(false, flowId1 == flowId2)
+    }
+
+    @Test
+    fun `Test hashCode with no padding of 32 byte array`() {
+        val bytes = byteArrayOf(0, 1, 2, 3, 4, 5, 6, 7, 0, 1, 2, 3, 4, 5, 6, 7, 0, 1, 2, 3, 4, 5, 6, 7, 0, 1, 2, 3, 4, 5, 6, 7)
+        val flowId = FlowId.of(bytes)
+        assertEquals(bytes.contentHashCode(), flowId.hashCode())
+    }
+
+    @Test
+    fun `Test hashCode with padding`() {
+        val bytes = byteArrayOf(0, 1, 2, 3, 4, 5, 6, 7)
+        val flowId = FlowId.of(bytes)
+        assertEquals(fixedSize(bytes, 32).contentHashCode(), flowId.hashCode())
+    }
 }
+
