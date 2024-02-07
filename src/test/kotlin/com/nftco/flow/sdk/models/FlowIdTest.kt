@@ -76,4 +76,3 @@ class FlowIdTest {
         assertEquals(fixedSize(bytes, 32).contentHashCode(), flowId.hashCode())
     }
 }
-
