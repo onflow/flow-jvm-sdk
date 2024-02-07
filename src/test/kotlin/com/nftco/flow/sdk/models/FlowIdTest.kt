@@ -3,6 +3,7 @@ package com.nftco.flow.sdk.models
 import com.nftco.flow.sdk.FlowId
 import com.nftco.flow.sdk.hexToBytes
 import org.assertj.core.api.Assertions
+import org.junit.jupiter.api.Assertions.assertEquals
 import com.nftco.flow.sdk.fixedSize
 import org.junit.jupiter.api.Test
 
