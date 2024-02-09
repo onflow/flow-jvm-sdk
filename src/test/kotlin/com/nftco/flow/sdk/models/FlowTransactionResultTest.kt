@@ -49,7 +49,6 @@ class FlowTransactionResultTest {
 
     @Test
     fun `Test getEventsOfType`() {
-
         val eventField1 = EventField(CompositeValue("payload1", arrayOf(CompositeAttribute("1", StringField("payload1")))))
         val eventField2 = EventField(CompositeValue("payload2", arrayOf(CompositeAttribute("2", StringField("payload2")))))
         val eventField3 = EventField(CompositeValue("payload3", arrayOf(CompositeAttribute("3", StringField("payload3")))))
