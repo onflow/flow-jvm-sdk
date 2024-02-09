@@ -43,10 +43,10 @@ class JsonCadenceBuilderResourceFieldTest {
 
     @Test
     fun `Test decoding ResourceField`() {
-        val compositeValue = CompositeValue("resourceId", arrayOf())
+        val compositeValue = CompositeValue("resourceId", arrayOf(CompositeAttribute("id", StringField("resource"))))
         val resourceField = ResourceField(compositeValue)
 
         val decodedValue = resourceField.decodeToAny()
-        assertEquals(compositeValue, decodedValue)
+        assertEquals(mapOf("id" to "resource"), decodedValue)
     }
 }

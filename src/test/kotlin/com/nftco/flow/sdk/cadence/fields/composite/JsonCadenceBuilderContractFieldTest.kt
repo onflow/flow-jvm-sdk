@@ -43,10 +43,10 @@ class JsonCadenceBuilderContractFieldTest {
 
     @Test
     fun `Test decoding ContractField`() {
-        val compositeValue = CompositeValue("contractId", arrayOf())
+        val compositeValue = CompositeValue("contractId", arrayOf(CompositeAttribute("id", StringField("contract"))))
         val contractField = ContractField(compositeValue)
 
         val decodedValue = contractField.decodeToAny()
-        assertEquals(compositeValue, decodedValue)
+        assertEquals(mapOf("id" to "contractId", "fields" to compositeValue.fields), decodedValue)
     }
 }

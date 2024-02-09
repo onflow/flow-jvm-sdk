@@ -42,10 +42,10 @@ class JsonCadenceBuilderEnumFieldTest {
 
     @Test
     fun `Test decoding EnumField`() {
-        val compositeValue = CompositeValue("enumId", arrayOf())
+        val compositeValue = CompositeValue("enumId", arrayOf(CompositeAttribute("id", StringField("enum"))))
         val enumField = EnumField(compositeValue)
 
         val decodedValue = enumField.decodeToAny()
-        assertEquals(compositeValue, decodedValue)
+        assertEquals(mapOf("id" to "enum"), decodedValue)
     }
 }

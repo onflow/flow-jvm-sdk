@@ -42,10 +42,10 @@ class JsonCadenceBuilderStructFieldTest {
 
     @Test
     fun `Test decoding StructField`() {
-        val compositeValue = CompositeValue("structId", arrayOf())
+        val compositeValue = CompositeValue("structId", arrayOf(CompositeAttribute("id", StringField("struct"))))
         val structField = StructField(compositeValue)
 
         val decodedValue = structField.decodeToAny()
-        assertEquals(compositeValue, decodedValue)
+        assertEquals(mapOf("id" to "struct"), decodedValue)
     }
 }

@@ -1,6 +1,4 @@
-import com.nftco.flow.sdk.cadence.CompositeValue
-import com.nftco.flow.sdk.cadence.EventField
-import com.nftco.flow.sdk.cadence.TYPE_EVENT
+import com.nftco.flow.sdk.cadence.*
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
@@ -45,10 +43,10 @@ class JsonCadenceBuilderEventFieldTest {
 
     @Test
     fun `Test decoding EventField`() {
-        val fieldValue = CompositeValue("eventId", emptyArray())
+        val fieldValue = CompositeValue("eventId", arrayOf(CompositeAttribute("id", StringField("event"))))
         val eventField = EventField(fieldValue)
 
         val decodedValue = eventField.decodeToAny()
-        assertEquals(fieldValue, decodedValue)
+        assertEquals(mapOf("id" to "event"), decodedValue)
     }
 }

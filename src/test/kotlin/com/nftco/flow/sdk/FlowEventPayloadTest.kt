@@ -1,6 +1,5 @@
-package com.nftco.flow.sdk.model
+package com.nftco.flow.sdk
 
-import com.nftco.flow.sdk.FlowEventPayload
 import com.nftco.flow.sdk.cadence.StringField
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test

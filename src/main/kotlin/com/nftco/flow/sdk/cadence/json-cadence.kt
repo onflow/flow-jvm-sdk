@@ -273,23 +273,23 @@ abstract class Field<T> constructor(
 
             // CompositeValue
             is StructField -> {
-                value
+                value?.toMap()
             }
 
             is EnumField -> {
-                value
+                value?.toMap()
             }
 
             is ResourceField -> {
-                value
+                value?.toMap()
             }
 
             is EventField -> {
-                value
+                value?.toMap()
             }
 
             is ContractField -> {
-                value
+                value?.let { toMap(it) }
             }
 
             is DictionaryField -> {
@@ -501,6 +501,8 @@ open class CompositeAttribute(val name: String, val value: Field<*>) : Serializa
         return result
     }
 }
+
+
 open class CompositeValue(val id: String, val fields: Array<CompositeAttribute>) : Serializable {
     @Suppress("UNCHECKED_CAST")
     fun <T : Field<*>> getField(name: String): T? = fields.find { it.name == name }?.value as T?
@@ -518,6 +520,16 @@ open class CompositeValue(val id: String, val fields: Array<CompositeAttribute>)
         var result = id.hashCode()
         result = 31 * result + fields.contentHashCode()
         return result
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is CompositeValue) return false
+
+        if (id != other.id) return false
+        if (!fields.contentEquals(other.fields)) return false
+
+        return true
     }
 }
 
