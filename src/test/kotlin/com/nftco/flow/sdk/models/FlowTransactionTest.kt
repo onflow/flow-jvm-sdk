@@ -4,6 +4,7 @@ import com.google.protobuf.ByteString
 import com.nftco.flow.sdk.*
 import com.nftco.flow.sdk.cadence.StringField
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.onflow.protobuf.entities.TransactionOuterClass
 
@@ -11,53 +12,25 @@ class FlowTransactionTest {
 
     @Test
     fun `Test construction from TransactionOuterClass`() {
+        println(ByteString.copyFrom(byteArrayOf(0, 0, 0, 0, 0, 0, 0, 3)))
         val transactionOuterClass = TransactionOuterClass.Transaction.newBuilder()
             .setScript(ByteString.copyFromUtf8("sample script"))
-            .addAllArguments(listOf(ByteString.copyFromUtf8("argument1"), ByteString.copyFromUtf8("argument2")))
-            .setReferenceBlockId(ByteString.copyFromUtf8("referenceBlockId"))
-            .setGasLimit(1000)
+            .addAllArguments(listOf())
+            .setReferenceBlockId(ByteString.copyFromUtf8("0x1234"))
+            .setGasLimit(1000L)
             .setProposalKey(
                 TransactionOuterClass.Transaction.ProposalKey.newBuilder()
-                    .setAddress(ByteString.copyFromUtf8("proposalKeyAddress"))
-                    .setKeyId(123)
-                    .setSequenceNumber(456)
+                    .setAddress(ByteString.copyFrom(byteArrayOf(0, 0, 0, 0, 0, 0, 0, 1)))
+                    .setKeyId(0)
+                    .setSequenceNumber(12345L)
                     .build()
             )
-            .setPayer(ByteString.copyFromUtf8("payerAddress"))
-            .addAllAuthorizers(listOf(ByteString.copyFromUtf8("authorizer1"), ByteString.copyFromUtf8("authorizer2")))
-            .addAllPayloadSignatures(
-                listOf(
-//                    TransactionOuterClass.Transaction.Signature.newBuilder()
-//                        .setKeyId(1)
-//                       // .setSignerIndex(0)
-//                       // .setKeyIndex(1)
-//                        .setSignature(ByteString.copyFromUtf8("signature1"))
-//                        .build(),
-//                    TransactionOuterClass.Transaction.Signature.newBuilder()
-//                        .setKeyId(2)
-//                        //.setSignerIndex(1)
-//                        //.setKeyIndex(2)
-//                        .setSignature(ByteString.copyFromUtf8("signature2"))
-//                        .build()
-                )
-            )
-            .addAllEnvelopeSignatures(
-                listOf(
-//                    TransactionOuterClass.Transaction.Signature.newBuilder()
-//                        .setKeyId(1)
-//                        //.setSignerIndex(0)
-//                        //.setKeyIndex(1)
-//                        .setSignature(ByteString.copyFromUtf8("signature1"))
-//                        .build(),
-//                    TransactionOuterClass.Transaction.Signature.newBuilder()
-//                        .setKeyId(2)
-//                        //.setSignerIndex(1)
-//                        //.setKeyIndex(2)
-//                        .setSignature(ByteString.copyFromUtf8("signature2"))
-//                        .build()
-                )
-            )
+            .setPayer(ByteString.copyFrom(byteArrayOf(0, 0, 0, 0, 0, 0, 0, 2)))
+            .addAllAuthorizers(listOf((ByteString.copyFrom(byteArrayOf(0, 0, 0, 0, 0, 0, 0, 3)))))
             .build()
+
+        val transactionBytes = transactionOuterClass.toByteArray()
+        println("Transaction bytes: ${transactionBytes.contentToString()}")
 
         val flowTransaction = FlowTransaction.of(transactionOuterClass.toByteArray())
 
@@ -66,15 +39,7 @@ class FlowTransactionTest {
 
     @Test
     fun `Test builder`() {
-        val flowTransaction = FlowTransaction(
-            FlowScript("sample script"),
-            listOf(FlowArgument(StringField("argument"))),
-            FlowId("0x1234"),
-            1000L,
-            FlowTransactionProposalKey(FlowAddress.of("0x01".hexToBytes()), 0, 12345L),
-            FlowAddress.of("0x02".hexToBytes()),
-            listOf(FlowAddress.of("0x03".hexToBytes()))
-        )
+        val flowTransaction = createSampleFlowTransaction()
 
         val builder = flowTransaction.builder()
         val builtTransaction = builder.build()
@@ -84,10 +49,104 @@ class FlowTransactionTest {
         assertEquals(FlowId("0x1234").byteStringValue, builtTransaction.referenceBlockId)
         assertEquals(1000L, builtTransaction.gasLimit)
         assertEquals(true, FlowAddress.of("0x01".hexToBytes()).bytes.contentEquals(builtTransaction.proposalKey.address.toByteArray()))
-        assertEquals(0, builtTransaction.proposalKey.keyId)
+        assertEquals(EXPECTED_PROPOSAL_KEY_INDEX, builtTransaction.proposalKey.keyId)
         assertEquals(12345L, builtTransaction.proposalKey.sequenceNumber)
         assertEquals(true, FlowAddress.of("0x02".hexToBytes()).bytes.contentEquals(builtTransaction.payer.toByteArray()))
         assertEquals(true, FlowAddress.of("0x03".hexToBytes()).bytes.contentEquals(builtTransaction.authorizersList[0].toByteArray()))
     }
+
+    @Test
+    fun `Test canonicalPayload`() {
+        val flowTransaction = createSampleFlowTransaction()
+
+        val canonicalPayload = flowTransaction.canonicalPayload
+
+        assertEquals(true, canonicalPayload.isNotEmpty())
+        assertEquals(122, canonicalPayload.size)
+    }
+
+    @Test
+    fun `Test canonicalAuthorizationEnvelope`() {
+        val flowTransaction = createSampleFlowTransaction()
+
+        val canonicalAuthorizationEnvelope = flowTransaction.canonicalAuthorizationEnvelope
+
+        assertEquals(true, canonicalAuthorizationEnvelope.isNotEmpty())
+        assertEquals(125, canonicalAuthorizationEnvelope.size)
+    }
+
+    @Test
+    fun `Test canonicalPaymentEnvelope`() {
+        val flowTransaction = createSampleFlowTransaction()
+
+        val canonicalPaymentEnvelope = flowTransaction.canonicalPaymentEnvelope
+
+        assertEquals(true, canonicalPaymentEnvelope.isNotEmpty())
+        assertEquals(128, canonicalPaymentEnvelope.size)
+    }
+
+    @Test
+    fun `Test canonicalTransaction`() {
+        val flowTransaction = createSampleFlowTransaction()
+
+        val canonicalTransaction = flowTransaction.canonicalTransaction
+
+        assertEquals(true, canonicalTransaction.isNotEmpty())
+        assertEquals(126, canonicalTransaction.size)
+    }
+
+    @Test
+    fun `Test id`() {
+        val flowTransaction = createSampleFlowTransaction()
+        val id = flowTransaction.id
+
+        assertEquals(true, id.toString().isNotEmpty())
+        assertEquals(32, id.bytes.size)
+    }
+
+    @Test
+    fun `Test signerList`() {
+        val flowTransaction = createSampleFlowTransaction()
+
+        val signerList = flowTransaction.signerList
+
+        assertEquals(EXPECTED_SIGNER_LIST_SIZE, signerList.size)
+        assertTrue(flowTransaction.proposalKey.address in signerList)
+        assertTrue(flowTransaction.payerAddress in signerList)
+        flowTransaction.authorizers.forEach { assertTrue(it in signerList) }
+    }
+
+    @Test
+    fun `Test signerMap`() {
+        val flowTransaction = createSampleFlowTransaction()
+
+        val signerMap = flowTransaction.signerMap
+
+        assertEquals(EXPECTED_SIGNER_MAP_SIZE, signerMap.size)
+        assertEquals(EXPECTED_PROPOSAL_KEY_INDEX, signerMap[flowTransaction.proposalKey.address])
+        assertEquals(EXPECTED_PAYER_INDEX, signerMap[flowTransaction.payerAddress])
+        flowTransaction.authorizers.forEachIndexed { index, authorizer -> assertEquals(index + AUTHORIZER_INDEX_OFFSET, signerMap[authorizer]) }
+    }
+
+    companion object {
+        private const val EXPECTED_SIGNER_LIST_SIZE = 3
+        private const val EXPECTED_SIGNER_MAP_SIZE = 3
+        private const val EXPECTED_PROPOSAL_KEY_INDEX = 0
+        private const val EXPECTED_PAYER_INDEX = 1
+        private const val AUTHORIZER_INDEX_OFFSET = 2
+
+        private fun createSampleFlowTransaction(): FlowTransaction {
+            return FlowTransaction(
+                FlowScript("sample script"),
+                listOf(FlowArgument(StringField("argument"))),
+                FlowId("0x1234"),
+                1000L,
+                FlowTransactionProposalKey(FlowAddress.of("0x01".hexToBytes()), 0, 12345L),
+                FlowAddress.of("0x02".hexToBytes()),
+                listOf(FlowAddress.of("0x03".hexToBytes()))
+            )
+        }
+    }
+
 
 }
