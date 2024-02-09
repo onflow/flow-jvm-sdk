@@ -1,8 +1,6 @@
 package com.nftco.flow.sdk
 
 import com.google.protobuf.ByteString
-import com.nftco.flow.sdk.FlowCollection
-import com.nftco.flow.sdk.FlowId
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.onflow.protobuf.entities.CollectionOuterClass

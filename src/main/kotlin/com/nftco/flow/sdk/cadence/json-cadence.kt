@@ -502,7 +502,6 @@ open class CompositeAttribute(val name: String, val value: Field<*>) : Serializa
     }
 }
 
-
 open class CompositeValue(val id: String, val fields: Array<CompositeAttribute>) : Serializable {
     @Suppress("UNCHECKED_CAST")
     fun <T : Field<*>> getField(name: String): T? = fields.find { it.name == name }?.value as T?
