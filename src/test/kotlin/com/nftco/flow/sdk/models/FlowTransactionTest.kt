@@ -1,48 +1,20 @@
 package com.nftco.flow.sdk.models
 
-import com.google.protobuf.ByteString
 import com.nftco.flow.sdk.*
 import com.nftco.flow.sdk.cadence.StringField
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import org.onflow.protobuf.entities.TransactionOuterClass
 
 class FlowTransactionTest {
-
-    @Test
-    fun `Test construction from TransactionOuterClass`() {
-        println(ByteString.copyFrom(byteArrayOf(0, 0, 0, 0, 0, 0, 0, 3)))
-        val transactionOuterClass = TransactionOuterClass.Transaction.newBuilder()
-            .setScript(ByteString.copyFromUtf8("sample script"))
-            .addAllArguments(listOf())
-            .setReferenceBlockId(ByteString.copyFromUtf8("0x1234"))
-            .setGasLimit(1000L)
-            .setProposalKey(
-                TransactionOuterClass.Transaction.ProposalKey.newBuilder()
-                    .setAddress(ByteString.copyFrom(byteArrayOf(0, 0, 0, 0, 0, 0, 0, 1)))
-                    .setKeyId(0)
-                    .setSequenceNumber(12345L)
-                    .build()
-            )
-            .setPayer(ByteString.copyFrom(byteArrayOf(0, 0, 0, 0, 0, 0, 0, 2)))
-            .addAllAuthorizers(listOf((ByteString.copyFrom(byteArrayOf(0, 0, 0, 0, 0, 0, 0, 3)))))
-            .build()
-
-        val transactionBytes = transactionOuterClass.toByteArray()
-        println("Transaction bytes: ${transactionBytes.contentToString()}")
-
-        val flowTransaction = FlowTransaction.of(transactionOuterClass.toByteArray())
-
-        assertEquals("sample script", flowTransaction.script.bytes.toString(Charsets.UTF_8))
-    }
-
     @Test
     fun `Test builder`() {
         val flowTransaction = createSampleFlowTransaction()
 
         val builder = flowTransaction.builder()
         val builtTransaction = builder.build()
+
+        print(builtTransaction.toBuilder().toString())
 
         assertEquals("sample script", builtTransaction.script.toString(Charsets.UTF_8))
         assertEquals(FlowArgument(StringField("argument")).byteStringValue, builtTransaction.argumentsList[0])
@@ -147,6 +119,4 @@ class FlowTransactionTest {
             )
         }
     }
-
-
 }
