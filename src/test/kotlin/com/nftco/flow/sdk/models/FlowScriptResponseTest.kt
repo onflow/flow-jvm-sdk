@@ -11,7 +11,7 @@ class FlowScriptResponseTest {
         val jsonCadence = StringField("test")
         val flowScriptResponse = FlowScriptResponse(jsonCadence)
 
-        assertEquals(jsonCadence.decodeToAny(), flowScriptResponse.bytes.contentToString())
+        assertEquals(jsonCadence.decodeToAny(), flowScriptResponse.jsonCadence.value)
     }
 
     @Test
