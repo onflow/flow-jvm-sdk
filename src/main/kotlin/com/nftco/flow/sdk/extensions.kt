@@ -2,9 +2,12 @@ package com.nftco.flow.sdk
 
 import com.google.common.io.BaseEncoding
 import com.google.protobuf.Timestamp
+import org.bouncycastle.jce.provider.BouncyCastleProvider
 import java.security.MessageDigest
+import java.security.Security
 import java.time.LocalDateTime
 import java.time.ZoneOffset
+
 
 fun ByteArray.bytesToHex(): String = BaseEncoding.base16().lowerCase().encode(this)
 
@@ -23,9 +26,15 @@ fun LocalDateTime.asTimestamp(): Timestamp = Timestamp.newBuilder()
     .setNanos(this.nano)
     .build()
 
-fun ByteArray.sha3256Hash(): ByteArray = MessageDigest.getInstance("SHA3-256", "BC").digest(this)
+fun ByteArray.sha3256Hash(): ByteArray {
+    Security.addProvider(BouncyCastleProvider())
+    return MessageDigest.getInstance("SHA3-256", BouncyCastleProvider.PROVIDER_NAME).digest(this)
+}
 
-fun ByteArray.sha2256Hash(): ByteArray = MessageDigest.getInstance("SHA2-256", "BC").digest(this)
+fun ByteArray.sha2256Hash(): ByteArray {
+    Security.addProvider(BouncyCastleProvider())
+    return MessageDigest.getInstance("SHA2-256", "BC").digest(this)
+}
 
 fun fixedSize(bytes: ByteArray, size: Int): ByteArray {
     if (bytes.size > size) {
