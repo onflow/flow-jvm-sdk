@@ -1,4 +1,4 @@
-package com.nftco.flow.sdk.model
+package com.nftco.flow.sdk.models
 
 import com.nftco.flow.sdk.FlowEventPayload
 import com.nftco.flow.sdk.cadence.StringField

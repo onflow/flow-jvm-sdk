@@ -1,4 +1,4 @@
-package com.nftco.flow.sdk.model
+package com.nftco.flow.sdk.models
 
 import com.google.protobuf.ByteString
 import com.nftco.flow.sdk.FlowCollectionGuarantee
