@@ -8,7 +8,6 @@ import java.security.Security
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 
-
 fun ByteArray.bytesToHex(): String = BaseEncoding.base16().lowerCase().encode(this)
 
 fun String.hexToBytes(): ByteArray = BaseEncoding.base16().lowerCase().decode(
