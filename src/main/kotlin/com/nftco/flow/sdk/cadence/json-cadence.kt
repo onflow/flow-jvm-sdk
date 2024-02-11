@@ -501,6 +501,7 @@ open class CompositeAttribute(val name: String, val value: Field<*>) : Serializa
         return result
     }
 }
+
 open class CompositeValue(val id: String, val fields: Array<CompositeAttribute>) : Serializable {
     @Suppress("UNCHECKED_CAST")
     fun <T : Field<*>> getField(name: String): T? = fields.find { it.name == name }?.value as T?
@@ -514,6 +515,21 @@ open class CompositeValue(val id: String, val fields: Array<CompositeAttribute>)
         }
     }
     operator fun contains(name: String): Boolean = fields.find { it.name == name } != null
+    override fun hashCode(): Int {
+        var result = id.hashCode()
+        result = 31 * result + fields.contentHashCode()
+        return result
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is CompositeValue) return false
+
+        if (id != other.id) return false
+        if (!fields.contentEquals(other.fields)) return false
+
+        return true
+    }
 }
 
 open class StructField(value: CompositeValue) : CompositeField(TYPE_STRUCT, value)
