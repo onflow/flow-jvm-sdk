@@ -59,6 +59,7 @@ dependencies {
     testApi("org.assertj:assertj-core:3.25.1")
 
     testFixturesImplementation("org.junit.jupiter:junit-jupiter:5.10.1")
+    testFixturesImplementation("org.mockito:mockito-core:3.12.4")
 }
 
 tasks.withType<KotlinCompile> {
