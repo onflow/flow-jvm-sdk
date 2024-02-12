@@ -98,7 +98,6 @@ class TransactionTest {
         assertThat(account.keys).isNotEmpty
     }
 
-    // ignored for now because for whatever reason it can't find this transaction
     @Test
     fun `Can parse events`() {
         val accessApi = TestUtils.newMainnetAccessApi()
@@ -116,14 +115,13 @@ class TransactionTest {
         assertThat("from" in results.events[2].event).isTrue
         assertThat("amount" in results.events[2].event).isTrue
 
-// TODO - fix this test complaining com.fasterxml.jackson.databind.exc.MismatchedInputException: Unknown CadenceType kind: Restriction
-//        assertThat(results.events[8].event.id).isEqualTo("A.b8ea91944fd51c43.OffersV2.OfferCompleted")
-//        assertThat("nftId" in results.events[8].event).isTrue
-//        assertThat("nftType" in results.events[8].event).isTrue
-//        assertThat("offerId" in results.events[8].event).isTrue
-//        assertThat("offerType" in results.events[8].event.value!!).isTrue
-//        assertThat("royalties" in results.events[8].event.value!!).isTrue
-//        assertThat("offerAddress" in results.events[8].event.value!!).isTrue
+        assertThat(results.events[8].event.id).isEqualTo("A.b8ea91944fd51c43.OffersV2.OfferCompleted")
+        assertThat("nftId" in results.events[8].event).isTrue
+        assertThat("nftType" in results.events[8].event).isTrue
+        assertThat("offerId" in results.events[8].event).isTrue
+        assertThat("offerType" in results.events[8].event.value!!).isTrue
+        assertThat("royalties" in results.events[8].event.value!!).isTrue
+        assertThat("offerAddress" in results.events[8].event.value!!).isTrue
     }
 
     @Test
