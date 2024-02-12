@@ -8,7 +8,6 @@ import com.nftco.flow.sdk.Signer
 import com.nftco.flow.sdk.Hasher
 
 class SignerTest {
-
     lateinit var hasher: Hasher
 
     lateinit var signer: Signer
@@ -47,7 +46,6 @@ class SignerTest {
 
     @Test
     fun `Test signAsTransaction`() {
-
         val inputBytes = byteArrayOf(0x01, 0x02, 0x03)
         val expectedBytes = signer.sign(DomainTag.TRANSACTION_DOMAIN_TAG + inputBytes)
 
