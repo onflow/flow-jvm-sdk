@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Test
 import org.onflow.protobuf.entities.TransactionOuterClass
 
 class FlowTransactionSignatureTest {
-
     @Test
     fun `Test creation from TransactionOuterClass Transaction Signature`() {
         val address = FlowAddress("0x123456")
