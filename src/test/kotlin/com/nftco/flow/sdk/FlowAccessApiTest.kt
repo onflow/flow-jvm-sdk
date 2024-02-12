@@ -22,6 +22,7 @@ class FlowAccessApiTest {
 
         assertEquals(latestBlockHeader, result)
     }
+
     @Test
     fun `Test getBlockHeaderById`() {
         val flowAccessApi = mock(FlowAccessApi::class.java)
@@ -242,5 +243,4 @@ class FlowAccessApiTest {
 
         assertEquals(snapshot, result)
     }
-
 }
