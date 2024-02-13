@@ -10,7 +10,6 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.*
 import org.onflow.protobuf.access.Access
 import org.onflow.protobuf.access.AccessAPIGrpc
-import org.onflow.protobuf.entities.AccountOuterClass
 import org.onflow.protobuf.entities.TransactionOuterClass
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream
@@ -103,7 +102,6 @@ class FlowAccessApiImplTest {
 
     @Test
     fun `Test getBlockById`() {
-
         val blockId = FlowId("01")
         val mockBlock = FlowBlock(blockId, FlowId("01"), 123L, LocalDateTime.now(), emptyList(), emptyList(), emptyList())
 
@@ -113,7 +111,6 @@ class FlowAccessApiImplTest {
 
         `when`(api.getBlockByID(any())).thenReturn(blockProto)
 
-
         val block = flowAccessApi.getBlockById(blockId)
 
         assertEquals(mockBlock, block)
@@ -121,7 +118,6 @@ class FlowAccessApiImplTest {
 
     @Test
     fun `Test getBlockByHeight`() {
-
         val height = 123L
         val mockBlock = FlowBlock(FlowId("01"), FlowId("01"), height, LocalDateTime.now(), emptyList(), emptyList(), emptyList())
 
@@ -138,7 +134,6 @@ class FlowAccessApiImplTest {
 
     @Test
     fun `Test getCollectionById`() {
-
         val collectionId = FlowId("01")
         val mockCollection = FlowCollection(collectionId, emptyList())
 
@@ -155,7 +150,6 @@ class FlowAccessApiImplTest {
 
     @Test
     fun `Test sendTransaction`() {
-
         val mockTransaction = FlowTransaction(
             FlowScript("script"),
             emptyList(),
@@ -204,7 +198,7 @@ class FlowAccessApiImplTest {
     @Test
     fun `Test getTransactionResultById`() {
         val flowId = FlowId.of("id".toByteArray())
-        val flowTransactionResult = FlowTransactionResult(FlowTransactionStatus.SEALED, 1, "message",emptyList())
+        val flowTransactionResult = FlowTransactionResult(FlowTransactionStatus.SEALED, 1, "message", emptyList())
 
         val response = Access.TransactionResultResponse.newBuilder()
             .setStatus(TransactionOuterClass.TransactionStatus.SEALED)
@@ -223,7 +217,7 @@ class FlowAccessApiImplTest {
     @Test
     fun `Test getAccountByAddress`() {
         val flowAddress = FlowAddress("01")
-        val flowAccount = FlowAccount(flowAddress, BigDecimal.ONE,FlowCode("code".toByteArray()), emptyList(), emptyMap())
+        val flowAccount = FlowAccount(flowAddress, BigDecimal.ONE, FlowCode("code".toByteArray()), emptyList(), emptyMap())
 
         val accountProto = Access.GetAccountResponse.newBuilder()
             .setAccount(flowAccount.builder().build())
@@ -242,7 +236,7 @@ class FlowAccessApiImplTest {
     @Test
     fun `Test getAccountAtLatestBlock`() {
         val flowAddress = FlowAddress("01")
-        val flowAccount = FlowAccount(flowAddress, BigDecimal.ONE,FlowCode("code".toByteArray()), emptyList(), emptyMap())
+        val flowAccount = FlowAccount(flowAddress, BigDecimal.ONE, FlowCode("code".toByteArray()), emptyList(), emptyMap())
 
         val accountProto = Access.AccountResponse.newBuilder()
             .setAccount(flowAccount.builder().build())
@@ -303,7 +297,6 @@ class FlowAccessApiImplTest {
 
     @Test
     fun `Test executeScriptAtBlockId`() {
-
         val script = FlowScript("some_script")
         val blockId = FlowId("01")
         val arguments = listOf(ByteString.copyFromUtf8("argument1"), ByteString.copyFromUtf8("argument2"))
@@ -329,7 +322,6 @@ class FlowAccessApiImplTest {
 
     @Test
     fun `Test executeScriptAtBlockHeight`() {
-
         val script = FlowScript("some_script")
         val height = 123L
         val arguments = listOf(ByteString.copyFromUtf8("argument1"), ByteString.copyFromUtf8("argument2"))
@@ -412,7 +404,3 @@ class FlowAccessApiImplTest {
         assertEquals(mockFlowSnapshot, result)
     }
 }
-
-
-
-
