@@ -7,8 +7,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.`when`
+import org.mockito.Mockito.*
 import org.onflow.protobuf.access.Access
 import org.onflow.protobuf.access.AccessAPIGrpc
 import org.onflow.protobuf.entities.AccountOuterClass
@@ -42,9 +41,8 @@ class FlowAccessApiImplTest {
 
     @Test
     fun `Test ping`() {
-        flowAccessApiImpl.ping()
-        val expectedOutput = "Ping!\n"
-        assertEquals(expectedOutput, outputStreamCaptor.toString())
+        flowAccessApi.ping()
+        verify(api).ping(Access.PingRequest.newBuilder().build())
     }
 
     @Test
