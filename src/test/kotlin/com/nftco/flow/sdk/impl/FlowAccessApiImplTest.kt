@@ -11,6 +11,7 @@ import org.mockito.Mockito.*
 import org.onflow.protobuf.access.Access
 import org.onflow.protobuf.access.AccessAPIGrpc
 import org.onflow.protobuf.entities.AccountOuterClass
+import org.onflow.protobuf.entities.TransactionOuterClass
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream
 import java.math.BigDecimal
@@ -200,22 +201,24 @@ class FlowAccessApiImplTest {
         assertEquals(flowTransaction, retrievedTransaction)
     }
 
-//    @Test
-//    fun `Test getTransactionResultById`() {
-//        val flowId = FlowId("01")
-//        val flowTransactionResult = FlowTransactionResult(FlowTransactionStatus.SEALED, 1, "message",emptyList())
-//
-//        val transactionResultProto = Access.TransactionResultResponse.newBuilder()
-//
-//            .setResult(flowTransactionResult.builder().build()) // Pass the builder instance of flowTransactionResult
-//            .build()
-//
-//        `when`(api.getTransactionResult(any())).thenReturn(transactionResultProto)
-//
-//        val retrievedTransactionResult = flowAccessApi.getTransactionResultById(flowId)
-//
-//        assertEquals(flowTransactionResult, retrievedTransactionResult)
-//    }
+    @Test
+    fun `Test getTransactionResultById`() {
+        val flowId = FlowId.of("id".toByteArray())
+        val flowTransactionResult = FlowTransactionResult(FlowTransactionStatus.SEALED, 1, "message",emptyList())
+
+        val response = Access.TransactionResultResponse.newBuilder()
+            .setStatus(TransactionOuterClass.TransactionStatus.SEALED)
+            .setStatusCode(1)
+            .setErrorMessage("message")
+            .setBlockId(ByteString.copyFromUtf8("id"))
+            .build()
+
+        `when`(api.getTransactionResult(any())).thenReturn(response)
+
+        val retrievedTransactionResult = flowAccessApi.getTransactionResultById(flowId)
+
+        assertEquals(flowTransactionResult, retrievedTransactionResult)
+    }
 
     @Test
     fun `Test getAccountByAddress`() {
@@ -275,22 +278,139 @@ class FlowAccessApiImplTest {
         assertEquals(flowAccount.contracts, retrievedAccount?.contracts)
     }
 
-//    @Test
-//    fun `Test executeScriptAtLatestBlock`() {
-//        val script = FlowScript("script".toByteArray())
-//        val arguments = listOf(ByteString.copyFrom(byteArrayOf(0x04, 0x05, 0x06)))
-//
-//        val flowScriptResponse = FlowScriptResponse("script".toByteArray())
-//
-//        val scriptProto = Access.ExecuteScriptResponse.newBuilder().
-//            .setValue(script.)
-//            .build()
-//
-//        `when`(api.executeScriptAtLatestBlock(any())).thenReturn(scriptProto)
-//
-//        val result = flowAccessApi.executeScriptAtLatestBlock(script, arguments)
-//        assertEquals(flowScriptResponse, retrievedAccount)
-//    }
+    @Test
+    fun `Test executeScriptAtLatestBlock`() {
+        val script = FlowScript("script".toByteArray())
+        val arguments = listOf(ByteString.copyFromUtf8("argument1"), ByteString.copyFromUtf8("argument2"))
+
+        val response = Access.ExecuteScriptResponse.newBuilder()
+            .setValue(ByteString.copyFromUtf8("response_value"))
+            .build()
+
+        `when`(api.executeScriptAtLatestBlock(any())).thenReturn(response)
+
+        val result = flowAccessApi.executeScriptAtLatestBlock(script, arguments)
+
+        verify(api).executeScriptAtLatestBlock(
+            Access.ExecuteScriptAtLatestBlockRequest.newBuilder()
+                .setScript(script.byteStringValue)
+                .addAllArguments(arguments)
+                .build()
+        )
+
+        assertEquals("response_value", result.stringValue)
+    }
+
+    @Test
+    fun `Test executeScriptAtBlockId`() {
+
+        val script = FlowScript("some_script")
+        val blockId = FlowId("01")
+        val arguments = listOf(ByteString.copyFromUtf8("argument1"), ByteString.copyFromUtf8("argument2"))
+
+        val response = Access.ExecuteScriptResponse.newBuilder()
+            .setValue(ByteString.copyFromUtf8("response_value"))
+            .build()
+
+        `when`(api.executeScriptAtBlockID(any())).thenReturn(response)
+
+        val result = flowAccessApi.executeScriptAtBlockId(script, blockId, arguments)
+
+        verify(api).executeScriptAtBlockID(
+            Access.ExecuteScriptAtBlockIDRequest.newBuilder()
+                .setBlockId(blockId.byteStringValue)
+                .setScript(script.byteStringValue)
+                .addAllArguments(arguments)
+                .build()
+        )
+
+        assertEquals("response_value", result.stringValue)
+    }
+
+    @Test
+    fun `Test executeScriptAtBlockHeight`() {
+
+        val script = FlowScript("some_script")
+        val height = 123L
+        val arguments = listOf(ByteString.copyFromUtf8("argument1"), ByteString.copyFromUtf8("argument2"))
+
+        val response = Access.ExecuteScriptResponse.newBuilder()
+            .setValue(ByteString.copyFromUtf8("response_value"))
+            .build()
+
+        `when`(api.executeScriptAtBlockHeight(any())).thenReturn(response)
+
+        val result = flowAccessApi.executeScriptAtBlockHeight(script, height, arguments)
+
+        verify(api).executeScriptAtBlockHeight(
+            Access.ExecuteScriptAtBlockHeightRequest.newBuilder()
+                .setBlockHeight(height)
+                .setScript(script.byteStringValue)
+                .addAllArguments(arguments)
+                .build()
+        )
+
+        assertEquals("response_value", result.stringValue)
+    }
+
+    @Test
+    fun `Test getEventsForHeightRange`() {
+        val type = "event_type"
+        val range = 1L..10L
+
+        val eventResult1 = Access.EventsResponse.Result.newBuilder().build()
+        val eventResult2 = Access.EventsResponse.Result.newBuilder().build()
+        val response = Access.EventsResponse.newBuilder()
+            .addResults(eventResult1)
+            .addResults(eventResult2)
+            .build()
+
+        `when`(api.getEventsForHeightRange(any())).thenReturn(response)
+
+        val result = flowAccessApi.getEventsForHeightRange(type, range)
+
+        verify(api).getEventsForHeightRange(
+            Access.GetEventsForHeightRangeRequest.newBuilder()
+                .setType(type)
+                .setStartHeight(range.first)
+                .setEndHeight(range.last)
+                .build()
+        )
+
+        assertEquals(2, result.size)
+    }
+
+    @Test
+    fun `Test getNetworkParameters`() {
+        val mockFlowChainId = FlowChainId.of("test_chain_id")
+
+        val response = Access.GetNetworkParametersResponse.newBuilder()
+            .setChainId("test_chain_id")
+            .build()
+
+        `when`(api.getNetworkParameters(Access.GetNetworkParametersRequest.newBuilder().build()))
+            .thenReturn(response)
+
+        val result = flowAccessApi.getNetworkParameters()
+
+        assertEquals(mockFlowChainId, result)
+    }
+
+    @Test
+    fun `Test getLatestProtocolStateSnapshot`() {
+        val mockFlowSnapshot = FlowSnapshot("test_serialized_snapshot".toByteArray())
+
+        val response = Access.ProtocolStateSnapshotResponse.newBuilder()
+            .setSerializedSnapshot(ByteString.copyFromUtf8("test_serialized_snapshot"))
+            .build()
+
+        `when`(api.getLatestProtocolStateSnapshot(Access.GetLatestProtocolStateSnapshotRequest.newBuilder().build()))
+            .thenReturn(response)
+
+        val result = flowAccessApi.getLatestProtocolStateSnapshot()
+
+        assertEquals(mockFlowSnapshot, result)
+    }
 }
 
 
