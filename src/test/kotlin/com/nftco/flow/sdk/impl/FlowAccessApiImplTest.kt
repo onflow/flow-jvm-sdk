@@ -373,6 +373,26 @@ class FlowAccessApiImplTest {
     }
 
     @Test
+    fun `test getEventsForBlockIds`() {
+        val type = "event_type"
+        val blockIds = setOf(FlowId("01"), FlowId("02"))
+
+        val eventResult1 = Access.EventsResponse.Result.newBuilder().build()
+        val eventResult2 = Access.EventsResponse.Result.newBuilder().build()
+
+        val response = Access.EventsResponse.newBuilder()
+            .addResults(eventResult1)
+            .addResults(eventResult2)
+            .build()
+
+        `when`(api.getEventsForBlockIDs(any())).thenReturn(response)
+
+        val result = flowAccessApi.getEventsForBlockIds(type, blockIds)
+
+        assertEquals(2, result.size)
+    }
+
+    @Test
     fun `Test getNetworkParameters`() {
         val mockFlowChainId = FlowChainId.of("test_chain_id")
 
