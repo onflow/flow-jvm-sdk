@@ -7,7 +7,6 @@ import java.math.BigInteger
 import java.security.Signature
 
 internal class CryptoTest {
-
     @Test
     fun `Can generate KeyPair`() {
         val keyPair = Crypto.generateKeyPair()
