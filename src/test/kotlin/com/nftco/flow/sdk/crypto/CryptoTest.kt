@@ -3,10 +3,11 @@ package com.nftco.flow.sdk.crypto
 import com.nftco.flow.sdk.HashAlgorithm
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
+import java.math.BigInteger
+import java.security.Signature
 
 internal class CryptoTest {
 
-    // KeyPair
     @Test
     fun `Can generate KeyPair`() {
         val keyPair = Crypto.generateKeyPair()
@@ -23,7 +24,6 @@ internal class CryptoTest {
         assertNotEquals(keyPair1.public, keyPair2.public)
     }
 
-    // PrivateKey
     @Test
     fun `Can decode private key`() {
         val keyPair = Crypto.generateKeyPair()
@@ -39,7 +39,6 @@ internal class CryptoTest {
         }
     }
 
-    // PublicKey
     @Test
     fun `Can decode public key`() {
         val keyPair = Crypto.generateKeyPair()
@@ -55,14 +54,12 @@ internal class CryptoTest {
         }
     }
 
-    // Crypto
     @Test
     fun `Get signer`() {
         val keyPair = Crypto.generateKeyPair()
         val signer = Crypto.getSigner(keyPair.private)
         assertNotNull(signer)
     }
-
     @Test
     fun `Get hasher`() {
         val hasher = Crypto.getHasher()
@@ -70,27 +67,37 @@ internal class CryptoTest {
     }
 
     @Test
-    fun `Normalize signature`() {
+    fun `Test normalizeSignature`() {
         val keyPair = Crypto.generateKeyPair()
-        val data = "test".toByteArray()
 
-        val originalSignature = Crypto.getSigner(keyPair.private).sign(data)
-        val normalizedSignature = Crypto.normalizeSignature(originalSignature, keyPair.private.ecCoupleComponentSize)
+        val ecdsaSign = Signature.getInstance(HashAlgorithm.SHA3_256.id)
+        ecdsaSign.initSign(keyPair.private.key)
+        ecdsaSign.update("test".toByteArray())
 
-        assertEquals(2 * keyPair.private.ecCoupleComponentSize, normalizedSignature.size)
+        val signature = ecdsaSign.sign()
+
+        val normalizedSignature = Crypto.normalizeSignature(signature, keyPair.private.ecCoupleComponentSize)
+
+        val expectedLength = 2 * keyPair.private.ecCoupleComponentSize
+        assertEquals(expectedLength, normalizedSignature.size)
     }
 
     @Test
-    fun `Extract RS from valid signature`() {
+    fun `Test extractRS`() {
         val keyPair = Crypto.generateKeyPair()
-        val signer = SignerImpl(keyPair.private, HashAlgorithm.SHA3_256)
-        val signature = signer.sign("test".toByteArray())
+
+        val ecdsaSign = Signature.getInstance(HashAlgorithm.SHA3_256.id)
+        ecdsaSign.initSign(keyPair.private.key)
+
+        println(keyPair.private.key)
+        ecdsaSign.update("test".toByteArray())
+
+        val signature = ecdsaSign.sign()
 
         val (r, s) = Crypto.extractRS(signature)
-        println(r)
-        println(s)
 
-        // Assert
+        assertTrue(r > BigInteger.ZERO)
+        assertTrue(s > BigInteger.ZERO)
     }
 
     @Test
@@ -107,7 +114,4 @@ internal class CryptoTest {
         val signature = signer.sign("test".toByteArray())
         assertNotNull(signature)
     }
-
-    // test exception handling on sign()
-
 }
