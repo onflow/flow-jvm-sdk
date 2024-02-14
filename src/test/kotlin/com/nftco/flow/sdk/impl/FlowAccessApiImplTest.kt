@@ -1,7 +1,5 @@
 package com.nftco.flow.sdk.impl
 
-import com.google.common.util.concurrent.ListenableFuture
-import com.google.common.util.concurrent.SettableFuture
 import com.google.protobuf.ByteString
 import com.nftco.flow.sdk.*
 import org.junit.jupiter.api.AfterEach
@@ -376,7 +374,6 @@ class FlowAccessApiImplTest {
 
     @Test
     fun `test getEventsForBlockIds`() {
-
         val type = "event_type"
         val blockIds = setOf(FlowId("01"), FlowId("02"))
 
