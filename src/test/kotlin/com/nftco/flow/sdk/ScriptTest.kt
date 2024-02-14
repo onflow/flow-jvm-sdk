@@ -45,13 +45,11 @@ class TestClassConverterJson : JsonCadenceConverter<TestClass> {
 
 @FlowEmulatorProjectTest(flowJsonLocation = "flow/flow.json")
 class ScriptTest {
-
     @FlowTestClient
     lateinit var accessAPI: FlowAccessApi
 
     @Test
     fun `Can execute a script`() {
-
         val result = accessAPI.simpleFlowScript {
             script {
                 """
@@ -110,7 +108,6 @@ class ScriptTest {
 
     @Test
     fun `Test domain tags`() {
-
         val pairA = Crypto.generateKeyPair(SignatureAlgorithm.ECDSA_P256)
         val signerA = Crypto.getSigner(pairA.private, HashAlgorithm.SHA3_256)
 

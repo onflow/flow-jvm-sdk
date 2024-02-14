@@ -21,27 +21,19 @@ import java.math.BigDecimal
 @ExtendWith(FlowEmulatorProjectTestExtension::class)
 @API(status = API.Status.STABLE, since = "5.0")
 annotation class FlowEmulatorProjectTest(
-
     val executable: String = "flow",
-
     val arguments: String = "--log debug --verbose",
-
     val host: String = "localhost",
-
     val port: Int = -1,
     val restPort: Int = -1,
     val adminPort: Int = -1,
-
     val postStartCommands: Array<FlowEmulatorCommand> = [],
-
     /**
      * Location of flow.json, can also be in the classpath or
      * a directory containing flow.json.
      */
     val flowJsonLocation: String = "flow.json",
-
     val pidFilename: String = "flow-emulator-project.pid",
-
     val serviceAccountAddress: String = "",
     val serviceAccountPublicKey: String = "",
     val serviceAccountPrivateKey: String = "",

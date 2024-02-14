@@ -3,10 +3,9 @@ package com.nftco.flow.sdk
 import com.google.protobuf.ByteString
 
 interface FlowAccessApi {
-
     fun ping()
 
-    fun getLatestBlockHeader(): FlowBlockHeader
+    fun getLatestBlockHeader(sealed: Boolean = true): FlowBlockHeader
 
     fun getBlockHeaderById(id: FlowId): FlowBlockHeader?
 

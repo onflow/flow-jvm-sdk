@@ -47,7 +47,6 @@ class FlowTransactionStub(
     private val api: FlowAccessApi,
     private val builder: TransactionBuilder
 ) {
-
     var transaction: FlowTransaction? = null
         private set
 
@@ -472,7 +471,6 @@ class PendingSignature(
     val signer: Signer? = null,
     val signature: FlowSignature? = null,
 ) {
-
     fun applyAsPayloadSignature(tx: FlowTransaction): FlowTransaction {
         return when {
             prepared != null -> {

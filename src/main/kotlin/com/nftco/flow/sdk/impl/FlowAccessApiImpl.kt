@@ -10,7 +10,6 @@ import java.io.Closeable
 class FlowAccessApiImpl(
     private val api: AccessAPIGrpc.AccessAPIBlockingStub
 ) : FlowAccessApi, Closeable {
-
     override fun close() {
         val chan = api.channel
         if (chan is ManagedChannel) {
@@ -25,9 +24,10 @@ class FlowAccessApiImpl(
         )
     }
 
-    override fun getLatestBlockHeader(): FlowBlockHeader {
+    override fun getLatestBlockHeader(sealed: Boolean): FlowBlockHeader {
         val ret = api.getLatestBlockHeader(
             Access.GetLatestBlockHeaderRequest.newBuilder()
+                .setIsSealed(sealed)
                 .build()
         )
         return FlowBlockHeader.of(ret.block)

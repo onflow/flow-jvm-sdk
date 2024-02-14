@@ -4,10 +4,9 @@ import com.google.protobuf.ByteString
 import java.util.concurrent.CompletableFuture
 
 interface AsyncFlowAccessApi {
-
     fun ping(): CompletableFuture<Unit>
 
-    fun getLatestBlockHeader(): CompletableFuture<FlowBlockHeader>
+    fun getLatestBlockHeader(sealed: Boolean = true): CompletableFuture<FlowBlockHeader>
 
     fun getBlockHeaderById(id: FlowId): CompletableFuture<FlowBlockHeader?>
 

@@ -67,6 +67,7 @@ annotation class FlowTestAccount(
 @API(status = API.Status.STABLE, since = "5.0")
 annotation class FlowTestContractDeployment(
     val name: String,
+    val alias: String = "",
     val addToRegistry: Boolean = true,
     val code: String = "",
     val codeClasspathLocation: String = "",
@@ -136,7 +137,6 @@ data class Emulator(
 )
 
 abstract class AbstractFlowEmulatorExtension : BeforeEachCallback, AfterEachCallback, TestExecutionExceptionHandler {
-
     var process: Process? = null
     var pidFile: File? = null
     var accessApi: FlowAccessApiImpl? = null
@@ -148,7 +148,7 @@ abstract class AbstractFlowEmulatorExtension : BeforeEachCallback, AfterEachCall
         val tests = (
             context.testInstances.map { it.allInstances.toSet() }.orElseGet { emptySet() }
                 + context.testInstance.map { setOf(it) }.orElseGet { emptySet() }
-            )
+        )
 
         tests.map { it to it.javaClass.fields }
             .flatMap { it.second.map { f -> it.first to f } }
@@ -157,8 +157,8 @@ abstract class AbstractFlowEmulatorExtension : BeforeEachCallback, AfterEachCall
     }
 
     override fun beforeEach(context: ExtensionContext) {
-
         Flow.configureDefaults(chainId = FlowChainId.EMULATOR)
+        Flow.DEFAULT_ADDRESS_REGISTRY.defaultChainId = FlowChainId.EMULATOR
 
         val emulator = launchEmulator(context)
         this.process = emulator.process
@@ -263,7 +263,8 @@ abstract class AbstractFlowEmulatorExtension : BeforeEachCallback, AfterEachCall
                     .throwOnError()
 
                 if (deployable.addToRegistry) {
-                    Flow.DEFAULT_ADDRESS_REGISTRY.register(deployable.name, testAccount.flowAddress, FlowChainId.EMULATOR)
+                    val alias = deployable.alias.ifEmpty { "0x${deployable.name.uppercase()}" }
+                    Flow.DEFAULT_ADDRESS_REGISTRY.register(alias, testAccount.flowAddress, FlowChainId.EMULATOR)
                 }
             }
         }

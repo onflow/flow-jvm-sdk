@@ -182,9 +182,9 @@ This SDK requires Java Developer Kit (JDK) 8 or newer.
 
 ## Credit
 
-The Flow JVM SDK is maintained by 
-[@briandilley](https://github.com/briandilley) and 
-[@jereanon](https://github.com/jereanon) from
-[The NFT Company](https://nftco.com/).
-
-[![NFTco](nftco.svg)](https://nftco.com/)
+The Flow JVM SDK maintainers have included
+* [The NFT Company](https://nftco.com)
+   * [@briandilley](https://github.com/briandilley)  
+   * [@jereanon](https://github.com/jereanon) 
+* [Purple Dash](https://purpledash.dev)
+   * [@lealobanov](https://github.com/lealobanov)

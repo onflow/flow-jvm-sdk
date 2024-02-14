@@ -5,7 +5,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 internal class AddressRegistryTest {
-
     val registry = AddressRegistry()
 
     @BeforeEach

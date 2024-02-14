@@ -59,6 +59,7 @@ enum class SignatureAlgorithm(
     UNKNOWN("unknown", "unknown", "unknown", -1, 0),
     ECDSA_P256("ECDSA", "P-256", "ECDSA_P256", 2, 1),
     ECDSA_SECP256k1("ECDSA", "secp256k1", "ECDSA_secp256k1", 3, 2);
+
     companion object {
         @JvmStatic
         fun fromCode(code: Int): SignatureAlgorithm = values()
@@ -82,6 +83,7 @@ enum class HashAlgorithm(
     SHA2_384("SHA-384", 384, "SHA384withECDSA", 1, 2),
     SHA3_256("SHA3-256", 256, "SHA3-256withECDSA", 3, 3),
     SHA3_384("SHA3-384", 384, "SHA3-384withECDSA", 3, 4);
+
     companion object {
         @JvmStatic
         fun fromCode(code: Int): HashAlgorithm = values()
@@ -94,7 +96,6 @@ enum class HashAlgorithm(
 }
 
 interface Signer {
-
     val hasher: Hasher
 
     fun sign(bytes: ByteArray): ByteArray
@@ -362,7 +363,6 @@ data class FlowTransaction(
     val payloadSignatures: List<FlowTransactionSignature> = emptyList(),
     val envelopeSignatures: List<FlowTransactionSignature> = emptyList()
 ) : Serializable {
-
     private val payload: Payload
         get() = Payload(
             script = script.bytes,
@@ -647,7 +647,7 @@ data class FlowBlock(
     val timestamp: LocalDateTime,
     val collectionGuarantees: List<FlowCollectionGuarantee>,
     val blockSeals: List<FlowBlockSeal>,
-    val signatures: List<FlowSignature>
+    val signatures: List<FlowSignature>,
 ) : Serializable {
     companion object {
         @JvmStatic
@@ -759,8 +759,7 @@ data class FlowAddress private constructor(override val bytes: ByteArray) : Seri
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
         other as FlowAddress
-        if (!bytes.contentEquals(other.bytes)) return false
-        return true
+        return bytes.contentEquals(other.bytes)
     }
 
     val formatted: String = "0x$base16Value"
@@ -771,7 +770,6 @@ data class FlowAddress private constructor(override val bytes: ByteArray) : Seri
 }
 
 data class FlowArgument(override val bytes: ByteArray) : Serializable, BytesHolder {
-
     constructor(jsonCadence: Field<*>) : this(Flow.encodeJsonCadence(jsonCadence))
 
     private var _jsonCadence: Field<*>? = null
@@ -787,8 +785,7 @@ data class FlowArgument(override val bytes: ByteArray) : Serializable, BytesHold
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
         other as FlowArgument
-        if (!bytes.contentEquals(other.bytes)) return false
-        return true
+        return bytes.contentEquals(other.bytes)
     }
 
     override fun hashCode(): Int {
@@ -802,8 +799,7 @@ data class FlowScript(override val bytes: ByteArray) : Serializable, BytesHolder
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
         other as FlowScript
-        if (!bytes.contentEquals(other.bytes)) return false
-        return true
+        return bytes.contentEquals(other.bytes)
     }
 
     override fun hashCode(): Int {
@@ -812,7 +808,6 @@ data class FlowScript(override val bytes: ByteArray) : Serializable, BytesHolder
 }
 
 data class FlowScriptResponse(override val bytes: ByteArray) : Serializable, BytesHolder {
-
     constructor(jsonCadence: Field<*>) : this(Flow.encodeJsonCadence(jsonCadence))
 
     private var _jsonCadence: Field<*>? = null
@@ -828,8 +823,7 @@ data class FlowScriptResponse(override val bytes: ByteArray) : Serializable, Byt
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
         other as FlowScriptResponse
-        if (!bytes.contentEquals(other.bytes)) return false
-        return true
+        return bytes.contentEquals(other.bytes)
     }
 
     override fun hashCode(): Int {
@@ -837,14 +831,19 @@ data class FlowScriptResponse(override val bytes: ByteArray) : Serializable, Byt
     }
 }
 
+@kotlin.jvm.Throws
+fun FlowScriptResponse.decodeToAny() { jsonCadence.decodeToAny() }
+
+@kotlin.jvm.Throws
+inline fun <reified T> FlowScriptResponse.decode(): T = jsonCadence.decode()
+
 data class FlowSignature(override val bytes: ByteArray) : Serializable, BytesHolder {
     constructor(hex: String) : this(hex.hexToBytes())
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
         other as FlowSignature
-        if (!bytes.contentEquals(other.bytes)) return false
-        return true
+        return bytes.contentEquals(other.bytes)
     }
 
     override fun hashCode(): Int {
@@ -862,8 +861,7 @@ data class FlowId private constructor(override val bytes: ByteArray) : Serializa
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
         other as FlowId
-        if (!bytes.contentEquals(other.bytes)) return false
-        return true
+        return bytes.contentEquals(other.bytes)
     }
 
     override fun hashCode(): Int {
@@ -876,8 +874,7 @@ data class FlowCode(override val bytes: ByteArray) : Serializable, BytesHolder {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
         other as FlowCode
-        if (!bytes.contentEquals(other.bytes)) return false
-        return true
+        return bytes.contentEquals(other.bytes)
     }
 
     override fun hashCode(): Int {
@@ -891,8 +888,7 @@ data class FlowPublicKey(override val bytes: ByteArray) : Serializable, BytesHol
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
         other as FlowPublicKey
-        if (!bytes.contentEquals(other.bytes)) return false
-        return true
+        return bytes.contentEquals(other.bytes)
     }
 
     override fun hashCode(): Int {
@@ -905,8 +901,7 @@ data class FlowSnapshot(override val bytes: ByteArray) : Serializable, BytesHold
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
         other as FlowSnapshot
-        if (!bytes.contentEquals(other.bytes)) return false
-        return true
+        return bytes.contentEquals(other.bytes)
     }
 
     override fun hashCode(): Int {
@@ -915,7 +910,6 @@ data class FlowSnapshot(override val bytes: ByteArray) : Serializable, BytesHold
 }
 
 data class FlowEventPayload(override val bytes: ByteArray) : Serializable, BytesHolder {
-
     constructor(jasonCadence: Field<*>) : this(Flow.encodeJsonCadence(jasonCadence))
 
     private var _jsonCadence: Field<*>? = null
@@ -931,11 +925,16 @@ data class FlowEventPayload(override val bytes: ByteArray) : Serializable, Bytes
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
         other as FlowEventPayload
-        if (!bytes.contentEquals(other.bytes)) return false
-        return true
+        return bytes.contentEquals(other.bytes)
     }
 
     override fun hashCode(): Int {
         return bytes.contentHashCode()
     }
 }
+
+@kotlin.jvm.Throws
+fun FlowEventPayload.decodeToAny() { jsonCadence.decodeToAny() }
+
+@kotlin.jvm.Throws
+inline fun <reified T> FlowEventPayload.decode(): T = jsonCadence.decode()

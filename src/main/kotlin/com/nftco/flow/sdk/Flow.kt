@@ -14,7 +14,6 @@ import com.nftco.flow.sdk.impl.FlowAccessApiImpl
 import kotlin.reflect.KClass
 
 object Flow {
-
     const val DEFAULT_USER_AGENT = "Flow JVM SDK"
 
     const val DEFAULT_MAX_MESSAGE_SIZE = 16777216

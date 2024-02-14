@@ -8,7 +8,6 @@ fun parseErrorCode(message: String): Int? = message
     ?.toIntOrNull()
 
 enum class FlowError(val code: Int) {
-
     FLOW_ERROR_InvalidTxByteSizeError(FlowErrorCodeInvalidTxByteSizeError),
     FLOW_ERROR_InvalidReferenceBlockError(FlowErrorCodeInvalidReferenceBlockError),
     FLOW_ERROR_ExpiredTransactionError(FlowErrorCodeExpiredTransactionError),

@@ -20,7 +20,6 @@ annotation class JsonCadenceConversion(
 data class CadenceNamespace(
     val parts: List<String> = emptyList()
 ) {
-
     companion object {
         @JvmStatic
         fun ns(vararg values: String): CadenceNamespace = CadenceNamespace(*values)
@@ -64,7 +63,6 @@ interface JsonCadenceConverter<T> {
 }
 
 object JsonCadenceMarshalling {
-
     private val MARSHALLER_CACHE_JSON: MutableMap<KClass<*>, JsonCadenceConverter<*>> = mutableMapOf()
 
     @JvmStatic
@@ -159,7 +157,7 @@ class JsonCadenceBuilder {
     fun event(block: JsonCadenceBuilder.() -> CompositeValue): EventField = EventField(block())
     fun contract(value: CompositeValue): ContractField = ContractField(value)
     fun contract(block: JsonCadenceBuilder.() -> CompositeValue): ContractField = ContractField(block())
-    fun <T : Enum<T>> enum(value: T, namespace: CadenceNamespace = CadenceNamespace()): EnumField = enum(namespace.withNamespace(value.declaringClass.simpleName), uint8(value.ordinal))
+    fun <T : Enum<T>> enum(value: T, namespace: CadenceNamespace = CadenceNamespace()): EnumField = enum(namespace.withNamespace(value.declaringJavaClass.simpleName), uint8(value.ordinal))
     fun enum(value: CompositeValue): EnumField = EnumField(value)
     fun enum(block: JsonCadenceBuilder.() -> CompositeValue): EnumField = EnumField(block())
     fun enum(id: String, value: Field<*>): EnumField = EnumField(compositeOfPairs(id) { listOf("rawValue" to value) })

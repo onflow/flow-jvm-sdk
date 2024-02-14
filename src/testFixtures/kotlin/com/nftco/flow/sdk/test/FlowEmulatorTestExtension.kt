@@ -22,17 +22,11 @@ import java.math.BigDecimal
 @ExtendWith(FlowEmulatorTestExtension::class)
 @API(status = API.Status.STABLE, since = "5.0")
 annotation class FlowEmulatorTest(
-
     val executable: String = "flow",
-
     val host: String = "localhost",
-
     val postStartCommands: Array<FlowEmulatorCommand> = [],
-
     val pidFilename: String = "flow-emulator.pid",
-
     val signAlgo: SignatureAlgorithm = SignatureAlgorithm.ECDSA_P256,
-
     val hashAlgo: HashAlgorithm = HashAlgorithm.SHA3_256
 )
 
@@ -59,8 +53,7 @@ class FlowEmulatorTestExtension : AbstractFlowEmulatorExtension() {
 
         val args = """
             --verbose --grpc-debug 
-            --service-priv-key=${serviceKeyPair.private.hex}
-            --service-pub-key=${serviceKeyPair.public.hex}
+            --service-priv-key=${serviceKeyPair.private.hex.replace(Regex("^(00)+"), "")}
             --service-sig-algo=${config.signAlgo.name.uppercase()}
             --service-hash-algo=${config.hashAlgo.name.uppercase()}
         """.trimIndent()

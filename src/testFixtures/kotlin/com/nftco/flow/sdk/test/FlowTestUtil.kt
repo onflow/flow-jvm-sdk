@@ -10,7 +10,6 @@ import java.math.BigDecimal
 import kotlin.io.path.createTempDirectory
 
 object FlowTestUtil {
-
     @JvmStatic
     @JvmOverloads
     fun deployContracts(
@@ -151,7 +150,6 @@ object FlowTestUtil {
         classLoader: ClassLoader = AbstractFlowEmulatorExtension::class.java.classLoader,
         pidFilename: String = "flow-emulator.pid"
     ): Pair<Process, File> {
-
         var flowJson: String? = null
 
         val pidFile = File(System.getProperty("java.io.tmpdir"), pidFilename)
@@ -221,7 +219,7 @@ object FlowTestUtil {
             (
                 listOf("${System.getProperty("user.home")}/.local/bin", "/usr/local/bin", "/usr/bin", "/bin")
                     + (System.getenv()["PATH"]?.split(File.pathSeparator) ?: emptyList())
-                )
+            )
                 .map { File(it, "flow") }
                 .find { it.exists() }
                 ?: throw IOException("flow command not found")

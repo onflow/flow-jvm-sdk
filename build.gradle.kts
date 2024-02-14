@@ -1,8 +1,8 @@
-// configuration variables
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-val javaTargetVersion = "1.8"
+// configuration variables
 val defaultGroupId = "com.nftco"
-val defaultVersion = "0.7.1-SNAPSHOT"
+val defaultVersion = "0.7.4-SNAPSHOT"
 
 // other variables
 
@@ -20,16 +20,17 @@ version = when {
 }
 
 plugins {
-    id("org.jetbrains.dokka") version "1.6.10"
-    kotlin("jvm") version "1.5.10"
+    id("org.jetbrains.dokka") version "1.9.10"
+    kotlin("jvm") version "1.9.22"
     idea
     jacoco
     signing
     `java-library`
     `java-test-fixtures`
     `maven-publish`
-    id("io.github.gradle-nexus.publish-plugin") version "1.0.0"
-    id("org.jmailen.kotlinter") version "3.4.0"
+    id("io.github.gradle-nexus.publish-plugin") version "2.0.0-rc-1"
+    id("org.jmailen.kotlinter") version "4.2.0"
+    id("kotlinx-serialization") version "1.8.0"
 }
 
 repositories {
@@ -39,23 +40,46 @@ repositories {
 }
 
 dependencies {
-    api("org.jetbrains.kotlin:kotlin-reflect:1.5.10")
-    dokkaHtmlPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:1.6.0")
+    api("org.jetbrains.kotlin:kotlin-reflect:1.9.22")
+    dokkaHtmlPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:1.9.10")
 
     api("org.onflow:flow:0.21")
 
     api("com.github.TrustedDataFramework:java-rlp:1.1.20")
 
-    api("org.bouncycastle:bcpkix-jdk15on:1.69")
+    api("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
 
-    api(platform("com.fasterxml.jackson:jackson-bom:2.12.2"))
+    api("org.bouncycastle:bcpkix-jdk18on:1.76")
+
+    api(platform("com.fasterxml.jackson:jackson-bom:2.16.1"))
     api("com.fasterxml.jackson.core:jackson-core")
     api("com.fasterxml.jackson.module:jackson-module-kotlin")
 
-    testApi("org.junit.jupiter:junit-jupiter:5.8.2")
-    testApi("org.assertj:assertj-core:3.21.0")
+    testApi("org.junit.jupiter:junit-jupiter:5.10.1")
+    testApi("org.assertj:assertj-core:3.25.1")
 
-    testFixturesImplementation("org.junit.jupiter:junit-jupiter:5.8.2")
+    testFixturesImplementation("org.junit.jupiter:junit-jupiter:5.10.1")
+    testFixturesImplementation("org.mockito:mockito-core:3.12.4")
+}
+
+tasks.withType<KotlinCompile> {
+    kotlinOptions.apply {
+        jvmTarget = JavaVersion.VERSION_20.toString()
+        freeCompilerArgs = listOf("-Xjsr305=strict", "-opt-in=kotlin.RequiresOptIn")
+    }
+}
+
+tasks.named<KotlinCompile>("compileTestKotlin") {
+    kotlinOptions.apply {
+        jvmTarget = JavaVersion.VERSION_20.toString()
+        freeCompilerArgs = listOf("-Xjvm-default=all", "-opt-in=com.squareup.kotlinpoet.metadata.KotlinPoetMetadataPreview")
+        allWarningsAsErrors = false
+    }
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_20
+    targetCompatibility = JavaVersion.VERSION_20
 }
 
 tasks {
@@ -71,58 +95,21 @@ tasks {
         finalizedBy("jacocoTestReport")
     }
 
-    compileKotlin {
-        sourceCompatibility = javaTargetVersion
-        targetCompatibility = javaTargetVersion
-
-        kotlinOptions {
-            jvmTarget = javaTargetVersion
-            apiVersion = "1.5"
-            languageVersion = "1.5"
-            freeCompilerArgs = listOf("-Xjsr305=strict", "-Xopt-in=kotlin.RequiresOptIn")
-        }
-    }
-
-    compileTestKotlin {
-        sourceCompatibility = javaTargetVersion
-        targetCompatibility = javaTargetVersion
-
-        kotlinOptions {
-            jvmTarget = javaTargetVersion
-        }
-    }
-
-    java {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
-    }
-
     jacocoTestReport {
         dependsOn(test)
         reports {
-            html.isEnabled = true
-            xml.isEnabled = true
-            csv.isEnabled = false
+            html.required = true
+            xml.required = true
+            csv.required = false
         }
     }
 
     jacoco {
-        toolVersion = "0.8.7"
+        toolVersion = "0.8.11"
     }
 
     kotlinter {
-        ignoreFailures = false
-        indentSize = 4
         reporters = arrayOf("checkstyle", "plain", "html")
-        experimentalRules = false
-
-        // be sure to update .editorconfig in the root as well
-        disabledRules = arrayOf(
-            "filename",
-            "no-wildcard-imports",
-            "import-ordering",
-            "chain-wrapping"
-        )
     }
 
     val documentationJar by creating(Jar::class) {

@@ -1,7 +1,6 @@
 package com.nftco.flow.sdk
 
 object DomainTag {
-
     @JvmStatic
     val TRANSACTION_DOMAIN_TAG = normalize("FLOW-V0.0-transaction")
 

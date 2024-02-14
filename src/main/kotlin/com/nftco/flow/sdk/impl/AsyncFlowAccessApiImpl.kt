@@ -15,7 +15,6 @@ import java.util.concurrent.CompletableFuture
 class AsyncFlowAccessApiImpl(
     private val api: AccessAPIGrpc.AccessAPIFutureStub
 ) : AsyncFlowAccessApi, Closeable {
-
     override fun close() {
         val chan = api.channel
         if (chan is ManagedChannel) {
@@ -34,10 +33,11 @@ class AsyncFlowAccessApiImpl(
         }
     }
 
-    override fun getLatestBlockHeader(): CompletableFuture<FlowBlockHeader> {
+    override fun getLatestBlockHeader(sealed: Boolean): CompletableFuture<FlowBlockHeader> {
         return completableFuture(
             api.getLatestBlockHeader(
                 Access.GetLatestBlockHeaderRequest.newBuilder()
+                    .setIsSealed(sealed)
                     .build()
             )
         ).thenApply {

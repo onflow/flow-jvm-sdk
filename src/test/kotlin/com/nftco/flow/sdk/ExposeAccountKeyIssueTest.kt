@@ -11,7 +11,6 @@ import java.math.BigDecimal
 
 @FlowEmulatorTest
 class ExposeAccountKeyIssueTest {
-
     @FlowTestClient
     lateinit var flow: FlowAccessApi
 

@@ -15,7 +15,6 @@ import org.junit.jupiter.api.Test
     serviceAccountKeyIndex = 0
 )
 class ProjectTestExtensionsTest {
-
     @FlowTestClient
     lateinit var accessAPI: FlowAccessApi
 

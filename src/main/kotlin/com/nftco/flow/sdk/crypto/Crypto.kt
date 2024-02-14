@@ -33,7 +33,6 @@ data class PublicKey(
 )
 
 object Crypto {
-
     init {
         Security.addProvider(BouncyCastleProvider())
     }
@@ -160,7 +159,6 @@ object Crypto {
 internal class HasherImpl(
     private val hashAlgo: HashAlgorithm
 ) : Hasher {
-
     override fun hash(bytes: ByteArray): ByteArray {
         val digest = MessageDigest.getInstance(hashAlgo.algorithm)
         return digest.digest(bytes)
@@ -172,9 +170,7 @@ internal class SignerImpl(
     private val hashAlgo: HashAlgorithm,
     override val hasher: Hasher = HasherImpl(hashAlgo)
 ) : Signer {
-
     override fun sign(bytes: ByteArray): ByteArray {
-
         val ecdsaSign = Signature.getInstance(hashAlgo.id)
         ecdsaSign.initSign(privateKey.key)
         ecdsaSign.update(bytes)

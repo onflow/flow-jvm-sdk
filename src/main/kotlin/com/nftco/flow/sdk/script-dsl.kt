@@ -24,7 +24,6 @@ fun FlowAccessApi.simpleFlowScript(block: ScriptBuilder.() -> Unit): FlowScriptR
 }
 
 class ScriptBuilder {
-
     var addressRegistry: AddressRegistry = Flow.DEFAULT_ADDRESS_REGISTRY
     private var _chainId: FlowChainId = Flow.DEFAULT_CHAIN_ID
     private var _script: FlowScript? = null

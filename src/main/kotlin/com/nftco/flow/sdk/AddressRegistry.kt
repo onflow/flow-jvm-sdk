@@ -5,7 +5,6 @@ package com.nftco.flow.sdk
  * token replacement on them with the appropriate addresses.
  */
 class AddressRegistry {
-
     companion object {
         const val FUNGIBLE_TOKEN = "0xFUNGIBLETOKEN"
         const val FLOW_TOKEN = "0xFLOWTOKEN"
