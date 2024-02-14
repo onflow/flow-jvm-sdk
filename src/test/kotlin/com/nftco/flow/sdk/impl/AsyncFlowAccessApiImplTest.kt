@@ -16,7 +16,6 @@ import java.math.BigDecimal
 import java.time.LocalDateTime
 
 class AsyncFlowAccessApiImplTest {
-
     private val api = mock(AccessAPIGrpc.AccessAPIFutureStub::class.java)
     private val asyncFlowAccessApi = AsyncFlowAccessApiImpl(api)
 
@@ -377,7 +376,6 @@ class AsyncFlowAccessApiImplTest {
 
     @Test
     fun `test getEventsForBlockIds`() {
-
         val type = "event_type"
         val blockIds = setOf(FlowId("01"), FlowId("02"))
 
@@ -416,4 +414,21 @@ class AsyncFlowAccessApiImplTest {
         assertEquals(mockFlowChainId, result)
     }
 
+    @Test
+    fun `test getLatestProtocolStateSnapshot`() {
+        val mockFlowSnapshot = FlowSnapshot("test_serialized_snapshot".toByteArray())
+
+        val protocolStateSnapshotResponse = Access.ProtocolStateSnapshotResponse.newBuilder()
+            .setSerializedSnapshot(ByteString.copyFromUtf8("test_serialized_snapshot"))
+            .build()
+
+        val future: ListenableFuture<Access.ProtocolStateSnapshotResponse> = SettableFuture.create()
+        (future as SettableFuture<Access.ProtocolStateSnapshotResponse>).set(protocolStateSnapshotResponse)
+
+        `when`(api.getLatestProtocolStateSnapshot(any())).thenReturn(future)
+
+        val result = asyncFlowAccessApi.getLatestProtocolStateSnapshot().get()
+
+        assertEquals(mockFlowSnapshot, result)
+    }
 }
