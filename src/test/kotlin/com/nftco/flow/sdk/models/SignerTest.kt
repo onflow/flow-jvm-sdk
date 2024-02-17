@@ -10,7 +10,7 @@ import com.nftco.flow.sdk.Hasher
 class SignerTest {
     lateinit var hasher: Hasher
 
-    lateinit var signer: Signer
+    private lateinit var signer: Signer
 
     @BeforeEach
     fun setUp() {

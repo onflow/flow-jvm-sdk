@@ -1,13 +1,11 @@
 package com.nftco.flow.sdk.cadence.fields
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.nftco.flow.sdk.cadence.*
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
 class JsonCadenceBuilderFieldTest {
-    private val objectMapper = ObjectMapper()
     @Test
     fun `Test equality for Field with the same type and value`() {
         val field1 = SampleField(TYPE_STRING, "value")

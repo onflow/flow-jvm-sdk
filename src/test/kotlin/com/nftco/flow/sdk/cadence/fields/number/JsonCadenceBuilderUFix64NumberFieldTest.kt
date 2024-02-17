@@ -21,7 +21,7 @@ class JsonCadenceBuilderUFix64NumberFieldTest {
     @Test
     fun `Test decoding of UFix64NumberField with large value`() {
         val ufix64Field = UFix64NumberField("9876543210.123456789")
-        assertEquals(9876543210.123456789, ufix64Field.decodeToAny())
+        assertEquals(9.876543210123457E9, ufix64Field.decodeToAny())
     }
 
     @Test

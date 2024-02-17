@@ -1,3 +1,5 @@
+package com.nftco.flow.sdk.cadence.fields.composite
+
 import com.nftco.flow.sdk.cadence.*
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test

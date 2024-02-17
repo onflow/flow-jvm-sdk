@@ -36,8 +36,8 @@ class FlowTransactionProposalKeyTest {
 
         val proposalKeyBuilder = flowProposalKey.builder()
 
-        assertEquals(address.byteStringValue, proposalKeyBuilder.getAddress())
-        assertEquals(keyIndex, proposalKeyBuilder.getKeyId())
-        assertEquals(sequenceNumber, proposalKeyBuilder.getSequenceNumber())
+        assertEquals(address.byteStringValue, proposalKeyBuilder.address)
+        assertEquals(keyIndex, proposalKeyBuilder.keyId)
+        assertEquals(sequenceNumber, proposalKeyBuilder.sequenceNumber)
     }
 }

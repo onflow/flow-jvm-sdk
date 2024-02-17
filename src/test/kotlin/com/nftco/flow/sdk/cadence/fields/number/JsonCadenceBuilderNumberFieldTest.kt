@@ -95,7 +95,7 @@ class JsonCadenceBuilderNumberFieldTest {
     @Test
     fun `Test converting NumberField to ULong`() {
         val field = NumberField(TYPE_UINT64, "18446744073709551615")
-        assertEquals(18446744073709551615u.toULong(), field.toULong())
+        assertEquals(18446744073709551615u, field.toULong())
     }
 
     @Test
