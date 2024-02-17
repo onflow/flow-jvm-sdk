@@ -5,6 +5,6 @@ object TestUtils {
 
     fun newTestnetAccessApi(): FlowAccessApi = Flow.newAccessApi(TESTNET_HOSTNAME)
 
-    val MAINNET_HOSTNAME = "access.mainnet.nodes.onflow.org"
-    val TESTNET_HOSTNAME = "access.devnet.nodes.onflow.org"
+    private const val MAINNET_HOSTNAME = "access.mainnet.nodes.onflow.org"
+    private const val TESTNET_HOSTNAME = "access.devnet.nodes.onflow.org"
 }

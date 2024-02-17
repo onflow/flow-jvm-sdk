@@ -130,15 +130,14 @@ object Crypto {
     fun normalizeSignature(signature: ByteArray, ecCoupleComponentSize: Int): ByteArray {
         val (r, s) = extractRS(signature)
 
-        val nLen = ecCoupleComponentSize
-        val paddedSignature = ByteArray(2 * nLen)
+        val paddedSignature = ByteArray(2 * ecCoupleComponentSize)
 
         val rBytes = r.toByteArray()
         val sBytes = s.toByteArray()
 
         // occasionally R/S bytes representation has leading zeroes, so make sure we trim them appropriately
-        rBytes.copyInto(paddedSignature, max(nLen - rBytes.size, 0), max(0, rBytes.size - nLen))
-        sBytes.copyInto(paddedSignature, max(2 * nLen - sBytes.size, nLen), max(0, sBytes.size - nLen))
+        rBytes.copyInto(paddedSignature, max(ecCoupleComponentSize - rBytes.size, 0), max(0, rBytes.size - ecCoupleComponentSize))
+        sBytes.copyInto(paddedSignature, max(2 * ecCoupleComponentSize - sBytes.size, ecCoupleComponentSize), max(0, sBytes.size - ecCoupleComponentSize))
 
         return paddedSignature
     }

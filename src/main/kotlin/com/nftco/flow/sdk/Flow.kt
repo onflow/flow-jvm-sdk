@@ -14,11 +14,11 @@ import com.nftco.flow.sdk.impl.FlowAccessApiImpl
 import kotlin.reflect.KClass
 
 object Flow {
-    const val DEFAULT_USER_AGENT = "Flow JVM SDK"
+    private const val DEFAULT_USER_AGENT = "Flow JVM SDK"
 
-    const val DEFAULT_MAX_MESSAGE_SIZE = 16777216
+    private const val DEFAULT_MAX_MESSAGE_SIZE = 16777216
 
-    var OBJECT_MAPPER: ObjectMapper
+    private var OBJECT_MAPPER: ObjectMapper = ObjectMapper()
 
     var DEFAULT_CHAIN_ID: FlowChainId = FlowChainId.MAINNET
         private set
@@ -27,7 +27,6 @@ object Flow {
         private set
 
     init {
-        OBJECT_MAPPER = ObjectMapper()
         OBJECT_MAPPER.registerKotlinModule()
         OBJECT_MAPPER.findAndRegisterModules()
     }

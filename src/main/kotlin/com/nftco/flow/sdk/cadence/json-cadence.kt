@@ -417,7 +417,7 @@ open class DictionaryField(value: Array<DictionaryFieldEntry>) : Field<Array<Dic
     constructor(value: Iterable<DictionaryFieldEntry>) : this(value.toList().toTypedArray())
 
     companion object {
-        fun fromPairs(value: Iterable<Pair<Field<*>, Field<*>>>): DictionaryField {
+        private fun fromPairs(value: Iterable<Pair<Field<*>, Field<*>>>): DictionaryField {
             return DictionaryField(value.map { DictionaryFieldEntry(it) }.toTypedArray())
         }
 

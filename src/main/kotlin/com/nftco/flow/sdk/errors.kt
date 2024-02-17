@@ -1,6 +1,6 @@
 package com.nftco.flow.sdk
 
-val ERROR_CODE_REGEX = Regex(".*\\[Error Code: ([0-9]+)\\].*", RegexOption.DOT_MATCHES_ALL)
+val ERROR_CODE_REGEX = Regex(".*\\[Error Code: ([0-9]+)].*", RegexOption.DOT_MATCHES_ALL)
 
 fun parseErrorCode(message: String): Int? = message
     .let { ERROR_CODE_REGEX.matchEntire(it) }
@@ -48,7 +48,7 @@ enum class FlowError(val code: Int) {
 
     companion object {
         @JvmStatic
-        fun forErrorCode(code: Int): FlowError? = FlowError.values()
+        fun forErrorCode(code: Int): FlowError? = entries
             .find { it.code == code }
     }
 }
