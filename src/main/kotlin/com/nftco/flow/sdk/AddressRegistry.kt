@@ -51,7 +51,7 @@ class AddressRegistry {
         val chains = if (chainId != null) {
             arrayOf(chainId)
         } else {
-            FlowChainId.values()
+            FlowChainId.entries.toTypedArray()
         }
         chains.forEach { SCRIPT_TOKEN_MAP[it]?.remove(contract) }
         return this

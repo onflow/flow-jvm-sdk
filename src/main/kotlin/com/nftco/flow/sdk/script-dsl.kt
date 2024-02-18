@@ -24,7 +24,7 @@ fun FlowAccessApi.simpleFlowScript(block: ScriptBuilder.() -> Unit): FlowScriptR
 }
 
 class ScriptBuilder {
-    var addressRegistry: AddressRegistry = Flow.DEFAULT_ADDRESS_REGISTRY
+    private var addressRegistry: AddressRegistry = Flow.DEFAULT_ADDRESS_REGISTRY
     private var _chainId: FlowChainId = Flow.DEFAULT_CHAIN_ID
     private var _script: FlowScript? = null
     private var _arguments: MutableList<Field<*>> = mutableListOf()
@@ -62,6 +62,6 @@ class ScriptBuilder {
         val builder = JsonCadenceBuilder()
         this.arguments = arguments(builder).toMutableList()
     }
-    fun arg(argument: Field<*>) = _arguments.add(argument)
-    fun arg(argument: JsonCadenceBuilder.() -> Field<*>) = arg(argument(com.nftco.flow.sdk.cadence.JsonCadenceBuilder()))
+    private fun arg(argument: Field<*>) = _arguments.add(argument)
+    fun arg(argument: JsonCadenceBuilder.() -> Field<*>) = arg(argument(JsonCadenceBuilder()))
 }

@@ -29,7 +29,6 @@ class AsyncFlowAccessApiImpl(
                     .build()
             )
         ).thenApply {
-            Unit
         }
     }
 
@@ -177,6 +176,7 @@ class AsyncFlowAccessApiImpl(
         }
     }
 
+    @Deprecated("Behaves identically to getAccountAtLatestBlock", replaceWith = ReplaceWith("getAccountAtLatestBlock"))
     override fun getAccountByAddress(addresss: FlowAddress): CompletableFuture<FlowAccount?> {
         return completableFuture(
             api.getAccount(

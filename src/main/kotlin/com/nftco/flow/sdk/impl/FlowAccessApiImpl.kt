@@ -129,7 +129,7 @@ class FlowAccessApiImpl(
         }
     }
 
-    override fun getTransactionResultById(id: FlowId): FlowTransactionResult? {
+    override fun getTransactionResultById(id: FlowId): FlowTransactionResult {
         val ret = api.getTransactionResult(
             Access.GetTransactionRequest.newBuilder()
                 .setId(id.byteStringValue)
@@ -138,6 +138,7 @@ class FlowAccessApiImpl(
         return FlowTransactionResult.of(ret)
     }
 
+    @Deprecated("Behaves identically to getAccountAtLatestBlock", replaceWith = ReplaceWith("getAccountAtLatestBlock"))
     override fun getAccountByAddress(addresss: FlowAddress): FlowAccount? {
         val ret = api.getAccount(
             Access.GetAccountRequest.newBuilder()

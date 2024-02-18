@@ -26,7 +26,7 @@ enum class FlowTransactionStatus(val num: Int) {
 
     companion object {
         @JvmStatic
-        fun of(num: Int): FlowTransactionStatus = values()
+        fun of(num: Int): FlowTransactionStatus = entries
             .find { it.num == num }
             ?: throw IllegalArgumentException("Unknown TransactionStatus: $num")
     }
@@ -43,7 +43,7 @@ enum class FlowChainId(
 
     companion object {
         @JvmStatic
-        fun of(id: String): FlowChainId = values()
+        fun of(id: String): FlowChainId = entries
             .find { it.id == id }
             ?: UNKNOWN
     }
@@ -62,11 +62,11 @@ enum class SignatureAlgorithm(
 
     companion object {
         @JvmStatic
-        fun fromCode(code: Int): SignatureAlgorithm = values()
+        fun fromCode(code: Int): SignatureAlgorithm = entries
             .find { it.code == code } ?: UNKNOWN
 
         @JvmStatic
-        fun fromCadenceIndex(index: Int): SignatureAlgorithm = values()
+        fun fromCadenceIndex(index: Int): SignatureAlgorithm = entries
             .find { it.index == index } ?: UNKNOWN
     }
 }
@@ -86,11 +86,11 @@ enum class HashAlgorithm(
 
     companion object {
         @JvmStatic
-        fun fromCode(code: Int): HashAlgorithm = values()
+        fun fromCode(code: Int): HashAlgorithm = entries
             .find { it.code == code } ?: UNKNOWN
 
         @JvmStatic
-        fun fromCadenceIndex(index: Int): HashAlgorithm = values()
+        fun fromCadenceIndex(index: Int): HashAlgorithm = entries
             .find { it.index == index } ?: UNKNOWN
     }
 }
@@ -253,7 +253,7 @@ data class FlowEvent(
     val id: String get() = event.id!!
     val event: EventField get() = payload.jsonCadence as EventField
 
-    fun <T : Field<*>> getField(name: String): T? = event[name]
+    private fun <T : Field<*>> getField(name: String): T? = event[name]
     @Suppress("UNCHECKED_CAST")
     operator fun <T> get(name: String): T? = getField<Field<*>>(name) as T
     operator fun contains(name: String): Boolean = name in event

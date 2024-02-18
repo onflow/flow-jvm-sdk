@@ -32,9 +32,9 @@ class TransactionTest {
     )
 
     @Test
-    fun `wut`() {
+    fun wut() {
         val account = TestUtils.newTestnetAccessApi().getAccountAtLatestBlock(FlowAddress("0x6bd3869f2631beb3"))
-        val x = account?.keys?.isEmpty()
+        account?.keys?.isEmpty()
     }
 
     @Test

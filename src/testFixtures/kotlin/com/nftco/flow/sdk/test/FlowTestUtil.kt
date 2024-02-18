@@ -31,14 +31,13 @@ object FlowTestUtil {
                     .joinToString(separator = "") { ", ${it.key}: contract${i}_${it.key}" }
             }
             .toList()
-        val contractAdds = contractList
-            .mapIndexed { i, _ ->
-                """
+        val contractAdds = List(contractList.size) { i ->
+            """
                     signer.contracts.add(
                         name: names[$i], code: codes[$i].utf8${contractAddArgs[i]}
                     )
                 """
-            }.joinToString(separator = "")
+        }.joinToString(separator = "")
 
         return api.simpleFlowTransaction(
             address = account.flowAddress,
@@ -150,7 +149,7 @@ object FlowTestUtil {
         classLoader: ClassLoader = AbstractFlowEmulatorExtension::class.java.classLoader,
         pidFilename: String = "flow-emulator.pid"
     ): Pair<Process, File> {
-        var flowJson: String? = null
+        var flowJson: String?
 
         val pidFile = File(System.getProperty("java.io.tmpdir"), pidFilename)
         if (pidFile.exists()) {
