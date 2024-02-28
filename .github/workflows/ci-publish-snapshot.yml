@@ -42,7 +42,7 @@ jobs:
 
       - name: Build
         id: build
-        run: ./gradlew --warning-mode all check build -x test
+        run: ./gradlew --warning-mode all check build -x test -x integrationTest
 
       - name: Run Unit Tests
         if: ${{ steps.build.outcome == 'success' }}
@@ -51,21 +51,24 @@ jobs:
           ./gradlew --no-daemon --max-workers=2 --warning-mode=all test --continue --stacktrace
 
       - name: Publish Unit Test Results
-        if: ${{ steps.build.outcome == 'success' }}
         uses: EnricoMi/publish-unit-test-result-action@v1.18
+        if: always()
         with:
-          files: "**/test-results/**/*.xml"
+          check_name: "Unit Test Results"
+          files: "**/test-results/test/**/*.xml"
 
       - name: Run Integration Tests
+        if: ${{ steps.unit_test.outcome == 'success' }}
         run: |
           export PATH="$HOME/.local/bin:$PATH"
           ./gradlew --no-daemon --max-workers=2 --warning-mode=all integrationTest --continue --stacktrace
 
       - name: Publish Integration Test Results
         uses: EnricoMi/publish-unit-test-result-action@v1.18
-        if: always()
+        if: ${{ steps.unit_test.outcome == 'success' }}
         with:
-          files: "**/integration-test-results/**/*.xml"
+          check_name: "Integration Test Results"
+          files: "**/test-results/integrationTest/**/*.xml"
 
       - name: Publish snapshot
         run: |
