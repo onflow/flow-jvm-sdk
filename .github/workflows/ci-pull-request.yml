@@ -1,4 +1,4 @@
-name: Build And Publish Snapshot
+name: Build And Publish Pull Request
 on: pull_request
 
 jobs:
@@ -35,17 +35,18 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Build
+        id: build
         run: ./gradlew --warning-mode all check build -x test
 
       - name: Run Unit Tests
-        id: unit_test
+        if: ${{ steps.build.outcome == 'success' }}
         run: |
           export PATH="$HOME/.local/bin:$PATH"
           ./gradlew --no-daemon --max-workers=2 --warning-mode=all test --continue --stacktrace
 
       - name: Publish Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action@v1.18
-        if: always()
+        if: ${{ steps.build.outcome == 'success' }}
         with:
           files: "**/test-results/test/**/*.xml"
 
