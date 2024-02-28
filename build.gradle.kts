@@ -82,9 +82,7 @@ sourceSets {
     create("intTest") {
         compileClasspath += sourceSets.main.get().output
         runtimeClasspath += sourceSets.main.get().output
-        kotlin {
-            setSrcDirs(listOf("src/intTest"))
-        }
+        kotlin.srcDirs("src/intTest", "src/testFixtures")
     }
 }
 
