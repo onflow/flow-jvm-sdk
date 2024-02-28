@@ -61,7 +61,6 @@ dependencies {
     testFixturesImplementation("org.junit.jupiter:junit-jupiter:5.10.1")
     testFixturesImplementation("org.mockito:mockito-core:3.12.4")
     testFixturesImplementation("org.mockito:mockito-inline:3.11.2")
-
 }
 
 tasks.withType<KotlinCompile> {
@@ -114,8 +113,6 @@ val integrationTest = task<Test>("integrationTest") {
     testLogging {
         events("passed")
     }
-
-
 }
 
 tasks.check { dependsOn(integrationTest) }
