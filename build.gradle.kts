@@ -114,6 +114,8 @@ val integrationTest = task<Test>("integrationTest") {
     testLogging {
         events("passed")
     }
+
+
 }
 
 tasks.check { dependsOn(integrationTest) }
