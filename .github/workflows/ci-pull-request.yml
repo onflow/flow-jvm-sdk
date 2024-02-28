@@ -39,6 +39,7 @@ jobs:
         run: ./gradlew --warning-mode all check build -x test -x integrationTest
 
       - name: Run Unit Tests
+        id: unit_test
         if: ${{ steps.build.outcome == 'success' }}
         run: |
           export PATH="$HOME/.local/bin:$PATH"
