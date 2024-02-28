@@ -38,6 +38,7 @@ jobs:
         run: ./gradlew --warning-mode all check build -x test
 
       - name: Run Unit Tests
+        id: unit_test
         run: |
           export PATH="$HOME/.local/bin:$PATH"
           ./gradlew --no-daemon --max-workers=2 --warning-mode=all test --continue --stacktrace
@@ -49,12 +50,13 @@ jobs:
           files: "**/test-results/test/**/*.xml"
 
       - name: Run Integration Tests
+        if: ${{ steps.unit_test.outcome == 'success' }}
         run: |
           export PATH="$HOME/.local/bin:$PATH"
           ./gradlew --no-daemon --max-workers=2 --warning-mode=all integrationTest --continue --stacktrace
 
       - name: Publish Integration Test Results
         uses: EnricoMi/publish-unit-test-result-action@v1.18
-        if: always()
+        if: ${{ steps.unit_test.outcome == 'success' }}
         with:
           files: "**/test-results/integrationTest/**/*.xml"
