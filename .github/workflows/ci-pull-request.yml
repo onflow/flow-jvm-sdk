@@ -46,7 +46,7 @@ jobs:
 
       - name: Publish Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action@v1.18
-        if: ${{ steps.build.outcome == 'success' }}
+        if: always()
         with:
           files: "**/test-results/test/**/*.xml"
 
