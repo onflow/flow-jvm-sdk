@@ -47,7 +47,7 @@ jobs:
 
       - name: Publish Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action@v1.18
-        if: ${{ steps.build.outcome == 'success' }}
+        if: always()
         with:
           check_name: "Unit Test Results"
           files: "**/test-results/test/**/*.xml"
@@ -60,7 +60,7 @@ jobs:
 
       - name: Publish Integration Test Results
         uses: EnricoMi/publish-unit-test-result-action@v1.18
-        if: ${{ steps.unit_test.outcome == 'success' }}
+        if: always()
         with:
           check_name: "Integration Test Results"
           files: "**/test-results/integrationTest/**/*.xml"

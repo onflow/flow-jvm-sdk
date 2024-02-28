@@ -45,6 +45,7 @@ jobs:
         run: ./gradlew --warning-mode all check build -x test -x integrationTest
 
       - name: Run Unit Tests
+        id: unit_test
         if: ${{ steps.build.outcome == 'success' }}
         run: |
           export PATH="$HOME/.local/bin:$PATH"
@@ -65,7 +66,7 @@ jobs:
 
       - name: Publish Integration Test Results
         uses: EnricoMi/publish-unit-test-result-action@v1.18
-        if: ${{ steps.unit_test.outcome == 'success' }}
+        if: always()
         with:
           check_name: "Integration Test Results"
           files: "**/test-results/integrationTest/**/*.xml"
