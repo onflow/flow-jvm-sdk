@@ -32,6 +32,7 @@ jobs:
         with:
           java-version: '21'
           java-package: jdk
+          distribution: 'adopt'
 
       - name: Install flow emulator
         run: sh -ci "$(curl -fsSL https://storage.googleapis.com/flow-cli/install.sh)"
