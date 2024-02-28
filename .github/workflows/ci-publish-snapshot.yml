@@ -47,13 +47,23 @@ jobs:
         run: |
           export PATH="$HOME/.local/bin:$PATH"
           ./gradlew --no-daemon --max-workers=2 --warning-mode=all test --continue --stacktrace
-        if: "!contains(github.event.head_commit.message, '[i am bad and i hate unit tests]')"
 
       - name: Publish Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action@v1.18
         if: always()
         with:
           files: "**/test-results/**/*.xml"
+
+      - name: Run Integration Tests
+        run: |
+          export PATH="$HOME/.local/bin:$PATH"
+          ./gradlew --no-daemon --max-workers=2 --warning-mode=all integrationTest --continue --stacktrace
+
+      - name: Publish Integration Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v1.18
+        if: always()
+        with:
+          files: "**/integration-test-results/**/*.xml"
 
       - name: Publish snapshot
         run: |
