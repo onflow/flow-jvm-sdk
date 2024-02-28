@@ -78,6 +78,43 @@ tasks.named<KotlinCompile>("compileTestKotlin") {
     }
 }
 
+sourceSets {
+    create("intTest") {
+        compileClasspath += sourceSets.main.get().output
+        runtimeClasspath += sourceSets.main.get().output
+        kotlin.srcDirs("src/intTest", "src/testFixtures")
+    }
+}
+
+val intTestImplementation by configurations.getting {
+    extendsFrom(configurations.implementation.get())
+}
+val intTestRuntimeOnly by configurations.getting
+
+configurations["intTestRuntimeOnly"].extendsFrom(configurations.runtimeOnly.get())
+
+dependencies {
+    intTestImplementation("org.junit.jupiter:junit-jupiter:5.10.1")
+    intTestRuntimeOnly("org.junit.platform:junit-platform-launcher")
+}
+
+val integrationTest = task<Test>("integrationTest") {
+    description = "Runs integration tests."
+    group = "verification"
+
+    testClassesDirs = sourceSets["intTest"].output.classesDirs
+    classpath = sourceSets["intTest"].runtimeClasspath
+    shouldRunAfter("test")
+
+    useJUnitPlatform()
+
+    testLogging {
+        events("passed")
+    }
+}
+
+tasks.check { dependsOn(integrationTest) }
+
 java {
     sourceCompatibility = JavaVersion.VERSION_20
     targetCompatibility = JavaVersion.VERSION_20
