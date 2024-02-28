@@ -42,7 +42,7 @@ jobs:
       - name: Build
         run: ./gradlew --warning-mode all check build -x test
 
-      - name: Test
+      - name: Run Unit Tests
         run: |
           export PATH="$HOME/.local/bin:$PATH"
           ./gradlew --no-daemon --max-workers=2 --warning-mode=all test --continue --stacktrace
