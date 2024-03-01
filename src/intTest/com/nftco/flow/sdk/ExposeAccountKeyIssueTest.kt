@@ -17,6 +17,12 @@ class ExposeAccountKeyIssueTest {
     @FlowServiceAccountCredentials
     lateinit var serviceAccount: TestAccount
 
+    // Constants
+    private val startingBalance = BigDecimal.ONE
+    private val signatureAlgorithm1 = SignatureAlgorithm.ECDSA_P256
+    private val hashAlgorithm1 = HashAlgorithm.SHA3_256
+
+
     // Ignoring for now
     // @Test
     fun `Expose issue with account keys api`() {
@@ -31,9 +37,6 @@ class ExposeAccountKeyIssueTest {
 
         // create the account
 
-        val startingBalance = BigDecimal.ONE
-        val signatureAlgorithm1 = SignatureAlgorithm.ECDSA_P256
-        val hashAlgorithm1 = HashAlgorithm.SHA3_256
         val pair1 = Crypto.generateKeyPair(signatureAlgorithm1)
         val signer1 = Crypto.getSigner(pair1.private, hashAlgorithm1)
 

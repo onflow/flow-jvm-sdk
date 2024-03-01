@@ -33,7 +33,7 @@ class TransactionTest {
 
     @Test
     fun wut() {
-        val account = TestUtils.newTestnetAccessApi().getAccountAtLatestBlock(FlowAddress("0x6bd3869f2631beb3"))
+        val account = IntegrationTestUtils.newTestnetAccessApi().getAccountAtLatestBlock(FlowAddress("0x6bd3869f2631beb3"))
         account?.keys?.isEmpty()
     }
 
@@ -88,7 +88,7 @@ class TransactionTest {
 
     @Test
     fun `Can connect to mainnet`() {
-        val accessAPI = TestUtils.newMainnetAccessApi()
+        val accessAPI = IntegrationTestUtils.newMainnetAccessApi()
         accessAPI.ping()
 
         val address = FlowAddress("e467b9dd11fa00df")
@@ -100,7 +100,7 @@ class TransactionTest {
 
     @Test
     fun `Can parse events`() {
-        val accessApi = TestUtils.newMainnetAccessApi()
+        val accessApi = IntegrationTestUtils.newMainnetAccessApi()
 
         // https://flowscan.org/transaction/8c2e9d37a063240f236aa181e1454eb62991b42302534d4d6dd3839c2df0ef14
         val tx = accessApi.getTransactionById(FlowId("8c2e9d37a063240f236aa181e1454eb62991b42302534d4d6dd3839c2df0ef14"))
@@ -212,7 +212,7 @@ class TransactionTest {
 
     @Test
     fun `Can get block header by id`() {
-        val accessAPI = TestUtils.newMainnetAccessApi()
+        val accessAPI = IntegrationTestUtils.newMainnetAccessApi()
 
         val latestBlock = accessAPI.getLatestBlock(true)
         assertThat(latestBlock).isNotNull
@@ -222,7 +222,7 @@ class TransactionTest {
 
     @Test
     fun `Can get block header by height`() {
-        val accessAPI = TestUtils.newMainnetAccessApi()
+        val accessAPI = IntegrationTestUtils.newMainnetAccessApi()
 
         val latestBlock = accessAPI.getLatestBlock(true)
         assertThat(latestBlock).isNotNull
@@ -233,7 +233,7 @@ class TransactionTest {
 
     @Test
     fun `Can get latest block`() {
-        val accessAPI = TestUtils.newMainnetAccessApi()
+        val accessAPI = IntegrationTestUtils.newMainnetAccessApi()
 
         val latestBlock = accessAPI.getLatestBlock(true)
         assertThat(latestBlock).isNotNull
@@ -241,7 +241,7 @@ class TransactionTest {
 
     @Test
     fun `Can get block by id`() {
-        val accessAPI = TestUtils.newMainnetAccessApi()
+        val accessAPI = IntegrationTestUtils.newMainnetAccessApi()
 
         val latestBlock = accessAPI.getLatestBlock(true)
         assertThat(latestBlock).isNotNull
@@ -253,7 +253,7 @@ class TransactionTest {
 
     @Test
     fun `Can get block by height`() {
-        val accessAPI = TestUtils.newMainnetAccessApi()
+        val accessAPI = IntegrationTestUtils.newMainnetAccessApi()
 
         val latestBlock = accessAPI.getLatestBlock(true)
         assertThat(latestBlock).isNotNull
@@ -265,7 +265,7 @@ class TransactionTest {
 
     @Test
     fun `Can get account by address`() {
-        val accessAPI = TestUtils.newMainnetAccessApi()
+        val accessAPI = IntegrationTestUtils.newMainnetAccessApi()
 
         val address = FlowAddress("18eb4ee6b3c026d2")
         val account = accessAPI.getAccountAtLatestBlock(address)!!
@@ -362,4 +362,13 @@ class TransactionTest {
             .waitForSeal()
             .throwOnError()
     }
+}
+
+object IntegrationTestUtils {
+    fun newMainnetAccessApi(): FlowAccessApi = Flow.newAccessApi(MAINNET_HOSTNAME)
+
+    fun newTestnetAccessApi(): FlowAccessApi = Flow.newAccessApi(TESTNET_HOSTNAME)
+
+    private const val MAINNET_HOSTNAME = "access.mainnet.nodes.onflow.org"
+    private const val TESTNET_HOSTNAME = "access.devnet.nodes.onflow.org"
 }
