@@ -26,6 +26,22 @@ class TransactionIntegrationTest {
     }
 
     @Test
+    fun `Can get network parameters`() {
+        val accessAPI = IntegrationTestUtils.newMainnetAccessApi()
+        val networkParams = accessAPI.getNetworkParameters()
+
+        assertThat(networkParams).isEqualTo(FlowChainId.MAINNET)
+    }
+
+    @Test
+    fun `Can get latest protocol state snapshot`() {
+        val accessAPI = IntegrationTestUtils.newMainnetAccessApi()
+        val snapshot = accessAPI.getLatestProtocolStateSnapshot()
+
+        assertThat(snapshot).isNotNull
+    }
+
+    @Test
     fun `Can parse events`() {
         val accessApi = IntegrationTestUtils.newMainnetAccessApi()
 
@@ -109,7 +125,33 @@ class TransactionIntegrationTest {
         val accessAPI = IntegrationTestUtils.newMainnetAccessApi()
 
         val address = FlowAddress("18eb4ee6b3c026d2")
+        val account = accessAPI.getAccountByAddress(address)!!
+        assertThat(account).isNotNull
+        assertThat(account.address).isEqualTo(address)
+        assertThat(account).isEqualTo(account)
+    }
+
+    @Test
+    fun `Can get account by address at latest block`() {
+        val accessAPI = IntegrationTestUtils.newMainnetAccessApi()
+
+        val address = FlowAddress("18eb4ee6b3c026d2")
         val account = accessAPI.getAccountAtLatestBlock(address)!!
+        assertThat(account).isNotNull
+        assertThat(account.address).isEqualTo(address)
+        assertThat(account).isEqualTo(account)
+    }
+
+    @Test
+    fun `Can get account by block height`() {
+        val accessAPI = IntegrationTestUtils.newMainnetAccessApi()
+
+        val latestBlock = accessAPI.getLatestBlock(true)
+        val blockHeader = accessAPI.getBlockHeaderByHeight(latestBlock.height)
+
+        val address = FlowAddress("18eb4ee6b3c026d2")
+        val account = blockHeader?.let { accessAPI.getAccountByBlockHeight(address, it.height) }!!
+
         assertThat(account).isNotNull
         assertThat(account.address).isEqualTo(address)
         assertThat(account).isEqualTo(account)

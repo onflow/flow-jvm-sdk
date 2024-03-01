@@ -8,6 +8,7 @@ import com.nftco.flow.sdk.test.FlowEmulatorTest
 import com.nftco.flow.sdk.test.FlowServiceAccountCredentials
 import com.nftco.flow.sdk.test.FlowTestClient
 import com.nftco.flow.sdk.test.TestAccount
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
 @FlowEmulatorTest
@@ -128,5 +129,35 @@ class TransactionCreationTest {
         }.sendAndWaitForSeal()
             .throwOnError()
         assertThat(result.status).isEqualTo(FlowTransactionStatus.SEALED)
+    }
+
+    @Test
+    fun `Payer address authorization is correct`() {
+        val tx = transaction
+
+        assertEquals(serviceAccount.flowAddress, tx.payerAddress)
+    }
+
+    @Test
+    fun `Transaction script content is accurate`() {
+        val tx = transaction
+
+        assertEquals(
+            "import 0xsomething \n {}",
+            tx.script.stringValue
+        )
+    }
+
+    @Test
+    fun `Gas limit is properly handled`() {
+        val gasLimits = listOf(100L, 200L, 300L)
+
+        val transactions = gasLimits.map { limit ->
+            transaction.copy(gasLimit = limit)
+        }
+
+        transactions.forEachIndexed { index, tx ->
+            assertEquals(gasLimits[index], tx.gasLimit)
+        }
     }
 }
