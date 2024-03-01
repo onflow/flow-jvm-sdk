@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test
 
 @FlowEmulatorTest
 class TransactionDecodingTest {
-
     @Test
     fun `Can decode transaction envelope`() {
         // the value below was calculated using the flow-go-sdk from the tx defined here https://github.com/onflow/flow-go-sdk/blob/3ecd5d4920939922bb3b010b0d1b5567131b1341/transaction_test.go#L119-L129

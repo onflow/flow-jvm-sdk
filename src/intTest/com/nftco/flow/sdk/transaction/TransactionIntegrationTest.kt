@@ -51,7 +51,6 @@ class TransactionIntegrationTest {
         assertThat("offerAddress" in results.events[8].event.value!!).isTrue
     }
 
-
     @Test
     fun `Can get block header by id`() {
         val accessAPI = IntegrationTestUtils.newMainnetAccessApi()
@@ -116,5 +115,3 @@ class TransactionIntegrationTest {
         assertThat(account).isEqualTo(account)
     }
 }
-
-
