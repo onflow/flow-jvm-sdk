@@ -1,7 +1,11 @@
-package com.nftco.flow.sdk
+package com.nftco.flow.sdk.cadence
 
+import com.nftco.flow.sdk.FlowId
+import com.nftco.flow.sdk.IntegrationTestUtils
+import com.nftco.flow.sdk.decode
+import com.nftco.flow.sdk.simpleFlowScript
 import kotlinx.serialization.Serializable
-import org.assertj.core.api.Assertions
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 class JsonCadenceTest {
@@ -25,14 +29,14 @@ class JsonCadenceTest {
         val bar: Int,
     )
 
-    val flow = TestUtils.newMainnetAccessApi()
+    private val flow = IntegrationTestUtils.newMainnetAccessApi()
 
     @Test
     fun `Can parse new JSON Cadence`() {
-        val flow = TestUtils.newMainnetAccessApi()
+        val flow = IntegrationTestUtils.newMainnetAccessApi()
         val tx = flow.getTransactionResultById(FlowId("273f68ffe175a0097db60bc7cf5e92c5a775d189af3f5636f5432c1206be771a"))!!
         val events = tx.events.map { it.payload.jsonCadence }
-        Assertions.assertThat(events).hasSize(7)
+        assertThat(events).hasSize(7)
     }
 
     @Test
@@ -47,7 +51,7 @@ class JsonCadenceTest {
             }
         }
         val data = result.jsonCadence.decode<Boolean?>()
-        Assertions.assertThat(data).isEqualTo(null)
+        assertThat(data).isEqualTo(null)
     }
 
     @Test
@@ -62,7 +66,7 @@ class JsonCadenceTest {
             }
         }
         val data = result.jsonCadence.decode<Boolean?>()
-        Assertions.assertThat(data).isEqualTo(true)
+        assertThat(data).isEqualTo(true)
     }
 
     @Test
@@ -77,7 +81,7 @@ class JsonCadenceTest {
             }
         }
         val data = result.jsonCadence.decode<Boolean>()
-        Assertions.assertThat(data).isEqualTo(true)
+        assertThat(data).isEqualTo(true)
     }
 
     @Test
@@ -93,8 +97,8 @@ class JsonCadenceTest {
         }
 
         val data = result.jsonCadence.decode<List<ULong>>()
-        Assertions.assertThat(data.first()).isEqualTo(1UL)
-        Assertions.assertThat(data).hasSize(4)
+        assertThat(data.first()).isEqualTo(1UL)
+        assertThat(data).hasSize(4)
     }
 
     @Test
@@ -110,7 +114,7 @@ class JsonCadenceTest {
         }
 
         val data = result.jsonCadence.decode<Double>()
-        Assertions.assertThat(data).isEqualTo(0.789111)
+        assertThat(data).isEqualTo(0.789111)
     }
 
     @Test
@@ -143,9 +147,9 @@ class JsonCadenceTest {
         }
 
         val data = result.jsonCadence.decode<List<StorageInfo>>().first()
-        Assertions.assertThat(data.capacity).isEqualTo(1)
-        Assertions.assertThat(data.used).isEqualTo(2)
-        Assertions.assertThat(data.available).isEqualTo(3)
+        assertThat(data.capacity).isEqualTo(1)
+        assertThat(data.used).isEqualTo(2)
+        assertThat(data.available).isEqualTo(3)
     }
 
     @Test
@@ -191,6 +195,6 @@ class JsonCadenceTest {
         }
 
         val data = result.decode<Map<String, List<StorageInfoComplex>>>()
-        Assertions.assertThat(data["test"]!!.first().foo.bar).isEqualTo(1)
+        assertThat(data["test"]!!.first().foo.bar).isEqualTo(1)
     }
 }
