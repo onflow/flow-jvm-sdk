@@ -95,6 +95,7 @@ configurations["intTestRuntimeOnly"].extendsFrom(configurations.runtimeOnly.get(
 
 dependencies {
     intTestImplementation("org.junit.jupiter:junit-jupiter:5.10.1")
+    intTestImplementation("org.assertj:assertj-core:3.25.1")
     intTestRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 

@@ -1,5 +1,8 @@
-package com.nftco.flow.sdk
+package com.nftco.flow.sdk.extensions
 
+import com.nftco.flow.sdk.AsyncFlowAccessApi
+import com.nftco.flow.sdk.FlowAccessApi
+import com.nftco.flow.sdk.SignatureAlgorithm
 import com.nftco.flow.sdk.test.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
