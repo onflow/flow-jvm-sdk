@@ -7,6 +7,7 @@ import com.nftco.flow.sdk.simpleFlowScript
 import kotlinx.serialization.Serializable
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import kotlin.reflect.typeOf
 
 class JsonCadenceTest {
     @Serializable
@@ -197,4 +198,29 @@ class JsonCadenceTest {
         val data = result.decode<Map<String, List<StorageInfoComplex>>>()
         assertThat(data["test"]!!.first().foo.bar).isEqualTo(1)
     }
+
+    @Test
+    fun decodeResourceField() {
+        val result = flow.simpleFlowScript {
+            script {
+                """
+            pub resource SomeResource {
+                pub var value: Int
+                
+                init(value: Int) {
+                    self.value = value
+                }
+            }
+            
+            pub fun main(): @SomeResource {
+                let newResource <- create SomeResource(value: 20)
+                return <-newResource
+            }
+        """.trimIndent()
+            }
+        }
+
+        val decodedResource = result.jsonCadence.decodeToAny()
+    }
+
 }
