@@ -29,6 +29,17 @@ class JsonCadenceTest {
         val bar: Int,
     )
 
+    @Serializable
+    data class SomeResource(
+        val uuid: Long,
+        val value: Int
+    )
+
+    @Serializable
+    data class SomeEnum(
+        val rawValue: Int
+    )
+
     private val flow = IntegrationTestUtils.newMainnetAccessApi()
 
     @Test
@@ -218,9 +229,9 @@ class JsonCadenceTest {
                 """.trimIndent()
             }
         }
-
-        val decodedResource = result.jsonCadence.decodeToAny()
+        val decodedResource = result.jsonCadence.decode<SomeResource>()
         assertThat(decodedResource).isNotNull()
+        assertThat(decodedResource.value).isEqualTo(20)
     }
 
     @Test
@@ -241,8 +252,10 @@ class JsonCadenceTest {
             }
         }
 
-        val decodedEnum = result.jsonCadence.decodeToAny()
+        val decodedEnum = result.jsonCadence.decode<SomeEnum>()
         assertThat(decodedEnum).isNotNull()
+        assertThat(decodedEnum.rawValue).isEqualTo(0)
+
     }
 
     @Test
