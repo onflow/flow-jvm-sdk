@@ -223,4 +223,59 @@ class JsonCadenceTest {
         val decodedResource = result.jsonCadence.decodeToAny()
     }
 
+    @Test
+    fun decodeEventField() {
+        val result = flow.simpleFlowScript {
+            script {
+                """
+            pub event TestEvent(m: String)
+
+            pub fun main() {
+                emit TestEvent(m: "Hello, world!")
+            }
+        """.trimIndent()
+            }
+        }
+
+        val decodedEvent = result.jsonCadence.decodeToAny()
+    }
+
+    @Test
+    fun decodeEnum() {
+        val result = flow.simpleFlowScript {
+            script {
+                """
+            pub enum Color: UInt8 {
+               pub case red
+               pub case green
+               pub case blue
+            }
+
+            pub fun main() : Color {
+                return Color.red
+            }
+        """.trimIndent()
+            }
+        }
+
+        val decodedEnum = result.jsonCadence.decodeToAny()
+    }
+
+    @Test
+    fun decodeReference() {
+        val result = flow.simpleFlowScript {
+            script {
+                """
+                pub let hello = "Hello"
+                pub let helloRef: &String = &hello as &String
+                
+                pub fun main(): &String {
+                    return helloRef
+                }
+                """.trimIndent()
+            }
+        }
+
+        val decodedReference = result.jsonCadence.decodeToAny()
+    }
 }
