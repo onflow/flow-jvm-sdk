@@ -203,43 +203,41 @@ class JsonCadenceTest {
         val result = flow.simpleFlowScript {
             script {
                 """
-            pub resource SomeResource {
-                pub var value: Int
-                
-                init(value: Int) {
-                    self.value = value
+                pub resource SomeResource {
+                    pub var value: Int
+                    
+                    init(value: Int) {
+                        self.value = value
+                    }
                 }
-            }
-            
-            pub fun main(): @SomeResource {
-                let newResource <- create SomeResource(value: 20)
-                return <-newResource
-            }
-        """.trimIndent()
+                
+                pub fun main(): @SomeResource {
+                    let newResource <- create SomeResource(value: 20)
+                    return <-newResource
+                }
+                """.trimIndent()
             }
         }
 
         val decodedResource = result.jsonCadence.decodeToAny()
         assertThat(decodedResource).isNotNull()
-
     }
-
 
     @Test
     fun decodeEnum() {
         val result = flow.simpleFlowScript {
             script {
                 """
-            pub enum Color: UInt8 {
-               pub case red
-               pub case green
-               pub case blue
-            }
-
-            pub fun main() : Color {
-                return Color.red
-            }
-        """.trimIndent()
+                pub enum Color: UInt8 {
+                   pub case red
+                   pub case green
+                   pub case blue
+                }
+    
+                pub fun main() : Color {
+                    return Color.red
+                }
+                """.trimIndent()
             }
         }
 
