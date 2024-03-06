@@ -255,7 +255,6 @@ class JsonCadenceTest {
         val decodedEnum = result.jsonCadence.decode<SomeEnum>()
         assertThat(decodedEnum).isNotNull()
         assertThat(decodedEnum.rawValue).isEqualTo(0)
-
     }
 
     @Test
