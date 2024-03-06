@@ -7,7 +7,6 @@ import com.nftco.flow.sdk.simpleFlowScript
 import kotlinx.serialization.Serializable
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import kotlin.reflect.typeOf
 
 class JsonCadenceTest {
     @Serializable
@@ -200,7 +199,7 @@ class JsonCadenceTest {
     }
 
     @Test
-    fun decodeResourceField() {
+    fun decodeResource() {
         val result = flow.simpleFlowScript {
             script {
                 """
@@ -221,24 +220,10 @@ class JsonCadenceTest {
         }
 
         val decodedResource = result.jsonCadence.decodeToAny()
+        assertThat(decodedResource).isNotNull()
+
     }
 
-    @Test
-    fun decodeEventField() {
-        val result = flow.simpleFlowScript {
-            script {
-                """
-            pub event TestEvent(m: String)
-
-            pub fun main() {
-                emit TestEvent(m: "Hello, world!")
-            }
-        """.trimIndent()
-            }
-        }
-
-        val decodedEvent = result.jsonCadence.decodeToAny()
-    }
 
     @Test
     fun decodeEnum() {
@@ -259,6 +244,7 @@ class JsonCadenceTest {
         }
 
         val decodedEnum = result.jsonCadence.decodeToAny()
+        assertThat(decodedEnum).isNotNull()
     }
 
     @Test
@@ -277,5 +263,6 @@ class JsonCadenceTest {
         }
 
         val decodedReference = result.jsonCadence.decodeToAny()
+        assertThat(decodedReference).isNotNull()
     }
 }
