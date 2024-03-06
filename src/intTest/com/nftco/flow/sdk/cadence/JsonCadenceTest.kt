@@ -275,5 +275,6 @@ class JsonCadenceTest {
 
         val decodedReference = result.jsonCadence.decodeToAny()
         assertThat(decodedReference).isNotNull()
+        assertThat(decodedReference).isEqualTo("Hello")
     }
 }
