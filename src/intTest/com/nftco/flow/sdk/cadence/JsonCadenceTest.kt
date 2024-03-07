@@ -29,6 +29,17 @@ class JsonCadenceTest {
         val bar: Int,
     )
 
+    @Serializable
+    data class SomeResource(
+        val uuid: Long,
+        val value: Int
+    )
+
+    @Serializable
+    data class SomeEnum(
+        val rawValue: Int
+    )
+
     private val flow = IntegrationTestUtils.newMainnetAccessApi()
 
     @Test
@@ -196,5 +207,73 @@ class JsonCadenceTest {
 
         val data = result.decode<Map<String, List<StorageInfoComplex>>>()
         assertThat(data["test"]!!.first().foo.bar).isEqualTo(1)
+    }
+
+    @Test
+    fun decodeResource() {
+        val result = flow.simpleFlowScript {
+            script {
+                """
+                pub resource SomeResource {
+                    pub var value: Int
+                    
+                    init(value: Int) {
+                        self.value = value
+                    }
+                }
+                
+                pub fun main(): @SomeResource {
+                    let newResource <- create SomeResource(value: 20)
+                    return <-newResource
+                }
+                """.trimIndent()
+            }
+        }
+        val decodedResource = result.jsonCadence.decode<SomeResource>()
+        assertThat(decodedResource).isNotNull()
+        assertThat(decodedResource.value).isEqualTo(20)
+    }
+
+    @Test
+    fun decodeEnum() {
+        val result = flow.simpleFlowScript {
+            script {
+                """
+                pub enum Color: UInt8 {
+                   pub case red
+                   pub case green
+                   pub case blue
+                }
+    
+                pub fun main() : Color {
+                    return Color.red
+                }
+                """.trimIndent()
+            }
+        }
+
+        val decodedEnum = result.jsonCadence.decode<SomeEnum>()
+        assertThat(decodedEnum).isNotNull()
+        assertThat(decodedEnum.rawValue).isEqualTo(0)
+    }
+
+    @Test
+    fun decodeReference() {
+        val result = flow.simpleFlowScript {
+            script {
+                """
+                pub let hello = "Hello"
+                pub let helloRef: &String = &hello as &String
+                
+                pub fun main(): &String {
+                    return helloRef
+                }
+                """.trimIndent()
+            }
+        }
+
+        val decodedReference = result.jsonCadence.decodeToAny()
+        assertThat(decodedReference).isNotNull()
+        assertThat(decodedReference).isEqualTo("Hello")
     }
 }
