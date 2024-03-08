@@ -87,7 +87,7 @@ Be sure to pass the `-PsnapshotDate=$(date +'%Y%m%d%H%M%S')` if it's a snapshot
 There are two GitHub Actions configured:
 
 - SNAPSHOT: On every commit to the `main` branch a build is performed and if successful it is deployed as a snapshot version.
-- RELEASE: Whenever a tag is creatd with the pattern of `vXXX` a version with the name XXX is built and if successful deployed as a release version.
+- RELEASE: Whenever a tag is created with the pattern of `vXXX` a version with the name XXX is built and if successful deployed as a release version.
 
 The following GitHub repository secrets configure these actions:
 
@@ -96,7 +96,7 @@ The following GitHub repository secrets configure these actions:
 - `FLOW_JVM_SDK_SIGNING_KEY`: (required if publish enabled) ascii armored version of the pgp key for signing releases
 - `FLOW_JVM_SDK_SIGNING_PASSWORD`: (required if publish enabled) password to the pgp key
 - `FLOW_JVM_SDK_NEXUS_URL`: (required if publish enabled) nexus url for performing releases
-- `FLOW_JVM_SDK_SNAPSHOT_REPOSITORY_URL`: (required if publish enabled) nexus url for for permforming releases
+- `FLOW_JVM_SDK_SNAPSHOT_REPOSITORY_URL`: (required if publish enabled) nexus url for performing releases
 - `FLOW_JVM_SDK_SONATYPE_USERNAME`: (required if publish enabled) sonatype username
 - `FLOW_JVM_SDK_SONATYPE_PASSWORD`: (required if publish enabled) sonatype password
 
