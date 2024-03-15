@@ -2,7 +2,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 // configuration variables
 val defaultGroupId = "org.flowfoundation"
-val defaultVersion = "0.1.0-SNAPSHOT"
+val defaultVersion = "1.0.0-SNAPSHOT"
 
 // other variables
 
