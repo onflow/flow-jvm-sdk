@@ -12,7 +12,7 @@ import java.math.BigDecimal
 @FlowEmulatorTest
 class ExposeAccountKeyIssueTest {
     @FlowTestClient
-    lateinit var flow: org.flowfoundation.flow.sdk.FlowAccessApi
+    lateinit var flow: FlowAccessApi
 
     @FlowServiceAccountCredentials
     lateinit var serviceAccount: TestAccount
