@@ -1,7 +1,7 @@
 # Flow JVM SDK
 
-[![Maven Central](https://img.shields.io/maven-central/v/com.nftco/flow-jvm-sdk)](https://search.maven.org/search?q=g:com.nftco%20AND%20a:flow-jvm-sdk) 
-[![Sonatype OSS](https://img.shields.io/nexus/s/com.nftco/flow-jvm-sdk?label=snapshot&server=https%3A%2F%2Fs01.oss.sonatype.org%2F)](https://s01.oss.sonatype.org/content/repositories/snapshots/com/nftco/flow-jvm-sdk/)
+[![Maven Central](https://img.shields.io/maven-central/v/org.flowfoundation/flow-jvm-sdk)](https://search.maven.org/search?q=g:com.nftco%20AND%20a:flow-jvm-sdk) 
+[![Sonatype OSS](https://img.shields.io/nexus/s/org.flowfoundation/flow-jvm-sdk?label=snapshot&server=https%3A%2F%2Fs01.oss.sonatype.org%2F)](https://s01.oss.sonatype.org/content/repositories/snapshots/com/nftco/flow-jvm-sdk/)
 
 The Flow JVM SDK is a library for JVM languages (e.g. Java, Kotlin) that provides
 utilities to interact with the Flow blockchain.
@@ -33,7 +33,7 @@ SDK to your project using Maven or Gradle.
 </repositories>
 
 <dependency>
-  <groupId>com.nftco</groupId>
+  <groupId>org.flowfoundation</groupId>
   <artifactId>flow-jvm-sdk</artifactId>
   <version>[VERSION HERE]</version>
 </dependency>
@@ -52,7 +52,7 @@ repositories {
 }
 
 dependencies {
-    api("com.nftco:flow-jvm-sdk:[VERSION HERE]")
+    api("org.flowfoundation:flow-jvm-sdk:[VERSION HERE]")
 }
 ```
 
@@ -74,8 +74,8 @@ repositories {
 }
 
 dependencies {
-    api("com.nftco:flow-jvm-sdk:[VERSION HERE]")
-    testFixturesApi(testFixtures("com.nftco:flow-jvm-sdk:[VERSION HERE]"))
+    api("org.flowfoundation:flow-jvm-sdk:[VERSION HERE]")
+    testFixturesApi(testFixtures("org.flowfoundation:flow-jvm-sdk:[VERSION HERE]"))
 }
 ```
 
@@ -109,10 +109,10 @@ repositories {
 }
 
 dependencies {
-    api("com.nftco:flow-jvm-sdk:[VERSION HERE]")
+    api("org.flowfoundation:flow-jvm-sdk:[VERSION HERE]")
     
     // this allows for using the test extension
-    testFixturesApi(testFixtures("com.nftco:flow-jvm-sdk:[VERSION HERE]"))
+    testFixturesApi(testFixtures("org.flowfoundation:flow-jvm-sdk:[VERSION HERE]"))
 }
 ```
 
