@@ -16,7 +16,7 @@ signing.gnupg.keyName=XXXX
 signing.gnupg.passphrase=XXXX
 
 # only use this if you're overriding the group id
-# groupId=com.nftco
+# groupId=org.flowfoundation
 
 sonatype.nexusUrl=https://s01.oss.sonatype.org/service/local/
 sonatype.snapshotRepositoryUrl=https://s01.oss.sonatype.org/content/repositories/snapshots/
@@ -92,7 +92,7 @@ There are two GitHub Actions configured:
 The following GitHub repository secrets configure these actions:
 
 - `FLOW_JVM_SDK_CICD_PUBLISH_ENABLED`: (optional) Must be `true` for the publishing of artifacts to happen (defaults to `false`)
-- `FLOW_JVM_SDK_GROUP_ID`: (optional) the groupId defaults to `com.nftco`
+- `FLOW_JVM_SDK_GROUP_ID`: (optional) the groupId defaults to `org.flowfoundation`
 - `FLOW_JVM_SDK_SIGNING_KEY`: (required if publish enabled) ascii armored version of the pgp key for signing releases
 - `FLOW_JVM_SDK_SIGNING_PASSWORD`: (required if publish enabled) password to the pgp key
 - `FLOW_JVM_SDK_NEXUS_URL`: (required if publish enabled) nexus url for performing releases

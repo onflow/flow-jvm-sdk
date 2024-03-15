@@ -1,8 +1,8 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 // configuration variables
-val defaultGroupId = "com.nftco"
-val defaultVersion = "0.8.0-SNAPSHOT"
+val defaultGroupId = "org.flowfoundation"
+val defaultVersion = "1.0.0-SNAPSHOT"
 
 // other variables
 
