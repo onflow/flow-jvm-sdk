@@ -25,13 +25,13 @@ class ExposeAccountKeyIssueTest {
     // Ignoring for now
     // @Test
     fun `Expose issue with account keys api`() {
-        val addressRegistry = org.flowfoundation.flow.sdk.AddressRegistry()
+        val addressRegistry = AddressRegistry()
         addressRegistry.registerDefaults()
         addressRegistry.defaultChainId = FlowChainId.EMULATOR
 
-        org.flowfoundation.flow.sdk.Flow.configureDefaults(
-                chainId = FlowChainId.EMULATOR,
-                addressRegistry = addressRegistry
+        Flow.configureDefaults(
+            chainId = FlowChainId.EMULATOR,
+            addressRegistry = addressRegistry
         )
 
         // create the account
