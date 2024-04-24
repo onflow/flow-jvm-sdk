@@ -1,6 +1,6 @@
-package org.flowfoundation.flow.sdk.models
+package org.onflow.flow.sdk.models
 
-import org.flowfoundation.flow.sdk.HashAlgorithm
+import org.onflow.flow.sdk.HashAlgorithm
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 

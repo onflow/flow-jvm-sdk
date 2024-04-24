@@ -1,4 +1,4 @@
-package org.flowfoundation.flow.sdk
+package org.onflow.flow.sdk
 
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach

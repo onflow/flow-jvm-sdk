@@ -1,7 +1,7 @@
-package org.flowfoundation.flow.sdk
+package org.onflow.flow.sdk
 
-import org.flowfoundation.flow.sdk.cadence.Field
-import org.flowfoundation.flow.sdk.cadence.JsonCadenceBuilder
+import org.onflow.flow.sdk.cadence.Field
+import org.onflow.flow.sdk.cadence.JsonCadenceBuilder
 import java.util.concurrent.TimeoutException
 import java.util.logging.Logger
 

@@ -1,9 +1,9 @@
-package org.flowfoundation.flow.sdk.test
+package org.onflow.flow.sdk.test
 
-import org.flowfoundation.flow.sdk.*
-import org.flowfoundation.flow.sdk.cadence.AddressField
-import org.flowfoundation.flow.sdk.cadence.EventField
-import org.flowfoundation.flow.sdk.impl.FlowAccessApiImpl
+import org.onflow.flow.sdk.*
+import org.onflow.flow.sdk.cadence.AddressField
+import org.onflow.flow.sdk.cadence.EventField
+import org.onflow.flow.sdk.impl.FlowAccessApiImpl
 import java.io.File
 import java.io.IOException
 import java.math.BigDecimal

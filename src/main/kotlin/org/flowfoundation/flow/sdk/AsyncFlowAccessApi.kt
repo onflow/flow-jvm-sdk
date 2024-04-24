@@ -1,4 +1,4 @@
-package org.flowfoundation.flow.sdk
+package org.onflow.flow.sdk
 
 import com.google.protobuf.ByteString
 import java.util.concurrent.CompletableFuture

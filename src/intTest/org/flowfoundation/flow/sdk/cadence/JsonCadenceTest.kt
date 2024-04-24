@@ -1,9 +1,9 @@
-package org.flowfoundation.flow.sdk.cadence
+package org.onflow.flow.sdk.cadence
 
-import org.flowfoundation.flow.sdk.FlowId
-import org.flowfoundation.flow.sdk.IntegrationTestUtils
-import org.flowfoundation.flow.sdk.decode
-import org.flowfoundation.flow.sdk.simpleFlowScript
+import org.onflow.flow.sdk.FlowId
+import org.onflow.flow.sdk.IntegrationTestUtils
+import org.onflow.flow.sdk.decode
+import org.onflow.flow.sdk.simpleFlowScript
 import kotlinx.serialization.Serializable
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test

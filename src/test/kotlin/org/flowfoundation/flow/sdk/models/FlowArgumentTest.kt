@@ -1,9 +1,9 @@
-package org.flowfoundation.flow.sdk.models
+package org.onflow.flow.sdk.models
 
-import org.flowfoundation.flow.sdk.Flow
-import org.flowfoundation.flow.sdk.FlowArgument
-import org.flowfoundation.flow.sdk.cadence.Field
-import org.flowfoundation.flow.sdk.cadence.StringField
+import org.onflow.flow.sdk.Flow
+import org.onflow.flow.sdk.FlowArgument
+import org.onflow.flow.sdk.cadence.Field
+import org.onflow.flow.sdk.cadence.StringField
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Test

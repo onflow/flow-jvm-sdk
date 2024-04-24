@@ -1,9 +1,9 @@
-package org.flowfoundation.flow.sdk.models
+package org.onflow.flow.sdk.models
 
 import com.google.protobuf.ByteString
-import org.flowfoundation.flow.sdk.FlowCollectionGuarantee
-import org.flowfoundation.flow.sdk.FlowId
-import org.flowfoundation.flow.sdk.FlowSignature
+import org.onflow.flow.sdk.FlowCollectionGuarantee
+import org.onflow.flow.sdk.FlowId
+import org.onflow.flow.sdk.FlowSignature
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.onflow.protobuf.entities.CollectionOuterClass

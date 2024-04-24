@@ -1,4 +1,4 @@
-package org.flowfoundation.flow.sdk.cadence
+package org.onflow.flow.sdk.cadence
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.exc.MismatchedInputException

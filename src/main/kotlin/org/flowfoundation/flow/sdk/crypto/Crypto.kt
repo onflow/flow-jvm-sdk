@@ -1,6 +1,6 @@
-package org.flowfoundation.flow.sdk.crypto
+package org.onflow.flow.sdk.crypto
 
-import org.flowfoundation.flow.sdk.*
+import org.onflow.flow.sdk.*
 import org.bouncycastle.jce.ECNamedCurveTable
 import org.bouncycastle.jce.ECPointUtil
 import org.bouncycastle.jce.interfaces.ECPrivateKey
@@ -8,7 +8,7 @@ import org.bouncycastle.jce.interfaces.ECPublicKey
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.bouncycastle.jce.spec.ECNamedCurveSpec
 import org.bouncycastle.jce.spec.ECPrivateKeySpec
-import org.flowfoundation.flow.sdk.Signer
+import org.onflow.flow.sdk.Signer
 import java.math.BigInteger
 import java.security.*
 import java.security.spec.ECGenParameterSpec

@@ -1,11 +1,11 @@
-package org.flowfoundation.flow.sdk.models
+package org.onflow.flow.sdk.models
 
-import org.flowfoundation.flow.sdk.DomainTag
+import org.onflow.flow.sdk.DomainTag
 import org.junit.jupiter.api.Assertions.assertArrayEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.flowfoundation.flow.sdk.Signer
-import org.flowfoundation.flow.sdk.Hasher
+import org.onflow.flow.sdk.Signer
+import org.onflow.flow.sdk.Hasher
 
 class SignerTest {
     lateinit var hasher: Hasher

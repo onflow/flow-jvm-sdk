@@ -1,9 +1,9 @@
-package org.flowfoundation.flow.sdk
+package org.onflow.flow.sdk
 
-import org.flowfoundation.flow.sdk.cadence.*
-import org.flowfoundation.flow.sdk.crypto.Crypto
-import org.flowfoundation.flow.sdk.test.FlowEmulatorProjectTest
-import org.flowfoundation.flow.sdk.test.FlowTestClient
+import org.onflow.flow.sdk.cadence.*
+import org.onflow.flow.sdk.crypto.Crypto
+import org.onflow.flow.sdk.test.FlowEmulatorProjectTest
+import org.onflow.flow.sdk.test.FlowTestClient
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test

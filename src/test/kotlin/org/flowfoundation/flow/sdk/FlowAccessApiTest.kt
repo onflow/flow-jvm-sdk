@@ -1,4 +1,4 @@
-package org.flowfoundation.flow.sdk
+package org.onflow.flow.sdk
 
 import com.google.protobuf.ByteString
 import org.junit.jupiter.api.Assertions.assertEquals

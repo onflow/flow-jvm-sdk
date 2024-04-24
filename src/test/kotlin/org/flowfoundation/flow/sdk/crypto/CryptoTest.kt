@@ -1,6 +1,6 @@
-package org.flowfoundation.flow.sdk.crypto
+package org.onflow.flow.sdk.crypto
 
-import org.flowfoundation.flow.sdk.HashAlgorithm
+import org.onflow.flow.sdk.HashAlgorithm
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import java.math.BigInteger

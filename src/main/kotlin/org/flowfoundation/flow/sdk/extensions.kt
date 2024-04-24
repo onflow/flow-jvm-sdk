@@ -1,4 +1,4 @@
-package org.flowfoundation.flow.sdk
+package org.onflow.flow.sdk
 
 import com.google.common.io.BaseEncoding
 import com.google.protobuf.Timestamp

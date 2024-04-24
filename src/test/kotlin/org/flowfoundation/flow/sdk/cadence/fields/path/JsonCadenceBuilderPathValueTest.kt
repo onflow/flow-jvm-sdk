@@ -1,6 +1,6 @@
-package org.flowfoundation.flow.sdk.cadence.fields.path
+package org.onflow.flow.sdk.cadence.fields.path
 
-import org.flowfoundation.flow.sdk.cadence.PathValue
+import org.onflow.flow.sdk.cadence.PathValue
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Test

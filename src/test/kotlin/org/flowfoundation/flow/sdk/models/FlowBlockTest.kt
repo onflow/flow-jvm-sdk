@@ -1,11 +1,11 @@
-package org.flowfoundation.flow.sdk.models
+package org.onflow.flow.sdk.models
 
 import com.google.protobuf.ByteString
 import com.google.protobuf.Timestamp
-import org.flowfoundation.flow.sdk.FlowBlock
-import org.flowfoundation.flow.sdk.FlowId
-import org.flowfoundation.flow.sdk.asTimestamp
-import org.flowfoundation.flow.sdk.fixedSize
+import org.onflow.flow.sdk.FlowBlock
+import org.onflow.flow.sdk.FlowId
+import org.onflow.flow.sdk.asTimestamp
+import org.onflow.flow.sdk.fixedSize
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.onflow.protobuf.entities.BlockOuterClass

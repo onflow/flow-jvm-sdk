@@ -1,4 +1,4 @@
-package org.flowfoundation.flow.sdk
+package org.onflow.flow.sdk
 
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -6,11 +6,11 @@ import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.grpc.ManagedChannel
 import io.grpc.ManagedChannelBuilder
 import org.onflow.protobuf.access.AccessAPIGrpc
-import org.flowfoundation.flow.sdk.cadence.CadenceNamespace
-import org.flowfoundation.flow.sdk.cadence.Field
-import org.flowfoundation.flow.sdk.cadence.JsonCadenceMarshalling
-import org.flowfoundation.flow.sdk.impl.AsyncFlowAccessApiImpl
-import org.flowfoundation.flow.sdk.impl.FlowAccessApiImpl
+import org.onflow.flow.sdk.cadence.CadenceNamespace
+import org.onflow.flow.sdk.cadence.Field
+import org.onflow.flow.sdk.cadence.JsonCadenceMarshalling
+import org.onflow.flow.sdk.impl.AsyncFlowAccessApiImpl
+import org.onflow.flow.sdk.impl.FlowAccessApiImpl
 import kotlin.reflect.KClass
 
 object Flow {

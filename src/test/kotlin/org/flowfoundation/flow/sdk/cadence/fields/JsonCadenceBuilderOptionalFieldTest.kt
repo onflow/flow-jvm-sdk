@@ -1,6 +1,6 @@
-package org.flowfoundation.flow.sdk.cadence.fields
+package org.onflow.flow.sdk.cadence.fields
 
-import org.flowfoundation.flow.sdk.cadence.*
+import org.onflow.flow.sdk.cadence.*
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test

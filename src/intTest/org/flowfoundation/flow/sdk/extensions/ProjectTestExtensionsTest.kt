@@ -1,10 +1,10 @@
-package org.flowfoundation.flow.sdk.extensions
+package org.onflow.flow.sdk.extensions
 
-import org.flowfoundation.flow.sdk.AsyncFlowAccessApi
-import org.flowfoundation.flow.sdk.FlowAccessApi
-import org.flowfoundation.flow.sdk.HashAlgorithm
-import org.flowfoundation.flow.sdk.SignatureAlgorithm
-import org.flowfoundation.flow.sdk.test.*
+import org.onflow.flow.sdk.AsyncFlowAccessApi
+import org.onflow.flow.sdk.FlowAccessApi
+import org.onflow.flow.sdk.HashAlgorithm
+import org.onflow.flow.sdk.SignatureAlgorithm
+import org.onflow.flow.sdk.test.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test

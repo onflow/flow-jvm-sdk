@@ -1,4 +1,4 @@
-package org.flowfoundation.flow.sdk
+package org.onflow.flow.sdk
 
 /**
  * Contains addresses of contract/addresses on the blockchain and offers methods for processing scripts by performing

@@ -1,9 +1,9 @@
-package org.flowfoundation.flow.sdk
+package org.onflow.flow.sdk
 
 import com.google.protobuf.ByteString
 import com.google.protobuf.UnsafeByteOperations
-import org.flowfoundation.flow.sdk.cadence.EventField
-import org.flowfoundation.flow.sdk.cadence.Field
+import org.onflow.flow.sdk.cadence.EventField
+import org.onflow.flow.sdk.cadence.Field
 import org.onflow.protobuf.access.Access
 import org.onflow.protobuf.entities.*
 import org.tdf.rlp.RLP

@@ -1,11 +1,11 @@
-package org.flowfoundation.flow.sdk
+package org.onflow.flow.sdk
 
-import org.flowfoundation.flow.sdk.cadence.AddressField
-import org.flowfoundation.flow.sdk.crypto.Crypto
-import org.flowfoundation.flow.sdk.test.FlowEmulatorTest
-import org.flowfoundation.flow.sdk.test.FlowServiceAccountCredentials
-import org.flowfoundation.flow.sdk.test.FlowTestClient
-import org.flowfoundation.flow.sdk.test.TestAccount
+import org.onflow.flow.sdk.cadence.AddressField
+import org.onflow.flow.sdk.crypto.Crypto
+import org.onflow.flow.sdk.test.FlowEmulatorTest
+import org.onflow.flow.sdk.test.FlowServiceAccountCredentials
+import org.onflow.flow.sdk.test.FlowTestClient
+import org.onflow.flow.sdk.test.TestAccount
 import org.junit.jupiter.api.Assertions.*
 import java.math.BigDecimal
 

@@ -1,4 +1,4 @@
-package org.flowfoundation.flow.sdk.cadence
+package org.onflow.flow.sdk.cadence
 
 // This files contains types for the JSON-Cadence Data Interchange Format
 import java.util.Objects
@@ -13,9 +13,9 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer
 import com.fasterxml.jackson.databind.exc.MismatchedInputException
-import org.flowfoundation.flow.sdk.Flow
-import org.flowfoundation.flow.sdk.FlowAddress
-import org.flowfoundation.flow.sdk.bytesToHex
+import org.onflow.flow.sdk.Flow
+import org.onflow.flow.sdk.FlowAddress
+import org.onflow.flow.sdk.bytesToHex
 import kotlinx.serialization.json.*
 import kotlinx.serialization.serializer
 import java.io.Serializable

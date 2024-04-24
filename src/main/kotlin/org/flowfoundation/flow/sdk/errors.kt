@@ -1,4 +1,4 @@
-package org.flowfoundation.flow.sdk
+package org.onflow.flow.sdk
 
 val ERROR_CODE_REGEX = Regex(".*\\[Error Code: ([0-9]+)].*", RegexOption.DOT_MATCHES_ALL)
 

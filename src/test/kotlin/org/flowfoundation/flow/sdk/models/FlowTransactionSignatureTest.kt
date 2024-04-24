@@ -1,8 +1,8 @@
-package org.flowfoundation.flow.sdk.models
+package org.onflow.flow.sdk.models
 
-import org.flowfoundation.flow.sdk.FlowAddress
-import org.flowfoundation.flow.sdk.FlowSignature
-import org.flowfoundation.flow.sdk.FlowTransactionSignature
+import org.onflow.flow.sdk.FlowAddress
+import org.onflow.flow.sdk.FlowSignature
+import org.onflow.flow.sdk.FlowTransactionSignature
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.onflow.protobuf.entities.TransactionOuterClass

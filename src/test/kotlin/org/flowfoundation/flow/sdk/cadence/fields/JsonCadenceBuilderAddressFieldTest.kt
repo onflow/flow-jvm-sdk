@@ -1,7 +1,7 @@
-package org.flowfoundation.flow.sdk.cadence.fields
+package org.onflow.flow.sdk.cadence.fields
 
-import org.flowfoundation.flow.sdk.FlowAddress
-import org.flowfoundation.flow.sdk.cadence.AddressField
+import org.onflow.flow.sdk.FlowAddress
+import org.onflow.flow.sdk.cadence.AddressField
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test

@@ -1,9 +1,9 @@
-package org.flowfoundation.flow.sdk.models
+package org.onflow.flow.sdk.models
 
 import com.google.protobuf.ByteString
-import org.flowfoundation.flow.sdk.FlowEvent
-import org.flowfoundation.flow.sdk.FlowEventPayload
-import org.flowfoundation.flow.sdk.FlowId
+import org.onflow.flow.sdk.FlowEvent
+import org.onflow.flow.sdk.FlowEventPayload
+import org.onflow.flow.sdk.FlowId
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.onflow.protobuf.entities.EventOuterClass

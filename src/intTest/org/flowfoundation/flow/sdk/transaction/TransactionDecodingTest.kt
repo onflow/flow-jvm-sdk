@@ -1,8 +1,8 @@
-package org.flowfoundation.flow.sdk.transaction
+package org.onflow.flow.sdk.transaction
 
-import org.flowfoundation.flow.sdk.*
+import org.onflow.flow.sdk.*
 import org.assertj.core.api.Assertions.assertThat
-import org.flowfoundation.flow.sdk.test.FlowEmulatorTest
+import org.onflow.flow.sdk.test.FlowEmulatorTest
 import org.junit.jupiter.api.Test
 
 @FlowEmulatorTest

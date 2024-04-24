@@ -1,9 +1,9 @@
-package org.flowfoundation.flow.sdk.impl
+package org.onflow.flow.sdk.impl
 
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.SettableFuture
 import com.google.protobuf.ByteString
-import org.flowfoundation.flow.sdk.*
+import org.onflow.flow.sdk.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.mock

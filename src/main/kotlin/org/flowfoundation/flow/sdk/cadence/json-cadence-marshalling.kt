@@ -1,8 +1,8 @@
-package org.flowfoundation.flow.sdk.cadence
+package org.onflow.flow.sdk.cadence
 
-import org.flowfoundation.flow.sdk.Flow
-import org.flowfoundation.flow.sdk.FlowAddress
-import org.flowfoundation.flow.sdk.cadence.CadenceNamespace.Companion.ns
+import org.onflow.flow.sdk.Flow
+import org.onflow.flow.sdk.FlowAddress
+import org.onflow.flow.sdk.cadence.CadenceNamespace.Companion.ns
 import java.lang.annotation.Inherited
 import java.math.BigDecimal
 import java.math.BigInteger

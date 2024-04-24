@@ -1,6 +1,6 @@
-package org.flowfoundation.flow.sdk.cadence.fields
+package org.onflow.flow.sdk.cadence.fields
 
-import org.flowfoundation.flow.sdk.cadence.BooleanField
+import org.onflow.flow.sdk.cadence.BooleanField
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Test

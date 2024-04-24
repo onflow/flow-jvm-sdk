@@ -1,10 +1,10 @@
-package org.flowfoundation.flow.sdk.models
+package org.onflow.flow.sdk.models
 
-import org.flowfoundation.flow.sdk.*
-import org.flowfoundation.flow.sdk.cadence.CompositeAttribute
-import org.flowfoundation.flow.sdk.cadence.CompositeValue
-import org.flowfoundation.flow.sdk.cadence.EventField
-import org.flowfoundation.flow.sdk.cadence.StringField
+import org.onflow.flow.sdk.*
+import org.onflow.flow.sdk.cadence.CompositeAttribute
+import org.onflow.flow.sdk.cadence.CompositeValue
+import org.onflow.flow.sdk.cadence.EventField
+import org.onflow.flow.sdk.cadence.StringField
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows

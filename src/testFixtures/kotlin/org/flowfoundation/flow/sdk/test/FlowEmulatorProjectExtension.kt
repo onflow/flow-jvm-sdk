@@ -1,7 +1,7 @@
-package org.flowfoundation.flow.sdk.test
+package org.onflow.flow.sdk.test
 
-import org.flowfoundation.flow.sdk.HashAlgorithm
-import org.flowfoundation.flow.sdk.SignatureAlgorithm
+import org.onflow.flow.sdk.HashAlgorithm
+import org.onflow.flow.sdk.SignatureAlgorithm
 import org.apiguardian.api.API
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.api.extension.ExtensionContext

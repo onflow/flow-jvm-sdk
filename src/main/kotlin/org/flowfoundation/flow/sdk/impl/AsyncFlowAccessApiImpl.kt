@@ -1,11 +1,11 @@
-package org.flowfoundation.flow.sdk.impl
+package org.onflow.flow.sdk.impl
 
 import com.google.common.util.concurrent.FutureCallback
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
 import com.google.protobuf.ByteString
-import org.flowfoundation.flow.sdk.*
+import org.onflow.flow.sdk.*
 import io.grpc.ManagedChannel
 import org.onflow.protobuf.access.Access
 import org.onflow.protobuf.access.AccessAPIGrpc

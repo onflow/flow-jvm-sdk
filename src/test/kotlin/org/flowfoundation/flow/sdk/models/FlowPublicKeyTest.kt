@@ -1,7 +1,7 @@
-package org.flowfoundation.flow.sdk.models
+package org.onflow.flow.sdk.models
 
-import org.flowfoundation.flow.sdk.FlowPublicKey
-import org.flowfoundation.flow.sdk.hexToBytes
+import org.onflow.flow.sdk.FlowPublicKey
+import org.onflow.flow.sdk.hexToBytes
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 

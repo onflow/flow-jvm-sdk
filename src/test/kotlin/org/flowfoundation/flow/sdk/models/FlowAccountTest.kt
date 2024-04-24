@@ -1,7 +1,7 @@
-package org.flowfoundation.flow.sdk.models
+package org.onflow.flow.sdk.models
 
 import com.google.protobuf.ByteString
-import org.flowfoundation.flow.sdk.*
+import org.onflow.flow.sdk.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.onflow.protobuf.entities.AccountOuterClass

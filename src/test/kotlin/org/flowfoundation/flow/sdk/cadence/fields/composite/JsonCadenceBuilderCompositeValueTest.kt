@@ -1,9 +1,9 @@
-package org.flowfoundation.flow.sdk.cadence.fields.composite
+package org.onflow.flow.sdk.cadence.fields.composite
 
-import org.flowfoundation.flow.sdk.cadence.CompositeAttribute
-import org.flowfoundation.flow.sdk.cadence.CompositeValue
-import org.flowfoundation.flow.sdk.cadence.IntNumberField
-import org.flowfoundation.flow.sdk.cadence.StringField
+import org.onflow.flow.sdk.cadence.CompositeAttribute
+import org.onflow.flow.sdk.cadence.CompositeValue
+import org.onflow.flow.sdk.cadence.IntNumberField
+import org.onflow.flow.sdk.cadence.StringField
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test

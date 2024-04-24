@@ -1,8 +1,8 @@
-package org.flowfoundation.flow.sdk
+package org.onflow.flow.sdk
 
 import com.google.protobuf.UnsafeByteOperations
-import org.flowfoundation.flow.sdk.cadence.Field
-import org.flowfoundation.flow.sdk.cadence.JsonCadenceBuilder
+import org.onflow.flow.sdk.cadence.Field
+import org.onflow.flow.sdk.cadence.JsonCadenceBuilder
 
 fun flowScript(block: ScriptBuilder.() -> Unit): ScriptBuilder {
     val ret = ScriptBuilder()

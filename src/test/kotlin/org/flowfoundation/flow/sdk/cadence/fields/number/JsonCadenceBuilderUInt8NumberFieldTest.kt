@@ -1,6 +1,6 @@
-package org.flowfoundation.flow.sdk.cadence.fields.number
+package org.onflow.flow.sdk.cadence.fields.number
 
-import org.flowfoundation.flow.sdk.cadence.UInt8NumberField
+import org.onflow.flow.sdk.cadence.UInt8NumberField
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test

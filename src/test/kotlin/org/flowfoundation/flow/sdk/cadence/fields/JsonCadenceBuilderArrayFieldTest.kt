@@ -1,9 +1,9 @@
-package org.flowfoundation.flow.sdk.cadence.fields
+package org.onflow.flow.sdk.cadence.fields
 
-import org.flowfoundation.flow.sdk.cadence.ArrayField
-import org.flowfoundation.flow.sdk.cadence.Field
-import org.flowfoundation.flow.sdk.cadence.IntNumberField
-import org.flowfoundation.flow.sdk.cadence.StringField
+import org.onflow.flow.sdk.cadence.ArrayField
+import org.onflow.flow.sdk.cadence.Field
+import org.onflow.flow.sdk.cadence.IntNumberField
+import org.onflow.flow.sdk.cadence.StringField
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals

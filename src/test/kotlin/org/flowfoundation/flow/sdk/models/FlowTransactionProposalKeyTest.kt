@@ -1,8 +1,8 @@
-package org.flowfoundation.flow.sdk.models
+package org.onflow.flow.sdk.models
 
 import com.google.protobuf.ByteString
-import org.flowfoundation.flow.sdk.FlowAddress
-import org.flowfoundation.flow.sdk.FlowTransactionProposalKey
+import org.onflow.flow.sdk.FlowAddress
+import org.onflow.flow.sdk.FlowTransactionProposalKey
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.onflow.protobuf.entities.TransactionOuterClass

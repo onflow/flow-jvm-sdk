@@ -1,4 +1,4 @@
-package org.flowfoundation.flow.sdk
+package org.onflow.flow.sdk
 
 class FlowException : RuntimeException {
     constructor() : super()

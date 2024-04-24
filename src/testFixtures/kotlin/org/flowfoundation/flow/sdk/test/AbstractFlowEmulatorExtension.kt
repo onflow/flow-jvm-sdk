@@ -1,11 +1,11 @@
-package org.flowfoundation.flow.sdk.test
+package org.onflow.flow.sdk.test
 
-import org.flowfoundation.flow.sdk.*
-import org.flowfoundation.flow.sdk.cadence.StringField
-import org.flowfoundation.flow.sdk.crypto.Crypto
-import org.flowfoundation.flow.sdk.crypto.KeyPair
-import org.flowfoundation.flow.sdk.impl.AsyncFlowAccessApiImpl
-import org.flowfoundation.flow.sdk.impl.FlowAccessApiImpl
+import org.onflow.flow.sdk.*
+import org.onflow.flow.sdk.cadence.StringField
+import org.onflow.flow.sdk.crypto.Crypto
+import org.onflow.flow.sdk.crypto.KeyPair
+import org.onflow.flow.sdk.impl.AsyncFlowAccessApiImpl
+import org.onflow.flow.sdk.impl.FlowAccessApiImpl
 import org.apiguardian.api.API
 import org.junit.jupiter.api.extension.AfterEachCallback
 import org.junit.jupiter.api.extension.BeforeEachCallback
@@ -88,10 +88,10 @@ annotation class TestContractArg(
 data class TestContractDeployment(
     val name: String,
     val code: String,
-    val args: Map<String, org.flowfoundation.flow.sdk.cadence.Field<*>>
+    val args: Map<String, org.onflow.flow.sdk.cadence.Field<*>>
 ) {
     companion object {
-        fun from(name: String, code: () -> InputStream, args: Map<String, org.flowfoundation.flow.sdk.cadence.Field<*>> = mapOf()): TestContractDeployment {
+        fun from(name: String, code: () -> InputStream, args: Map<String, org.onflow.flow.sdk.cadence.Field<*>> = mapOf()): TestContractDeployment {
             return TestContractDeployment(
                 name = name,
                 code = code().use { String(it.readAllBytes()) },

@@ -1,10 +1,10 @@
-package org.flowfoundation.flow.sdk.models
+package org.onflow.flow.sdk.models
 
 import com.google.protobuf.ByteString
-import org.flowfoundation.flow.sdk.FlowAccountKey
-import org.flowfoundation.flow.sdk.FlowPublicKey
-import org.flowfoundation.flow.sdk.HashAlgorithm
-import org.flowfoundation.flow.sdk.SignatureAlgorithm
+import org.onflow.flow.sdk.FlowAccountKey
+import org.onflow.flow.sdk.FlowPublicKey
+import org.onflow.flow.sdk.HashAlgorithm
+import org.onflow.flow.sdk.SignatureAlgorithm
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.onflow.protobuf.entities.AccountOuterClass

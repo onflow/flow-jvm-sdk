@@ -1,10 +1,10 @@
-package org.flowfoundation.flow.sdk.models
+package org.onflow.flow.sdk.models
 
-import org.flowfoundation.flow.sdk.FlowId
-import org.flowfoundation.flow.sdk.hexToBytes
+import org.onflow.flow.sdk.FlowId
+import org.onflow.flow.sdk.hexToBytes
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.flowfoundation.flow.sdk.fixedSize
+import org.onflow.flow.sdk.fixedSize
 import org.junit.jupiter.api.Test
 
 class FlowIdTest {
