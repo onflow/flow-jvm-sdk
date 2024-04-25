@@ -1,7 +1,7 @@
 # Flow JVM SDK
 
-[![Maven Central](https://img.shields.io/maven-central/v/org.flowfoundation/flow-jvm-sdk)](https://search.maven.org/search?q=g:com.nftco%20AND%20a:flow-jvm-sdk) 
-[![Sonatype OSS](https://img.shields.io/nexus/s/org.flowfoundation/flow-jvm-sdk?label=snapshot&server=https%3A%2F%2Fs01.oss.sonatype.org%2F)](https://s01.oss.sonatype.org/content/repositories/snapshots/com/nftco/flow-jvm-sdk/)
+[![Maven Central](https://img.shields.io/maven-central/v/org.onflow/flow-jvm-sdk)](https://search.maven.org/search?q=g:com.nftco%20AND%20a:flow-jvm-sdk) 
+[![Sonatype OSS](https://img.shields.io/nexus/s/org.onflow/flow-jvm-sdk?label=snapshot&server=https%3A%2F%2Fs01.oss.sonatype.org%2F)](https://s01.oss.sonatype.org/content/repositories/snapshots/com/nftco/flow-jvm-sdk/)
 
 The Flow JVM SDK is a library for JVM languages (e.g. Java, Kotlin) that provides
 utilities to interact with the Flow blockchain.
@@ -33,7 +33,7 @@ SDK to your project using Maven or Gradle.
 </repositories>
 
 <dependency>
-  <groupId>org.flowfoundation</groupId>
+  <groupId>org.onflow</groupId>
   <artifactId>flow-jvm-sdk</artifactId>
   <version>[VERSION HERE]</version>
 </dependency>
@@ -52,7 +52,7 @@ repositories {
 }
 
 dependencies {
-    api("org.flowfoundation:flow-jvm-sdk:[VERSION HERE]")
+    api("org.onflow:flow-jvm-sdk:[VERSION HERE]")
 }
 ```
 
@@ -74,8 +74,8 @@ repositories {
 }
 
 dependencies {
-    api("org.flowfoundation:flow-jvm-sdk:[VERSION HERE]")
-    testFixturesApi(testFixtures("org.flowfoundation:flow-jvm-sdk:[VERSION HERE]"))
+    api("org.onflow:flow-jvm-sdk:[VERSION HERE]")
+    testFixturesApi(testFixtures("org.onflow:flow-jvm-sdk:[VERSION HERE]"))
 }
 ```
 
@@ -109,10 +109,10 @@ repositories {
 }
 
 dependencies {
-    api("org.flowfoundation:flow-jvm-sdk:[VERSION HERE]")
+    api("org.onflow:flow-jvm-sdk:[VERSION HERE]")
     
     // this allows for using the test extension
-    testFixturesApi(testFixtures("org.flowfoundation:flow-jvm-sdk:[VERSION HERE]"))
+    testFixturesApi(testFixtures("org.onflow:flow-jvm-sdk:[VERSION HERE]"))
 }
 ```
 
@@ -188,3 +188,5 @@ The Flow JVM SDK maintainers have included
    * [@jereanon](https://github.com/jereanon) 
 * [Purple Dash](https://purpledash.dev)
    * [@lealobanov](https://github.com/lealobanov)
+ 
+     
