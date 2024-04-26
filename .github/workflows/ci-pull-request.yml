@@ -1,4 +1,4 @@
-name: Build And Publish Pull Request
+name: Build Pull Request
 on: pull_request
 
 jobs:
@@ -51,6 +51,8 @@ jobs:
         with:
           check_name: "Unit Test Results"
           files: "**/test-results/test/**/*.xml"
+          seconds_between_github_writes: 5
+          secondary_rate_limit_wait_seconds: 120
 
       - name: Run Integration Tests
         if: ${{ steps.unit_test.outcome == 'success' }}
@@ -64,3 +66,5 @@ jobs:
         with:
           check_name: "Integration Test Results"
           files: "**/test-results/integrationTest/**/*.xml"
+          seconds_between_github_writes: 5
+          secondary_rate_limit_wait_seconds: 120
