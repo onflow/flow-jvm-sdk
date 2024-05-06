@@ -171,7 +171,7 @@ tasks {
     }
 
     mavenPublishing {
-        publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL, true)
+        publishToMavenCentral(SonatypeHost.DEFAULT, true)
 
         coordinates(group.toString(), "flow-jvm-sdk", version.toString())
 
