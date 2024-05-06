@@ -2,7 +2,7 @@ import com.vanniktech.maven.publish.SonatypeHost
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 // configuration variables
-val defaultGroupId = "com.lealobanov"
+val defaultGroupId = "org.onflow"
 val defaultVersion = "1.0.0"
 
 // other variables
@@ -171,7 +171,7 @@ tasks {
     }
 
     mavenPublishing {
-        publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
+        publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL, true)
 
         coordinates(group.toString(), "flow-jvm-sdk", version.toString())
 
@@ -200,5 +200,14 @@ tasks {
             }
         }
     }
+}
+
+signing {
+    if (getProp("signing.key") != null) {
+        useInMemoryPgpKeys(getProp("signing.key"), getProp("signing.password"))
+    } else {
+        useGpgCmd()
+    }
+    sign(publishing.publications)
 }
 
