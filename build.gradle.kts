@@ -1,8 +1,9 @@
+import com.vanniktech.maven.publish.SonatypeHost
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 // configuration variables
-val defaultGroupId = "org.onflow"
-val defaultVersion = "1.0.0-SNAPSHOT"
+val defaultGroupId = "com.lealobanov"
+val defaultVersion = "1.0.0"
 
 // other variables
 
@@ -28,7 +29,8 @@ plugins {
     `java-library`
     `java-test-fixtures`
     `maven-publish`
-    id("io.github.gradle-nexus.publish-plugin") version "2.0.0-rc-1"
+    //id("io.github.gradle-nexus.publish-plugin") version "2.0.0"
+    id ("com.vanniktech.maven.publish") version "0.28.0"
     id("org.jmailen.kotlinter") version "4.2.0"
     id("kotlinx-serialization") version "1.8.0"
 }
@@ -168,64 +170,35 @@ tasks {
         add("archives", sourcesJar)
     }
 
-    nexusPublishing {
-        repositories {
-            sonatype {
-                if (getProp("sonatype.nexusUrl") != null) {
-                    nexusUrl.set(uri(getProp("sonatype.nexusUrl")!!))
-                }
-                if (getProp("sonatype.snapshotRepositoryUrl") != null) {
-                    snapshotRepositoryUrl.set(uri(getProp("sonatype.snapshotRepositoryUrl")!!))
-                }
-                if (getProp("sonatype.username") != null) {
-                    username.set(getProp("sonatype.username")!!)
-                }
-                if (getProp("sonatype.password") != null) {
-                    password.set(getProp("sonatype.password")!!)
+    mavenPublishing {
+        publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
+
+        coordinates(group.toString(), "flow-jvm-sdk", version.toString())
+
+        signAllPublications()
+
+        pom {
+            licenses {
+                license {
+                    name.set("The Apache License, Version 2.0")
+                    url.set("https://www.apache.org/licenses/LICENSE-2.0.txt")
                 }
             }
-        }
-    }
-
-    publishing {
-        publications {
-            create<MavenPublication>("mavenJava") {
-                from(project.components["java"])
-                artifact(documentationJar)
-                artifact(sourcesJar)
-
-                pom {
-                    licenses {
-                        license {
-                            name.set("The Apache License, Version 2.0")
-                            url.set("https://www.apache.org/licenses/LICENSE-2.0.txt")
-                        }
-                    }
-                    name.set(project.name)
+            name.set(project.name)
+            url.set("https://onflow.org")
+            description.set("The Flow Blockchain JVM SDK")
+            scm {
+                url.set("https://github.com/onflow/flow")
+                connection.set("scm:git:git@github.com/onflow/flow-jvm-sdk.git")
+                developerConnection.set("scm:git:git@github.com/onflow/flow-jvm-sdk.git")
+            }
+            developers {
+                developer {
+                    name.set("Flow Developers")
                     url.set("https://onflow.org")
-                    description.set("The Flow Blockchain JVM SDK")
-                    scm {
-                        url.set("https://github.com/onflow/flow")
-                        connection.set("scm:git:git@github.com/onflow/flow-jvm-sdk.git")
-                        developerConnection.set("scm:git:git@github.com/onflow/flow-jvm-sdk.git")
-                    }
-                    developers {
-                        developer {
-                            name.set("Flow Developers")
-                            url.set("https://onflow.org")
-                        }
-                    }
                 }
             }
         }
-    }
-
-    signing {
-        if (getProp("signing.key") != null) {
-            useInMemoryPgpKeys(getProp("signing.key"), getProp("signing.password"))
-        } else {
-            useGpgCmd()
-        }
-        sign(publishing.publications)
     }
 }
+
