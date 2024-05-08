@@ -47,8 +47,8 @@ jobs:
       - name: Publish release
         env:
           JAVA_OPTS: -Xmx2g -Dorg.gradle.daemon=false
-          ORG_GRADLE_PROJECT_mavenCentralUsername:  ${{ secrets.FLOW_JVM_SDK_SONATYPE_USERNAME }}
-          ORG_GRADLE_PROJECT_mavenCentralPassword:  ${{ secrets.FLOW_JVM_SDK_SONATYPE_PASSWORD }}
+          ORG_GRADLE_PROJECT_mavenCentralUsername:  '${{ secrets.FLOW_JVM_SDK_SONATYPE_USERNAME }}'
+          ORG_GRADLE_PROJECT_mavenCentralPassword:  '${{ secrets.FLOW_JVM_SDK_SONATYPE_PASSWORD }}'
           ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.FLOW_JVM_SDK_SIGNING_KEY }}
           ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.FLOW_JVM_SDK_SIGNING_PASSWORD }}
 
