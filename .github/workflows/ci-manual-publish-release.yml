@@ -45,17 +45,16 @@ jobs:
         run: ./gradlew --warning-mode all check build -x test -x integrationTest
 
       - name: Publish release
+        env:
+          JAVA_OPTS: -Xmx2g -Dorg.gradle.daemon=false
+          ORG_GRADLE_PROJECT_mavenCentralUsername:  ${{ secrets.FLOW_JVM_SDK_SONATYPE_USERNAME }}
+          ORG_GRADLE_PROJECT_mavenCentralPassword:  ${{ secrets.FLOW_JVM_SDK_SONATYPE_PASSWORD }}
+          ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.FLOW_JVM_SDK_SIGNING_KEY }}
+          ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.FLOW_JVM_SDK_SIGNING_PASSWORD }}
+
         run: |
           if [[ "${{ secrets.FLOW_JVM_SDK_CICD_PUBLISH_ENABLED }}" != "true" ]];
           then
             exit 0;
           fi
-          ./gradlew \
-            -PsnapshotDate="${{ steps.date.outputs.date }}" \
-            -Psigning.key="${{ secrets.FLOW_JVM_SDK_SIGNING_KEY }}" \
-            -Psigning.password="${{ secrets.FLOW_JVM_SDK_SIGNING_PASSWORD }}" \
-            -PmavenCentralUsername="${{ secrets.FLOW_JVM_SDK_SONATYPE_USERNAME }}" \
-            -PmavenCentralPassword="${{ secrets.FLOW_JVM_SDK_SONATYPE_PASSWORD }}" \
-            -x test \
-            clean \
-            publishAndReleaseToMavenCentral --no-configuration-cache
+          ./gradlew publishAndReleaseToMavenCentral --no-configuration-cache
