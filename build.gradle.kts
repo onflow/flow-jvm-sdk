@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 // configuration variables
 val defaultGroupId = "org.onflow"
-val defaultVersion = "1.0.0"
+val defaultVersion = "1.0.1"
 
 // other variables
 
