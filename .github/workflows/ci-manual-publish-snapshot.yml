@@ -1,11 +1,11 @@
-name: Manually Publish Release
+name: Manually Publish Snapshot
 on:
   push:
     branches:
       - main
 jobs:
   build:
-    name: Manually publish release
+    name: Manually publish snapshot
     runs-on: ubuntu-latest
     env:
       JAVA_OPTS: -Xmx2g -Dorg.gradle.daemon=false
@@ -57,4 +57,4 @@ jobs:
           then
             exit 0;
           fi
-          ./gradlew publishAndReleaseToMavenCentral --no-configuration-cache
+          ./gradlew publishToMavenCentral --no-configuration-cache
