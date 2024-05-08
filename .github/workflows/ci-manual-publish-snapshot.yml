@@ -57,4 +57,7 @@ jobs:
           then
             exit 0;
           fi
-          ./gradlew publishToMavenCentral --no-configuration-cache
+          ./gradlew \
+            -Psigning.key="${{ secrets.FLOW_JVM_SDK_SIGNING_KEY }}" \
+            -Psigning.password="${{ secrets.FLOW_JVM_SDK_SIGNING_PASSWORD }}" \
+            publishToMavenCentral --no-configuration-cache
