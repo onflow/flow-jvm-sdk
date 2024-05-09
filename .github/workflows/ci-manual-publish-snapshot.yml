@@ -1,6 +1,6 @@
 name: Manually Publish Snapshot
 on:
-  push:
+  workflow_dispatch:
     branches:
       - main
 jobs:
@@ -44,7 +44,7 @@ jobs:
         id: build
         run: ./gradlew --warning-mode all check build -x test -x integrationTest
 
-      - name: Publish release
+      - name: Publish snapshot
         env:
           JAVA_OPTS: -Xmx2g -Dorg.gradle.daemon=false
           ORG_GRADLE_PROJECT_mavenCentralUsername:  '${{ secrets.FLOW_JVM_SDK_SONATYPE_USERNAME }}'

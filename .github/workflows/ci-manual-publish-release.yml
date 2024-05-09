@@ -1,6 +1,6 @@
 name: Manually Publish Release
 on:
-  push:
+  workflow_dispatch:
     branches:
       - main
 jobs:
