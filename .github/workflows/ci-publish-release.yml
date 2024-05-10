@@ -75,22 +75,20 @@ jobs:
           secondary_rate_limit_wait_seconds: 120
 
       - name: Publish release
+        env:
+          JAVA_OPTS: -Xmx2g -Dorg.gradle.daemon=false
+          ORG_GRADLE_PROJECT_mavenCentralUsername: '${{ secrets.FLOW_JVM_SDK_SONATYPE_USERNAME }}'
+          ORG_GRADLE_PROJECT_mavenCentralPassword: '${{ secrets.FLOW_JVM_SDK_SONATYPE_PASSWORD }}'
+          ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.FLOW_JVM_SDK_SIGNING_KEY }}
+          ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.FLOW_JVM_SDK_SIGNING_PASSWORD }}
+
         run: |
           if [[ "${{ secrets.FLOW_JVM_SDK_CICD_PUBLISH_ENABLED }}" != "true" ]];
           then
             exit 0;
           fi
           ./gradlew \
-            -Pversion="${{ steps.get_version.outputs.version-without-v }}" \
-            -PgroupId="${{ secrets.FLOW_JVM_SDK_GROUP_ID }}" \
             -Psigning.key="${{ secrets.FLOW_JVM_SDK_SIGNING_KEY }}" \
             -Psigning.password="${{ secrets.FLOW_JVM_SDK_SIGNING_PASSWORD }}" \
-            -Psonatype.nexusUrl="${{ secrets.FLOW_JVM_SDK_NEXUS_URL }}" \
-            -Psonatype.snapshotRepositoryUrl="${{ secrets.FLOW_JVM_SDK_SNAPSHOT_REPOSITORY_URL }}" \
-            -Psonatype.username="${{ secrets.FLOW_JVM_SDK_SONATYPE_USERNAME }}" \
-            -Psonatype.password="${{ secrets.FLOW_JVM_SDK_SONATYPE_PASSWORD }}" \
-            -x test \
-            clean \
-            publishToSonatype \
-            closeAndReleaseSonatypeStagingRepository
+            publishAndReleaseToMavenCentral --no-configuration-cache
 
