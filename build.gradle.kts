@@ -29,7 +29,6 @@ plugins {
     `java-library`
     `java-test-fixtures`
     `maven-publish`
-    //id("io.github.gradle-nexus.publish-plugin") version "2.0.0"
     id ("com.vanniktech.maven.publish") version "0.28.0"
     id("org.jmailen.kotlinter") version "4.2.0"
     id("kotlinx-serialization") version "1.8.0"
