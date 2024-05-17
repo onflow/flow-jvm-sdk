@@ -40,8 +40,17 @@ object Crypto {
     @JvmStatic
     @JvmOverloads
     fun generateKeyPair(algo: SignatureAlgorithm = SignatureAlgorithm.ECDSA_P256): KeyPair {
-        val generator = KeyPairGenerator.getInstance("EC", "BC")
-        generator.initialize(ECGenParameterSpec(algo.curve), SecureRandom())
+        val generator = when (algo.algorithm) {
+            "ECDSA" -> {
+                val gen = KeyPairGenerator.getInstance("EC", "BC")
+                gen.initialize(ECGenParameterSpec(algo.curve), SecureRandom())
+                gen
+            }
+            // Placeholder for BLS - requires specific BLS library support
+            "BLS" -> throw UnsupportedOperationException("BLS not yet implemented")
+            else -> throw IllegalArgumentException("Unsupported algorithm: ${algo.algorithm}")
+        }
+
         val keyPair = generator.generateKeyPair()
         val privateKey = keyPair.private
         val publicKey = keyPair.public
@@ -73,46 +82,49 @@ object Crypto {
     @JvmStatic
     @JvmOverloads
     fun decodePrivateKey(key: String, algo: SignatureAlgorithm = SignatureAlgorithm.ECDSA_P256): PrivateKey {
-        val ecParameterSpec = ECNamedCurveTable.getParameterSpec(algo.curve)
-        val keyFactory = KeyFactory.getInstance(algo.algorithm, "BC")
-        val ecPrivateKeySpec = ECPrivateKeySpec(BigInteger(key, 16), ecParameterSpec)
-        val pk = keyFactory.generatePrivate(ecPrivateKeySpec)
-        return PrivateKey(
-            key = pk,
-            ecCoupleComponentSize = if (pk is ECPrivateKey) {
-                pk.parameters.n.bitLength() / 8
-            } else {
-                0
-            },
-            hex = if (pk is ECPrivateKey) {
-                pk.d.toByteArray().bytesToHex()
-            } else {
-                throw IllegalArgumentException("PrivateKey must be an ECPublicKey")
+        return when (algo.algorithm) {
+            "ECDSA" -> {
+                val ecParameterSpec = ECNamedCurveTable.getParameterSpec(algo.curve)
+                val keyFactory = KeyFactory.getInstance(algo.algorithm, "BC")
+                val ecPrivateKeySpec = ECPrivateKeySpec(BigInteger(key, 16), ecParameterSpec)
+                val pk = keyFactory.generatePrivate(ecPrivateKeySpec) as ECPrivateKey
+                PrivateKey(
+                    key = pk,
+                    ecCoupleComponentSize = pk.parameters.n.bitLength() / 8,
+                    hex = pk.d.toByteArray().bytesToHex()
+                )
             }
-        )
+            // Placeholder for BLS
+            "BLS" -> throw UnsupportedOperationException("BLS not yet implemented")
+            else -> throw IllegalArgumentException("Unsupported algorithm: ${algo.algorithm}")
+        }
     }
 
     @JvmStatic
     @JvmOverloads
     fun decodePublicKey(key: String, algo: SignatureAlgorithm = SignatureAlgorithm.ECDSA_P256): PublicKey {
-        val ecParameterSpec = ECNamedCurveTable.getParameterSpec(algo.curve)
-        val keyFactory = KeyFactory.getInstance("EC", "BC")
-        val params = ECNamedCurveSpec(
-            algo.curve,
-            ecParameterSpec.curve, ecParameterSpec.g, ecParameterSpec.n
-        )
-        val point = ECPointUtil.decodePoint(params.curve, byteArrayOf(0x04) + key.hexToBytes())
-        val pubKeySpec = ECPublicKeySpec(point, params)
-        val publicKey = keyFactory.generatePublic(pubKeySpec)
-        return PublicKey(
-            key = publicKey,
-            hex = if (publicKey is ECPublicKey) {
-                (publicKey.q.xCoord.encoded + publicKey.q.yCoord.encoded).bytesToHex()
-            } else {
-                throw IllegalArgumentException("PublicKey must be an ECPublicKey")
+        return when (algo.algorithm) {
+            "ECDSA" -> {
+                val ecParameterSpec = ECNamedCurveTable.getParameterSpec(algo.curve)
+                val keyFactory = KeyFactory.getInstance(algo.algorithm, "BC")
+                val params = ECNamedCurveSpec(
+                    algo.curve,
+                    ecParameterSpec.curve, ecParameterSpec.g, ecParameterSpec.n
+                )
+                val point = ECPointUtil.decodePoint(params.curve, byteArrayOf(0x04) + key.hexToBytes())
+                val pubKeySpec = ECPublicKeySpec(point, params)
+                val publicKey = keyFactory.generatePublic(pubKeySpec) as ECPublicKey
+                PublicKey(
+                    key = publicKey,
+                    hex = (publicKey.q.xCoord.encoded + publicKey.q.yCoord.encoded).bytesToHex()
+                )
             }
-        )
+            // Placeholder for BLS
+            "BLS" -> throw UnsupportedOperationException("BLS not yet implemented")
+            else -> throw IllegalArgumentException("Unsupported algorithm: ${algo.algorithm}")
+        }
     }
+
 
     @JvmStatic
     @JvmOverloads
