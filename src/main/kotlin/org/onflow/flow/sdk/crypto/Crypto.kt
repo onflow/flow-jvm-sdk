@@ -8,7 +8,15 @@ import org.bouncycastle.jce.interfaces.ECPublicKey
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.bouncycastle.jce.spec.ECNamedCurveSpec
 import org.bouncycastle.jce.spec.ECPrivateKeySpec
+import it.unisa.dia.gas.crypto.jpbc.signature.bls01.generators.BLS01KeyPairGenerator
+import it.unisa.dia.gas.crypto.jpbc.signature.bls01.generators.BLS01ParametersGenerator
+import it.unisa.dia.gas.crypto.jpbc.signature.bls01.params.BLS01KeyGenerationParameters
+import it.unisa.dia.gas.crypto.jpbc.signature.bls01.params.BLS01Parameters
+import it.unisa.dia.gas.plaf.jpbc.pairing.PairingFactory
+import org.bouncycastle.crypto.AsymmetricCipherKeyPair
 import org.onflow.flow.sdk.Signer
+import java.io.ByteArrayOutputStream
+import java.io.ObjectOutputStream
 import java.math.BigInteger
 import java.security.*
 import java.security.spec.ECGenParameterSpec
@@ -16,19 +24,56 @@ import java.security.spec.ECPublicKeySpec
 import kotlin.experimental.and
 import kotlin.math.max
 
+
 data class KeyPair(
     val private: PrivateKey,
     val public: PublicKey
 )
 
+sealed class PrivateKeyType {
+    data class ECDSA(val privateKey: java.security.PrivateKey) : PrivateKeyType()
+    data class BLS(private val privateKeyBytes: ByteArray) : PrivateKeyType() {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is BLS) return false
+
+            if (!privateKeyBytes.contentEquals(other.privateKeyBytes)) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            return privateKeyBytes.contentHashCode()
+        }
+    }
+}
+
+sealed class PublicKeyType {
+    data class ECDSA(private val publicKey: java.security.PublicKey) : PublicKeyType()
+    data class BLS(private val publicKeyBytes: ByteArray) : PublicKeyType() {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is BLS) return false
+
+            if (!publicKeyBytes.contentEquals(other.publicKeyBytes)) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            return publicKeyBytes.contentHashCode()
+        }
+    }
+}
+
 data class PrivateKey(
-    val key: java.security.PrivateKey,
+    val key: PrivateKeyType,
     val ecCoupleComponentSize: Int,
     val hex: String
 )
 
 data class PublicKey(
-    val key: java.security.PublicKey,
+    val key: PublicKeyType,
     val hex: String
 )
 
@@ -37,46 +82,84 @@ object Crypto {
         Security.addProvider(BouncyCastleProvider())
     }
 
+    private fun setupBLSParameters(): BLS01Parameters {
+        val setup = BLS01ParametersGenerator()
+        setup.init(PairingFactory.getPairingParameters("params/curves/a.properties"))
+
+        return setup.generateParameters()
+    }
+
+    private fun generateBLSKeyPair(parameters: BLS01Parameters): AsymmetricCipherKeyPair {
+        val keyGen = BLS01KeyPairGenerator()
+        keyGen.init(BLS01KeyGenerationParameters(null, parameters))
+
+        return keyGen.generateKeyPair()
+    }
+
+    fun serializeKey(key: Any): ByteArray {
+        val outputStream = ByteArrayOutputStream()
+        val objectOutputStream = ObjectOutputStream(outputStream)
+        objectOutputStream.writeObject(key)
+        objectOutputStream.flush()
+        return outputStream.toByteArray()
+    }
+
     @JvmStatic
     @JvmOverloads
     fun generateKeyPair(algo: SignatureAlgorithm = SignatureAlgorithm.ECDSA_P256): KeyPair {
-        val generator = when (algo.algorithm) {
+        when (algo.algorithm) {
             "ECDSA" -> {
                 val gen = KeyPairGenerator.getInstance("EC", "BC")
                 gen.initialize(ECGenParameterSpec(algo.curve), SecureRandom())
-                gen
+                val keyPair = gen.generateKeyPair()
+                val privateKey = keyPair.private
+                val publicKey = keyPair.public
+                return KeyPair(
+                    private = PrivateKey(
+                        key = PrivateKeyType.ECDSA(privateKey),
+                        ecCoupleComponentSize = if (privateKey is ECPrivateKey) {
+                            privateKey.parameters.n.bitLength() / 8
+                        } else {
+                            0
+                        },
+                        hex = if (privateKey is ECPrivateKey) {
+                            privateKey.d.toByteArray().bytesToHex()
+                        } else {
+                            throw IllegalArgumentException("PrivateKey must be an ECPublicKey")
+                        }
+                    ),
+                    public = PublicKey(
+                        key = PublicKeyType.ECDSA(publicKey),
+                        hex = if (publicKey is ECPublicKey) {
+                            (publicKey.q.xCoord.encoded + publicKey.q.yCoord.encoded).bytesToHex()
+                        } else {
+                            throw IllegalArgumentException("PublicKey must be an ECPublicKey")
+                        }
+                    )
+                )
             }
-            // Placeholder for BLS - requires specific BLS library support
-            "BLS" -> throw UnsupportedOperationException("BLS not yet implemented")
+            "BLS" -> {
+                val parameters = setupBLSParameters()
+                val keyPair = generateBLSKeyPair(parameters)
+
+
+                return KeyPair(
+                    private = PrivateKey(
+                        key = PrivateKeyType.BLS(serializeKey(keyPair.private)),
+                        ecCoupleComponentSize = 0,  // Not applicable for BLS
+                        hex = serializeKey(keyPair.private).bytesToHex()
+                    ),
+                    public = PublicKey(
+                        key = PublicKeyType.BLS(serializeKey(keyPair.public)),
+                        hex = serializeKey(keyPair.public).bytesToHex()
+                    )
+                )
+            }
+
             else -> throw IllegalArgumentException("Unsupported algorithm: ${algo.algorithm}")
         }
 
-        val keyPair = generator.generateKeyPair()
-        val privateKey = keyPair.private
-        val publicKey = keyPair.public
-        return KeyPair(
-            private = PrivateKey(
-                key = keyPair.private,
-                ecCoupleComponentSize = if (privateKey is ECPrivateKey) {
-                    privateKey.parameters.n.bitLength() / 8
-                } else {
-                    0
-                },
-                hex = if (privateKey is ECPrivateKey) {
-                    privateKey.d.toByteArray().bytesToHex()
-                } else {
-                    throw IllegalArgumentException("PrivateKey must be an ECPublicKey")
-                }
-            ),
-            public = PublicKey(
-                key = publicKey,
-                hex = if (publicKey is ECPublicKey) {
-                    (publicKey.q.xCoord.encoded + publicKey.q.yCoord.encoded).bytesToHex()
-                } else {
-                    throw IllegalArgumentException("PublicKey must be an ECPublicKey")
-                }
-            )
-        )
+
     }
 
     @JvmStatic
@@ -89,7 +172,7 @@ object Crypto {
                 val ecPrivateKeySpec = ECPrivateKeySpec(BigInteger(key, 16), ecParameterSpec)
                 val pk = keyFactory.generatePrivate(ecPrivateKeySpec) as ECPrivateKey
                 PrivateKey(
-                    key = pk,
+                    key = PrivateKeyType.ECDSA(pk),
                     ecCoupleComponentSize = pk.parameters.n.bitLength() / 8,
                     hex = pk.d.toByteArray().bytesToHex()
                 )
@@ -115,7 +198,7 @@ object Crypto {
                 val pubKeySpec = ECPublicKeySpec(point, params)
                 val publicKey = keyFactory.generatePublic(pubKeySpec) as ECPublicKey
                 PublicKey(
-                    key = publicKey,
+                    key = PublicKeyType.ECDSA(publicKey),
                     hex = (publicKey.q.xCoord.encoded + publicKey.q.yCoord.encoded).bytesToHex()
                 )
             }
@@ -182,14 +265,18 @@ internal class SignerImpl(
     override val hasher: Hasher = HasherImpl(hashAlgo)
 ) : Signer {
     override fun sign(bytes: ByteArray): ByteArray {
-        val ecdsaSign = Signature.getInstance(hashAlgo.id)
-        ecdsaSign.initSign(privateKey.key)
-        ecdsaSign.update(bytes)
-
-        val signature = ecdsaSign.sign()
-        if (privateKey.ecCoupleComponentSize <= 0) {
-            return signature
+        val signature: ByteArray = when (privateKey.key) {
+            is PrivateKeyType.ECDSA -> {
+                val ecdsaSign = Signature.getInstance(hashAlgo.id)
+                ecdsaSign.initSign(privateKey.key.privateKey)
+                ecdsaSign.update(bytes)
+                ecdsaSign.sign()
+            }
+            is PrivateKeyType.BLS -> {
+                // to-do
+            }
         }
+
 
         return Crypto.normalizeSignature(signature, privateKey.ecCoupleComponentSize)
     }

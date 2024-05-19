@@ -32,12 +32,15 @@ plugins {
     id ("com.vanniktech.maven.publish") version "0.28.0"
     id("org.jmailen.kotlinter") version "4.2.0"
     id("kotlinx-serialization") version "1.8.0"
+
 }
 
 repositories {
     gradlePluginPortal()
     mavenCentral()
     maven { url = uri("https://jitpack.io") }
+
+
 }
 
 dependencies {
@@ -62,6 +65,9 @@ dependencies {
     testFixturesImplementation("org.junit.jupiter:junit-jupiter:5.10.1")
     testFixturesImplementation("org.mockito:mockito-core:3.12.4")
     testFixturesImplementation("org.mockito:mockito-inline:3.11.2")
+
+    implementation("com.github.emilianobonassi:jpbc:2.0.0")
+
 }
 
 tasks.withType<KotlinCompile> {

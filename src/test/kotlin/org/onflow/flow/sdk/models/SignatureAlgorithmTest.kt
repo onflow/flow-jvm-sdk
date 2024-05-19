@@ -9,6 +9,7 @@ class SignatureAlgorithmTest {
     fun `Test fromCode`() {
         assertEquals(SignatureAlgorithm.ECDSA_P256, SignatureAlgorithm.fromCode(2))
         assertEquals(SignatureAlgorithm.ECDSA_SECP256k1, SignatureAlgorithm.fromCode(3))
+        assertEquals(SignatureAlgorithm.BLS_BLS12_381, SignatureAlgorithm.fromCode(4))
         assertEquals(SignatureAlgorithm.UNKNOWN, SignatureAlgorithm.fromCode(-1))
     }
 
@@ -16,6 +17,7 @@ class SignatureAlgorithmTest {
     fun `Test fromCadenceIndex`() {
         assertEquals(SignatureAlgorithm.ECDSA_P256, SignatureAlgorithm.fromCadenceIndex(1))
         assertEquals(SignatureAlgorithm.ECDSA_SECP256k1, SignatureAlgorithm.fromCadenceIndex(2))
+        assertEquals(SignatureAlgorithm.BLS_BLS12_381, SignatureAlgorithm.fromCadenceIndex(3))
         assertEquals(SignatureAlgorithm.UNKNOWN, SignatureAlgorithm.fromCadenceIndex(-1))
     }
 
