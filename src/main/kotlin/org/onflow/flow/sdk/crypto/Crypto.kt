@@ -1,6 +1,17 @@
 package org.onflow.flow.sdk.crypto
 
-import org.onflow.flow.sdk.*
+import it.unisa.dia.gas.crypto.jpbc.signature.bls01.engines.BLS01Signer
+import it.unisa.dia.gas.crypto.jpbc.signature.bls01.generators.BLS01KeyPairGenerator
+import it.unisa.dia.gas.crypto.jpbc.signature.bls01.generators.BLS01ParametersGenerator
+import it.unisa.dia.gas.crypto.jpbc.signature.bls01.params.BLS01KeyGenerationParameters
+import it.unisa.dia.gas.crypto.jpbc.signature.bls01.params.BLS01Parameters
+import it.unisa.dia.gas.plaf.jpbc.pairing.PairingFactory
+import org.bouncycastle.crypto.AsymmetricCipherKeyPair
+import org.bouncycastle.crypto.CryptoException
+import org.bouncycastle.crypto.digests.SHA256Digest
+import org.bouncycastle.crypto.params.AsymmetricKeyParameter
+import org.bouncycastle.crypto.util.PrivateKeyFactory
+import org.bouncycastle.crypto.util.PublicKeyFactory
 import org.bouncycastle.jce.ECNamedCurveTable
 import org.bouncycastle.jce.ECPointUtil
 import org.bouncycastle.jce.interfaces.ECPrivateKey
@@ -8,14 +19,11 @@ import org.bouncycastle.jce.interfaces.ECPublicKey
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.bouncycastle.jce.spec.ECNamedCurveSpec
 import org.bouncycastle.jce.spec.ECPrivateKeySpec
-import it.unisa.dia.gas.crypto.jpbc.signature.bls01.generators.BLS01KeyPairGenerator
-import it.unisa.dia.gas.crypto.jpbc.signature.bls01.generators.BLS01ParametersGenerator
-import it.unisa.dia.gas.crypto.jpbc.signature.bls01.params.BLS01KeyGenerationParameters
-import it.unisa.dia.gas.crypto.jpbc.signature.bls01.params.BLS01Parameters
-import it.unisa.dia.gas.plaf.jpbc.pairing.PairingFactory
-import org.bouncycastle.crypto.AsymmetricCipherKeyPair
+import org.onflow.flow.sdk.*
 import org.onflow.flow.sdk.Signer
+import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
+import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 import java.math.BigInteger
 import java.security.*
@@ -32,7 +40,7 @@ data class KeyPair(
 
 sealed class PrivateKeyType {
     data class ECDSA(val privateKey: java.security.PrivateKey) : PrivateKeyType()
-    data class BLS(private val privateKeyBytes: ByteArray) : PrivateKeyType() {
+    data class BLS(val privateKeyBytes: ByteArray) : PrivateKeyType() {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is BLS) return false
@@ -158,9 +166,8 @@ object Crypto {
 
             else -> throw IllegalArgumentException("Unsupported algorithm: ${algo.algorithm}")
         }
-
-
     }
+
 
     @JvmStatic
     @JvmOverloads
@@ -178,7 +185,14 @@ object Crypto {
                 )
             }
             // Placeholder for BLS
-            "BLS" -> throw UnsupportedOperationException("BLS not yet implemented")
+            "BLS" -> {
+                val blsPrivateKey = decodeBLSPrivateKey(key)
+                PrivateKey(
+                    key = PrivateKeyType.BLS(blsPrivateKey),
+                    ecCoupleComponentSize = 0, // Not applicable for BLS
+                    hex = blsPrivateKey.encoded.bytesToHex()
+                )
+            }
             else -> throw IllegalArgumentException("Unsupported algorithm: ${algo.algorithm}")
         }
     }
@@ -264,6 +278,22 @@ internal class SignerImpl(
     private val hashAlgo: HashAlgorithm,
     override val hasher: Hasher = HasherImpl(hashAlgo)
 ) : Signer {
+
+    fun byteArrayToAsymmetricCipherKeyPair(byteArray: ByteArray): AsymmetricCipherKeyPair {
+        val inputStream = ByteArrayInputStream(byteArray)
+        val objectInputStream = ObjectInputStream(inputStream)
+
+        // Deserialize the objects from the byte array
+        val privateKeyObj = objectInputStream.readObject() as ByteArray
+        val publicKeyObj = objectInputStream.readObject() as ByteArray
+
+        // Construct AsymmetricKeyParameter objects from the decoded bytes
+        val privateKeyParam: AsymmetricKeyParameter = PrivateKeyFactory.createKey(privateKeyObj)
+        val publicKeyParam: AsymmetricKeyParameter = PublicKeyFactory.createKey(publicKeyObj)
+
+        // Create the AsymmetricCipherKeyPair
+        return AsymmetricCipherKeyPair(publicKeyParam, privateKeyParam)
+    }
     override fun sign(bytes: ByteArray): ByteArray {
         val signature: ByteArray = when (privateKey.key) {
             is PrivateKeyType.ECDSA -> {
@@ -273,7 +303,15 @@ internal class SignerImpl(
                 ecdsaSign.sign()
             }
             is PrivateKeyType.BLS -> {
-                // to-do
+                val signer = BLS01Signer(SHA256Digest())
+                signer.init(true, byteArrayToAsymmetricCipherKeyPair(privateKey.key.privateKeyBytes).private)
+                signer.update(bytes, 0, bytes.size)
+
+                return try {
+                    signer.generateSignature()
+                } catch (e: CryptoException) {
+                    throw RuntimeException(e)
+                }
             }
         }
 
