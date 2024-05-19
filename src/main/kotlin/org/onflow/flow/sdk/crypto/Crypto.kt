@@ -5,6 +5,8 @@ import it.unisa.dia.gas.crypto.jpbc.signature.bls01.generators.BLS01KeyPairGener
 import it.unisa.dia.gas.crypto.jpbc.signature.bls01.generators.BLS01ParametersGenerator
 import it.unisa.dia.gas.crypto.jpbc.signature.bls01.params.BLS01KeyGenerationParameters
 import it.unisa.dia.gas.crypto.jpbc.signature.bls01.params.BLS01Parameters
+import it.unisa.dia.gas.crypto.jpbc.signature.bls01.params.BLS01PrivateKeyParameters
+import it.unisa.dia.gas.crypto.jpbc.signature.bls01.params.BLS01PublicKeyParameters
 import it.unisa.dia.gas.plaf.jpbc.pairing.PairingFactory
 import org.bouncycastle.crypto.AsymmetricCipherKeyPair
 import org.bouncycastle.crypto.CryptoException
@@ -104,13 +106,30 @@ object Crypto {
         return keyGen.generateKeyPair()
     }
 
-    fun serializeKey(key: Any): ByteArray {
+    private fun serializeKey(key: Any): ByteArray {
         val outputStream = ByteArrayOutputStream()
         val objectOutputStream = ObjectOutputStream(outputStream)
         objectOutputStream.writeObject(key)
         objectOutputStream.flush()
         return outputStream.toByteArray()
     }
+
+    private fun byteArrayToAsymmetricCipherKeyPair(byteArray: ByteArray): AsymmetricCipherKeyPair {
+        val inputStream = ByteArrayInputStream(byteArray)
+        val objectInputStream = ObjectInputStream(inputStream)
+
+        // Deserialize the objects from the byte array
+        val privateKeyObj = objectInputStream.readObject() as ByteArray
+        val publicKeyObj = objectInputStream.readObject() as ByteArray
+
+        // Construct AsymmetricKeyParameter objects from the decoded bytes
+        val privateKeyParam: AsymmetricKeyParameter = PrivateKeyFactory.createKey(privateKeyObj)
+        val publicKeyParam: AsymmetricKeyParameter = PublicKeyFactory.createKey(publicKeyObj)
+
+        // Create the AsymmetricCipherKeyPair
+        return AsymmetricCipherKeyPair(publicKeyParam, privateKeyParam)
+    }
+
 
     @JvmStatic
     @JvmOverloads
@@ -146,6 +165,7 @@ object Crypto {
                     )
                 )
             }
+
             "BLS" -> {
                 val parameters = setupBLSParameters()
                 val keyPair = generateBLSKeyPair(parameters)
@@ -168,7 +188,7 @@ object Crypto {
         }
     }
 
-
+    @OptIn(ExperimentalStdlibApi::class)
     @JvmStatic
     @JvmOverloads
     fun decodePrivateKey(key: String, algo: SignatureAlgorithm = SignatureAlgorithm.ECDSA_P256): PrivateKey {
@@ -184,19 +204,27 @@ object Crypto {
                     hex = pk.d.toByteArray().bytesToHex()
                 )
             }
-            // Placeholder for BLS
             "BLS" -> {
-                val blsPrivateKey = decodeBLSPrivateKey(key)
+                // Deserialize the BLS private key
+                val keyBytes = key.hexToByteArray()
+                val privateKeyPair = byteArrayToAsymmetricCipherKeyPair(keyBytes)
+                val privateKey = privateKeyPair.private as BLS01PrivateKeyParameters
+
+                // Convert the private key to the required format
+                val encodedPrivateKey = serializeKey(privateKey)
+
                 PrivateKey(
-                    key = PrivateKeyType.BLS(blsPrivateKey),
+                    key = PrivateKeyType.BLS(encodedPrivateKey),
                     ecCoupleComponentSize = 0, // Not applicable for BLS
-                    hex = blsPrivateKey.encoded.bytesToHex()
+                    hex = encodedPrivateKey.bytesToHex()
                 )
+
             }
             else -> throw IllegalArgumentException("Unsupported algorithm: ${algo.algorithm}")
         }
     }
 
+    @OptIn(ExperimentalStdlibApi::class)
     @JvmStatic
     @JvmOverloads
     fun decodePublicKey(key: String, algo: SignatureAlgorithm = SignatureAlgorithm.ECDSA_P256): PublicKey {
@@ -217,7 +245,19 @@ object Crypto {
                 )
             }
             // Placeholder for BLS
-            "BLS" -> throw UnsupportedOperationException("BLS not yet implemented")
+            "BLS" -> {
+                // Deserialize the BLS public key
+                val keyBytes = key.hexToByteArray()
+                val publicKeyPair = byteArrayToAsymmetricCipherKeyPair(keyBytes)
+                val publicKey = publicKeyPair.private as BLS01PublicKeyParameters
+
+                // Convert the public key to the required format
+                val encodedPublicKey = serializeKey(publicKey)
+                PublicKey(
+                    key = PublicKeyType.BLS(encodedPublicKey),
+                    hex = encodedPublicKey.bytesToHex()
+                )
+            }
             else -> throw IllegalArgumentException("Unsupported algorithm: ${algo.algorithm}")
         }
     }
@@ -278,7 +318,6 @@ internal class SignerImpl(
     private val hashAlgo: HashAlgorithm,
     override val hasher: Hasher = HasherImpl(hashAlgo)
 ) : Signer {
-
     fun byteArrayToAsymmetricCipherKeyPair(byteArray: ByteArray): AsymmetricCipherKeyPair {
         val inputStream = ByteArrayInputStream(byteArray)
         val objectInputStream = ObjectInputStream(inputStream)
@@ -294,6 +333,7 @@ internal class SignerImpl(
         // Create the AsymmetricCipherKeyPair
         return AsymmetricCipherKeyPair(publicKeyParam, privateKeyParam)
     }
+
     override fun sign(bytes: ByteArray): ByteArray {
         val signature: ByteArray = when (privateKey.key) {
             is PrivateKeyType.ECDSA -> {
