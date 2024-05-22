@@ -5,16 +5,19 @@ import it.unisa.dia.gas.crypto.jpbc.signature.bls01.generators.BLS01KeyPairGener
 import it.unisa.dia.gas.crypto.jpbc.signature.bls01.generators.BLS01ParametersGenerator
 import it.unisa.dia.gas.crypto.jpbc.signature.bls01.params.BLS01KeyGenerationParameters
 import it.unisa.dia.gas.crypto.jpbc.signature.bls01.params.BLS01Parameters
-import it.unisa.dia.gas.crypto.jpbc.signature.bls01.params.BLS01PrivateKeyParameters
 import it.unisa.dia.gas.crypto.jpbc.signature.bls01.params.BLS01PublicKeyParameters
+import it.unisa.dia.gas.plaf.jpbc.field.z.ImmutableZrElement
 import it.unisa.dia.gas.plaf.jpbc.pairing.PairingFactory
-import it.unisa.dia.gas.plaf.jpbc.pairing.parameters.PropertiesParameters
+import org.bouncycastle.asn1.pkcs.PrivateKeyInfo
+import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo
 import org.bouncycastle.crypto.AsymmetricCipherKeyPair
 import org.bouncycastle.crypto.CryptoException
 import org.bouncycastle.crypto.digests.SHA256Digest
 import org.bouncycastle.crypto.params.AsymmetricKeyParameter
 import org.bouncycastle.crypto.util.PrivateKeyFactory
+import org.bouncycastle.crypto.util.PrivateKeyInfoFactory
 import org.bouncycastle.crypto.util.PublicKeyFactory
+import org.bouncycastle.crypto.util.SubjectPublicKeyInfoFactory
 import org.bouncycastle.jce.ECNamedCurveTable
 import org.bouncycastle.jce.ECPointUtil
 import org.bouncycastle.jce.interfaces.ECPrivateKey
@@ -25,6 +28,7 @@ import org.bouncycastle.jce.spec.ECPrivateKeySpec
 import org.onflow.flow.sdk.*
 import org.onflow.flow.sdk.Signer
 import java.io.*
+import java.lang.reflect.Field
 import java.math.BigInteger
 import java.security.*
 import java.security.spec.ECGenParameterSpec
@@ -95,7 +99,7 @@ object Crypto {
     }
 
 
-    private const val PARAMETERS_FILE = "../../../params/a_320_512.properties"
+    private const val PARAMETERS_FILE = "params/a_320_512.properties"
 
     private fun setupBLSParameters(): BLS01Parameters {
         val setup = BLS01ParametersGenerator()
@@ -106,36 +110,29 @@ object Crypto {
 
     private fun generateBLSKeyPair(parameters: BLS01Parameters): AsymmetricCipherKeyPair {
         val keyGen = BLS01KeyPairGenerator()
-        keyGen.init(BLS01KeyGenerationParameters(null, parameters))
+        keyGen.init(BLS01KeyGenerationParameters(SecureRandom(), parameters))
 
         return keyGen.generateKeyPair()
     }
-    @Throws(IOException::class)
-    fun serializeKey(keyPair: AsymmetricCipherKeyPair): ByteArray {
-        val serializableKeyPair = SerializableAsymmetricCipherKeyPair(keyPair)
-        ByteArrayOutputStream().use { bos ->
-            ObjectOutputStream(bos).use { oos ->
-                oos.writeObject(serializableKeyPair)
-                return bos.toByteArray()
-            }
-        }
+
+    @Throws(FileNotFoundException::class, IOException::class)
+    fun storePrivateKey(key: AsymmetricCipherKeyPair): ByteArray {
+        val f: Field = key.private.javaClass.getDeclaredField("sk")
+        f.setAccessible(true)
+        val fieldContent: Any = f.get(key.private)
+        var data: ByteArray? = null
+        data = (fieldContent as ImmutableZrElement).toBytes()
+        return data
     }
 
-    class SerializableAsymmetricCipherKeyPair(private val keyPair: AsymmetricCipherKeyPair) : Serializable {
-        private val serialVersionUID = 1L
-
-        @Throws(IOException::class)
-        private fun writeObject(out: ObjectOutputStream) {
-            out.writeObject(keyPair.public)
-            out.writeObject(keyPair.private)
-        }
-
-        @Throws(IOException::class, ClassNotFoundException::class)
-        private fun readObject(`in`: ObjectInputStream) {
-            val publicKey = `in`.readObject() as Any // Replace 'Any' with actual type
-            val privateKey = `in`.readObject() as Any // Replace 'Any' with actual type
-            // Initialize keyPair with deserialized public and private keys
-        }
+    @Throws(FileNotFoundException::class, IOException::class)
+    fun storePublicKey(key: AsymmetricCipherKeyPair): ByteArray {
+        val f: Field = key.public.javaClass.getDeclaredField("pk")
+        f.setAccessible(true)
+        val fieldContent: Any = f.get(key.public)
+        var data: ByteArray? = null
+        data = (fieldContent as ImmutableZrElement).toBytes()
+        return data
     }
 
     private fun byteArrayToAsymmetricCipherKeyPair(byteArray: ByteArray): AsymmetricCipherKeyPair {
@@ -154,24 +151,16 @@ object Crypto {
         return AsymmetricCipherKeyPair(publicKeyParam, privateKeyParam)
     }
 
-    @Throws(IOException::class)
-    fun serializeBLSPrivateKey(key: BLS01PrivateKeyParameters): ByteArray {
-        ByteArrayOutputStream().use { bos ->
-            ObjectOutputStream(bos).use { oos ->
-                oos.writeObject(key)
-                return bos.toByteArray()
-            }
-        }
+    fun serializeBLSPrivateKey(privateKey: AsymmetricKeyParameter): ByteArray {
+        val k: PrivateKeyInfo = PrivateKeyInfoFactory.createPrivateKeyInfo(privateKey)
+        val serializedKey: ByteArray = k.toASN1Primitive().encoded
+        return serializedKey
     }
 
-    @Throws(IOException::class)
-    fun serializeBLSPublicKey(key: BLS01PublicKeyParameters): ByteArray {
-        ByteArrayOutputStream().use { bos ->
-            ObjectOutputStream(bos).use { oos ->
-                oos.writeObject(key)
-                return bos.toByteArray()
-            }
-        }
+    fun serializeBLSPublicKey(publicKey: AsymmetricKeyParameter): ByteArray {
+        val k: SubjectPublicKeyInfo = SubjectPublicKeyInfoFactory.createSubjectPublicKeyInfo(publicKey)
+        val serializedKey: ByteArray = k.toASN1Primitive().encoded
+        return serializedKey
     }
 
     @JvmStatic
@@ -208,15 +197,13 @@ object Crypto {
                     )
                 )
             }
+
             "BLS" -> {
                 val parameters = setupBLSParameters()
                 val keyPair = generateBLSKeyPair(parameters)
 
-                val privateKey = keyPair.private as BLS01PrivateKeyParameters
-                val publicKey = keyPair.public as BLS01PublicKeyParameters
-
-                val privateKeyBytes = serializeBLSPrivateKey(privateKey)
-                val publicKeyBytes = serializeBLSPublicKey(publicKey)
+                val privateKeyBytes = storePrivateKey(keyPair)
+                val publicKeyBytes = storePublicKey(keyPair)
 
                 return KeyPair(
                     private = PrivateKey(
@@ -230,6 +217,7 @@ object Crypto {
                     )
                 )
             }
+
             else -> throw IllegalArgumentException("Unsupported algorithm: ${algo.algorithm}")
         }
     }
@@ -250,11 +238,12 @@ object Crypto {
                     hex = pk.d.toByteArray().bytesToHex()
                 )
             }
+
             "BLS" -> {
                 // Deserialize the BLS private key
                 val keyBytes = key.hexToByteArray()
                 val privateKeyPair = byteArrayToAsymmetricCipherKeyPair(keyBytes)
-                val privateKey = privateKeyPair.private as BLS01PrivateKeyParameters
+                val privateKey = privateKeyPair.private
 
                 // Convert the private key to the required format
                 val encodedPrivateKey = serializeBLSPrivateKey(privateKey)
@@ -265,6 +254,7 @@ object Crypto {
                     hex = encodedPrivateKey.bytesToHex()
                 )
             }
+
             else -> throw IllegalArgumentException("Unsupported algorithm: ${algo.algorithm}")
         }
     }
@@ -289,6 +279,7 @@ object Crypto {
                     hex = (publicKey.q.xCoord.encoded + publicKey.q.yCoord.encoded).bytesToHex()
                 )
             }
+
             "BLS" -> {
                 // Deserialize the BLS public key
                 val keyBytes = key.hexToByteArray()
@@ -302,9 +293,11 @@ object Crypto {
                     hex = encodedPublicKey.bytesToHex()
                 )
             }
+
             else -> throw IllegalArgumentException("Unsupported algorithm: ${algo.algorithm}")
         }
     }
+
     @JvmStatic
     @JvmOverloads
     fun getSigner(privateKey: PrivateKey, hashAlgo: HashAlgorithm = HashAlgorithm.SHA3_256): Signer {
@@ -384,6 +377,7 @@ internal class SignerImpl(
                 ecdsaSign.update(bytes)
                 ecdsaSign.sign()
             }
+
             is PrivateKeyType.BLS -> {
                 val signer = BLS01Signer(SHA256Digest())
                 signer.init(true, byteArrayToAsymmetricCipherKeyPair(privateKey.key.privateKeyBytes).private)
