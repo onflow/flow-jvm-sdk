@@ -116,22 +116,28 @@ object Crypto {
         return keyGen.generateKeyPair()
     }
 
-    @Throws(FileNotFoundException::class, IOException::class)
+    @Throws(FileNotFoundException::class, IOException::class, NoSuchFieldException::class, IllegalAccessException::class)
     fun storePrivateKey(key: AsymmetricCipherKeyPair): ByteArray {
         val f: Field = key.private.javaClass.getDeclaredField("sk")
-        f.setAccessible(true)
+        f.isAccessible = true
         val fieldContent: Any = f.get(key.private)
-        val data: ByteArray = (fieldContent as ImmutableZrElement).toBytes()
-        return data
+        if (fieldContent is ImmutableZrElement) {
+            return fieldContent.toBytes()
+        } else {
+            throw IOException("Unexpected private key type")
+        }
     }
 
-    @Throws(FileNotFoundException::class, IOException::class)
+    @Throws(FileNotFoundException::class, IOException::class, NoSuchFieldException::class, IllegalAccessException::class)
     fun storePublicKey(key: AsymmetricCipherKeyPair): ByteArray {
         val f: Field = key.public.javaClass.getDeclaredField("pk")
-        f.setAccessible(true)
+        f.isAccessible = true
         val fieldContent: Any = f.get(key.public)
-        val data: ByteArray = (fieldContent as ImmutableCurveElement<*, *>).toBytes()
-        return data
+        if (fieldContent is ImmutableCurveElement<*, *>) {
+            return fieldContent.toBytes()
+        } else {
+            throw IOException("Unexpected public key type")
+        }
     }
 
     private fun byteArrayToAsymmetricCipherKeyPair(byteArray: ByteArray): AsymmetricCipherKeyPair {
@@ -241,6 +247,7 @@ object Crypto {
             "BLS" -> {
                 // Deserialize the BLS private key
                 val keyBytes = key.hexToByteArray()
+                println(keyBytes)
                 val privateKeyPair = byteArrayToAsymmetricCipherKeyPair(keyBytes)
                 val privateKey = privateKeyPair.private
 
