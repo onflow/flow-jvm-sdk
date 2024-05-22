@@ -6,6 +6,7 @@ import it.unisa.dia.gas.crypto.jpbc.signature.bls01.generators.BLS01ParametersGe
 import it.unisa.dia.gas.crypto.jpbc.signature.bls01.params.BLS01KeyGenerationParameters
 import it.unisa.dia.gas.crypto.jpbc.signature.bls01.params.BLS01Parameters
 import it.unisa.dia.gas.crypto.jpbc.signature.bls01.params.BLS01PublicKeyParameters
+import it.unisa.dia.gas.plaf.jpbc.field.curve.ImmutableCurveElement
 import it.unisa.dia.gas.plaf.jpbc.field.z.ImmutableZrElement
 import it.unisa.dia.gas.plaf.jpbc.pairing.PairingFactory
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo
@@ -120,8 +121,7 @@ object Crypto {
         val f: Field = key.private.javaClass.getDeclaredField("sk")
         f.setAccessible(true)
         val fieldContent: Any = f.get(key.private)
-        var data: ByteArray? = null
-        data = (fieldContent as ImmutableZrElement).toBytes()
+        val data: ByteArray = (fieldContent as ImmutableZrElement).toBytes()
         return data
     }
 
@@ -130,8 +130,7 @@ object Crypto {
         val f: Field = key.public.javaClass.getDeclaredField("pk")
         f.setAccessible(true)
         val fieldContent: Any = f.get(key.public)
-        var data: ByteArray? = null
-        data = (fieldContent as ImmutableZrElement).toBytes()
+        val data: ByteArray = (fieldContent as ImmutableCurveElement<*, *>).toBytes()
         return data
     }
 
