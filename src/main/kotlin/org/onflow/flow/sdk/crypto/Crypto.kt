@@ -96,7 +96,7 @@ object Crypto {
 
     private fun setupBLSParameters(): BLS01Parameters {
         val setup = BLS01ParametersGenerator()
-        setup.init(PairingFactory.getPairingParameters("params/curves/a.properties"))
+        setup.init(PairingFactory.getPairingParameters("params/f_160.properties"))
 
         return setup.generateParameters()
     }
@@ -165,7 +165,6 @@ object Crypto {
                     )
                 )
             }
-
             "BLS" -> {
                 val parameters = setupBLSParameters()
                 val keyPair = generateBLSKeyPair(parameters)
@@ -182,7 +181,6 @@ object Crypto {
                     )
                 )
             }
-
             else -> throw IllegalArgumentException("Unsupported algorithm: ${algo.algorithm}")
         }
     }
