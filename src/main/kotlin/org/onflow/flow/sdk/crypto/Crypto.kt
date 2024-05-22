@@ -34,6 +34,8 @@ import java.security.spec.ECPublicKeySpec
 import kotlin.experimental.and
 import kotlin.math.max
 
+// BLS docs: http://gas.dia.unisa.it/projects/jpbc/schemes/ss_bls01.html#.XBpXKFWYWV4
+// old docs: http://gas.dia.unisa.it/projects/jpbc/schemes/bls.html
 
 data class KeyPair(
     val private: PrivateKey,
@@ -129,8 +131,6 @@ object Crypto {
         // Create the AsymmetricCipherKeyPair
         return AsymmetricCipherKeyPair(publicKeyParam, privateKeyParam)
     }
-
-
     @JvmStatic
     @JvmOverloads
     fun generateKeyPair(algo: SignatureAlgorithm = SignatureAlgorithm.ECDSA_P256): KeyPair {
@@ -170,11 +170,10 @@ object Crypto {
                 val parameters = setupBLSParameters()
                 val keyPair = generateBLSKeyPair(parameters)
 
-
                 return KeyPair(
                     private = PrivateKey(
                         key = PrivateKeyType.BLS(serializeKey(keyPair.private)),
-                        ecCoupleComponentSize = 0,  // Not applicable for BLS
+                        ecCoupleComponentSize = 0, // Not applicable for BLS
                         hex = serializeKey(keyPair.private).bytesToHex()
                     ),
                     public = PublicKey(
@@ -218,7 +217,6 @@ object Crypto {
                     ecCoupleComponentSize = 0, // Not applicable for BLS
                     hex = encodedPrivateKey.bytesToHex()
                 )
-
             }
             else -> throw IllegalArgumentException("Unsupported algorithm: ${algo.algorithm}")
         }
@@ -244,7 +242,6 @@ object Crypto {
                     hex = (publicKey.q.xCoord.encoded + publicKey.q.yCoord.encoded).bytesToHex()
                 )
             }
-            // Placeholder for BLS
             "BLS" -> {
                 // Deserialize the BLS public key
                 val keyBytes = key.hexToByteArray()
@@ -261,8 +258,6 @@ object Crypto {
             else -> throw IllegalArgumentException("Unsupported algorithm: ${algo.algorithm}")
         }
     }
-
-
     @JvmStatic
     @JvmOverloads
     fun getSigner(privateKey: PrivateKey, hashAlgo: HashAlgorithm = HashAlgorithm.SHA3_256): Signer {
@@ -318,7 +313,7 @@ internal class SignerImpl(
     private val hashAlgo: HashAlgorithm,
     override val hasher: Hasher = HasherImpl(hashAlgo)
 ) : Signer {
-    fun byteArrayToAsymmetricCipherKeyPair(byteArray: ByteArray): AsymmetricCipherKeyPair {
+    private fun byteArrayToAsymmetricCipherKeyPair(byteArray: ByteArray): AsymmetricCipherKeyPair {
         val inputStream = ByteArrayInputStream(byteArray)
         val objectInputStream = ObjectInputStream(inputStream)
 
@@ -354,8 +349,6 @@ internal class SignerImpl(
                 }
             }
         }
-
-
         return Crypto.normalizeSignature(signature, privateKey.ecCoupleComponentSize)
     }
 }
