@@ -23,19 +23,13 @@ import org.bouncycastle.jce.spec.ECPrivateKeySpec
 import org.onflow.flow.sdk.*
 import org.onflow.flow.sdk.Signer
 import org.onflow.flow.sdk.crypto.Crypto.decodeBLSPrivateKey
-import java.io.ByteArrayInputStream
 import java.io.IOException
-import java.io.ObjectInputStream
 import java.math.BigInteger
 import java.security.*
 import java.security.spec.ECGenParameterSpec
 import java.security.spec.ECPublicKeySpec
 import kotlin.experimental.and
 import kotlin.math.max
-
-
-// BLS docs: http://gas.dia.unisa.it/projects/jpbc/schemes/ss_bls01.html#.XBpXKFWYWV4
-// old docs: http://gas.dia.unisa.it/projects/jpbc/schemes/bls.html
 
 data class KeyPair(
     val private: PrivateKey,
@@ -437,7 +431,7 @@ internal class SignerImpl(
 
             is PrivateKeyType.BLS -> {
                 val signer = BLS01Signer(SHA256Digest())
-                signer.init(true, decodeBLSPrivateKey(privateKey.key.privateKeyBytes)) //to-do: rework this method
+                signer.init(true, decodeBLSPrivateKey(privateKey.key.privateKeyBytes))
                 signer.update(bytes, 0, bytes.size)
 
                 return try {
