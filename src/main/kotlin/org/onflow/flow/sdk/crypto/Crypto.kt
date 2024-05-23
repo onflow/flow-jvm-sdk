@@ -83,7 +83,6 @@ data class PublicKey(
     val hex: String
 )
 
-
 object Crypto {
     init {
         Security.addProvider(BouncyCastleProvider())
@@ -112,8 +111,8 @@ object Crypto {
 
             // Manually construct ASN.1 encoding
             val vector = ASN1EncodableVector()
-            vector.add(ASN1Integer(0))  // Version
-            vector.add(DEROctetString(privateKeyBytes))  // Private key
+            vector.add(ASN1Integer(0))
+            vector.add(DEROctetString(privateKeyBytes))
 
             // Encode as DER sequence
             val derSequence = DERSequence(vector)
@@ -158,8 +157,8 @@ object Crypto {
 
             // Manually construct ASN.1 encoding
             val vector = ASN1EncodableVector()
-            vector.add(ASN1Integer(0))  // Version
-            vector.add(DEROctetString(publicKeyBytes))  // Public key
+            vector.add(ASN1Integer(0))
+            vector.add(DEROctetString(publicKeyBytes))
 
             // Encode as DER sequence
             val derSequence = DERSequence(vector)
@@ -196,7 +195,6 @@ object Crypto {
             throw RuntimeException("An error occurred while encoding the BLS public key.", e)
         }
     }
-
 
     private fun byteArrayToHex(byteArray: ByteArray): String {
         return byteArray.joinToString("") { "%02x".format(it) }
@@ -419,7 +417,6 @@ internal class SignerImpl(
     private val hashAlgo: HashAlgorithm,
     override val hasher: Hasher = HasherImpl(hashAlgo)
 ) : Signer {
-
     override fun sign(bytes: ByteArray): ByteArray {
         val signature: ByteArray = when (privateKey.key) {
             is PrivateKeyType.ECDSA -> {
