@@ -203,12 +203,17 @@ internal class CryptoTest {
         val hashedBytes = hasher.hash("test".toByteArray())
         assertNotNull(hashedBytes)
     }
-//
-//    @Test
-//    fun `Signer implementation`() {
-//        val keyPair = Crypto.generateKeyPair()
-//        val signer = SignerImpl(keyPair.private, HashAlgorithm.SHA3_256)
-//        val signature = signer.sign("test".toByteArray())
-//        assertNotNull(signature)
-//    }
+
+    @Test
+    fun `Signer implementation`() {
+        val keyPair = Crypto.generateKeyPair(SignatureAlgorithm.ECDSA_P256)
+        val signer = SignerImpl(keyPair.private, HashAlgorithm.SHA3_256)
+        val signature = signer.sign("test".toByteArray())
+        assertNotNull(signature)
+
+        val keyPairBLS = Crypto.generateKeyPair(SignatureAlgorithm.BLS_BLS12_381)
+        val signerBLS = SignerImpl(keyPairBLS.private, HashAlgorithm.SHA3_256)
+        val signatureBLS = signerBLS.sign("test".toByteArray())
+        assertNotNull(signatureBLS)
+    }
 }
