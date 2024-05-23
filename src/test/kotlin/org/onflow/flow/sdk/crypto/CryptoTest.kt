@@ -1,13 +1,35 @@
 package org.onflow.flow.sdk.crypto
 
+import it.unisa.dia.gas.crypto.jpbc.signature.bls01.generators.BLS01KeyPairGenerator
+import it.unisa.dia.gas.crypto.jpbc.signature.bls01.generators.BLS01ParametersGenerator
+import it.unisa.dia.gas.crypto.jpbc.signature.bls01.params.BLS01KeyGenerationParameters
+import it.unisa.dia.gas.crypto.jpbc.signature.bls01.params.BLS01Parameters
+import it.unisa.dia.gas.plaf.jpbc.pairing.PairingFactory
+import org.bouncycastle.crypto.params.AsymmetricKeyParameter
 import org.onflow.flow.sdk.HashAlgorithm
+import org.bouncycastle.util.encoders.Hex
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.onflow.flow.sdk.SignatureAlgorithm
 import java.math.BigInteger
+import java.security.SecureRandom
 import java.security.Signature
 
 internal class CryptoTest {
+
+    private fun setupBLSParameters(): BLS01Parameters {
+        val parametersGenerator = BLS01ParametersGenerator()
+        parametersGenerator.init(PairingFactory.getPairingParameters("params/a_320_512.properties"))
+        return parametersGenerator.generateParameters()
+    }
+
+    private fun generateBLSKeyPair(): AsymmetricKeyParameter {
+        val parameters = setupBLSParameters()
+        val keyPairGenerator = BLS01KeyPairGenerator()
+        keyPairGenerator.init(BLS01KeyGenerationParameters(SecureRandom(), parameters))
+        return keyPairGenerator.generateKeyPair().private
+    }
+
     @Test
     fun `Can generate KeyPair`() {
         val ecdsaKeyPair = Crypto.generateKeyPair(SignatureAlgorithm.ECDSA_P256)
@@ -30,6 +52,27 @@ internal class CryptoTest {
         val blsKeyPair2 = Crypto.generateKeyPair(SignatureAlgorithm.BLS_BLS12_381)
         assertNotEquals(blsKeyPair1.private, blsKeyPair2.private)
         assertNotEquals(blsKeyPair1.public, blsKeyPair2.public)
+    }
+
+    @Test
+    fun `Can encode and decode BLS private key`() {
+        // Generate a BLS private key
+        val privateKey = generateBLSKeyPair()
+
+        // Serialize the BLS private key to a byte array
+        val serializedKey: ByteArray = Crypto.serializeBLSPrivateKey(privateKey)
+        assertNotNull(serializedKey, "Serialized key should not be null")
+        assertTrue(serializedKey.isNotEmpty(), "Serialized key should not be empty")
+
+        // Decode the serialized BLS private key
+        val decodedKey: AsymmetricKeyParameter = Crypto.encodeBLSPrivateKey(serializedKey)
+        assertNotNull(decodedKey, "Decoded key should not be null")
+
+        // Verify that the decoded key matches the original key
+        val reserializedKey: ByteArray = Crypto.serializeBLSPrivateKey(decodedKey)
+        assertNotNull(reserializedKey, "Reserialized key should not be null")
+        assertTrue(reserializedKey.isNotEmpty(), "Reserialized key should not be empty")
+        assertArrayEquals(serializedKey, reserializedKey, "Reserialized key should match the original serialized key")
     }
 
     @Test
