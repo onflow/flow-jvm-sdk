@@ -128,33 +128,37 @@ object Crypto {
         f.isAccessible = true
         val fieldContent: Any = f.get(key.private)
         return if (fieldContent is ImmutableZrElement) {
-            // Manually encode the BLS private key as ASN.1
+            // Manually encode the BLS private key as ASN.1 with BigInteger
+            val privateKeyBytes = fieldContent.toBytes()
             val vector = ASN1EncodableVector()
-            vector.add(ASN1Integer(fieldContent.toBytes()))
+            vector.add(ASN1Integer(BigInteger(1, privateKeyBytes)))
             DERSequence(vector).encoded
         } else {
             throw IOException("Unexpected private key type")
         }
     }
 
-    // Function to store public key with proper return statement
+    // Function to store public key with proper return statement and handle large integers
     @Throws(FileNotFoundException::class, IOException::class, NoSuchFieldException::class, IllegalAccessException::class)
     fun storePublicKey(key: AsymmetricCipherKeyPair): ByteArray {
         val f: Field = key.public.javaClass.getDeclaredField("pk")
         f.isAccessible = true
         val fieldContent: Any = f.get(key.public)
         return if (fieldContent is ImmutableCurveElement<*, *>) {
-            // Manually encode the BLS public key as ASN.1
+            // Manually encode the BLS public key as ASN.1 with BigInteger
+            val publicKeyBytes = fieldContent.toBytes()
             val vector = ASN1EncodableVector()
-            vector.add(ASN1Integer(fieldContent.toBytes()))
+            vector.add(ASN1Integer(BigInteger(1, publicKeyBytes)))
             DERSequence(vector).encoded
         } else {
             throw IOException("Unexpected public key type")
         }
     }
 
-    fun encodePrivateKey(key: ByteArray?): AsymmetricKeyParameter {
-        return encodeKey(key, "private")
+    fun encodePrivateKey(key: ByteArray): AsymmetricKeyParameter {
+        // Ensure the byte array represents a valid ASN.1 structure
+        val privateKeyInfo = PrivateKeyInfo.getInstance(ASN1Sequence.fromByteArray(key))
+        return PrivateKeyFactory.createKey(privateKeyInfo)
     }
 
     fun encodePublicKey(key: ByteArray?): AsymmetricKeyParameter {
@@ -190,17 +194,36 @@ object Crypto {
         }
     }
 
-
     fun serializeBLSPrivateKey(privateKey: AsymmetricKeyParameter): ByteArray {
-        val k: PrivateKeyInfo = PrivateKeyInfoFactory.createPrivateKeyInfo(privateKey)
-        val serializedKey: ByteArray = k.toASN1Primitive().encoded
-        return serializedKey
+        return try {
+            val privateKeyInfo = PrivateKeyInfoFactory.createPrivateKeyInfo(privateKey)
+            privateKeyInfo.encoded
+        } catch (e: Exception) {
+            System.err.println("An error occurred while serializing the BLS private key: ${e.message}")
+            e.printStackTrace()
+            throw RuntimeException("Failed to serialize BLS private key", e)
+        }
     }
 
     fun serializeBLSPublicKey(publicKey: AsymmetricKeyParameter): ByteArray {
         val k: SubjectPublicKeyInfo = SubjectPublicKeyInfoFactory.createSubjectPublicKeyInfo(publicKey)
         val serializedKey: ByteArray = k.toASN1Primitive().encoded
         return serializedKey
+    }
+
+    fun byteArrayToHex(byteArray: ByteArray): String {
+        return byteArray.joinToString("") { "%02x".format(it) }
+    }
+
+    fun ByteArray.bytesToHex(): String = joinToString("") { "%02x".format(it) }
+
+    fun String.hexToByteArray(): ByteArray {
+        val len = length
+        val data = ByteArray(len / 2)
+        for (i in 0 until len step 2) {
+            data[i / 2] = ((this[i].digitToInt(16) shl 4) + this[i + 1].digitToInt(16)).toByte()
+        }
+        return data
     }
 
     @JvmStatic
@@ -249,16 +272,32 @@ object Crypto {
                     private = PrivateKey(
                         key = PrivateKeyType.BLS(privateKeyBytes),
                         ecCoupleComponentSize = 0, // Not applicable for BLS
-                        hex = privateKeyBytes.bytesToHex()
+                        hex = byteArrayToHex(privateKeyBytes)
                     ),
                     public = PublicKey(
                         key = PublicKeyType.BLS(publicKeyBytes),
-                        hex = publicKeyBytes.bytesToHex()
+                        hex = byteArrayToHex(publicKeyBytes)
                     )
                 )
             }
 
             else -> throw IllegalArgumentException("Unsupported algorithm: ${algo.algorithm}")
+        }
+    }
+
+    fun encodeBLSPrivateKey(key: ByteArray): AsymmetricKeyParameter {
+        return try {
+            val asn1Sequence = ASN1Primitive.fromByteArray(key) as ASN1Sequence
+            val privateKeyInfo = PrivateKeyInfo.getInstance(asn1Sequence)
+            PrivateKeyFactory.createKey(privateKeyInfo)
+        } catch (e: ArithmeticException) {
+            System.err.println("ArithmeticException during ASN.1 processing: ${e.message}")
+            e.printStackTrace()
+            throw RuntimeException("Failed to encode BLS private key due to ASN.1 integer out of range.", e)
+        } catch (e: Exception) {
+            System.err.println("An error occurred during BLS private key encoding: ${e.message}")
+            e.printStackTrace()
+            throw RuntimeException("An error occurred while encoding the BLS private key.", e)
         }
     }
 
@@ -280,16 +319,13 @@ object Crypto {
             }
 
             "BLS" -> {
-                // Deserialize the BLS private key
-                val keyBytes = key.hexToByteArray()
-                println(keyBytes)
-                val privateKey = encodePrivateKey(keyBytes) //to-do: rework this method
-                val encodedPrivateKey = serializeBLSPrivateKey(privateKey)
-
+                val keyBytes = key.chunked(2).map { it.toInt(16).toByte() }.toByteArray()
+                val privateKey = encodeBLSPrivateKey(keyBytes)
+                val serializedKey = serializeBLSPrivateKey(privateKey)
                 PrivateKey(
-                    key = PrivateKeyType.BLS(encodedPrivateKey),
-                    ecCoupleComponentSize = 0, // Not applicable for BLS
-                    hex = encodedPrivateKey.bytesToHex()
+                    key = PrivateKeyType.BLS(serializedKey),
+                    ecCoupleComponentSize = 0,
+                    hex = serializedKey.joinToString("") { "%02x".format(it) }
                 )
             }
 
@@ -333,6 +369,7 @@ object Crypto {
             "BLS" -> {
                 // Deserialize the BLS public key
                 val keyBytes = key.hexToByteArray()
+                println(keyBytes)
                 val publicKey = encodePublicKey(keyBytes)
                 val encodedPublicKey = serializeBLSPublicKey(publicKey)
                 PublicKey(
