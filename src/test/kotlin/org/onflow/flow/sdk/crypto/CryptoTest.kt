@@ -5,30 +5,29 @@ import it.unisa.dia.gas.crypto.jpbc.signature.bls01.generators.BLS01ParametersGe
 import it.unisa.dia.gas.crypto.jpbc.signature.bls01.params.BLS01KeyGenerationParameters
 import it.unisa.dia.gas.crypto.jpbc.signature.bls01.params.BLS01Parameters
 import it.unisa.dia.gas.crypto.jpbc.signature.bls01.params.BLS01PrivateKeyParameters
+import it.unisa.dia.gas.crypto.jpbc.signature.bls01.params.BLS01PublicKeyParameters
 import it.unisa.dia.gas.plaf.jpbc.pairing.PairingFactory
+import org.bouncycastle.crypto.AsymmetricCipherKeyPair
 import org.bouncycastle.crypto.params.AsymmetricKeyParameter
 import org.onflow.flow.sdk.HashAlgorithm
 import org.bouncycastle.util.encoders.Hex
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.onflow.flow.sdk.SignatureAlgorithm
+import org.onflow.flow.sdk.crypto.Crypto.encodeBLSPublicKey
+import org.onflow.flow.sdk.crypto.Crypto.serializeBLSPublicKey
+import org.onflow.flow.sdk.crypto.Crypto.setupBLSParameters
 import java.math.BigInteger
 import java.security.SecureRandom
 import java.security.Signature
 
 internal class CryptoTest {
 
-    private fun setupBLSParameters(): BLS01Parameters {
-        val parametersGenerator = BLS01ParametersGenerator()
-        parametersGenerator.init(PairingFactory.getPairingParameters("params/a_320_512.properties"))
-        return parametersGenerator.generateParameters()
-    }
-
-    private fun generateBLSKeyPair(): AsymmetricKeyParameter {
+    private fun generateBLSKeyPair(): AsymmetricCipherKeyPair {
         val parameters = setupBLSParameters()
         val keyPairGenerator = BLS01KeyPairGenerator()
         keyPairGenerator.init(BLS01KeyGenerationParameters(SecureRandom(), parameters))
-        return keyPairGenerator.generateKeyPair().private
+        return keyPairGenerator.generateKeyPair()
     }
 
     @Test
@@ -58,10 +57,11 @@ internal class CryptoTest {
     @Test
     fun `Can encode and decode BLS private key`() {
         // Generate a BLS private key
-        val privateKey = generateBLSKeyPair()
+        val keyPair = generateBLSKeyPair()
+        val privateKey = keyPair.private as BLS01PrivateKeyParameters
 
         // Serialize the BLS private key to a byte array
-        val serializedKey: ByteArray = Crypto.serializeBLSPrivateKey(privateKey as BLS01PrivateKeyParameters)
+        val serializedKey: ByteArray = Crypto.serializeBLSPrivateKey(privateKey)
         assertNotNull(serializedKey, "Serialized key should not be null")
         assertTrue(serializedKey.isNotEmpty(), "Serialized key should not be empty")
 
@@ -97,6 +97,28 @@ internal class CryptoTest {
         assertThrows(IllegalArgumentException::class.java) {
             Crypto.decodePrivateKey("invalidKey", SignatureAlgorithm.BLS_BLS12_381)
         }
+    }
+
+    @Test
+    fun `Can encode and decode BLS public key`() {
+        // Generate BLS key pair
+        val keyPair = generateBLSKeyPair()
+        val publicKey = keyPair.public as BLS01PublicKeyParameters
+
+        // Serialize the BLS public key to a byte array
+        val serializedKey: ByteArray = serializeBLSPublicKey(publicKey)
+        assertNotNull(serializedKey, "Serialized key should not be null")
+        assertTrue(serializedKey.isNotEmpty(), "Serialized key should not be empty")
+
+        // Decode the serialized BLS public key
+        val decodedKey: AsymmetricKeyParameter = encodeBLSPublicKey(serializedKey)
+        assertNotNull(decodedKey, "Decoded key should not be null")
+
+        // Verify that the decoded key matches the original key
+        val reserializedKey: ByteArray = serializeBLSPublicKey(decodedKey as BLS01PublicKeyParameters)
+        assertNotNull(reserializedKey, "Reserialized key should not be null")
+        assertTrue(reserializedKey.isNotEmpty(), "Reserialized key should not be empty")
+        assertArrayEquals(serializedKey, reserializedKey, "Reserialized key should match the original serialized key")
     }
 
     @Test
