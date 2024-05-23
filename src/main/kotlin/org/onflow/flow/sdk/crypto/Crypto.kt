@@ -128,6 +128,18 @@ object Crypto {
         }
     }
 
+    fun encodePrivateKey(key: ByteArray): AsymmetricKeyParameter {
+        val pkInfo: PrivateKeyInfo = PrivateKeyInfo.getInstance(key)
+        val privateKey: AsymmetricKeyParameter = PrivateKeyFactory.createKey(pkInfo)
+        return privateKey
+    }
+
+    fun encodePublicKey(key: ByteArray): AsymmetricKeyParameter {
+        val pkInfo: PrivateKeyInfo = PrivateKeyInfo.getInstance(key)
+        val privateKey: AsymmetricKeyParameter = PrivateKeyFactory.createKey(pkInfo)
+        return privateKey
+    }
+
     @Throws(FileNotFoundException::class, IOException::class, NoSuchFieldException::class, IllegalAccessException::class)
     fun storePublicKey(key: AsymmetricCipherKeyPair): ByteArray {
         val f: Field = key.public.javaClass.getDeclaredField("pk")
@@ -248,10 +260,7 @@ object Crypto {
                 // Deserialize the BLS private key
                 val keyBytes = key.hexToByteArray()
                 println(keyBytes)
-                val privateKeyPair = byteArrayToAsymmetricCipherKeyPair(keyBytes)
-                val privateKey = privateKeyPair.private
-
-                // Convert the private key to the required format
+                val privateKey = encodePrivateKey(keyBytes) //to-do: rework this method
                 val encodedPrivateKey = serializeBLSPrivateKey(privateKey)
 
                 PrivateKey(
@@ -289,10 +298,7 @@ object Crypto {
             "BLS" -> {
                 // Deserialize the BLS public key
                 val keyBytes = key.hexToByteArray()
-                val publicKeyPair = byteArrayToAsymmetricCipherKeyPair(keyBytes)
-                val publicKey = publicKeyPair.private as BLS01PublicKeyParameters
-
-                // Convert the public key to the required format
+                val publicKey = encodePublicKey(keyBytes)
                 val encodedPublicKey = serializeBLSPublicKey(publicKey)
                 PublicKey(
                     key = PublicKeyType.BLS(encodedPublicKey),
@@ -386,7 +392,7 @@ internal class SignerImpl(
 
             is PrivateKeyType.BLS -> {
                 val signer = BLS01Signer(SHA256Digest())
-                signer.init(true, byteArrayToAsymmetricCipherKeyPair(privateKey.key.privateKeyBytes).private)
+                signer.init(true, byteArrayToAsymmetricCipherKeyPair(privateKey.key.privateKeyBytes).private) //to-do: rework this method
                 signer.update(bytes, 0, bytes.size)
 
                 return try {
