@@ -6,6 +6,7 @@ import it.unisa.dia.gas.crypto.jpbc.signature.bls01.generators.BLS01ParametersGe
 import it.unisa.dia.gas.crypto.jpbc.signature.bls01.params.BLS01KeyGenerationParameters
 import it.unisa.dia.gas.crypto.jpbc.signature.bls01.params.BLS01Parameters
 import it.unisa.dia.gas.crypto.jpbc.signature.bls01.params.BLS01PrivateKeyParameters
+import it.unisa.dia.gas.crypto.jpbc.signature.bls01.params.BLS01PublicKeyParameters
 import it.unisa.dia.gas.plaf.jpbc.field.curve.ImmutableCurveElement
 import it.unisa.dia.gas.plaf.jpbc.field.z.ImmutableZrElement
 import it.unisa.dia.gas.plaf.jpbc.pairing.PairingFactory
@@ -236,10 +237,24 @@ object Crypto {
         }
     }
 
-    fun serializeBLSPublicKey(publicKey: AsymmetricKeyParameter): ByteArray {
-        val k: SubjectPublicKeyInfo = SubjectPublicKeyInfoFactory.createSubjectPublicKeyInfo(publicKey)
-        val serializedKey: ByteArray = k.toASN1Primitive().encoded
-        return serializedKey
+    fun serializeBLSPublicKey(publicKey: BLS01PublicKeyParameters): ByteArray {
+        return try {
+            // Get the public key value
+            val publicKeyBytes = publicKey.pk.toBytes()
+
+            // Manually construct ASN.1 encoding
+            val vector = ASN1EncodableVector()
+            vector.add(ASN1Integer(0))  // Version
+            vector.add(DEROctetString(publicKeyBytes))  // Public key
+
+            // Encode as DER sequence
+            val derSequence = DERSequence(vector)
+            derSequence.encoded
+        } catch (e: Exception) {
+            System.err.println("An error occurred while serializing the BLS public key: ${e.message}")
+            e.printStackTrace()
+            throw RuntimeException("Failed to serialize BLS public key", e)
+        }
     }
 
     private fun byteArrayToHex(byteArray: ByteArray): String {
@@ -296,8 +311,8 @@ object Crypto {
                 val parameters = setupBLSParameters()
                 val keyPair = generateBLSKeyPair(parameters)
 
-                val privateKeyBytes = storePrivateKey(keyPair)
-                val publicKeyBytes = storePublicKey(keyPair)
+                val privateKeyBytes = serializeBLSPrivateKey(keyPair.private as BLS01PrivateKeyParameters)
+                val publicKeyBytes = serializeBLSPublicKey(keyPair.public as BLS01PublicKeyParameters)
 
                 return KeyPair(
                     private = PrivateKey(
@@ -412,7 +427,7 @@ object Crypto {
                 val keyBytes = key.hexToByteArray()
                 println(keyBytes)
                 val publicKey = encodePublicKey(keyBytes)
-                val encodedPublicKey = serializeBLSPublicKey(publicKey)
+                val encodedPublicKey = serializeBLSPublicKey(publicKey as BLS01PublicKeyParameters)
                 PublicKey(
                     key = PublicKeyType.BLS(encodedPublicKey),
                     hex = encodedPublicKey.bytesToHex()
