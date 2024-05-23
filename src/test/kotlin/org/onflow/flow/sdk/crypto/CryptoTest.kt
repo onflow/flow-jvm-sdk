@@ -4,6 +4,7 @@ import it.unisa.dia.gas.crypto.jpbc.signature.bls01.generators.BLS01KeyPairGener
 import it.unisa.dia.gas.crypto.jpbc.signature.bls01.generators.BLS01ParametersGenerator
 import it.unisa.dia.gas.crypto.jpbc.signature.bls01.params.BLS01KeyGenerationParameters
 import it.unisa.dia.gas.crypto.jpbc.signature.bls01.params.BLS01Parameters
+import it.unisa.dia.gas.crypto.jpbc.signature.bls01.params.BLS01PrivateKeyParameters
 import it.unisa.dia.gas.plaf.jpbc.pairing.PairingFactory
 import org.bouncycastle.crypto.params.AsymmetricKeyParameter
 import org.onflow.flow.sdk.HashAlgorithm
@@ -60,7 +61,7 @@ internal class CryptoTest {
         val privateKey = generateBLSKeyPair()
 
         // Serialize the BLS private key to a byte array
-        val serializedKey: ByteArray = Crypto.serializeBLSPrivateKey(privateKey)
+        val serializedKey: ByteArray = Crypto.serializeBLSPrivateKey(privateKey as BLS01PrivateKeyParameters)
         assertNotNull(serializedKey, "Serialized key should not be null")
         assertTrue(serializedKey.isNotEmpty(), "Serialized key should not be empty")
 
@@ -69,7 +70,7 @@ internal class CryptoTest {
         assertNotNull(decodedKey, "Decoded key should not be null")
 
         // Verify that the decoded key matches the original key
-        val reserializedKey: ByteArray = Crypto.serializeBLSPrivateKey(decodedKey)
+        val reserializedKey: ByteArray = Crypto.serializeBLSPrivateKey(decodedKey as BLS01PrivateKeyParameters)
         assertNotNull(reserializedKey, "Reserialized key should not be null")
         assertTrue(reserializedKey.isNotEmpty(), "Reserialized key should not be empty")
         assertArrayEquals(serializedKey, reserializedKey, "Reserialized key should match the original serialized key")

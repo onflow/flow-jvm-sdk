@@ -157,12 +157,6 @@ object Crypto {
         }
     }
 
-    fun encodePrivateKey(key: ByteArray): AsymmetricKeyParameter {
-        // Ensure the byte array represents a valid ASN.1 structure
-        val privateKeyInfo = PrivateKeyInfo.getInstance(ASN1Sequence.fromByteArray(key))
-        return PrivateKeyFactory.createKey(privateKeyInfo)
-    }
-
     fun encodePublicKey(key: ByteArray?): AsymmetricKeyParameter {
         return encodeKey(key, "public")
     }
@@ -196,45 +190,14 @@ object Crypto {
         }
     }
 
-//    fun serializeBLSPrivateKey(privateKey: AsymmetricKeyParameter): ByteArray {
-//        return try {
-//            // Check if the key is a BLS private key
-//            if (privateKey !is BLS01PrivateKeyParameters) {
-//                throw IllegalArgumentException("Expected BLS private key")
-//            }
-//
-//            // Get the private key value
-//            val privateKeyBytes = privateKey.sk.toBytes()
-//
-//            // Manually construct ASN.1 encoding
-//            val vector = ASN1EncodableVector()
-//            vector.add(ASN1Integer(0))  // Version
-//            vector.add(ASN1Integer(privateKeyBytes))  // Private key
-//
-//            // Encode as DER sequence
-//            val derSequence = DERSequence(vector)
-//            derSequence.encoded
-//        } catch (e: Exception) {
-//            System.err.println("An error occurred while serializing the BLS private key: ${e.message}")
-//            e.printStackTrace()
-//            throw RuntimeException("Failed to serialize BLS private key", e)
-//        }
-//    }
-
-    fun serializeBLSPrivateKey(privateKey: AsymmetricKeyParameter): ByteArray {
+    fun serializeBLSPrivateKey(privateKey: BLS01PrivateKeyParameters): ByteArray {
         return try {
-            // Check if the key is a BLS private key
-            if (privateKey !is BLS01PrivateKeyParameters) {
-                throw IllegalArgumentException("Expected BLS private key")
-            }
-
             // Get the private key value
             val privateKeyBytes = privateKey.sk.toBytes()
 
             // Manually construct ASN.1 encoding
             val vector = ASN1EncodableVector()
             vector.add(ASN1Integer(0))  // Version
-            vector.add(AlgorithmIdentifier(ASN1ObjectIdentifier("1.3.6.1.4.1.11591.15.1")))  // BLS OID
             vector.add(DEROctetString(privateKeyBytes))  // Private key
 
             // Encode as DER sequence
@@ -247,19 +210,45 @@ object Crypto {
         }
     }
 
+    fun encodeBLSPrivateKey(serializedKey: ByteArray): AsymmetricKeyParameter {
+        return try {
+            // Decode the ASN.1 structure
+            val asn1Sequence = ASN1Sequence.fromByteArray(serializedKey) as ASN1Sequence
+
+            // Extract the private key bytes from the ASN.1 sequence
+            val privateKeyBytes = (asn1Sequence.getObjectAt(1) as DEROctetString).octets
+
+            // Obtain BLS01Parameters
+            val parameters = setupBLSParameters()
+
+            // Create and return the BLS private key parameter
+            val pairing = PairingFactory.getPairing(parameters.parameters)
+            val zrElement = pairing.zr.newElement(BigInteger(1, privateKeyBytes)).getImmutable()
+            BLS01PrivateKeyParameters(parameters, zrElement)
+        } catch (e: IOException) {
+            System.err.println("IOException during ASN.1 processing: ${e.message}")
+            e.printStackTrace()
+            throw RuntimeException("Failed to encode BLS private key due to IO error.", e)
+        } catch (e: Exception) {
+            System.err.println("An error occurred during BLS private key encoding: ${e.message}")
+            e.printStackTrace()
+            throw RuntimeException("An error occurred while encoding the BLS private key.", e)
+        }
+    }
+
     fun serializeBLSPublicKey(publicKey: AsymmetricKeyParameter): ByteArray {
         val k: SubjectPublicKeyInfo = SubjectPublicKeyInfoFactory.createSubjectPublicKeyInfo(publicKey)
         val serializedKey: ByteArray = k.toASN1Primitive().encoded
         return serializedKey
     }
 
-    fun byteArrayToHex(byteArray: ByteArray): String {
+    private fun byteArrayToHex(byteArray: ByteArray): String {
         return byteArray.joinToString("") { "%02x".format(it) }
     }
 
-    fun ByteArray.bytesToHex(): String = joinToString("") { "%02x".format(it) }
+    private fun ByteArray.bytesToHex(): String = joinToString("") { "%02x".format(it) }
 
-    fun String.hexToByteArray(): ByteArray {
+    private fun String.hexToByteArray(): ByteArray {
         val len = length
         val data = ByteArray(len / 2)
         for (i in 0 until len step 2) {
@@ -327,23 +316,29 @@ object Crypto {
         }
     }
 
-    fun encodeBLSPrivateKey(key: ByteArray): AsymmetricKeyParameter {
+    fun decodeBLSPrivateKey(key: ByteArray): BLS01PrivateKeyParameters {
         return try {
-            val asn1Sequence = ASN1Primitive.fromByteArray(key) as ASN1Sequence
-            val privateKeyInfo = PrivateKeyInfo.getInstance(asn1Sequence)
-            PrivateKeyFactory.createKey(privateKeyInfo)
-        } catch (e: ArithmeticException) {
-            System.err.println("ArithmeticException during ASN.1 processing: ${e.message}")
-            e.printStackTrace()
-            throw RuntimeException("Failed to encode BLS private key due to ASN.1 integer out of range.", e)
+            // Decode the ASN.1 structure
+            val asn1Sequence = ASN1Sequence.fromByteArray(key) as ASN1Sequence
+
+            // Extract the private key from the ASN.1 sequence
+            val privateKeyBytes = (asn1Sequence.getObjectAt(1) as DEROctetString).octets
+
+            // Obtain BLS01Parameters
+            val parameters = setupBLSParameters()
+
+            // Create and return the BLS private key parameter
+            val pairing = PairingFactory.getPairing(parameters.parameters)
+            val zrElement = pairing.getZr().newElement(BigInteger(1, privateKeyBytes))
+            BLS01PrivateKeyParameters(parameters, zrElement.getImmutable())
         } catch (e: IOException) {
             System.err.println("IOException during ASN.1 processing: ${e.message}")
             e.printStackTrace()
-            throw RuntimeException("Failed to encode BLS private key due to IO error.", e)
+            throw RuntimeException("Failed to decode BLS private key due to IO error.", e)
         } catch (e: Exception) {
-            System.err.println("An error occurred during BLS private key encoding: ${e.message}")
+            System.err.println("An error occurred during BLS private key decoding: ${e.message}")
             e.printStackTrace()
-            throw RuntimeException("An error occurred while encoding the BLS private key.", e)
+            throw RuntimeException("An error occurred while decoding the BLS private key.", e)
         }
     }
 
@@ -365,13 +360,13 @@ object Crypto {
             }
 
             "BLS" -> {
-                val keyBytes = key.chunked(2).map { it.toInt(16).toByte() }.toByteArray()
-                val privateKey = encodeBLSPrivateKey(keyBytes)
+                val keyBytes = key.hexToByteArray()
+                val privateKey = decodeBLSPrivateKey(keyBytes)
                 val serializedKey = serializeBLSPrivateKey(privateKey)
                 PrivateKey(
                     key = PrivateKeyType.BLS(serializedKey),
                     ecCoupleComponentSize = 0,
-                    hex = serializedKey.joinToString("") { "%02x".format(it) }
+                    hex = key
                 )
             }
 
