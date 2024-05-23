@@ -144,58 +144,65 @@ internal class CryptoTest {
         }
     }
 
-//    @Test
-//    fun `Get signer`() {
-//        val keyPair = Crypto.generateKeyPair()
-//        val signer = Crypto.getSigner(keyPair.private)
-//        assertNotNull(signer)
-//    }
-//    @Test
-//    fun `Get hasher`() {
-//        val hasher = Crypto.getHasher()
-//        assertNotNull(hasher)
-//    }
-//
-//    @Test
-//    fun `Test normalizeSignature`() {
-//        val keyPair = Crypto.generateKeyPair()
-//
-//        val ecdsaSign = Signature.getInstance(HashAlgorithm.SHA3_256.id)
-//        ecdsaSign.initSign(keyPair.private.key)
-//        ecdsaSign.update("test".toByteArray())
-//
-//        val signature = ecdsaSign.sign()
-//
-//        val normalizedSignature = Crypto.normalizeSignature(signature, keyPair.private.ecCoupleComponentSize)
-//
-//        val expectedLength = 2 * keyPair.private.ecCoupleComponentSize
-//        assertEquals(expectedLength, normalizedSignature.size)
-//    }
-//
-//    @Test
-//    fun `Test extractRS`() {
-//        val keyPair = Crypto.generateKeyPair()
-//
-//        val ecdsaSign = Signature.getInstance(HashAlgorithm.SHA3_256.id)
-//        ecdsaSign.initSign(keyPair.private.key)
-//
-//        println(keyPair.private.key)
-//        ecdsaSign.update("test".toByteArray())
-//
-//        val signature = ecdsaSign.sign()
-//
-//        val (r, s) = Crypto.extractRS(signature)
-//
-//        assertTrue(r > BigInteger.ZERO)
-//        assertTrue(s > BigInteger.ZERO)
-//    }
-//
-//    @Test
-//    fun `Hasher implementation`() {
-//        val hasher = HasherImpl(HashAlgorithm.SHA3_256)
-//        val hashedBytes = hasher.hash("test".toByteArray())
-//        assertNotNull(hashedBytes)
-//    }
+    @Test
+    fun `Get signer`() {
+        val keyPair = Crypto.generateKeyPair()
+        val signer = Crypto.getSigner(keyPair.private)
+        assertNotNull(signer)
+    }
+    @Test
+    fun `Get hasher`() {
+        val hasher = Crypto.getHasher()
+        assertNotNull(hasher)
+    }
+
+    @Test
+    fun `Test normalizeSignature`() {
+        val keyPair = Crypto.generateKeyPair(SignatureAlgorithm.ECDSA_P256)
+
+        // Ensure the private key is of type PrivateKeyType.ECDSA
+        val privateKey = keyPair.private.key as? PrivateKeyType.ECDSA
+            ?: throw IllegalArgumentException("Private key must be of type ECDSA")
+
+        val ecdsaSign = Signature.getInstance(HashAlgorithm.SHA3_256.id)
+        ecdsaSign.initSign(privateKey.privateKey)
+        ecdsaSign.update("test".toByteArray())
+
+        val signature = ecdsaSign.sign()
+
+        val normalizedSignature = Crypto.normalizeSignature(signature, keyPair.private.ecCoupleComponentSize)
+
+        val expectedLength = 2 * keyPair.private.ecCoupleComponentSize
+        assertEquals(expectedLength, normalizedSignature.size)
+    }
+
+    @Test
+    fun `Test extractRS`() {
+        val keyPair = Crypto.generateKeyPair(SignatureAlgorithm.ECDSA_P256)
+
+        // Ensure the private key is of type PrivateKeyType.ECDSA
+        val privateKey = keyPair.private.key as? PrivateKeyType.ECDSA
+        ?: throw IllegalArgumentException("Private key must be of type ECDSA")
+
+        val ecdsaSign = Signature.getInstance(HashAlgorithm.SHA3_256.id)
+        ecdsaSign.initSign(privateKey.privateKey)
+
+        ecdsaSign.update("test".toByteArray())
+
+        val signature = ecdsaSign.sign()
+
+        val (r, s) = Crypto.extractRS(signature)
+
+        assertTrue(r > BigInteger.ZERO)
+        assertTrue(s > BigInteger.ZERO)
+    }
+
+    @Test
+    fun `Hasher implementation`() {
+        val hasher = HasherImpl(HashAlgorithm.SHA3_256)
+        val hashedBytes = hasher.hash("test".toByteArray())
+        assertNotNull(hashedBytes)
+    }
 //
 //    @Test
 //    fun `Signer implementation`() {

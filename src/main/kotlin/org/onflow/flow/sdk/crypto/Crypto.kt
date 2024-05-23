@@ -13,8 +13,6 @@ import org.bouncycastle.crypto.AsymmetricCipherKeyPair
 import org.bouncycastle.crypto.CryptoException
 import org.bouncycastle.crypto.digests.SHA256Digest
 import org.bouncycastle.crypto.params.AsymmetricKeyParameter
-import org.bouncycastle.crypto.util.PrivateKeyFactory
-import org.bouncycastle.crypto.util.PublicKeyFactory
 import org.bouncycastle.jce.ECNamedCurveTable
 import org.bouncycastle.jce.ECPointUtil
 import org.bouncycastle.jce.interfaces.ECPrivateKey
@@ -24,6 +22,7 @@ import org.bouncycastle.jce.spec.ECNamedCurveSpec
 import org.bouncycastle.jce.spec.ECPrivateKeySpec
 import org.onflow.flow.sdk.*
 import org.onflow.flow.sdk.Signer
+import org.onflow.flow.sdk.crypto.Crypto.decodeBLSPrivateKey
 import java.io.ByteArrayInputStream
 import java.io.IOException
 import java.io.ObjectInputStream
@@ -279,7 +278,7 @@ object Crypto {
         }
     }
 
-    private fun decodeBLSPrivateKey(key: ByteArray): BLS01PrivateKeyParameters {
+    fun decodeBLSPrivateKey(key: ByteArray): BLS01PrivateKeyParameters {
         return try {
             // Decode the ASN.1 structure
             val asn1Sequence = ASN1Sequence.fromByteArray(key) as ASN1Sequence
@@ -426,21 +425,6 @@ internal class SignerImpl(
     private val hashAlgo: HashAlgorithm,
     override val hasher: Hasher = HasherImpl(hashAlgo)
 ) : Signer {
-    private fun byteArrayToAsymmetricCipherKeyPair(byteArray: ByteArray): AsymmetricCipherKeyPair {
-        val inputStream = ByteArrayInputStream(byteArray)
-        val objectInputStream = ObjectInputStream(inputStream)
-
-        // Deserialize the objects from the byte array
-        val privateKeyObj = objectInputStream.readObject() as ByteArray
-        val publicKeyObj = objectInputStream.readObject() as ByteArray
-
-        // Construct AsymmetricKeyParameter objects from the decoded bytes
-        val privateKeyParam: AsymmetricKeyParameter = PrivateKeyFactory.createKey(privateKeyObj)
-        val publicKeyParam: AsymmetricKeyParameter = PublicKeyFactory.createKey(publicKeyObj)
-
-        // Create the AsymmetricCipherKeyPair
-        return AsymmetricCipherKeyPair(publicKeyParam, privateKeyParam)
-    }
 
     override fun sign(bytes: ByteArray): ByteArray {
         val signature: ByteArray = when (privateKey.key) {
@@ -453,7 +437,7 @@ internal class SignerImpl(
 
             is PrivateKeyType.BLS -> {
                 val signer = BLS01Signer(SHA256Digest())
-                signer.init(true, byteArrayToAsymmetricCipherKeyPair(privateKey.key.privateKeyBytes).private) //to-do: rework this method
+                signer.init(true, decodeBLSPrivateKey(privateKey.key.privateKeyBytes)) //to-do: rework this method
                 signer.update(bytes, 0, bytes.size)
 
                 return try {
