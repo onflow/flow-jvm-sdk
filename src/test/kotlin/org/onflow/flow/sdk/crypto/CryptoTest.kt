@@ -1,16 +1,12 @@
 package org.onflow.flow.sdk.crypto
 
 import it.unisa.dia.gas.crypto.jpbc.signature.bls01.generators.BLS01KeyPairGenerator
-import it.unisa.dia.gas.crypto.jpbc.signature.bls01.generators.BLS01ParametersGenerator
 import it.unisa.dia.gas.crypto.jpbc.signature.bls01.params.BLS01KeyGenerationParameters
-import it.unisa.dia.gas.crypto.jpbc.signature.bls01.params.BLS01Parameters
 import it.unisa.dia.gas.crypto.jpbc.signature.bls01.params.BLS01PrivateKeyParameters
 import it.unisa.dia.gas.crypto.jpbc.signature.bls01.params.BLS01PublicKeyParameters
-import it.unisa.dia.gas.plaf.jpbc.pairing.PairingFactory
 import org.bouncycastle.crypto.AsymmetricCipherKeyPair
 import org.bouncycastle.crypto.params.AsymmetricKeyParameter
 import org.onflow.flow.sdk.HashAlgorithm
-import org.bouncycastle.util.encoders.Hex
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.onflow.flow.sdk.SignatureAlgorithm
@@ -22,7 +18,6 @@ import java.security.SecureRandom
 import java.security.Signature
 
 internal class CryptoTest {
-
     private fun generateBLSKeyPair(): AsymmetricCipherKeyPair {
         val parameters = setupBLSParameters()
         val keyPairGenerator = BLS01KeyPairGenerator()
@@ -182,7 +177,7 @@ internal class CryptoTest {
 
         // Ensure the private key is of type PrivateKeyType.ECDSA
         val privateKey = keyPair.private.key as? PrivateKeyType.ECDSA
-        ?: throw IllegalArgumentException("Private key must be of type ECDSA")
+            ?: throw IllegalArgumentException("Private key must be of type ECDSA")
 
         val ecdsaSign = Signature.getInstance(HashAlgorithm.SHA3_256.id)
         ecdsaSign.initSign(privateKey.privateKey)
