@@ -5,11 +5,12 @@ import it.unisa.dia.gas.crypto.jpbc.signature.bls01.generators.BLS01KeyPairGener
 import it.unisa.dia.gas.crypto.jpbc.signature.bls01.generators.BLS01ParametersGenerator
 import it.unisa.dia.gas.crypto.jpbc.signature.bls01.params.BLS01KeyGenerationParameters
 import it.unisa.dia.gas.crypto.jpbc.signature.bls01.params.BLS01Parameters
-import it.unisa.dia.gas.crypto.jpbc.signature.bls01.params.BLS01PublicKeyParameters
 import it.unisa.dia.gas.plaf.jpbc.field.curve.ImmutableCurveElement
 import it.unisa.dia.gas.plaf.jpbc.field.z.ImmutableZrElement
 import it.unisa.dia.gas.plaf.jpbc.pairing.PairingFactory
+import org.bouncycastle.asn1.*
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo
+import org.bouncycastle.asn1.util.ASN1Dump
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo
 import org.bouncycastle.crypto.AsymmetricCipherKeyPair
 import org.bouncycastle.crypto.CryptoException
@@ -26,14 +27,19 @@ import org.bouncycastle.jce.interfaces.ECPublicKey
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.bouncycastle.jce.spec.ECNamedCurveSpec
 import org.bouncycastle.jce.spec.ECPrivateKeySpec
+import org.bouncycastle.util.encoders.Hex
 import org.onflow.flow.sdk.*
 import org.onflow.flow.sdk.Signer
-import java.io.*
+import java.io.ByteArrayInputStream
+import java.io.FileNotFoundException
+import java.io.IOException
+import java.io.ObjectInputStream
 import java.lang.reflect.Field
 import java.math.BigInteger
 import java.security.*
 import java.security.spec.ECGenParameterSpec
 import java.security.spec.ECPublicKeySpec
+import java.util.*
 import kotlin.experimental.and
 import kotlin.math.max
 
@@ -121,52 +127,69 @@ object Crypto {
         val f: Field = key.private.javaClass.getDeclaredField("sk")
         f.isAccessible = true
         val fieldContent: Any = f.get(key.private)
-        if (fieldContent is ImmutableZrElement) {
-            return fieldContent.toBytes()
+        return if (fieldContent is ImmutableZrElement) {
+            // Manually encode the BLS private key as ASN.1
+            val vector = ASN1EncodableVector()
+            vector.add(ASN1Integer(fieldContent.toBytes()))
+            DERSequence(vector).encoded
         } else {
             throw IOException("Unexpected private key type")
         }
     }
 
-    fun encodePrivateKey(key: ByteArray): AsymmetricKeyParameter {
-        val pkInfo: PrivateKeyInfo = PrivateKeyInfo.getInstance(key)
-        val privateKey: AsymmetricKeyParameter = PrivateKeyFactory.createKey(pkInfo)
-        return privateKey
-    }
-
-    fun encodePublicKey(key: ByteArray): AsymmetricKeyParameter {
-        val pkInfo: PrivateKeyInfo = PrivateKeyInfo.getInstance(key)
-        val privateKey: AsymmetricKeyParameter = PrivateKeyFactory.createKey(pkInfo)
-        return privateKey
-    }
-
+    // Function to store public key with proper return statement
     @Throws(FileNotFoundException::class, IOException::class, NoSuchFieldException::class, IllegalAccessException::class)
     fun storePublicKey(key: AsymmetricCipherKeyPair): ByteArray {
         val f: Field = key.public.javaClass.getDeclaredField("pk")
         f.isAccessible = true
         val fieldContent: Any = f.get(key.public)
-        if (fieldContent is ImmutableCurveElement<*, *>) {
-            return fieldContent.toBytes()
+        return if (fieldContent is ImmutableCurveElement<*, *>) {
+            // Manually encode the BLS public key as ASN.1
+            val vector = ASN1EncodableVector()
+            vector.add(ASN1Integer(fieldContent.toBytes()))
+            DERSequence(vector).encoded
         } else {
             throw IOException("Unexpected public key type")
         }
     }
 
-    private fun byteArrayToAsymmetricCipherKeyPair(byteArray: ByteArray): AsymmetricCipherKeyPair {
-        val inputStream = ByteArrayInputStream(byteArray)
-        val objectInputStream = ObjectInputStream(inputStream)
-
-        // Deserialize the objects from the byte array
-        val privateKeyObj = objectInputStream.readObject() as ByteArray
-        val publicKeyObj = objectInputStream.readObject() as ByteArray
-
-        // Construct AsymmetricKeyParameter objects from the decoded bytes
-        val privateKeyParam: AsymmetricKeyParameter = PrivateKeyFactory.createKey(privateKeyObj)
-        val publicKeyParam: AsymmetricKeyParameter = PublicKeyFactory.createKey(publicKeyObj)
-
-        // Create the AsymmetricCipherKeyPair
-        return AsymmetricCipherKeyPair(publicKeyParam, privateKeyParam)
+    fun encodePrivateKey(key: ByteArray?): AsymmetricKeyParameter {
+        return encodeKey(key, "private")
     }
+
+    fun encodePublicKey(key: ByteArray?): AsymmetricKeyParameter {
+        return encodeKey(key, "public")
+    }
+
+    private fun encodeKey(key: ByteArray?, keyType: String): AsymmetricKeyParameter {
+        try {
+            // Verify that the byte array is not null or empty
+            require(!(key == null || key.size == 0)) { "The $keyType key byte array is null or empty." }
+
+            // Log the byte array in hexadecimal format for debugging
+            println(keyType.substring(0, 1).uppercase(Locale.getDefault()) + keyType.substring(1) + " Key Byte Array (Hex): " + Hex.toHexString(key))
+
+            // Validate ASN.1 structure
+            require(isValidASN1(key)) { "The $keyType key byte array is not a valid ASN.1 structure." }
+
+            // Attempt to construct the PrivateKeyInfo instance
+            val pkInfo = PrivateKeyInfo.getInstance(ASN1Sequence.fromByteArray(key))
+
+            // Create the AsymmetricKeyParameter
+            val keyParam = PrivateKeyFactory.createKey(pkInfo)
+
+            return keyParam
+        } catch (e: java.lang.IllegalArgumentException) {
+            System.err.println("Failed to construct sequence from byte[]: " + e.message)
+            e.printStackTrace()
+            throw e // Rethrow the exception after logging
+        } catch (e: Exception) {
+            System.err.println("An error occurred while encoding the " + keyType + " key: " + e.message)
+            e.printStackTrace()
+            throw java.lang.RuntimeException("An error occurred while encoding the $keyType key.", e)
+        }
+    }
+
 
     fun serializeBLSPrivateKey(privateKey: AsymmetricKeyParameter): ByteArray {
         val k: PrivateKeyInfo = PrivateKeyInfoFactory.createPrivateKeyInfo(privateKey)
@@ -271,6 +294,18 @@ object Crypto {
             }
 
             else -> throw IllegalArgumentException("Unsupported algorithm: ${algo.algorithm}")
+        }
+    }
+
+    fun isValidASN1(data: ByteArray?): Boolean {
+        try {
+            val asn1 = ASN1Primitive.fromByteArray(data)
+            println("ASN1 Structure: " + ASN1Dump.dumpAsString(asn1))
+            return true
+        } catch (e: java.lang.Exception) {
+            System.err.println("Invalid ASN.1 data: " + e.message)
+            e.printStackTrace()
+            return false
         }
     }
 
