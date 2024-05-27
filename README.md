@@ -81,10 +81,53 @@ dependencies {
 
 The jitpack.io repository is necessary to access some of the dependencies of this library that are not available on Maven Central.
 
-## Example usage
+## SDK Examples
 
 Check out the [example repository](https://github.com/onflow/flow-java-client-example) for an example
-of how to use this SDK in a Java application.
+of how to use this SDK in a Java or Kotlin application.
+
+## Integrating a Custom Logger with the SDK
+
+The SDK provides a flexible way to integrate your application's existing logging system. This is done through the `SdkConfig` class, which allows you to set a custom logger for the SDK. By default, the SDK uses Logback via SLF4J for its logging configuration. To integrate your custom logger, follow the steps below:
+
+1. **Create or Use an Existing Logger**: Ensure you have an SLF4J `Logger` instance that you want to use for the SDK.
+
+    ```kotlin
+    import org.slf4j.Logger
+    import org.slf4j.LoggerFactory
+
+    val customLogger: Logger = LoggerFactory.getLogger("MyCustomLogger")
+    ```
+
+2. **Set the Custom Logger**: Use the `SdkConfig` class to set the custom logger for the SDK.
+
+    ```kotlin
+    import org.onflow.flow.sdk.SdkConfig
+
+    val sdkConfig = SdkConfig()
+    sdkConfig.setLogger(customLogger)
+    ```
+
+#### Example
+
+Here's a complete example of how to integrate your custom logger with the SDK:
+
+```kotlin
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+import org.onflow.flow.sdk.SdkConfig
+
+fun main() {
+    // Create a custom logger
+    val customLogger: Logger = LoggerFactory.getLogger("MyCustomLogger")
+
+    // Set the custom logger for the SDK
+    val sdkConfig = SdkConfig()
+    sdkConfig.setLogger(customLogger)
+
+    // Your SDK-related code here
+}
+```
 
 ## Integration tests
 
