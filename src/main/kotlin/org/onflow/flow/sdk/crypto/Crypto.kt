@@ -23,6 +23,7 @@ import org.bouncycastle.jce.spec.ECPrivateKeySpec
 import org.onflow.flow.sdk.*
 import org.onflow.flow.sdk.Signer
 import org.onflow.flow.sdk.crypto.Crypto.decodeBLSPrivateKey
+import org.slf4j.Logger
 import java.io.IOException
 import java.math.BigInteger
 import java.security.*
@@ -84,6 +85,10 @@ data class PublicKey(
 )
 
 object Crypto {
+
+    private val logger: Logger
+        get() = LoggerProvider.logger
+
     init {
         Security.addProvider(BouncyCastleProvider())
     }
@@ -118,8 +123,7 @@ object Crypto {
             val derSequence = DERSequence(vector)
             derSequence.encoded
         } catch (e: Exception) {
-            System.err.println("An error occurred while serializing the BLS private key: ${e.message}")
-            e.printStackTrace()
+            logger.error("An error occurred while serializing the BLS private key: ${e.message}")
             throw RuntimeException("Failed to serialize BLS private key", e)
         }
     }
@@ -140,12 +144,10 @@ object Crypto {
             val zrElement = pairing.zr.newElement(BigInteger(1, privateKeyBytes)).getImmutable()
             BLS01PrivateKeyParameters(parameters, zrElement)
         } catch (e: IOException) {
-            System.err.println("IOException during ASN.1 processing: ${e.message}")
-            e.printStackTrace()
+            logger.error("IOException during ASN.1 processing: ${e.message}")
             throw RuntimeException("Failed to encode BLS private key due to IO error.", e)
         } catch (e: Exception) {
-            System.err.println("An error occurred during BLS private key encoding: ${e.message}")
-            e.printStackTrace()
+            logger.error("An error occurred during BLS private key encoding: ${e.message}")
             throw RuntimeException("An error occurred while encoding the BLS private key.", e)
         }
     }
@@ -164,8 +166,7 @@ object Crypto {
             val derSequence = DERSequence(vector)
             derSequence.encoded
         } catch (e: Exception) {
-            System.err.println("An error occurred while serializing the BLS public key: ${e.message}")
-            e.printStackTrace()
+            logger.error("An error occurred while serializing the BLS public key: ${e.message}")
             throw RuntimeException("Failed to serialize BLS public key", e)
         }
     }
@@ -186,12 +187,10 @@ object Crypto {
             val g1Element = pairing.g1.newElementFromBytes(publicKeyBytes).getImmutable()
             BLS01PublicKeyParameters(parameters, g1Element)
         } catch (e: IOException) {
-            System.err.println("IOException during ASN.1 processing: ${e.message}")
-            e.printStackTrace()
+            logger.error("IOException during ASN.1 processing: ${e.message}")
             throw RuntimeException("Failed to encode BLS public key due to IO error.", e)
         } catch (e: Exception) {
-            System.err.println("An error occurred during BLS public key encoding: ${e.message}")
-            e.printStackTrace()
+            logger.error("An error occurred during BLS public key encoding: ${e.message}")
             throw RuntimeException("An error occurred while encoding the BLS public key.", e)
         }
     }
@@ -286,12 +285,10 @@ object Crypto {
             val zrElement = pairing.getZr().newElement(BigInteger(1, privateKeyBytes))
             BLS01PrivateKeyParameters(parameters, zrElement.getImmutable())
         } catch (e: IOException) {
-            System.err.println("IOException during ASN.1 processing: ${e.message}")
-            e.printStackTrace()
+            logger.error("IOException during ASN.1 processing: ${e.message}")
             throw RuntimeException("Failed to decode BLS private key due to IO error.", e)
         } catch (e: Exception) {
-            System.err.println("An error occurred during BLS private key decoding: ${e.message}")
-            e.printStackTrace()
+            logger.error("An error occurred during BLS private key decoding: ${e.message}")
             throw RuntimeException("An error occurred while decoding the BLS private key.", e)
         }
     }
