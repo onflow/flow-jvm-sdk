@@ -85,7 +85,6 @@ data class PublicKey(
 )
 
 object Crypto {
-
     private val logger: Logger
         get() = LoggerProvider.logger
 
