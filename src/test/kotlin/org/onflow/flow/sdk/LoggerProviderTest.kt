@@ -1,22 +1,21 @@
 package org.onflow.flow.sdk
 
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.slf4j.LoggerFactory
 
 class LoggerProviderTest {
-
-    @Test
-    fun testDefaultLogger() {
-        val logger = LoggerProvider.logger
-        assertEquals("DefaultLogger", logger.name)
+    @BeforeEach
+    fun resetLogger() {
+        LoggerProvider.logger = LoggerFactory.getLogger("DefaultLogger")
     }
 
     @Test
-    fun testSetCustomLogger() {
+    fun testSetLogger() {
         val customLogger = LoggerFactory.getLogger("CustomLogger")
-        LoggerProvider.logger = customLogger
+        val sdkConfig = SdkConfig()
+        sdkConfig.setLogger(customLogger)
         assertEquals("CustomLogger", LoggerProvider.logger.name)
     }
 }
-

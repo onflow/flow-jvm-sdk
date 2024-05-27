@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test
 import org.slf4j.LoggerFactory
 
 class SdkConfigTest {
-
     @Test
     fun testSetLogger() {
         val customLogger = LoggerFactory.getLogger("CustomLogger")
@@ -14,4 +13,3 @@ class SdkConfigTest {
         assertEquals("CustomLogger", LoggerProvider.logger.name)
     }
 }
-
