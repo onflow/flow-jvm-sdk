@@ -58,8 +58,7 @@ enum class SignatureAlgorithm(
 ) {
     UNKNOWN("unknown", "unknown", "unknown", -1, 0),
     ECDSA_P256("ECDSA", "P-256", "ECDSA_P256", 2, 1),
-    ECDSA_SECP256k1("ECDSA", "secp256k1", "ECDSA_secp256k1", 3, 2),
-    BLS_BLS12_381("BLS", "BLS12-381", "BLS_BLS12_381", 4, 3);
+    ECDSA_SECP256k1("ECDSA", "secp256k1", "ECDSA_secp256k1", 3, 2);
 
     companion object {
         @JvmStatic
