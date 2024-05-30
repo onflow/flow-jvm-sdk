@@ -115,12 +115,10 @@ internal class CryptoTest {
 
     @Test
     fun `Hasher implementation for KMAC128`() {
-        val key = "key".toByteArray()  // Example key
         val hasher = HasherImpl(HashAlgorithm.KMAC128)
         val hashedBytes = hasher.hash("test".toByteArray())
         assertNotNull(hashedBytes)
     }
-
 
     @Test
     fun `Signer implementation`() {
