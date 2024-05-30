@@ -88,7 +88,6 @@ internal class CryptoTest {
         val ecdsaSign = Signature.getInstance(HashAlgorithm.SHA3_256.id)
         ecdsaSign.initSign(keyPair.private.key)
 
-        println(keyPair.private.key)
         ecdsaSign.update("test".toByteArray())
 
         val signature = ecdsaSign.sign()
