@@ -115,10 +115,12 @@ internal class CryptoTest {
 
     @Test
     fun `Hasher implementation for KMAC128`() {
-        val hasher = HasherImpl(HashAlgorithm.KMAC128)
+        val key = "key".toByteArray()
+        val hasher = HasherImpl(HashAlgorithm.KMAC128, key)
         val hashedBytes = hasher.hash("test".toByteArray())
         assertNotNull(hashedBytes)
     }
+
 
     @Test
     fun `Signer implementation`() {
@@ -139,7 +141,9 @@ internal class CryptoTest {
     @Test
     fun `Signer implementation for KMAC128`() {
         val keyPair = Crypto.generateKeyPair()
-        val signer = SignerImpl(keyPair.private, HashAlgorithm.KMAC128)
+        val key = "key".toByteArray()
+        val hasher = HasherImpl(HashAlgorithm.KMAC128, key)
+        val signer = SignerImpl(keyPair.private, HashAlgorithm.KMAC128, hasher)
         val signature = signer.sign("test".toByteArray())
         assertNotNull(signature)
     }

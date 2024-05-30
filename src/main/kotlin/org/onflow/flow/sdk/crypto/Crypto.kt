@@ -1,6 +1,7 @@
 package org.onflow.flow.sdk.crypto
 
 import org.bouncycastle.crypto.macs.KMAC
+import org.bouncycastle.crypto.params.KeyParameter
 import org.bouncycastle.jcajce.provider.digest.Keccak
 import org.onflow.flow.sdk.*
 import org.bouncycastle.jce.ECNamedCurveTable
@@ -158,7 +159,8 @@ object Crypto {
 }
 
 internal class HasherImpl(
-    private val hashAlgo: HashAlgorithm
+    private val hashAlgo: HashAlgorithm,
+    private val key: ByteArray? = null // Add key parameter for KMAC128
 ) : Hasher {
     override fun hash(bytes: ByteArray): ByteArray {
         return when (hashAlgo) {
@@ -167,7 +169,11 @@ internal class HasherImpl(
                 keccakDigest.digest(bytes)
             }
             HashAlgorithm.KMAC128 -> {
+                if (key == null) {
+                    throw IllegalArgumentException("KMAC128 requires a key")
+                }
                 val kmac = KMAC(128, ByteArray(0))
+                kmac.init(KeyParameter(key))
                 val output = ByteArray(kmac.digestSize)
                 kmac.update(bytes, 0, bytes.size)
                 kmac.doFinal(output, 0)
