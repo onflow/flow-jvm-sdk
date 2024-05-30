@@ -62,8 +62,6 @@ dependencies {
     testFixturesImplementation("org.junit.jupiter:junit-jupiter:5.10.1")
     testFixturesImplementation("org.mockito:mockito-core:3.12.4")
     testFixturesImplementation("org.mockito:mockito-inline:3.11.2")
-
-    implementation("com.github.emilianobonassi:jpbc:2.0.0")
     implementation("org.slf4j:slf4j-api:1.7.30")
     implementation("ch.qos.logback:logback-classic:1.4.12")
 }
