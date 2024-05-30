@@ -3,6 +3,7 @@ package org.onflow.flow.sdk.crypto
 import org.onflow.flow.sdk.HashAlgorithm
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
+import org.onflow.flow.sdk.SignatureAlgorithm
 import java.math.BigInteger
 import java.security.Signature
 
@@ -59,6 +60,14 @@ internal class CryptoTest {
         val signer = Crypto.getSigner(keyPair.private)
         assertNotNull(signer)
     }
+
+    @Test
+    fun `Get signer for ECDSA_SECP256k1`() {
+        val keyPair = Crypto.generateKeyPair(SignatureAlgorithm.ECDSA_SECP256k1)
+        val signer = Crypto.getSigner(keyPair.private, HashAlgorithm.SHA3_256)
+        assertNotNull(signer)
+    }
+
     @Test
     fun `Get hasher`() {
         val hasher = Crypto.getHasher()
@@ -82,8 +91,42 @@ internal class CryptoTest {
     }
 
     @Test
+    fun `Test normalizeSignature for ECDSA_SECP256k1`() {
+        val keyPair = Crypto.generateKeyPair(SignatureAlgorithm.ECDSA_SECP256k1)
+
+        val ecdsaSign = Signature.getInstance(HashAlgorithm.SHA3_256.id)
+        ecdsaSign.initSign(keyPair.private.key)
+        ecdsaSign.update("test".toByteArray())
+
+        val signature = ecdsaSign.sign()
+
+        val normalizedSignature = Crypto.normalizeSignature(signature, keyPair.private.ecCoupleComponentSize)
+
+        val expectedLength = 2 * keyPair.private.ecCoupleComponentSize
+        assertEquals(expectedLength, normalizedSignature.size)
+    }
+
+
+    @Test
     fun `Test extractRS`() {
         val keyPair = Crypto.generateKeyPair()
+
+        val ecdsaSign = Signature.getInstance(HashAlgorithm.SHA3_256.id)
+        ecdsaSign.initSign(keyPair.private.key)
+
+        ecdsaSign.update("test".toByteArray())
+
+        val signature = ecdsaSign.sign()
+
+        val (r, s) = Crypto.extractRS(signature)
+
+        assertTrue(r > BigInteger.ZERO)
+        assertTrue(s > BigInteger.ZERO)
+    }
+
+    @Test
+    fun `Test extractRS for ECDSA_SECP256k1`() {
+        val keyPair = Crypto.generateKeyPair(SignatureAlgorithm.ECDSA_SECP256k1)
 
         val ecdsaSign = Signature.getInstance(HashAlgorithm.SHA3_256.id)
         ecdsaSign.initSign(keyPair.private.key)
@@ -143,6 +186,14 @@ internal class CryptoTest {
         val key = "key".toByteArray()
         val hasher = HasherImpl(HashAlgorithm.KMAC128, key)
         val signer = SignerImpl(keyPair.private, HashAlgorithm.KMAC128, hasher)
+        val signature = signer.sign("test".toByteArray())
+        assertNotNull(signature)
+    }
+
+    @Test
+    fun `Signer implementation for ECDSA_SECP256k1`() {
+        val keyPair = Crypto.generateKeyPair(SignatureAlgorithm.ECDSA_SECP256k1)
+        val signer = SignerImpl(keyPair.private, HashAlgorithm.SHA3_256)
         val signature = signer.sign("test".toByteArray())
         assertNotNull(signature)
     }
