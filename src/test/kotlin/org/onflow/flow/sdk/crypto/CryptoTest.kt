@@ -107,9 +107,41 @@ internal class CryptoTest {
     }
 
     @Test
+    fun `Hasher implementation for Keccak-256`() {
+        val hasher = HasherImpl(HashAlgorithm.KECCAK256)
+        val hashedBytes = hasher.hash("test".toByteArray())
+        assertNotNull(hashedBytes)
+    }
+
+    @Test
+    fun `Hasher implementation for KMAC128`() {
+        val key = "key".toByteArray()  // Example key
+        val hasher = HasherImpl(HashAlgorithm.KMAC128)
+        val hashedBytes = hasher.hash("test".toByteArray())
+        assertNotNull(hashedBytes)
+    }
+
+
+    @Test
     fun `Signer implementation`() {
         val keyPair = Crypto.generateKeyPair()
         val signer = SignerImpl(keyPair.private, HashAlgorithm.SHA3_256)
+        val signature = signer.sign("test".toByteArray())
+        assertNotNull(signature)
+    }
+
+    @Test
+    fun `Signer implementation for Keccak-256`() {
+        val keyPair = Crypto.generateKeyPair()
+        val signer = SignerImpl(keyPair.private, HashAlgorithm.KECCAK256)
+        val signature = signer.sign("test".toByteArray())
+        assertNotNull(signature)
+    }
+
+    @Test
+    fun `Signer implementation for KMAC128`() {
+        val keyPair = Crypto.generateKeyPair()
+        val signer = SignerImpl(keyPair.private, HashAlgorithm.KMAC128)
         val signature = signer.sign("test".toByteArray())
         assertNotNull(signature)
     }
