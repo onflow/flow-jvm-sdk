@@ -47,8 +47,8 @@ enum class FlowChainId(
             .find { it.id == id }
             ?: UNKNOWN
     }
-
-}enum class SignatureAlgorithm(
+}
+enum class SignatureAlgorithm(
     val algorithm: String,
     val curve: String,
     val id: String,
@@ -69,8 +69,6 @@ enum class FlowChainId(
             .find { it.index == index } ?: UNKNOWN
     }
 }
-
-
 
 enum class HashAlgorithm(
     val algorithm: String,
