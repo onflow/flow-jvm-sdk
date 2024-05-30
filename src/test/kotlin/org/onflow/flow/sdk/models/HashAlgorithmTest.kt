@@ -19,5 +19,7 @@ class HashAlgorithmTest {
         assertEquals(HashAlgorithm.SHA2_384, HashAlgorithm.fromCadenceIndex(2))
         assertEquals(HashAlgorithm.SHA3_256, HashAlgorithm.fromCadenceIndex(3))
         assertEquals(HashAlgorithm.SHA3_384, HashAlgorithm.fromCadenceIndex(4))
+        assertEquals(HashAlgorithm.KECCAK256, HashAlgorithm.fromCadenceIndex(5))
+        assertEquals(HashAlgorithm.KMAC128, HashAlgorithm.fromCadenceIndex(6))
     }
 }

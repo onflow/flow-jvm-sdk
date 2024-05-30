@@ -1,5 +1,7 @@
 package org.onflow.flow.sdk.crypto
 
+import org.bouncycastle.crypto.macs.KMAC
+import org.bouncycastle.jcajce.provider.digest.Keccak
 import org.onflow.flow.sdk.*
 import org.bouncycastle.jce.ECNamedCurveTable
 import org.bouncycastle.jce.ECPointUtil
@@ -159,8 +161,23 @@ internal class HasherImpl(
     private val hashAlgo: HashAlgorithm
 ) : Hasher {
     override fun hash(bytes: ByteArray): ByteArray {
-        val digest = MessageDigest.getInstance(hashAlgo.algorithm)
-        return digest.digest(bytes)
+        return when (hashAlgo) {
+            HashAlgorithm.KECCAK256 -> {
+                val keccakDigest = Keccak.Digest256()
+                keccakDigest.digest(bytes)
+            }
+            HashAlgorithm.KMAC128 -> {
+                val kmac = KMAC(128, ByteArray(0))
+                val output = ByteArray(kmac.digestSize)
+                kmac.update(bytes, 0, bytes.size)
+                kmac.doFinal(output, 0)
+                output
+            }
+            else -> {
+                val digest = MessageDigest.getInstance(hashAlgo.algorithm)
+                digest.digest(bytes)
+            }
+        }
     }
 }
 
@@ -170,11 +187,23 @@ internal class SignerImpl(
     override val hasher: Hasher = HasherImpl(hashAlgo)
 ) : Signer {
     override fun sign(bytes: ByteArray): ByteArray {
-        val ecdsaSign = Signature.getInstance(hashAlgo.id)
-        ecdsaSign.initSign(privateKey.key)
-        ecdsaSign.update(bytes)
+        val signature: ByteArray
 
-        val signature = ecdsaSign.sign()
+        if (hashAlgo == HashAlgorithm.KECCAK256 || hashAlgo == HashAlgorithm.KMAC128) {
+            // Handle Keccak-256 and KMAC128 separately
+            val hash = hasher.hash(bytes)
+            val ecdsaSign = Signature.getInstance("NONEwithECDSA")
+            ecdsaSign.initSign(privateKey.key)
+            ecdsaSign.update(hash)
+            signature = ecdsaSign.sign()
+        } else {
+            // Handle other algorithms with valid IDs
+            val ecdsaSign = Signature.getInstance(hashAlgo.id)
+            ecdsaSign.initSign(privateKey.key)
+            ecdsaSign.update(bytes)
+            signature = ecdsaSign.sign()
+        }
+
         if (privateKey.ecCoupleComponentSize <= 0) {
             return signature
         }
