@@ -195,14 +195,6 @@ internal class SignerImpl(
     override fun sign(bytes: ByteArray): ByteArray {
         val signature: ByteArray
 
-        val ecdsaSign: Signature = if (privateKey.key.algorithm == "EC" && privateKey.key is ECPrivateKey) {
-            Signature.getInstance("ECDSA", "BC")
-        } else {
-            Signature.getInstance(hashAlgo.id)
-        }
-
-        ecdsaSign.initSign(privateKey.key)
-
         if (hashAlgo == HashAlgorithm.KECCAK256 || hashAlgo == HashAlgorithm.KMAC128) {
             // Handle Keccak-256 and KMAC128 separately
             val hash = hasher.hash(bytes)
@@ -212,6 +204,12 @@ internal class SignerImpl(
             signature = noneEcdsaSign.sign()
         } else {
             // Handle other algorithms with valid IDs
+            val ecdsaSign = if (privateKey.key.algorithm == "EC" && privateKey.key is ECPrivateKey) {
+                Signature.getInstance("ECDSA", "BC")
+            } else {
+                Signature.getInstance(hashAlgo.id)
+            }
+            ecdsaSign.initSign(privateKey.key)
             ecdsaSign.update(bytes)
             signature = ecdsaSign.sign()
         }
