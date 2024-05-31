@@ -48,7 +48,6 @@ enum class FlowChainId(
             ?: UNKNOWN
     }
 }
-
 enum class SignatureAlgorithm(
     val algorithm: String,
     val curve: String,
@@ -58,7 +57,7 @@ enum class SignatureAlgorithm(
 ) {
     UNKNOWN("unknown", "unknown", "unknown", -1, 0),
     ECDSA_P256("ECDSA", "P-256", "ECDSA_P256", 2, 1),
-    ECDSA_SECP256k1("ECDSA", "secp256k1", "ECDSA_secp256k1", 3, 2);
+    ECDSA_SECP256k1("ECDSA", "secp256k1", "ECDSA_SECP256k1", 3, 2);
 
     companion object {
         @JvmStatic
@@ -82,7 +81,9 @@ enum class HashAlgorithm(
     SHA2_256("SHA-256", 256, "SHA256withECDSA", 1, 1),
     SHA2_384("SHA-384", 384, "SHA384withECDSA", 1, 2),
     SHA3_256("SHA3-256", 256, "SHA3-256withECDSA", 3, 3),
-    SHA3_384("SHA3-384", 384, "SHA3-384withECDSA", 3, 4);
+    SHA3_384("SHA3-384", 384, "SHA3-384withECDSA", 3, 4),
+    KECCAK256("KECCAK256", 256, "NA", 4, 5),
+    KMAC128("KMAC128", 128, "NA", 5, 6);
 
     companion object {
         @JvmStatic
