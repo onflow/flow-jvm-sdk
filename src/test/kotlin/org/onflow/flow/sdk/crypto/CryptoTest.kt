@@ -1,10 +1,12 @@
 package org.onflow.flow.sdk.crypto
 
+import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.onflow.flow.sdk.HashAlgorithm
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.onflow.flow.sdk.SignatureAlgorithm
 import java.math.BigInteger
+import java.security.Security
 import java.security.Signature
 
 internal class CryptoTest {
@@ -92,9 +94,10 @@ internal class CryptoTest {
 
     @Test
     fun `Test normalizeSignature for ECDSA_SECP256k1`() {
+        Security.addProvider(BouncyCastleProvider())
         val keyPair = Crypto.generateKeyPair(SignatureAlgorithm.ECDSA_SECP256k1)
 
-        val ecdsaSign = Signature.getInstance(HashAlgorithm.SHA3_256.id)
+        val ecdsaSign = Signature.getInstance(HashAlgorithm.SHA3_256.id, "BC")
         ecdsaSign.initSign(keyPair.private.key)
         ecdsaSign.update("test".toByteArray())
 
@@ -126,9 +129,10 @@ internal class CryptoTest {
 
     @Test
     fun `Test extractRS for ECDSA_SECP256k1`() {
+        Security.addProvider(BouncyCastleProvider())
         val keyPair = Crypto.generateKeyPair(SignatureAlgorithm.ECDSA_SECP256k1)
 
-        val ecdsaSign = Signature.getInstance(HashAlgorithm.SHA3_256.id)
+        val ecdsaSign = Signature.getInstance(HashAlgorithm.SHA3_256.id, "BC")
         ecdsaSign.initSign(keyPair.private.key)
 
         ecdsaSign.update("test".toByteArray())
