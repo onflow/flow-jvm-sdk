@@ -160,7 +160,7 @@ object Crypto {
 
 internal class HasherImpl(
     private val hashAlgo: HashAlgorithm,
-    private val key: ByteArray? = null // Add key parameter for KMAC128
+    private val key: ByteArray? = null
 ) : Hasher {
     override fun hash(bytes: ByteArray): ByteArray {
         return when (hashAlgo) {
