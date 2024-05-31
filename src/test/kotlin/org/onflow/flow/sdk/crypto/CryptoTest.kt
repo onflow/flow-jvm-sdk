@@ -109,7 +109,6 @@ internal class CryptoTest {
         assertEquals(expectedLength, normalizedSignature.size)
     }
 
-
     @Test
     fun `Test extractRS`() {
         val keyPair = Crypto.generateKeyPair()
@@ -166,7 +165,6 @@ internal class CryptoTest {
         val hashedBytes = hasher.hash("test".toByteArray())
         assertNotNull(hashedBytes)
     }
-
 
     @Test
     fun `Signer implementation`() {
