@@ -194,14 +194,11 @@ internal class SignerImpl(
 ) : Signer {
     override fun sign(bytes: ByteArray): ByteArray {
         val signature: ByteArray
-        val ecdsaSign: Signature
 
-        if (privateKey.key.algorithm == "EC" && privateKey.key is ECPrivateKey) {
-            // Use Bouncy Castle for secp256k1
-            ecdsaSign = Signature.getInstance("ECDSA", "BC")
+        val ecdsaSign: Signature = if (privateKey.key.algorithm == "EC" && privateKey.key is ECPrivateKey) {
+            Signature.getInstance("ECDSA", "BC")
         } else {
-            // Use default provider for other algorithms
-            ecdsaSign = Signature.getInstance(hashAlgo.id)
+            Signature.getInstance(hashAlgo.id)
         }
 
         ecdsaSign.initSign(privateKey.key)
