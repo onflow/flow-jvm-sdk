@@ -120,7 +120,6 @@ internal class CryptoTest {
         assertNotNull(hashedBytes)
     }
 
-
     @Test
     fun `Signer implementation`() {
         val keyPair = Crypto.generateKeyPair()
