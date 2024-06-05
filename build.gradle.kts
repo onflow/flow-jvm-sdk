@@ -44,7 +44,7 @@ dependencies {
     api("org.jetbrains.kotlin:kotlin-reflect:1.9.22")
     dokkaHtmlPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:1.9.10")
 
-    api("org.onflow:flow:0.21")
+    api("org.onflow:flow:0.21") // Source for protobuf
 
     api("com.github.TrustedDataFramework:java-rlp:1.1.20")
 

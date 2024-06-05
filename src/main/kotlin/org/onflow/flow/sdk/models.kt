@@ -677,6 +677,13 @@ data class FlowBlock(
     }
 }
 
+data class ExecutionResult(
+    val id: FlowId,
+    val parentId: FlowId,
+) : Serializable {
+    // To-do: handle missing fields and builder
+}
+
 data class FlowCollectionGuarantee(
     val id: FlowId,
     val signatures: List<FlowSignature>
