@@ -243,4 +243,40 @@ class FlowAccessApiTest {
 
         assertEquals(snapshot, result)
     }
+
+    @Test
+    fun `Test getTransactionsByBlockId`() {
+        val flowAccessApi = mock(FlowAccessApi::class.java)
+        val blockId = FlowId("01")
+        val transactions = listOf(FlowTransaction.of(TransactionOuterClass.Transaction.getDefaultInstance()))
+        `when`(flowAccessApi.getTransactionsByBlockId(blockId)).thenReturn(transactions)
+
+        val result = flowAccessApi.getTransactionsByBlockId(blockId)
+
+        assertEquals(transactions, result)
+    }
+
+    @Test
+    fun `Test getTransactionResultsByBlockId`() {
+        val flowAccessApi = mock(FlowAccessApi::class.java)
+        val blockId = FlowId("01")
+        val transactionResults = listOf(FlowTransactionResult.of(Access.TransactionResultResponse.getDefaultInstance()))
+        `when`(flowAccessApi.getTransactionResultsByBlockId(blockId)).thenReturn(transactionResults)
+
+        val result = flowAccessApi.getTransactionResultsByBlockId(blockId)
+
+        assertEquals(transactionResults, result)
+    }
+
+    @Test
+    fun `Test getExecutionResultByBlockId`() {
+        val flowAccessApi = mock(FlowAccessApi::class.java)
+        val blockId = FlowId("01")
+        val executionResult = ExecutionResult.of(Access.ExecutionResultByIDResponse.getDefaultInstance())
+        `when`(flowAccessApi.getExecutionResultByBlockId(blockId)).thenReturn(executionResult)
+
+        val result = flowAccessApi.getExecutionResultByBlockId(blockId)
+
+        assertEquals(executionResult, result)
+    }
 }

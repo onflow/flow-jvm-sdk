@@ -682,9 +682,9 @@ data class ExecutionResult(
     val parentId: FlowId
 ) : Serializable {
     companion object {
-        fun of(grpcExecutionResult: ExecutionResultOuterClass.ExecutionResult) = ExecutionResult(
-                id = FlowId.of(grpcExecutionResult.blockId.toByteArray()),
-                parentId = FlowId.of(grpcExecutionResult.previousResultId.toByteArray())
+        fun of(grpcExecutionResult: Access.ExecutionResultByIDResponse) = ExecutionResult(
+                id = FlowId.of(grpcExecutionResult.executionResult.blockId.toByteArray()),
+                parentId = FlowId.of(grpcExecutionResult.executionResult.previousResultId.toByteArray())
             )
     }
 }
