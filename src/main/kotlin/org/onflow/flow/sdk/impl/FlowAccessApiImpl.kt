@@ -108,12 +108,16 @@ class FlowAccessApiImpl(
     }
 
     override fun getExecutionResultByBlockId(id: FlowId): ExecutionResult? {
-        val ret = api.getExecutionResultByBlockId(
+        val ret = api.getExecutionResultByID(
             Access.GetExecutionResultByIDRequest.newBuilder()
-                .setBlockId(id.byteStringValue)
+                .setId(id.byteStringValue)
                 .build()
         )
-    // Handle response
+        return if (ret.hasExecutionResult()) {
+            ExecutionResult.of(ret.executionResult)
+        } else {
+            null
+        }
     }
 
     override fun getBlockByHeight(height: Long): FlowBlock? {

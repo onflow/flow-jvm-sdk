@@ -679,9 +679,14 @@ data class FlowBlock(
 
 data class ExecutionResult(
     val id: FlowId,
-    val parentId: FlowId,
+    val parentId: FlowId
 ) : Serializable {
-    // To-do: handle missing fields and builder
+    companion object {
+        fun of(grpcExecutionResult: ExecutionResultOuterClass.ExecutionResult) = ExecutionResult(
+                id = FlowId.of(grpcExecutionResult.blockId.toByteArray()),
+                parentId = FlowId.of(grpcExecutionResult.previousResultId.toByteArray())
+            )
+    }
 }
 
 data class FlowCollectionGuarantee(
