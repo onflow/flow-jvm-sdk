@@ -683,9 +683,9 @@ data class ExecutionResult(
 ) : Serializable {
     companion object {
         fun of(grpcExecutionResult: Access.ExecutionResultByIDResponse) = ExecutionResult(
-                id = FlowId.of(grpcExecutionResult.executionResult.blockId.toByteArray()),
-                parentId = FlowId.of(grpcExecutionResult.executionResult.previousResultId.toByteArray())
-            )
+            id = FlowId.of(grpcExecutionResult.executionResult.blockId.toByteArray()),
+            parentId = FlowId.of(grpcExecutionResult.executionResult.previousResultId.toByteArray())
+        )
     }
 }
 
