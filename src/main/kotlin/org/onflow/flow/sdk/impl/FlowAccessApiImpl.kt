@@ -114,7 +114,7 @@ class FlowAccessApiImpl(
                 .build()
         )
         return if (ret.hasExecutionResult()) {
-            ExecutionResult.of(ret.executionResult)
+            ExecutionResult.of(ret)
         } else {
             null
         }
