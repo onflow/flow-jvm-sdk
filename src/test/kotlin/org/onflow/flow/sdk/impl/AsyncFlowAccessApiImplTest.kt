@@ -445,7 +445,6 @@ class AsyncFlowAccessApiImplTest {
         val future: ListenableFuture<Access.TransactionsResponse> = SettableFuture.create()
         (future as SettableFuture<Access.TransactionsResponse>).set(response)
 
-
         `when`(api.getTransactionsByBlockID(any())).thenReturn(future)
 
         val result = asyncFlowAccessApi.getTransactionsByBlockId(blockId).get()
@@ -464,7 +463,6 @@ class AsyncFlowAccessApiImplTest {
 
         val future: ListenableFuture<Access.TransactionResultsResponse> = SettableFuture.create()
         (future as SettableFuture<Access.TransactionResultsResponse>).set(response)
-
 
         `when`(api.getTransactionResultsByBlockID(any())).thenReturn(future)
 
