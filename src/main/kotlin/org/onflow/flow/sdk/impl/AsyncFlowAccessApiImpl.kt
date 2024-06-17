@@ -176,6 +176,42 @@ class AsyncFlowAccessApiImpl(
         }
     }
 
+    override fun getTransactionsByBlockId(id: FlowId): CompletableFuture<List<FlowTransaction>?> {
+        return completableFuture(
+            api.getTransactionsByBlockID(
+                Access.GetTransactionsByBlockIDRequest.newBuilder()
+                    .setBlockId(id.byteStringValue)
+                    .build()
+            )
+        ).thenApply { transactionsResponse ->
+            if (transactionsResponse.transactionsList.isNotEmpty()) {
+                transactionsResponse.transactionsList.map { FlowTransaction.of(it) }
+            } else {
+                null
+            }
+        }
+    }
+
+    override fun getTransactionResultsByBlockId(id: FlowId): CompletableFuture<List<FlowTransactionResult>?> {
+        return completableFuture(
+            api.getTransactionResultsByBlockID(
+                Access.GetTransactionsByBlockIDRequest.newBuilder()
+                    .setBlockId(id.byteStringValue)
+                    .build()
+            )
+        ).thenApply { transactionResultsResponse ->
+            if (transactionResultsResponse.transactionResultsList.isNotEmpty()) {
+                transactionResultsResponse.transactionResultsList.map { FlowTransactionResult.of(it) }
+            } else {
+                null
+            }
+        }
+    }
+
+    override fun getExecutionResultByBlockId(id: FlowId): CompletableFuture<ExecutionResult?> {
+        TODO("Not yet implemented")
+    }
+
     @Deprecated("Behaves identically to getAccountAtLatestBlock", replaceWith = ReplaceWith("getAccountAtLatestBlock"))
     override fun getAccountByAddress(addresss: FlowAddress): CompletableFuture<FlowAccount?> {
         return completableFuture(
