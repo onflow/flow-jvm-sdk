@@ -479,8 +479,8 @@ class AsyncFlowAccessApiImplTest {
         val response = Access.ExecutionResultByIDResponse.newBuilder()
             .setExecutionResult(
                 ExecutionResultOuterClass.ExecutionResult.newBuilder()
-                    .setBlockId(ByteString.copyFromUtf8("01"))
-                    .setPreviousResultId(ByteString.copyFromUtf8("02"))
+                    .setBlockId(ByteString.copyFrom(byteArrayOf(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1)))
+                    .setPreviousResultId(ByteString.copyFrom(byteArrayOf(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2)))
                     .build()
             )
             .build()
@@ -490,7 +490,7 @@ class AsyncFlowAccessApiImplTest {
 
         `when`(api.getExecutionResultByID(any())).thenReturn(future)
 
-        val result = asyncFlowAccessApi.getExecutionResultByBlockId(blockId)
+        val result = asyncFlowAccessApi.getExecutionResultByBlockId(blockId).get()
 
         assertEquals(executionResult, result)
     }
