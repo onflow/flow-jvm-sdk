@@ -11,6 +11,7 @@ import org.mockito.Mockito.`when`
 import org.onflow.protobuf.access.Access
 import org.onflow.protobuf.access.AccessAPIGrpc
 import org.mockito.ArgumentMatchers.any
+import org.onflow.protobuf.entities.ExecutionResultOuterClass
 import org.onflow.protobuf.entities.TransactionOuterClass
 import java.math.BigDecimal
 import java.time.LocalDateTime
@@ -430,5 +431,69 @@ class AsyncFlowAccessApiImplTest {
         val result = asyncFlowAccessApi.getLatestProtocolStateSnapshot().get()
 
         assertEquals(mockFlowSnapshot, result)
+    }
+
+    @Test
+    fun `test getTransactionsByBlockId`() {
+        val blockId = FlowId("01")
+        val transactions = listOf(FlowTransaction.of(TransactionOuterClass.Transaction.getDefaultInstance()))
+
+        val response = Access.TransactionsResponse.newBuilder()
+            .addAllTransactions(transactions.map { it.builder().build() })
+            .build()
+
+        val future: ListenableFuture<Access.TransactionsResponse> = SettableFuture.create()
+        (future as SettableFuture<Access.TransactionsResponse>).set(response)
+
+
+        `when`(api.getTransactionsByBlockID(any())).thenReturn(future)
+
+        val result = asyncFlowAccessApi.getTransactionsByBlockId(blockId).get()
+
+        assertEquals(transactions, result)
+    }
+
+    @Test
+    fun `test getTransactionResultsByBlockId`() {
+        val blockId = FlowId("01")
+        val transactionResults = listOf(FlowTransactionResult.of(Access.TransactionResultResponse.getDefaultInstance()))
+
+        val response = Access.TransactionResultsResponse.newBuilder()
+            .addAllTransactionResults(transactionResults.map { it.builder().build() })
+            .build()
+
+        val future: ListenableFuture<Access.TransactionResultsResponse> = SettableFuture.create()
+        (future as SettableFuture<Access.TransactionResultsResponse>).set(response)
+
+
+        `when`(api.getTransactionResultsByBlockID(any())).thenReturn(future)
+
+        val result = asyncFlowAccessApi.getTransactionResultsByBlockId(blockId).get()
+
+        assertEquals(transactionResults, result)
+    }
+
+    @Test
+    fun `test getExecutionResultByBlockId`() {
+        val blockId = FlowId("01")
+        val executionResult = ExecutionResult(FlowId("01"), FlowId("02"))
+
+        val response = Access.ExecutionResultByIDResponse.newBuilder()
+            .setExecutionResult(
+                ExecutionResultOuterClass.ExecutionResult.newBuilder()
+                    .setBlockId(ByteString.copyFromUtf8("01"))
+                    .setPreviousResultId(ByteString.copyFromUtf8("02"))
+                    .build()
+            )
+            .build()
+
+        val future: ListenableFuture<Access.ExecutionResultByIDResponse> = SettableFuture.create()
+        (future as SettableFuture<Access.ExecutionResultByIDResponse>).set(response)
+
+        `when`(api.getExecutionResultByID(any())).thenReturn(future)
+
+        val result = asyncFlowAccessApi.getExecutionResultByBlockId(blockId)
+
+        assertEquals(executionResult, result)
     }
 }
