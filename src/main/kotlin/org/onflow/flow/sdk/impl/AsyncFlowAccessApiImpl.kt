@@ -209,7 +209,19 @@ class AsyncFlowAccessApiImpl(
     }
 
     override fun getExecutionResultByBlockId(id: FlowId): CompletableFuture<ExecutionResult?> {
-        TODO("Not yet implemented")
+        return completableFuture(
+            api.getExecutionResultByID(
+                Access.GetExecutionResultByIDRequest.newBuilder()
+                    .setId(id.byteStringValue)
+                    .build()
+            )
+        ).thenApply {
+            if (it.hasExecutionResult()) {
+                ExecutionResult.of(it)
+            } else {
+                null
+            }
+        }
     }
 
     @Deprecated("Behaves identically to getAccountAtLatestBlock", replaceWith = ReplaceWith("getAccountAtLatestBlock"))
