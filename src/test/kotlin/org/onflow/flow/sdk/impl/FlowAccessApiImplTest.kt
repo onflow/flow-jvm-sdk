@@ -483,17 +483,21 @@ class FlowAccessApiImplTest {
     fun `Test getTransactionResultsByBlockId with multiple results`() {
         val blockId = FlowId("01")
 
-        val transactionResult1 = FlowTransactionResult.of(Access.TransactionResultResponse.newBuilder()
-            .setStatus(TransactionOuterClass.TransactionStatus.SEALED)
-            .setStatusCode(1)
-            .setErrorMessage("message1")
-            .build())
+        val transactionResult1 = FlowTransactionResult.of(
+            Access.TransactionResultResponse.newBuilder()
+                .setStatus(TransactionOuterClass.TransactionStatus.SEALED)
+                .setStatusCode(1)
+                .setErrorMessage("message1")
+                .build()
+        )
 
-        val transactionResult2 = FlowTransactionResult.of(Access.TransactionResultResponse.newBuilder()
-            .setStatus(TransactionOuterClass.TransactionStatus.SEALED)
-            .setStatusCode(2)
-            .setErrorMessage("message2")
-            .build())
+        val transactionResult2 = FlowTransactionResult.of(
+            Access.TransactionResultResponse.newBuilder()
+                .setStatus(TransactionOuterClass.TransactionStatus.SEALED)
+                .setStatusCode(2)
+                .setErrorMessage("message2")
+                .build()
+        )
 
         val transactionResults = listOf(transactionResult1, transactionResult2)
 

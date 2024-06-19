@@ -281,7 +281,7 @@ class FlowAccessApiTest {
             emptyList()
         )
 
-        val transactions = listOf(transaction1,transaction2)
+        val transactions = listOf(transaction1, transaction2)
 
         `when`(flowAccessApi.getTransactionsByBlockId(blockId)).thenReturn(transactions)
 
@@ -325,7 +325,7 @@ class FlowAccessApiTest {
             emptyList()
         )
 
-        val transactions = listOf(transactionResult1,transactionResult2)
+        val transactions = listOf(transactionResult1, transactionResult2)
 
         `when`(flowAccessApi.getTransactionResultsByBlockId(blockId)).thenReturn(transactions)
 
