@@ -20,6 +20,11 @@ class AsyncFlowAccessApiImplTest {
     private val api = mock(AccessAPIGrpc.AccessAPIFutureStub::class.java)
     private val asyncFlowAccessApi = AsyncFlowAccessApiImpl(api)
 
+    companion object {
+        val BLOCK_ID_BYTES = byteArrayOf(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1)
+        val PARENT_ID_BYTES = byteArrayOf(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2)
+    }
+
     @Test
     fun `test ping`() {
         val pingResponse = Access.PingResponse.newBuilder().build()
@@ -479,8 +484,8 @@ class AsyncFlowAccessApiImplTest {
         val response = Access.ExecutionResultByIDResponse.newBuilder()
             .setExecutionResult(
                 ExecutionResultOuterClass.ExecutionResult.newBuilder()
-                    .setBlockId(ByteString.copyFrom(byteArrayOf(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1)))
-                    .setPreviousResultId(ByteString.copyFrom(byteArrayOf(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2)))
+                    .setBlockId(ByteString.copyFrom(BLOCK_ID_BYTES))
+                    .setPreviousResultId(ByteString.copyFrom(PARENT_ID_BYTES))
                     .build()
             )
             .build()
