@@ -257,6 +257,44 @@ class FlowAccessApiTest {
     }
 
     @Test
+    fun `Test getTransactionsByBlockId with multiple results`() {
+        val flowAccessApi = mock(FlowAccessApi::class.java)
+        val blockId = FlowId("01")
+
+        val transaction1 = FlowTransaction(
+            FlowScript("script1"),
+            emptyList(),
+            FlowId.of("01".toByteArray()),
+            123L,
+            FlowTransactionProposalKey(FlowAddress("02"), 1, 123L),
+            FlowAddress("02"),
+            emptyList()
+        )
+
+        val transaction2 = FlowTransaction(
+            FlowScript("script2"),
+            emptyList(),
+            FlowId.of("02".toByteArray()),
+            456L,
+            FlowTransactionProposalKey(FlowAddress("03"), 2, 456L),
+            FlowAddress("03"),
+            emptyList()
+        )
+
+        val transactions = listOf(transaction1,transaction2)
+
+        `when`(flowAccessApi.getTransactionsByBlockId(blockId)).thenReturn(transactions)
+
+        val result = flowAccessApi.getTransactionsByBlockId(blockId)
+
+        assertEquals(transactions, result)
+
+        assertEquals(2, transactions.size)
+        assertEquals(transaction1, transactions.get(0))
+        assertEquals(transaction2, transactions.get(1))
+    }
+
+    @Test
     fun `Test getTransactionResultsByBlockId`() {
         val flowAccessApi = mock(FlowAccessApi::class.java)
         val blockId = FlowId("01")
@@ -266,6 +304,38 @@ class FlowAccessApiTest {
         val result = flowAccessApi.getTransactionResultsByBlockId(blockId)
 
         assertEquals(transactionResults, result)
+    }
+
+    @Test
+    fun `Test getTransactionResultsByBlockId with multiple results`() {
+        val flowAccessApi = mock(FlowAccessApi::class.java)
+        val blockId = FlowId("01")
+
+        val transactionResult1 = FlowTransactionResult(
+            FlowTransactionStatus.SEALED,
+            1,
+            "message1",
+            emptyList()
+        )
+
+        val transactionResult2 = FlowTransactionResult(
+            FlowTransactionStatus.SEALED,
+            2,
+            "message2",
+            emptyList()
+        )
+
+        val transactions = listOf(transactionResult1,transactionResult2)
+
+        `when`(flowAccessApi.getTransactionResultsByBlockId(blockId)).thenReturn(transactions)
+
+        val result = flowAccessApi.getTransactionResultsByBlockId(blockId)
+
+        assertEquals(transactions, result)
+
+        assertEquals(2, result?.size)
+        assertEquals(transactionResult1, result?.get(0))
+        assertEquals(transactionResult2, result?.get(1))
     }
 
     @Test
