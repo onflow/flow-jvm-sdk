@@ -1,13 +1,20 @@
 package org.onflow.flow.sdk
 
 import com.google.protobuf.ByteString
+import org.onflow.flow.sdk.impl.FlowAccessApiImpl
 
 interface FlowAccessApi {
+
+    sealed class FlowResult<out T> {
+        data class Success<out T>(val data: T) : FlowResult<T>()
+        data class Error(val message: String, val throwable: Throwable? = null) : FlowResult<Nothing>()
+    }
+
     fun ping()
 
-    fun getLatestBlockHeader(sealed: Boolean = true): FlowBlockHeader
+    fun getLatestBlockHeader(sealed: Boolean = true): FlowResult<FlowBlockHeader>
 
-    fun getBlockHeaderById(id: FlowId): FlowBlockHeader?
+    fun getBlockHeaderById(id: FlowId): FlowResult<FlowBlockHeader>
 
     fun getBlockHeaderByHeight(height: Long): FlowBlockHeader?
 

@@ -10,6 +10,8 @@ import java.io.Closeable
 class FlowAccessApiImpl(
     private val api: AccessAPIGrpc.AccessAPIBlockingStub
 ) : FlowAccessApi, Closeable {
+
+
     override fun close() {
         val chan = api.channel
         if (chan is ManagedChannel) {
@@ -24,25 +26,33 @@ class FlowAccessApiImpl(
         )
     }
 
-    override fun getLatestBlockHeader(sealed: Boolean): FlowBlockHeader {
-        val ret = api.getLatestBlockHeader(
-            Access.GetLatestBlockHeaderRequest.newBuilder()
-                .setIsSealed(sealed)
-                .build()
-        )
-        return FlowBlockHeader.of(ret.block)
+    override fun getLatestBlockHeader(sealed: Boolean): FlowAccessApi.FlowResult<FlowBlockHeader> {
+        return try {
+            val ret = api.getLatestBlockHeader(
+                Access.GetLatestBlockHeaderRequest.newBuilder()
+                    .setIsSealed(sealed)
+                    .build()
+            )
+            FlowAccessApi.FlowResult.Success(FlowBlockHeader.of(ret.block))
+        } catch (e: Exception) {
+            FlowAccessApi.FlowResult.Error("Failed to get latest block header", e)
+        }
     }
 
-    override fun getBlockHeaderById(id: FlowId): FlowBlockHeader? {
-        val ret = api.getBlockHeaderByID(
-            Access.GetBlockHeaderByIDRequest.newBuilder()
-                .setId(id.byteStringValue)
-                .build()
-        )
-        return if (ret.hasBlock()) {
-            FlowBlockHeader.of(ret.block)
-        } else {
-            null
+    override fun getBlockHeaderById(id: FlowId): FlowAccessApi.FlowResult<FlowBlockHeader> {
+        return try {
+            val ret = api.getBlockHeaderByID(
+                Access.GetBlockHeaderByIDRequest.newBuilder()
+                    .setId(id.byteStringValue)
+                    .build()
+            )
+            if (ret.hasBlock()) {
+                FlowAccessApi.FlowResult.Success(FlowBlockHeader.of(ret.block))
+            } else {
+                FlowAccessApi.FlowResult.Error("Block header not found")
+            }
+        } catch (e: Exception) {
+            FlowAccessApi.FlowResult.Error("Failed to get block header by ID", e)
         }
     }
 
