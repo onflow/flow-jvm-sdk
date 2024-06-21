@@ -342,4 +342,60 @@ class FlowAccessApiImpl(
         }
         return responseChannel to errorChannel
     }
+
+    override fun subscribeEventsByBlockId(
+        blockId: FlowId
+    ): Pair<ReceiveChannel<Executiondata.SubscribeEventsResponse>, ReceiveChannel<Throwable>> {
+        val responseChannel = Channel<Executiondata.SubscribeEventsResponse>(Channel.UNLIMITED)
+        val errorChannel = Channel<Throwable>(Channel.UNLIMITED)
+
+        runBlocking {
+            try {
+                val request = Executiondata.SubscribeEventsFromStartBlockIDRequest.newBuilder()
+                    .setStartBlockId(blockId.byteStringValue)
+                    .build()
+
+                val responseIterator = executionDataApi.subscribeEventsFromStartBlockID(request)
+
+                for (response in responseIterator) {
+                    responseChannel.send(response)
+                    // to-do: cast to custom response class
+                }
+            } catch (e: Exception) {
+                errorChannel.send(e)
+            } finally {
+                responseChannel.close()
+                errorChannel.close()
+            }
+        }
+        return responseChannel to errorChannel
+    }
+
+    override fun subscribeEventsByBlockHeight(
+        height: Long
+    ): Pair<ReceiveChannel<Executiondata.SubscribeEventsResponse>, ReceiveChannel<Throwable>> {
+        val responseChannel = Channel<Executiondata.SubscribeEventsResponse>(Channel.UNLIMITED)
+        val errorChannel = Channel<Throwable>(Channel.UNLIMITED)
+
+        runBlocking {
+            try {
+                val request = Executiondata.SubscribeEventsFromStartHeightRequest.newBuilder()
+                    .setStartBlockHeight(height)
+                    .build()
+
+                val responseIterator = executionDataApi.subscribeEventsFromStartHeight(request)
+
+                for (response in responseIterator) {
+                    responseChannel.send(response)
+                    // to-do: cast to custom response class
+                }
+            } catch (e: Exception) {
+                errorChannel.send(e)
+            } finally {
+                responseChannel.close()
+                errorChannel.close()
+            }
+        }
+        return responseChannel to errorChannel
+    }
 }
