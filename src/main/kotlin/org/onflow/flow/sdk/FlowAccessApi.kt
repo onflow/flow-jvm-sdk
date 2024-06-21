@@ -1,6 +1,9 @@
 package org.onflow.flow.sdk
 
 import com.google.protobuf.ByteString
+import io.grpc.stub.StreamObserver
+import kotlinx.coroutines.channels.ReceiveChannel
+import org.onflow.protobuf.executiondata.Executiondata
 
 interface FlowAccessApi {
     fun ping()
@@ -54,4 +57,12 @@ interface FlowAccessApi {
     fun getNetworkParameters(): FlowChainId
 
     fun getLatestProtocolStateSnapshot(): FlowSnapshot
+
+    fun subscribeExecutionDataByBlockId(
+        blockId: FlowId
+    ): Pair<ReceiveChannel<Executiondata.SubscribeExecutionDataResponse>, ReceiveChannel<Throwable>>
+
+    fun subscribeExecutionDataByBlockHeight(
+        height: Long
+    ): Pair<ReceiveChannel<Executiondata.SubscribeExecutionDataResponse>, ReceiveChannel<Throwable>>
 }

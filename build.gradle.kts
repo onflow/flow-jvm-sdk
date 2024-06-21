@@ -41,6 +41,11 @@ repositories {
 }
 
 dependencies {
+
+    api("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
+    api("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.5.2")
+    api("org.jetbrains.kotlinx:kotlinx-coroutines-guava:1.5.2")
+
     api("org.jetbrains.kotlin:kotlin-reflect:1.9.22")
     dokkaHtmlPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:1.9.10")
 
