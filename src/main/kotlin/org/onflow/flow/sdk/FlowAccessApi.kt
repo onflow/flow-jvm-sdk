@@ -68,9 +68,9 @@ interface FlowAccessApi {
 
     fun subscribeEventsByBlockId(
         blockId: FlowId
-    ): Pair<ReceiveChannel<Executiondata.SubscribeEventsResponse>, ReceiveChannel<Throwable>>
+    ): Pair<ReceiveChannel<List<FlowEvent>>, ReceiveChannel<Throwable>>
 
     fun subscribeEventsByBlockHeight(
         height: Long
-    ): Pair<ReceiveChannel<Executiondata.SubscribeEventsResponse>, ReceiveChannel<Throwable>>
+    ): Pair<ReceiveChannel<List<FlowEvent>>, ReceiveChannel<Throwable>>
 }

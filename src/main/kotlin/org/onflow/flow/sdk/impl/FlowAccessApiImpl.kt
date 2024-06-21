@@ -345,8 +345,8 @@ class FlowAccessApiImpl(
 
     override fun subscribeEventsByBlockId(
         blockId: FlowId
-    ): Pair<ReceiveChannel<Executiondata.SubscribeEventsResponse>, ReceiveChannel<Throwable>> {
-        val responseChannel = Channel<Executiondata.SubscribeEventsResponse>(Channel.UNLIMITED)
+    ): Pair<ReceiveChannel<List<FlowEvent>>, ReceiveChannel<Throwable>> {
+        val responseChannel = Channel<List<FlowEvent>>(Channel.UNLIMITED)
         val errorChannel = Channel<Throwable>(Channel.UNLIMITED)
 
         runBlocking {
@@ -358,8 +358,7 @@ class FlowAccessApiImpl(
                 val responseIterator = executionDataApi.subscribeEventsFromStartBlockID(request)
 
                 for (response in responseIterator) {
-                    responseChannel.send(response)
-                    // to-do: cast to custom response class
+                    responseChannel.send(response.eventsList.map { FlowEvent.of(it) })
                 }
             } catch (e: Exception) {
                 errorChannel.send(e)
@@ -373,8 +372,8 @@ class FlowAccessApiImpl(
 
     override fun subscribeEventsByBlockHeight(
         height: Long
-    ): Pair<ReceiveChannel<Executiondata.SubscribeEventsResponse>, ReceiveChannel<Throwable>> {
-        val responseChannel = Channel<Executiondata.SubscribeEventsResponse>(Channel.UNLIMITED)
+    ): Pair<ReceiveChannel<List<FlowEvent>>, ReceiveChannel<Throwable>> {
+        val responseChannel = Channel<List<FlowEvent>>(Channel.UNLIMITED)
         val errorChannel = Channel<Throwable>(Channel.UNLIMITED)
 
         runBlocking {
@@ -386,8 +385,7 @@ class FlowAccessApiImpl(
                 val responseIterator = executionDataApi.subscribeEventsFromStartHeight(request)
 
                 for (response in responseIterator) {
-                    responseChannel.send(response)
-                    // to-do: cast to custom response class
+                    responseChannel.send(response.eventsList.map { FlowEvent.of(it) })
                 }
             } catch (e: Exception) {
                 errorChannel.send(e)
