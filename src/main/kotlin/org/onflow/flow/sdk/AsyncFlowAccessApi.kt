@@ -1,8 +1,6 @@
 package org.onflow.flow.sdk
 
 import com.google.protobuf.ByteString
-import kotlinx.coroutines.channels.ReceiveChannel
-import org.onflow.protobuf.executiondata.Executiondata
 import java.util.concurrent.CompletableFuture
 
 interface AsyncFlowAccessApi {
