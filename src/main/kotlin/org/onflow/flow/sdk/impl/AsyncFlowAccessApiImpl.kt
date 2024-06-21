@@ -176,7 +176,7 @@ class AsyncFlowAccessApiImpl(
         }
     }
 
-    override fun getTransactionsByBlockId(id: FlowId): CompletableFuture<List<FlowTransaction>?> {
+    override fun getTransactionsByBlockId(id: FlowId): CompletableFuture<List<FlowTransaction>> {
         return completableFuture(
             api.getTransactionsByBlockID(
                 Access.GetTransactionsByBlockIDRequest.newBuilder()
@@ -184,15 +184,11 @@ class AsyncFlowAccessApiImpl(
                     .build()
             )
         ).thenApply { transactionsResponse ->
-            if (transactionsResponse.transactionsList.isNotEmpty()) {
-                transactionsResponse.transactionsList.map { FlowTransaction.of(it) }
-            } else {
-                null
-            }
+            transactionsResponse.transactionsList.map { FlowTransaction.of(it) }
         }
     }
 
-    override fun getTransactionResultsByBlockId(id: FlowId): CompletableFuture<List<FlowTransactionResult>?> {
+    override fun getTransactionResultsByBlockId(id: FlowId): CompletableFuture<List<FlowTransactionResult>> {
         return completableFuture(
             api.getTransactionResultsByBlockID(
                 Access.GetTransactionsByBlockIDRequest.newBuilder()
@@ -200,11 +196,7 @@ class AsyncFlowAccessApiImpl(
                     .build()
             )
         ).thenApply { transactionResultsResponse ->
-            if (transactionResultsResponse.transactionResultsList.isNotEmpty()) {
-                transactionResultsResponse.transactionResultsList.map { FlowTransactionResult.of(it) }
-            } else {
-                null
-            }
+            transactionResultsResponse.transactionResultsList.map { FlowTransactionResult.of(it) }
         }
     }
 
