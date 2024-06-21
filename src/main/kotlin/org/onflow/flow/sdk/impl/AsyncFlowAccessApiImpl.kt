@@ -9,11 +9,12 @@ import org.onflow.flow.sdk.*
 import io.grpc.ManagedChannel
 import org.onflow.protobuf.access.Access
 import org.onflow.protobuf.access.AccessAPIGrpc
+import org.onflow.protobuf.executiondata.ExecutionDataAPIGrpc
 import java.io.Closeable
 import java.util.concurrent.CompletableFuture
 
 class AsyncFlowAccessApiImpl(
-    private val api: AccessAPIGrpc.AccessAPIFutureStub
+    private val api: AccessAPIGrpc.AccessAPIFutureStub,
 ) : AsyncFlowAccessApi, Closeable {
     override fun close() {
         val chan = api.channel
@@ -389,3 +390,4 @@ fun <T> completableFuture(future: ListenableFuture<T>): CompletableFuture<T> {
     )
     return completable
 }
+

@@ -1,15 +1,22 @@
 package org.onflow.flow.sdk
 
 import com.google.protobuf.ByteString
+import io.grpc.stub.StreamObserver
+import kotlinx.coroutines.channels.consumeEach
+import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import org.mockito.ArgumentCaptor
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
 import org.onflow.protobuf.access.Access
 import org.onflow.protobuf.entities.AccountOuterClass
 import org.onflow.protobuf.entities.BlockHeaderOuterClass
 import org.onflow.protobuf.entities.BlockOuterClass
+import org.onflow.protobuf.entities.EventOuterClass
 import org.onflow.protobuf.entities.TransactionOuterClass
+import org.onflow.protobuf.executiondata.Executiondata
 
 class FlowAccessApiTest {
     @Test
@@ -348,5 +355,35 @@ class FlowAccessApiTest {
         val result = flowAccessApi.getExecutionResultByBlockId(blockId)
 
         assertEquals(executionResult, result)
+    }
+
+    @Test
+    fun `Test subscribeEventsByBlockId`() = runBlocking {
+        val flowAccessApi = mock(FlowAccessApi::class.java)
+        val blockId = FlowId("01")
+        val responseObserverCaptor = ArgumentCaptor.forClass(StreamObserver::class.java) as ArgumentCaptor<StreamObserver<Executiondata.SubscribeEventsResponse>>
+
+
+        `when`(flowAccessApi.subscribeEventsByBlockId(blockId)).thenAnswer {
+            val observer = responseObserverCaptor.value
+            val response = Executiondata.SubscribeEventsResponse.newBuilder()
+                .addEvents(EventOuterClass.Event.newBuilder().setEventIndex(0).build())
+                .addEvents(EventOuterClass.Event.newBuilder().setEventIndex(1).build())
+                .build()
+            observer.onNext(response)
+            observer.onCompleted()
+        }
+
+        val (responseChannel, errorChannel) = flowAccessApi.subscribeEventsByBlockId(blockId)
+
+        responseChannel.consumeEach { events ->
+            assertEquals(2, events.size)
+            assertEquals(0, events[0].eventIndex)
+            assertEquals(1, events[1].eventIndex)
+        }
+
+        errorChannel.consumeEach { error ->
+            throw error
+        }
     }
 }

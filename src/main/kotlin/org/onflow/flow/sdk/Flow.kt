@@ -11,6 +11,7 @@ import org.onflow.flow.sdk.cadence.Field
 import org.onflow.flow.sdk.cadence.JsonCadenceMarshalling
 import org.onflow.flow.sdk.impl.AsyncFlowAccessApiImpl
 import org.onflow.flow.sdk.impl.FlowAccessApiImpl
+import org.onflow.protobuf.executiondata.ExecutionDataAPIGrpc
 import kotlin.reflect.KClass
 
 object Flow {
@@ -45,7 +46,7 @@ object Flow {
     @JvmOverloads
     fun newAccessApi(host: String, port: Int = 9000, secure: Boolean = false, userAgent: String = DEFAULT_USER_AGENT, maxMessageSize: Int = DEFAULT_MAX_MESSAGE_SIZE): FlowAccessApi {
         val channel = openChannel(host, port, secure, userAgent, maxMessageSize)
-        return FlowAccessApiImpl(AccessAPIGrpc.newBlockingStub(channel))
+        return FlowAccessApiImpl(AccessAPIGrpc.newBlockingStub(channel), ExecutionDataAPIGrpc.newBlockingStub(channel))
     }
 
     @JvmStatic
