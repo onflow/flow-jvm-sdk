@@ -1,7 +1,6 @@
 package org.onflow.flow.sdk
 
 import com.google.protobuf.ByteString
-import org.onflow.flow.sdk.impl.FlowAccessApiImpl
 
 interface FlowAccessApi {
 
