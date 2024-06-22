@@ -37,7 +37,8 @@ class AsyncFlowAccessApiImplTest {
 
         `when`(api.ping(any())).thenReturn(future)
 
-        assertEquals(Unit, asyncFlowAccessApi.ping().get())
+        val result = asyncFlowAccessApi.ping().get()
+        assert(result is FlowAccessApi.FlowResult.Success)
     }
 
     @Test
@@ -52,8 +53,9 @@ class AsyncFlowAccessApiImplTest {
         `when`(api.getLatestBlockHeader(any())).thenReturn(future)
 
         val result = asyncFlowAccessApi.getLatestBlockHeader(true).get()
-
-        assertEquals(mockBlockHeader, result)
+        assert(result is FlowAccessApi.FlowResult.Success)
+        result as FlowAccessApi.FlowResult.Success
+        assertEquals(mockBlockHeader, result.data)
     }
 
     @Test
@@ -69,8 +71,9 @@ class AsyncFlowAccessApiImplTest {
         `when`(api.getBlockHeaderByID(any())).thenReturn(future)
 
         val result = asyncFlowAccessApi.getBlockHeaderById(blockId).get()
-
-        assertEquals(mockBlockHeader, result)
+        assert(result is FlowAccessApi.FlowResult.Success)
+        result as FlowAccessApi.FlowResult.Success
+        assertEquals(mockBlockHeader, result.data)
     }
 
     @Test
@@ -86,8 +89,9 @@ class AsyncFlowAccessApiImplTest {
         `when`(api.getBlockHeaderByHeight(any())).thenReturn(future)
 
         val result = asyncFlowAccessApi.getBlockHeaderByHeight(height).get()
-
-        assertEquals(mockBlockHeader, result)
+        assert(result is FlowAccessApi.FlowResult.Success)
+        result as FlowAccessApi.FlowResult.Success
+        assertEquals(mockBlockHeader, result.data)
     }
 
     @Test
@@ -102,8 +106,9 @@ class AsyncFlowAccessApiImplTest {
         `when`(api.getLatestBlock(any())).thenReturn(future)
 
         val result = asyncFlowAccessApi.getLatestBlock(true).get()
-
-        assertEquals(mockBlock, result)
+        assert(result is FlowAccessApi.FlowResult.Success)
+        result as FlowAccessApi.FlowResult.Success
+        assertEquals(mockBlock, result.data)
     }
 
     @Test
@@ -119,8 +124,9 @@ class AsyncFlowAccessApiImplTest {
         `when`(api.getBlockByID(any())).thenReturn(future)
 
         val result = asyncFlowAccessApi.getBlockById(blockId).get()
-
-        assertEquals(mockBlock, result)
+        assert(result is FlowAccessApi.FlowResult.Success)
+        result as FlowAccessApi.FlowResult.Success
+        assertEquals(mockBlock, result.data)
     }
 
     @Test
@@ -137,9 +143,10 @@ class AsyncFlowAccessApiImplTest {
 
         `when`(api.getBlockByHeight(any())).thenReturn(future)
 
-        val result = asyncFlowAccessApi.getBlockByHeight(10).get()
-
-        assertEquals(mockBlock, result)
+        val result = asyncFlowAccessApi.getBlockByHeight(height).get()
+        assert(result is FlowAccessApi.FlowResult.Success)
+        result as FlowAccessApi.FlowResult.Success
+        assertEquals(mockBlock, result.data)
     }
 
     @Test
@@ -157,8 +164,9 @@ class AsyncFlowAccessApiImplTest {
         `when`(api.getCollectionByID(any())).thenReturn(future)
 
         val result = asyncFlowAccessApi.getCollectionById(collectionId).get()
-
-        assertEquals(mockCollection, result)
+        assert(result is FlowAccessApi.FlowResult.Success)
+        result as FlowAccessApi.FlowResult.Success
+        assertEquals(mockCollection, result.data)
     }
 
     @Test
@@ -183,8 +191,9 @@ class AsyncFlowAccessApiImplTest {
         `when`(api.sendTransaction(any())).thenReturn(future)
 
         val result = asyncFlowAccessApi.sendTransaction(mockTransaction).get()
-
-        assertEquals(FlowId.of("01".toByteArray()), result)
+        assert(result is FlowAccessApi.FlowResult.Success)
+        result as FlowAccessApi.FlowResult.Success
+        assertEquals(FlowId.of("01".toByteArray()), result.data)
     }
 
     @Test
@@ -210,8 +219,9 @@ class AsyncFlowAccessApiImplTest {
         `when`(api.getTransaction(any())).thenReturn(future)
 
         val result = asyncFlowAccessApi.getTransactionById(flowId).get()
-
-        assertEquals(flowTransaction, result)
+        assert(result is FlowAccessApi.FlowResult.Success)
+        result as FlowAccessApi.FlowResult.Success
+        assertEquals(flowTransaction, result.data)
     }
 
     @Test
@@ -232,8 +242,9 @@ class AsyncFlowAccessApiImplTest {
         `when`(api.getTransactionResult(any())).thenReturn(future)
 
         val result = asyncFlowAccessApi.getTransactionResultById(flowId).get()
-
-        assertEquals(flowTransactionResult, result)
+        assert(result is FlowAccessApi.FlowResult.Success)
+        result as FlowAccessApi.FlowResult.Success
+        assertEquals(flowTransactionResult, result.data)
     }
 
     @Test
@@ -251,11 +262,12 @@ class AsyncFlowAccessApiImplTest {
         `when`(api.getAccount(any())).thenReturn(future)
 
         val result = asyncFlowAccessApi.getAccountByAddress(flowAddress).get()
-
-        assertEquals(flowAccount.address, result?.address)
-        assertEquals(flowAccount.balance.stripTrailingZeros(), result?.balance?.stripTrailingZeros())
-        assertEquals(flowAccount.keys, result?.keys)
-        assertEquals(flowAccount.contracts, result?.contracts)
+        assert(result is FlowAccessApi.FlowResult.Success)
+        result as FlowAccessApi.FlowResult.Success
+        assertEquals(flowAccount.address, result.data.address)
+        assertEquals(flowAccount.balance.stripTrailingZeros(), result.data.balance.stripTrailingZeros())
+        assertEquals(flowAccount.keys, result.data.keys)
+        assertEquals(flowAccount.contracts, result.data.contracts)
     }
 
     @Test
@@ -273,11 +285,12 @@ class AsyncFlowAccessApiImplTest {
         `when`(api.getAccountAtLatestBlock(any())).thenReturn(future)
 
         val result = asyncFlowAccessApi.getAccountAtLatestBlock(flowAddress).get()
-
-        assertEquals(flowAccount.address, result?.address)
-        assertEquals(flowAccount.balance.stripTrailingZeros(), result?.balance?.stripTrailingZeros())
-        assertEquals(flowAccount.keys, result?.keys)
-        assertEquals(flowAccount.contracts, result?.contracts)
+        assert(result is FlowAccessApi.FlowResult.Success)
+        result as FlowAccessApi.FlowResult.Success
+        assertEquals(flowAccount.address, result.data.address)
+        assertEquals(flowAccount.balance.stripTrailingZeros(), result.data.balance.stripTrailingZeros())
+        assertEquals(flowAccount.keys, result.data.keys)
+        assertEquals(flowAccount.contracts, result.data.contracts)
     }
 
     @Test
@@ -297,11 +310,12 @@ class AsyncFlowAccessApiImplTest {
         `when`(api.getAccountAtBlockHeight(any())).thenReturn(future)
 
         val result = asyncFlowAccessApi.getAccountByBlockHeight(flowAddress, height).get()
-
-        assertEquals(flowAccount.address, result?.address)
-        assertEquals(flowAccount.balance.stripTrailingZeros(), result?.balance?.stripTrailingZeros())
-        assertEquals(flowAccount.keys, result?.keys)
-        assertEquals(flowAccount.contracts, result?.contracts)
+        assert(result is FlowAccessApi.FlowResult.Success)
+        result as FlowAccessApi.FlowResult.Success
+        assertEquals(flowAccount.address, result.data.address)
+        assertEquals(flowAccount.balance.stripTrailingZeros(), result.data.balance.stripTrailingZeros())
+        assertEquals(flowAccount.keys, result.data.keys)
+        assertEquals(flowAccount.contracts, result.data.contracts)
     }
 
     @Test
@@ -319,8 +333,9 @@ class AsyncFlowAccessApiImplTest {
         `when`(api.executeScriptAtLatestBlock(any())).thenReturn(future)
 
         val result = asyncFlowAccessApi.executeScriptAtLatestBlock(script, arguments).get()
-
-        assertEquals("response_value", result.stringValue)
+        assert(result is FlowAccessApi.FlowResult.Success)
+        result as FlowAccessApi.FlowResult.Success
+        assertEquals("response_value", result.data.stringValue)
     }
 
     @Test
@@ -338,8 +353,9 @@ class AsyncFlowAccessApiImplTest {
         `when`(api.executeScriptAtBlockID(any())).thenReturn(future)
 
         val result = asyncFlowAccessApi.executeScriptAtBlockId(script, blockId, arguments).get()
-
-        assertEquals("response_value", result.stringValue)
+        assert(result is FlowAccessApi.FlowResult.Success)
+        result as FlowAccessApi.FlowResult.Success
+        assertEquals("response_value", result.data.stringValue)
     }
 
     @Test
@@ -358,8 +374,9 @@ class AsyncFlowAccessApiImplTest {
         `when`(api.executeScriptAtBlockHeight(any())).thenReturn(future)
 
         val result = asyncFlowAccessApi.executeScriptAtBlockHeight(script, height, arguments).get()
-
-        assertEquals("response_value", result.stringValue)
+        assert(result is FlowAccessApi.FlowResult.Success)
+        result as FlowAccessApi.FlowResult.Success
+        assertEquals("response_value", result.data.stringValue)
     }
 
     @Test
@@ -380,8 +397,9 @@ class AsyncFlowAccessApiImplTest {
         `when`(api.getEventsForHeightRange(any())).thenReturn(future)
 
         val result = asyncFlowAccessApi.getEventsForHeightRange(type, range).get()
-
-        assertEquals(2, result.size)
+        assert(result is FlowAccessApi.FlowResult.Success)
+        result as FlowAccessApi.FlowResult.Success
+        assertEquals(2, result.data.size)
     }
 
     @Test
@@ -402,8 +420,9 @@ class AsyncFlowAccessApiImplTest {
         `when`(api.getEventsForBlockIDs(any())).thenReturn(future)
 
         val result = asyncFlowAccessApi.getEventsForBlockIds(type, blockIds).get()
-
-        assertEquals(2, result.size)
+        assert(result is FlowAccessApi.FlowResult.Success)
+        result as FlowAccessApi.FlowResult.Success
+        assertEquals(2, result.data.size)
     }
 
     @Test
@@ -420,8 +439,9 @@ class AsyncFlowAccessApiImplTest {
         `when`(api.getNetworkParameters(any())).thenReturn(future)
 
         val result = asyncFlowAccessApi.getNetworkParameters().get()
-
-        assertEquals(mockFlowChainId, result)
+        assert(result is FlowAccessApi.FlowResult.Success)
+        result as FlowAccessApi.FlowResult.Success
+        assertEquals(mockFlowChainId, result.data)
     }
 
     @Test
@@ -438,8 +458,9 @@ class AsyncFlowAccessApiImplTest {
         `when`(api.getLatestProtocolStateSnapshot(any())).thenReturn(future)
 
         val result = asyncFlowAccessApi.getLatestProtocolStateSnapshot().get()
-
-        assertEquals(mockFlowSnapshot, result)
+        assert(result is FlowAccessApi.FlowResult.Success)
+        result as FlowAccessApi.FlowResult.Success
+        assertEquals(mockFlowSnapshot, result.data)
     }
 
     @Test
@@ -457,8 +478,9 @@ class AsyncFlowAccessApiImplTest {
         `when`(api.getTransactionsByBlockID(any())).thenReturn(future)
 
         val result = asyncFlowAccessApi.getTransactionsByBlockId(blockId).get()
-
-        assertEquals(transactions, result)
+        assert(result is FlowAccessApi.FlowResult.Success)
+        result as FlowAccessApi.FlowResult.Success
+        assertEquals(transactions, result.data)
     }
 
     @Test
@@ -480,10 +502,11 @@ class AsyncFlowAccessApiImplTest {
         `when`(api.getTransactionsByBlockID(any())).thenReturn(future)
 
         val result = asyncFlowAccessApi.getTransactionsByBlockId(blockId).get()
-
-        assertEquals(2, result!!.size)
-        assertEquals(transaction1, result[0])
-        assertEquals(transaction2, result[1])
+        assert(result is FlowAccessApi.FlowResult.Success)
+        result as FlowAccessApi.FlowResult.Success
+        assertEquals(2, result.data.size)
+        assertEquals(transaction1, result.data[0])
+        assertEquals(transaction2, result.data[1])
     }
 
     @Test
@@ -501,8 +524,9 @@ class AsyncFlowAccessApiImplTest {
         `when`(api.getTransactionResultsByBlockID(any())).thenReturn(future)
 
         val result = asyncFlowAccessApi.getTransactionResultsByBlockId(blockId).get()
-
-        assertEquals(transactionResults, result)
+        assert(result is FlowAccessApi.FlowResult.Success)
+        result as FlowAccessApi.FlowResult.Success
+        assertEquals(transactionResults, result.data)
     }
 
     @Test
@@ -537,10 +561,11 @@ class AsyncFlowAccessApiImplTest {
         `when`(api.getTransactionResultsByBlockID(any())).thenReturn(future)
 
         val result = asyncFlowAccessApi.getTransactionResultsByBlockId(blockId).get()
-
-        assertEquals(2, result!!.size)
-        assertEquals(transactionResult1, result[0])
-        assertEquals(transactionResult2, result[1])
+        assert(result is FlowAccessApi.FlowResult.Success)
+        result as FlowAccessApi.FlowResult.Success
+        assertEquals(2, result.data.size)
+        assertEquals(transactionResult1, result.data[0])
+        assertEquals(transactionResult2, result.data[1])
     }
 
     @Test
@@ -563,8 +588,9 @@ class AsyncFlowAccessApiImplTest {
         `when`(api.getExecutionResultByID(any())).thenReturn(future)
 
         val result = asyncFlowAccessApi.getExecutionResultByBlockId(blockId).get()
-
-        assertEquals(executionResult, result)
+        assert(result is FlowAccessApi.FlowResult.Success)
+        result as FlowAccessApi.FlowResult.Success
+        assertEquals(executionResult, result.data)
     }
 
     @Test

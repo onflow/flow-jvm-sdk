@@ -275,7 +275,7 @@ class AsyncFlowAccessApiImpl(
     }
 
     @Deprecated("Behaves identically to getAccountAtLatestBlock", replaceWith = ReplaceWith("getAccountAtLatestBlock"))
-    override fun getAccountByAddress(addresss: FlowAddress): CompletableFuture<FlowAccessApi.FlowResult<FlowAccount?>> {
+    override fun getAccountByAddress(addresss: FlowAddress): CompletableFuture<FlowAccessApi.FlowResult<FlowAccount>> {
         return try {
             completableFuture(
                 api.getAccount(Access.GetAccountRequest.newBuilder().setAddress(addresss.byteStringValue).build())
@@ -295,7 +295,7 @@ class AsyncFlowAccessApiImpl(
         }
     }
 
-    override fun getAccountAtLatestBlock(addresss: FlowAddress): CompletableFuture<FlowAccessApi.FlowResult<FlowAccount?>> {
+    override fun getAccountAtLatestBlock(addresss: FlowAddress): CompletableFuture<FlowAccessApi.FlowResult<FlowAccount>> {
         return try {
             completableFuture(
                 api.getAccountAtLatestBlock(Access.GetAccountAtLatestBlockRequest.newBuilder().setAddress(addresss.byteStringValue).build())
@@ -315,7 +315,7 @@ class AsyncFlowAccessApiImpl(
         }
     }
 
-    override fun getAccountByBlockHeight(addresss: FlowAddress, height: Long): CompletableFuture<FlowAccessApi.FlowResult<FlowAccount?>> {
+    override fun getAccountByBlockHeight(addresss: FlowAddress, height: Long): CompletableFuture<FlowAccessApi.FlowResult<FlowAccount>> {
         return try {
             completableFuture(
                 api.getAccountAtBlockHeight(
