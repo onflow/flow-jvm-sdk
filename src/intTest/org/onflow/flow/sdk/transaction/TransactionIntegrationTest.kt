@@ -13,7 +13,7 @@ class TransactionIntegrationTest {
             is FlowAccessApi.FlowResult.Success -> result.data
             is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to get account: ${result.message}", result.throwable)
         }
-        assertThat(account.keys).isEmpty()
+        assertThat(account.keys).isNotEmpty()
     }
 
     @Test
