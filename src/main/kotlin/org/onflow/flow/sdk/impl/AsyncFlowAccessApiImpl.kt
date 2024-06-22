@@ -40,9 +40,11 @@ class AsyncFlowAccessApiImpl(
 
     override fun getLatestBlockHeader(sealed: Boolean): CompletableFuture<FlowAccessApi.FlowResult<FlowBlockHeader>> {
         return try {
-            completableFuture(api.getLatestBlockHeader(
-                Access.GetLatestBlockHeaderRequest.newBuilder().setIsSealed(sealed).build()
-            )).handle { response, ex ->
+            completableFuture(
+                api.getLatestBlockHeader(
+                    Access.GetLatestBlockHeaderRequest.newBuilder().setIsSealed(sealed).build()
+                )
+            ).handle { response, ex ->
                 if (ex != null) {
                     FlowAccessApi.FlowResult.Error("Failed to get latest block header", ex)
                 } else {
