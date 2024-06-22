@@ -290,7 +290,6 @@ abstract class AbstractFlowEmulatorExtension : BeforeEachCallback, AfterEachCall
         )
     }
 
-
     override fun afterEach(context: ExtensionContext) = shutdownEmulator()
 
     override fun handleTestExecutionException(context: ExtensionContext, throwable: Throwable) {
