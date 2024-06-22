@@ -281,14 +281,17 @@ class FlowAccessApiImpl(
 
     override fun executeScriptAtLatestBlock(script: FlowScript, arguments: Iterable<ByteString>): FlowAccessApi.FlowResult<FlowScriptResponse> {
         return try {
-            val ret = api.executeScriptAtLatestBlock(
-                Access.ExecuteScriptAtLatestBlockRequest.newBuilder()
-                    .setScript(script.byteStringValue)
-                    .addAllArguments(arguments)
-                    .build()
-            )
+            val request = Access.ExecuteScriptAtLatestBlockRequest.newBuilder()
+                .setScript(script.byteStringValue)
+                .addAllArguments(arguments)
+                .build()
+
+            val ret = api.executeScriptAtLatestBlock(request)
+
             FlowAccessApi.FlowResult.Success(FlowScriptResponse(ret.value.toByteArray()))
         } catch (e: Exception) {
+            println("Error executing script: ${e.message}")
+            e.printStackTrace()
             FlowAccessApi.FlowResult.Error("Failed to execute script at latest block", e)
         }
     }

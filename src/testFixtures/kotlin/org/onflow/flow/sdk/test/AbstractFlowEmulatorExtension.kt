@@ -164,6 +164,9 @@ abstract class AbstractFlowEmulatorExtension : BeforeEachCallback, AfterEachCall
         this.process = emulator.process
         this.pidFile = emulator.pidFile
 
+        // Adding delay to ensure emulator has started
+        Thread.sleep(5000) // Wait for 5 seconds
+
         this.accessApi = Flow.newAccessApi(
             host = emulator.host,
             port = emulator.port
@@ -286,6 +289,7 @@ abstract class AbstractFlowEmulatorExtension : BeforeEachCallback, AfterEachCall
             Thread(this::shutdownEmulator)
         )
     }
+
 
     override fun afterEach(context: ExtensionContext) = shutdownEmulator()
 

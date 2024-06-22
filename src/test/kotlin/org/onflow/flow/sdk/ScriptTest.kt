@@ -48,22 +48,28 @@ class ScriptTest {
     @FlowTestClient
     lateinit var accessAPI: FlowAccessApi
 
+
+
     @Test
     fun `Can execute a script`() {
         val result = accessAPI.simpleFlowScript {
             script {
                 """
-                    pub fun main(): String {
-                        return "Hello World"
-                    }
-                """
+                pub fun main(): String {
+                    return "Hello World"
+                }
+            """
             }
         }
 
         when (result) {
             is FlowAccessApi.FlowResult.Success -> {
-                assertTrue(result.data.jsonCadence is StringField)
-                assertEquals("Hello World", result.data.jsonCadence.value)
+                val jsonCadence = result.data.jsonCadence
+                if (jsonCadence is StringField) {
+                    assertEquals("Hello World", jsonCadence.value)
+                } else {
+                    throw IllegalStateException("Expected StringField but got ${jsonCadence::class.simpleName}")
+                }
             }
             is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to execute script: ${result.message}", result.throwable)
         }
