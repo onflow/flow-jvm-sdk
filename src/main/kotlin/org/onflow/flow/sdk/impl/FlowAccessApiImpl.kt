@@ -81,30 +81,22 @@ class FlowAccessApiImpl(
         }
     }
 
-    override fun getTransactionsByBlockId(id: FlowId): List<FlowTransaction>? {
+    override fun getTransactionsByBlockId(id: FlowId): List<FlowTransaction> {
         val ret = api.getTransactionsByBlockID(
             Access.GetTransactionsByBlockIDRequest.newBuilder()
                 .setBlockId(id.byteStringValue)
                 .build()
         )
-        return if (ret.transactionsList.isNotEmpty()) {
-            ret.transactionsList.map { FlowTransaction.of(it) }
-        } else {
-            null
-        }
+        return ret.transactionsList.map { FlowTransaction.of(it) }
     }
 
-    override fun getTransactionResultsByBlockId(id: FlowId): List<FlowTransactionResult>? {
+    override fun getTransactionResultsByBlockId(id: FlowId): List<FlowTransactionResult> {
         val ret = api.getTransactionResultsByBlockID(
             Access.GetTransactionsByBlockIDRequest.newBuilder()
                 .setBlockId(id.byteStringValue)
                 .build()
         )
-        return if (ret.transactionResultsList.isNotEmpty()) {
-            ret.transactionResultsList.map { FlowTransactionResult.of(it) }
-        } else {
-            null
-        }
+        return ret.transactionResultsList.map { FlowTransactionResult.of(it) }
     }
 
     override fun getExecutionResultByBlockId(id: FlowId): ExecutionResult? {
