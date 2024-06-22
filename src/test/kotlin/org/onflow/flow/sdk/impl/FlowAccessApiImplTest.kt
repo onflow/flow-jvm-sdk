@@ -10,6 +10,7 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.*
 import org.onflow.protobuf.access.Access
 import org.onflow.protobuf.access.AccessAPIGrpc
+import org.onflow.protobuf.entities.ExecutionResultOuterClass
 import org.onflow.protobuf.entities.TransactionOuterClass
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream
@@ -422,5 +423,115 @@ class FlowAccessApiImplTest {
         val result = flowAccessApi.getLatestProtocolStateSnapshot()
 
         assertEquals(mockFlowSnapshot, result)
+    }
+
+    @Test
+    fun `Test getTransactionsByBlockId`() {
+        val blockId = FlowId("01")
+        val transactions = listOf(FlowTransaction.of(TransactionOuterClass.Transaction.getDefaultInstance()))
+
+        val response = Access.TransactionsResponse.newBuilder()
+            .addAllTransactions(transactions.map { it.builder().build() })
+            .build()
+
+        `when`(api.getTransactionsByBlockID(any())).thenReturn(response)
+
+        val result = flowAccessApi.getTransactionsByBlockId(blockId)
+
+        assertEquals(transactions, result)
+    }
+
+    @Test
+    fun `Test getTransactionsByBlockId with multiple results`() {
+        val blockId = FlowId("01")
+
+        val transaction1 = FlowTransaction.of(TransactionOuterClass.Transaction.getDefaultInstance())
+        val transaction2 = FlowTransaction.of(TransactionOuterClass.Transaction.newBuilder().setReferenceBlockId(ByteString.copyFromUtf8("02")).build())
+
+        val transactions = listOf(transaction1, transaction2)
+
+        val response = Access.TransactionsResponse.newBuilder()
+            .addAllTransactions(transactions.map { it.builder().build() })
+            .build()
+
+        `when`(api.getTransactionsByBlockID(any())).thenReturn(response)
+
+        val result = flowAccessApi.getTransactionsByBlockId(blockId)
+
+        assertEquals(2, result?.size)
+        assertEquals(transaction1, result?.get(0))
+        assertEquals(transaction2, result?.get(1))
+    }
+
+    @Test
+    fun `Test getTransactionResultsByBlockId`() {
+        val blockId = FlowId("01")
+        val transactionResults = listOf(FlowTransactionResult.of(Access.TransactionResultResponse.getDefaultInstance()))
+
+        val response = Access.TransactionResultsResponse.newBuilder()
+            .addAllTransactionResults(transactionResults.map { it.builder().build() })
+            .build()
+
+        `when`(api.getTransactionResultsByBlockID(any())).thenReturn(response)
+
+        val result = flowAccessApi.getTransactionResultsByBlockId(blockId)
+
+        assertEquals(transactionResults, result)
+    }
+
+    @Test
+    fun `Test getTransactionResultsByBlockId with multiple results`() {
+        val blockId = FlowId("01")
+
+        val transactionResult1 = FlowTransactionResult.of(
+            Access.TransactionResultResponse.newBuilder()
+                .setStatus(TransactionOuterClass.TransactionStatus.SEALED)
+                .setStatusCode(1)
+                .setErrorMessage("message1")
+                .build()
+        )
+
+        val transactionResult2 = FlowTransactionResult.of(
+            Access.TransactionResultResponse.newBuilder()
+                .setStatus(TransactionOuterClass.TransactionStatus.SEALED)
+                .setStatusCode(2)
+                .setErrorMessage("message2")
+                .build()
+        )
+
+        val transactionResults = listOf(transactionResult1, transactionResult2)
+
+        val response = Access.TransactionResultsResponse.newBuilder()
+            .addAllTransactionResults(transactionResults.map { it.builder().build() })
+            .build()
+
+        `when`(api.getTransactionResultsByBlockID(any())).thenReturn(response)
+
+        val result = flowAccessApi.getTransactionResultsByBlockId(blockId)
+
+        assertEquals(2, result?.size)
+        assertEquals(transactionResult1, result?.get(0))
+        assertEquals(transactionResult2, result?.get(1))
+    }
+
+    @Test
+    fun `Test getExecutionResultByBlockId`() {
+        val blockId = FlowId("01")
+        val executionResult = ExecutionResult(FlowId("01"), FlowId("02"))
+
+        val response = Access.ExecutionResultByIDResponse.newBuilder()
+            .setExecutionResult(
+                ExecutionResultOuterClass.ExecutionResult.newBuilder()
+                    .setBlockId(ByteString.copyFrom(AsyncFlowAccessApiImplTest.BLOCK_ID_BYTES))
+                    .setPreviousResultId(ByteString.copyFrom(AsyncFlowAccessApiImplTest.PARENT_ID_BYTES))
+                    .build()
+            )
+            .build()
+
+        `when`(api.getExecutionResultByID(any())).thenReturn(response)
+
+        val result = flowAccessApi.getExecutionResultByBlockId(blockId)
+
+        assertEquals(executionResult, result)
     }
 }

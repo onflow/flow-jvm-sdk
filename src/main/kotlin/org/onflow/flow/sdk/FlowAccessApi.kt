@@ -15,6 +15,12 @@ interface FlowAccessApi {
 
     fun getBlockById(id: FlowId): FlowBlock?
 
+    fun getTransactionsByBlockId(id: FlowId): List<FlowTransaction>?
+
+    fun getTransactionResultsByBlockId(id: FlowId): List<FlowTransactionResult>?
+
+    fun getExecutionResultByBlockId(id: FlowId): ExecutionResult?
+
     fun getBlockByHeight(height: Long): FlowBlock?
 
     fun getCollectionById(id: FlowId): FlowCollection?
