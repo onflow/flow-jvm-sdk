@@ -48,8 +48,6 @@ class ScriptTest {
     @FlowTestClient
     lateinit var accessAPI: FlowAccessApi
 
-
-
     @Test
     fun `Can execute a script`() {
         val result = accessAPI.simpleFlowScript {
