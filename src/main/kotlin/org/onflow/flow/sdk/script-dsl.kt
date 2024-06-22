@@ -10,7 +10,7 @@ fun flowScript(block: ScriptBuilder.() -> Unit): ScriptBuilder {
     return ret
 }
 
-fun FlowAccessApi.simpleFlowScript(block: ScriptBuilder.() -> Unit): FlowScriptResponse {
+fun FlowAccessApi.simpleFlowScript(block: ScriptBuilder.() -> Unit): FlowAccessApi.FlowResult<FlowScriptResponse> {
     val api = this
     val builder = flowScript(block)
     return try {

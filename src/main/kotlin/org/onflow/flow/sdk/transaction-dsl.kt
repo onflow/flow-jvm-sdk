@@ -9,9 +9,12 @@ import java.util.logging.Logger
 fun waitForSeal(api: FlowAccessApi, transactionId: FlowId, pauseMs: Number = 500L, timeoutMs: Number = 10_000L): FlowTransactionResult {
     check(pauseMs.toLong() < timeoutMs.toLong()) { "pause must be less than timeout" }
     val start = System.currentTimeMillis()
-    var ret: FlowTransactionResult
     while (true) {
-        ret = checkNotNull(api.getTransactionResultById(transactionId)) { "Transaction with that id not found" }
+        val ret = when (val result = api.getTransactionResultById(transactionId)) {
+            is FlowAccessApi.FlowResult.Success -> result.data
+            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to retrieve transaction result: ${result.message}", result.throwable)
+        }
+
         if (ret.status == FlowTransactionStatus.SEALED) {
             return ret
         }
@@ -28,9 +31,17 @@ fun flowTransaction(block: TransactionBuilder.() -> Unit): FlowTransaction {
     return builder.build()
 }
 
-fun FlowAccessApi.flowTransaction(referenceBlockId: FlowId = this.getLatestBlockHeader().id, block: TransactionBuilder.() -> Unit): FlowTransactionStub {
+fun FlowAccessApi.flowTransaction(referenceBlockId: FlowId? = null, block: TransactionBuilder.() -> Unit): FlowTransactionStub {
+    val actualReferenceBlockId = referenceBlockId ?: run {
+        val result = this.getLatestBlockHeader()
+        when (result) {
+            is FlowAccessApi.FlowResult.Success -> result.data.id
+            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to retrieve latest block header: ${result.message}", result.throwable)
+        }
+    }
+
     val builder = TransactionBuilder(this)
-    builder.referenceBlockId = referenceBlockId
+    builder.referenceBlockId = actualReferenceBlockId
     block(builder)
     return FlowTransactionStub(this, builder)
 }
@@ -75,7 +86,10 @@ class FlowTransactionStub(
         buildIfNecessary()
         checkNotSent()
         transactionId = try {
-            api.sendTransaction(transaction!!)
+            when (val result = api.sendTransaction(transaction!!)) {
+                is FlowAccessApi.FlowResult.Success -> result.data
+                is FlowAccessApi.FlowResult.Error -> throw FlowException("Error while executing transaction: ${result.message}", result.throwable!!)
+            }
         } catch (t: Throwable) {
             throw FlowException("Error while executing transaction", t)
         }
@@ -88,7 +102,11 @@ class FlowTransactionStub(
 
     fun getResult(): FlowTransactionResult {
         checkSent()
-        return checkNotNull(api.getTransactionResultById(transactionId!!)) { "Transaction wasn't found" }
+        val result = api.getTransactionResultById(transactionId!!)
+        return when (result) {
+            is FlowAccessApi.FlowResult.Success -> result.data
+            is FlowAccessApi.FlowResult.Error -> throw FlowException("Transaction wasn't found: ${result.message}", result.throwable!!)
+        }
     }
 
     fun waitForSeal(pauseMs: Number = 500L, timeoutMs: Number = 10_000L): FlowTransactionResult {
@@ -215,7 +233,10 @@ class TransactionBuilder(
     }
     fun proposalKey(address: FlowAddress, publicKey: String) {
         require(api != null) { "Builder not created with an API instance" }
-        val account = requireNotNull(api.getAccountAtLatestBlock(address)) { "Account for address not found" }
+        val account = when (val result = api.getAccountAtLatestBlock(address)) {
+            is FlowAccessApi.FlowResult.Success -> result.data
+            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Account for address not found: ${result.message}", result.throwable)
+        }
         val keyIndex = account.getKeyIndex(publicKey)
         require(keyIndex != -1) { "PublicKey not found for account" }
         proposalKey(
@@ -228,8 +249,11 @@ class TransactionBuilder(
     }
     fun proposalKey(address: FlowAddress, keyIndex: Number) {
         require(api != null) { "Builder not created with an API instance" }
-        val account = requireNotNull(api.getAccountAtLatestBlock(address)) { "Account for address not found" }
-        require(keyIndex != -1) { "PublicKey not found for account" }
+        val account = when (val result = api.getAccountAtLatestBlock(address)) {
+            is FlowAccessApi.FlowResult.Success -> result.data
+            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Account for address not found: ${result.message}", result.throwable)
+        }
+        require(keyIndex.toInt() != -1) { "PublicKey not found for account" }
         require(keyIndex.toInt() < account.keys.size) { "keyIndex out of bounds" }
         proposalKey(
             FlowTransactionProposalKey(
@@ -253,10 +277,15 @@ class TransactionBuilder(
 
     fun proposeAndPay(address: FlowAddress, keyIndex: Number, signer: Signer) {
         require(api != null) { "Builder not created with an API instance" }
-        val account = requireNotNull(api.getAccountAtLatestBlock(address)) { "Account for address not found" }
+        val result = api.getAccountAtLatestBlock(address)
+        val account = when (result) {
+            is FlowAccessApi.FlowResult.Success -> result.data
+            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Account for address not found: ${result.message}", result.throwable)
+        }
         require(keyIndex.toInt() < account.keys.size) { "keyIndex out of bounds" }
         proposeAndPay(address, keyIndex, signer, account.keys[keyIndex.toInt()].sequenceNumber)
     }
+
 
     var payerAddress: FlowAddress
         get() { return _payerAddress!! }
@@ -655,7 +684,10 @@ class FlowTransactionProposalKeyBuilder(
 
     fun usingKeyAtAddress(address: FlowAddress, publicKey: String) {
         require(api != null) { "Builder not created with an API instance" }
-        val account = requireNotNull(api.getAccountAtLatestBlock(address)) { "Account for address not found" }
+        val account = when (val result = api.getAccountAtLatestBlock(address)) {
+            is FlowAccessApi.FlowResult.Success -> result.data
+            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Account for address not found: ${result.message}", result.throwable)
+        }
         val keyIndex = account.getKeyIndex(publicKey)
         require(keyIndex != -1) { "PublicKey not found for account" }
         address(address)

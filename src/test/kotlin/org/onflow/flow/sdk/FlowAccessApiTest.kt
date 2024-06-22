@@ -16,11 +16,11 @@ class FlowAccessApiTest {
     fun `Test getLatestBlockHeader`() {
         val flowAccessApi = mock(FlowAccessApi::class.java)
         val latestBlockHeader = FlowBlockHeader.of(BlockHeaderOuterClass.BlockHeader.getDefaultInstance())
-        `when`(flowAccessApi.getLatestBlockHeader(true)).thenReturn(latestBlockHeader)
+        `when`(flowAccessApi.getLatestBlockHeader(true)).thenReturn(FlowAccessApi.FlowResult.Success(latestBlockHeader))
 
         val result = flowAccessApi.getLatestBlockHeader()
 
-        assertEquals(latestBlockHeader, result)
+        assertEquals(FlowAccessApi.FlowResult.Success(latestBlockHeader), result)
     }
 
     @Test
@@ -28,11 +28,11 @@ class FlowAccessApiTest {
         val flowAccessApi = mock(FlowAccessApi::class.java)
         val blockId = FlowId("01")
         val blockHeader = FlowBlockHeader.of(BlockHeaderOuterClass.BlockHeader.getDefaultInstance())
-        `when`(flowAccessApi.getBlockHeaderById(blockId)).thenReturn(blockHeader)
+        `when`(flowAccessApi.getBlockHeaderById(blockId)).thenReturn(FlowAccessApi.FlowResult.Success(blockHeader))
 
         val result = flowAccessApi.getBlockHeaderById(blockId)
 
-        assertEquals(blockHeader, result)
+        assertEquals(FlowAccessApi.FlowResult.Success(blockHeader), result)
     }
 
     @Test
@@ -40,22 +40,22 @@ class FlowAccessApiTest {
         val flowAccessApi = mock(FlowAccessApi::class.java)
         val height = 123L
         val blockHeader = FlowBlockHeader.of(BlockHeaderOuterClass.BlockHeader.getDefaultInstance())
-        `when`(flowAccessApi.getBlockHeaderByHeight(height)).thenReturn(blockHeader)
+        `when`(flowAccessApi.getBlockHeaderByHeight(height)).thenReturn(FlowAccessApi.FlowResult.Success(blockHeader))
 
         val result = flowAccessApi.getBlockHeaderByHeight(height)
 
-        assertEquals(blockHeader, result)
+        assertEquals(FlowAccessApi.FlowResult.Success(blockHeader), result)
     }
 
     @Test
     fun `Test getLatestBlock`() {
         val flowAccessApi = mock(FlowAccessApi::class.java)
         val latestBlock = FlowBlock.of(BlockOuterClass.Block.getDefaultInstance())
-        `when`(flowAccessApi.getLatestBlock(true)).thenReturn(latestBlock)
+        `when`(flowAccessApi.getLatestBlock(true)).thenReturn(FlowAccessApi.FlowResult.Success(latestBlock))
 
         val result = flowAccessApi.getLatestBlock()
 
-        assertEquals(latestBlock, result)
+        assertEquals(FlowAccessApi.FlowResult.Success(latestBlock), result)
     }
 
     @Test
@@ -63,11 +63,11 @@ class FlowAccessApiTest {
         val flowAccessApi = mock(FlowAccessApi::class.java)
         val blockId = FlowId("01")
         val block = FlowBlock.of(BlockOuterClass.Block.getDefaultInstance())
-        `when`(flowAccessApi.getBlockById(blockId)).thenReturn(block)
+        `when`(flowAccessApi.getBlockById(blockId)).thenReturn(FlowAccessApi.FlowResult.Success(block))
 
         val result = flowAccessApi.getBlockById(blockId)
 
-        assertEquals(block, result)
+        assertEquals(FlowAccessApi.FlowResult.Success(block), result)
     }
 
     @Test
@@ -75,11 +75,11 @@ class FlowAccessApiTest {
         val flowAccessApi = mock(FlowAccessApi::class.java)
         val height = 123L
         val block = FlowBlock.of(BlockOuterClass.Block.getDefaultInstance())
-        `when`(flowAccessApi.getBlockByHeight(height)).thenReturn(block)
+        `when`(flowAccessApi.getBlockByHeight(height)).thenReturn(FlowAccessApi.FlowResult.Success(block))
 
         val result = flowAccessApi.getBlockByHeight(height)
 
-        assertEquals(block, result)
+        assertEquals(FlowAccessApi.FlowResult.Success(block), result)
     }
 
     @Test
@@ -87,11 +87,11 @@ class FlowAccessApiTest {
         val flowAccessApi = mock(FlowAccessApi::class.java)
         val flowId = FlowId("01")
         val flowCollection = FlowCollection(flowId, emptyList())
-        `when`(flowAccessApi.getCollectionById(flowId)).thenReturn(flowCollection)
+        `when`(flowAccessApi.getCollectionById(flowId)).thenReturn(FlowAccessApi.FlowResult.Success(flowCollection))
 
         val result = flowAccessApi.getCollectionById(flowId)
 
-        assertEquals(flowCollection, result)
+        assertEquals(FlowAccessApi.FlowResult.Success(flowCollection), result)
     }
 
     @Test
@@ -99,11 +99,11 @@ class FlowAccessApiTest {
         val flowAccessApi = mock(FlowAccessApi::class.java)
         val flowTransaction = FlowTransaction.of(TransactionOuterClass.Transaction.getDefaultInstance())
         val flowId = FlowId("01")
-        `when`(flowAccessApi.sendTransaction(flowTransaction)).thenReturn(flowId)
+        `when`(flowAccessApi.sendTransaction(flowTransaction)).thenReturn(FlowAccessApi.FlowResult.Success(flowId))
 
         val result = flowAccessApi.sendTransaction(flowTransaction)
 
-        assertEquals(flowId, result)
+        assertEquals(FlowAccessApi.FlowResult.Success(flowId), result)
     }
 
     @Test
@@ -111,11 +111,11 @@ class FlowAccessApiTest {
         val flowAccessApi = mock(FlowAccessApi::class.java)
         val flowId = FlowId("01")
         val flowTransaction = FlowTransaction.of(TransactionOuterClass.Transaction.getDefaultInstance())
-        `when`(flowAccessApi.getTransactionById(flowId)).thenReturn(flowTransaction)
+        `when`(flowAccessApi.getTransactionById(flowId)).thenReturn(FlowAccessApi.FlowResult.Success(flowTransaction))
 
         val result = flowAccessApi.getTransactionById(flowId)
 
-        assertEquals(flowTransaction, result)
+        assertEquals(FlowAccessApi.FlowResult.Success(flowTransaction), result)
     }
 
     @Test
@@ -123,11 +123,11 @@ class FlowAccessApiTest {
         val flowAccessApi = mock(FlowAccessApi::class.java)
         val flowId = FlowId("01")
         val flowTransactionResult = FlowTransactionResult.of(Access.TransactionResultResponse.getDefaultInstance())
-        `when`(flowAccessApi.getTransactionResultById(flowId)).thenReturn(flowTransactionResult)
+        `when`(flowAccessApi.getTransactionResultById(flowId)).thenReturn(FlowAccessApi.FlowResult.Success(flowTransactionResult))
 
         val result = flowAccessApi.getTransactionResultById(flowId)
 
-        assertEquals(flowTransactionResult, result)
+        assertEquals(FlowAccessApi.FlowResult.Success(flowTransactionResult), result)
     }
 
     @Test
@@ -135,11 +135,11 @@ class FlowAccessApiTest {
         val flowAccessApi = mock(FlowAccessApi::class.java)
         val flowAddress = FlowAddress("01")
         val flowAccount = FlowAccount.of(AccountOuterClass.Account.getDefaultInstance())
-        `when`(flowAccessApi.getAccountAtLatestBlock(flowAddress)).thenReturn(flowAccount)
+        `when`(flowAccessApi.getAccountAtLatestBlock(flowAddress)).thenReturn(FlowAccessApi.FlowResult.Success(flowAccount))
 
         val result = flowAccessApi.getAccountAtLatestBlock(flowAddress)
 
-        assertEquals(flowAccount, result)
+        assertEquals(FlowAccessApi.FlowResult.Success(flowAccount), result)
     }
 
     @Test
@@ -148,11 +148,11 @@ class FlowAccessApiTest {
         val flowAddress = FlowAddress("01")
         val height = 123L
         val flowAccount = FlowAccount.of(AccountOuterClass.Account.getDefaultInstance())
-        `when`(flowAccessApi.getAccountByBlockHeight(flowAddress, height)).thenReturn(flowAccount)
+        `when`(flowAccessApi.getAccountByBlockHeight(flowAddress, height)).thenReturn(FlowAccessApi.FlowResult.Success(flowAccount))
 
         val result = flowAccessApi.getAccountByBlockHeight(flowAddress, height)
 
-        assertEquals(flowAccount, result)
+        assertEquals(FlowAccessApi.FlowResult.Success(flowAccount), result)
     }
 
     @Test
@@ -161,11 +161,11 @@ class FlowAccessApiTest {
         val script = FlowScript("script")
         val arguments = listOf(ByteString.copyFromUtf8("argument1"))
         val response = FlowScriptResponse("response".toByteArray())
-        `when`(flowAccessApi.executeScriptAtLatestBlock(script, arguments)).thenReturn(response)
+        `when`(flowAccessApi.executeScriptAtLatestBlock(script, arguments)).thenReturn(FlowAccessApi.FlowResult.Success(response))
 
         val result = flowAccessApi.executeScriptAtLatestBlock(script, arguments)
 
-        assertEquals(response, result)
+        assertEquals(FlowAccessApi.FlowResult.Success(response), result)
     }
 
     @Test
@@ -175,11 +175,11 @@ class FlowAccessApiTest {
         val blockId = FlowId("01")
         val arguments = listOf(ByteString.copyFromUtf8("argument1"))
         val response = FlowScriptResponse("response".toByteArray())
-        `when`(flowAccessApi.executeScriptAtBlockId(script, blockId, arguments)).thenReturn(response)
+        `when`(flowAccessApi.executeScriptAtBlockId(script, blockId, arguments)).thenReturn(FlowAccessApi.FlowResult.Success(response))
 
         val result = flowAccessApi.executeScriptAtBlockId(script, blockId, arguments)
 
-        assertEquals(response, result)
+        assertEquals(FlowAccessApi.FlowResult.Success(response), result)
     }
 
     @Test
@@ -189,11 +189,11 @@ class FlowAccessApiTest {
         val height = 123L
         val arguments = listOf(ByteString.copyFromUtf8("argument1"))
         val response = FlowScriptResponse("response".toByteArray())
-        `when`(flowAccessApi.executeScriptAtBlockHeight(script, height, arguments)).thenReturn(response)
+        `when`(flowAccessApi.executeScriptAtBlockHeight(script, height, arguments)).thenReturn(FlowAccessApi.FlowResult.Success(response))
 
         val result = flowAccessApi.executeScriptAtBlockHeight(script, height, arguments)
 
-        assertEquals(response, result)
+        assertEquals(FlowAccessApi.FlowResult.Success(response), result)
     }
 
     @Test
@@ -202,11 +202,11 @@ class FlowAccessApiTest {
         val type = "eventType"
         val range = 100L..200L
         val eventResults = listOf(FlowEventResult.of(Access.EventsResponse.Result.getDefaultInstance()), FlowEventResult.of(Access.EventsResponse.Result.getDefaultInstance()))
-        `when`(flowAccessApi.getEventsForHeightRange(type, range)).thenReturn(eventResults)
+        `when`(flowAccessApi.getEventsForHeightRange(type, range)).thenReturn(FlowAccessApi.FlowResult.Success(eventResults))
 
         val result = flowAccessApi.getEventsForHeightRange(type, range)
 
-        assertEquals(eventResults, result)
+        assertEquals(FlowAccessApi.FlowResult.Success(eventResults), result)
     }
 
     @Test
@@ -215,33 +215,33 @@ class FlowAccessApiTest {
         val type = "eventType"
         val ids = setOf(FlowId("01"), FlowId("02"))
         val eventResults = listOf(FlowEventResult.of(Access.EventsResponse.Result.getDefaultInstance()), FlowEventResult.of(Access.EventsResponse.Result.getDefaultInstance()))
-        `when`(flowAccessApi.getEventsForBlockIds(type, ids)).thenReturn(eventResults)
+        `when`(flowAccessApi.getEventsForBlockIds(type, ids)).thenReturn(FlowAccessApi.FlowResult.Success(eventResults))
 
         val result = flowAccessApi.getEventsForBlockIds(type, ids)
 
-        assertEquals(eventResults, result)
+        assertEquals(FlowAccessApi.FlowResult.Success(eventResults), result)
     }
 
     @Test
     fun `Test getNetworkParameters`() {
         val flowAccessApi = mock(FlowAccessApi::class.java)
         val chainId = FlowChainId.TESTNET
-        `when`(flowAccessApi.getNetworkParameters()).thenReturn(chainId)
+        `when`(flowAccessApi.getNetworkParameters()).thenReturn(FlowAccessApi.FlowResult.Success(chainId))
 
         val result = flowAccessApi.getNetworkParameters()
 
-        assertEquals(chainId, result)
+        assertEquals(FlowAccessApi.FlowResult.Success(chainId), result)
     }
 
     @Test
     fun `Test getLatestProtocolStateSnapshot`() {
         val flowAccessApi = mock(FlowAccessApi::class.java)
         val snapshot = FlowSnapshot("snapshot".toByteArray())
-        `when`(flowAccessApi.getLatestProtocolStateSnapshot()).thenReturn(snapshot)
+        `when`(flowAccessApi.getLatestProtocolStateSnapshot()).thenReturn(FlowAccessApi.FlowResult.Success(snapshot))
 
         val result = flowAccessApi.getLatestProtocolStateSnapshot()
 
-        assertEquals(snapshot, result)
+        assertEquals(FlowAccessApi.FlowResult.Success(snapshot), result)
     }
 
     @Test
@@ -249,11 +249,11 @@ class FlowAccessApiTest {
         val flowAccessApi = mock(FlowAccessApi::class.java)
         val blockId = FlowId("01")
         val transactions = listOf(FlowTransaction.of(TransactionOuterClass.Transaction.getDefaultInstance()))
-        `when`(flowAccessApi.getTransactionsByBlockId(blockId)).thenReturn(transactions)
+        `when`(flowAccessApi.getTransactionsByBlockId(blockId)).thenReturn(FlowAccessApi.FlowResult.Success(transactions))
 
         val result = flowAccessApi.getTransactionsByBlockId(blockId)
 
-        assertEquals(transactions, result)
+        assertEquals(FlowAccessApi.FlowResult.Success(transactions), result)
     }
 
     @Test
@@ -283,15 +283,15 @@ class FlowAccessApiTest {
 
         val transactions = listOf(transaction1, transaction2)
 
-        `when`(flowAccessApi.getTransactionsByBlockId(blockId)).thenReturn(transactions)
+        `when`(flowAccessApi.getTransactionsByBlockId(blockId)).thenReturn(FlowAccessApi.FlowResult.Success(transactions))
 
         val result = flowAccessApi.getTransactionsByBlockId(blockId)
 
-        assertEquals(transactions, result)
+        assertEquals(FlowAccessApi.FlowResult.Success(transactions), result)
 
         assertEquals(2, transactions.size)
-        assertEquals(transaction1, transactions.get(0))
-        assertEquals(transaction2, transactions.get(1))
+        assertEquals(transaction1, transactions[0])
+        assertEquals(transaction2, transactions[1])
     }
 
     @Test
@@ -299,11 +299,11 @@ class FlowAccessApiTest {
         val flowAccessApi = mock(FlowAccessApi::class.java)
         val blockId = FlowId("01")
         val transactionResults = listOf(FlowTransactionResult.of(Access.TransactionResultResponse.getDefaultInstance()))
-        `when`(flowAccessApi.getTransactionResultsByBlockId(blockId)).thenReturn(transactionResults)
+        `when`(flowAccessApi.getTransactionResultsByBlockId(blockId)).thenReturn(FlowAccessApi.FlowResult.Success(transactionResults))
 
         val result = flowAccessApi.getTransactionResultsByBlockId(blockId)
 
-        assertEquals(transactionResults, result)
+        assertEquals(FlowAccessApi.FlowResult.Success(transactionResults), result)
     }
 
     @Test
@@ -327,15 +327,15 @@ class FlowAccessApiTest {
 
         val transactions = listOf(transactionResult1, transactionResult2)
 
-        `when`(flowAccessApi.getTransactionResultsByBlockId(blockId)).thenReturn(transactions)
+        `when`(flowAccessApi.getTransactionResultsByBlockId(blockId)).thenReturn(FlowAccessApi.FlowResult.Success(transactions))
 
         val result = flowAccessApi.getTransactionResultsByBlockId(blockId)
 
-        assertEquals(transactions, result)
+        assertEquals(FlowAccessApi.FlowResult.Success(transactions), result)
 
-        assertEquals(2, result?.size)
-        assertEquals(transactionResult1, result?.get(0))
-        assertEquals(transactionResult2, result?.get(1))
+        assertEquals(2, FlowAccessApi.FlowResult.Success(transactions).data.size)
+        assertEquals(transactionResult1, FlowAccessApi.FlowResult.Success(transactions).data[0])
+        assertEquals(transactionResult2, FlowAccessApi.FlowResult.Success(transactions).data[1])
     }
 
     @Test
@@ -343,10 +343,10 @@ class FlowAccessApiTest {
         val flowAccessApi = mock(FlowAccessApi::class.java)
         val blockId = FlowId("01")
         val executionResult = ExecutionResult.of(Access.ExecutionResultByIDResponse.getDefaultInstance())
-        `when`(flowAccessApi.getExecutionResultByBlockId(blockId)).thenReturn(executionResult)
+        `when`(flowAccessApi.getExecutionResultByBlockId(blockId)).thenReturn(FlowAccessApi.FlowResult.Success(executionResult))
 
         val result = flowAccessApi.getExecutionResultByBlockId(blockId)
 
-        assertEquals(executionResult, result)
+        assertEquals(FlowAccessApi.FlowResult.Success(executionResult), result)
     }
 }
