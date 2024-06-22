@@ -8,7 +8,7 @@ interface FlowAccessApi {
         data class Error(val message: String, val throwable: Throwable? = null) : FlowResult<Nothing>()
     }
 
-    fun ping()
+    fun ping(): FlowResult<Unit>
 
     fun getLatestBlockHeader(sealed: Boolean = true): FlowResult<FlowBlockHeader>
 

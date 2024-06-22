@@ -45,36 +45,36 @@ class ExposeAccountKeyIssueTest {
         ) {
             script {
                 """
-                    import FlowToken from 0xFLOWTOKEN
-                    import FungibleToken from 0xFUNGIBLETOKEN
+                import FlowToken from 0xFLOWTOKEN
+                import FungibleToken from 0xFUNGIBLETOKEN
 
-                    transaction(startingBalance: UFix64, publicKey: String, signatureAlgorithm: UInt8, hashAlgorithm: UInt8) {
-                        prepare(signer: AuthAccount) {
+                transaction(startingBalance: UFix64, publicKey: String, signatureAlgorithm: UInt8, hashAlgorithm: UInt8) {
+                    prepare(signer: AuthAccount) {
+                        
+                        let newAccount = AuthAccount(payer: signer)
+
+                        newAccount.keys.add(
+                            publicKey: PublicKey(
+                                publicKey: publicKey.decodeHex(),
+                                signatureAlgorithm: SignatureAlgorithm(rawValue: signatureAlgorithm)!
+                            ),
+                            hashAlgorithm: HashAlgorithm(rawValue: hashAlgorithm)!,
+                            weight: UFix64(1000)
+                        )
+
+                        let provider = signer.borrow<&FlowToken.Vault>(from: /storage/flowTokenVault)
+                            ?? panic("Could not borrow FlowToken.Vault reference")
+                        
+                        let newVault = newAccount
+                            .getCapability(/public/flowTokenReceiver)
+                            .borrow<&{FungibleToken.Receiver}>()
+                            ?? panic("Could not borrow FungibleToken.Receiver reference")
                             
-                            let newAccount = AuthAccount(payer: signer)
-
-                            newAccount.keys.add(
-                                publicKey: PublicKey(
-                                    publicKey: publicKey.decodeHex(),
-                                    signatureAlgorithm: SignatureAlgorithm(rawValue: signatureAlgorithm)!
-                                ),
-                                hashAlgorithm: HashAlgorithm(rawValue: hashAlgorithm)!,
-                                weight: UFix64(1000)
-                            )
-
-                            let provider = signer.borrow<&FlowToken.Vault>(from: /storage/flowTokenVault)
-                                ?? panic("Could not borrow FlowToken.Vault reference")
-                            
-                            let newVault = newAccount
-                                .getCapability(/public/flowTokenReceiver)
-                                .borrow<&{FungibleToken.Receiver}>()
-                                ?? panic("Could not borrow FungibleToken.Receiver reference")
-                                
-                            let coin <- provider.withdraw(amount: startingBalance)
-                            newVault.deposit(from: <- coin)
-                        }
+                        let coin <- provider.withdraw(amount: startingBalance)
+                        newVault.deposit(from: <- coin)
                     }
-                """
+                }
+            """
             }
             arguments {
                 arg { ufix64(startingBalance) }
@@ -83,16 +83,24 @@ class ExposeAccountKeyIssueTest {
                 arg { uint8(hashAlgorithm1.index) }
             }
         }.sendAndWaitForSeal()
-            .throwOnError()
 
-        val newAccountAddress = createAccountResult.getEventsOfType("flow.AccountCreated", expectedCount = 1)
+        val createAccountResultData = when (createAccountResult) {
+            is FlowAccessApi.FlowResult.Success -> createAccountResult.data
+            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to create account: ${createAccountResult.message}", createAccountResult.throwable)
+        }
+
+        val newAccountAddress = createAccountResultData.getEventsOfType("flow.AccountCreated", expectedCount = 1)
             .first()
             .get<AddressField>("address")
             ?.value
             ?.let { FlowAddress(it) }
             ?: throw IllegalStateException("AccountCreated event not found")
 
-        var account = requireNotNull(flow.getAccountAtLatestBlock(newAccountAddress))
+        val account = when (val accountResult = flow.getAccountAtLatestBlock(newAccountAddress)) {
+            is FlowAccessApi.FlowResult.Success -> accountResult.data
+            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to get account at latest block: ${accountResult.message}", accountResult.throwable)
+        }
+
         assertEquals(1, account.keys.size)
         assertEquals(pair1.public.hex, account.keys[0].publicKey.base16Value)
         assertFalse(account.keys[0].revoked)
@@ -101,8 +109,8 @@ class ExposeAccountKeyIssueTest {
 
         val signatureAlgorithm2 = SignatureAlgorithm.ECDSA_P256
         val hashAlgorithm2 = HashAlgorithm.SHA3_256
-        val pair2 = Crypto.generateKeyPair(signatureAlgorithm1)
-        val signer2 = Crypto.getSigner(pair1.private, hashAlgorithm1)
+        val pair2 = Crypto.generateKeyPair(signatureAlgorithm2)
+        val signer2 = Crypto.getSigner(pair2.private, hashAlgorithm2)
 
         val addKeyResult = flow.simpleFlowTransaction(newAccountAddress, signer1) {
             script {
@@ -128,18 +136,26 @@ class ExposeAccountKeyIssueTest {
                 arg { ufix64(1000) }
             }
         }.sendAndWaitForSeal()
-            .throwOnError()
 
-        account = requireNotNull(flow.getAccountAtLatestBlock(newAccountAddress))
-        assertEquals(2, account.keys.size)
-        assertEquals(pair1.public.hex, account.keys[0].publicKey.base16Value)
-        assertEquals(pair2.public.hex, account.keys[1].publicKey.base16Value)
-        assertFalse(account.keys[0].revoked)
-        assertFalse(account.keys[1].revoked)
+        val addKeyEvent = when (addKeyResult) {
+            is FlowAccessApi.FlowResult.Success -> addKeyResult.data
+            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to add key: ${addKeyResult.message}", addKeyResult.throwable)
+        }
+
+        val updatedAccount = when (val updatedAccountResult = flow.getAccountAtLatestBlock(newAccountAddress)) {
+            is FlowAccessApi.FlowResult.Success -> updatedAccountResult.data
+            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to get updated account at latest block: ${updatedAccountResult.message}", updatedAccountResult.throwable)
+        }
+
+        assertEquals(2, updatedAccount.keys.size)
+        assertEquals(pair1.public.hex, updatedAccount.keys[0].publicKey.base16Value)
+        assertEquals(pair2.public.hex, updatedAccount.keys[1].publicKey.base16Value)
+        assertFalse(updatedAccount.keys[0].revoked)
+        assertFalse(updatedAccount.keys[1].revoked)
 
         // remove the second key
 
-        val removeResult = flow.simpleFlowTransaction(newAccountAddress, signer1) {
+        val removeKeyResult = flow.simpleFlowTransaction(newAccountAddress, signer1) {
             script {
                 """
                     transaction(index: Int) {
@@ -153,13 +169,21 @@ class ExposeAccountKeyIssueTest {
                 arg { int(1) }
             }
         }.sendAndWaitForSeal()
-            .throwOnError()
 
-        account = requireNotNull(flow.getAccountAtLatestBlock(newAccountAddress))
-        assertEquals(2, account.keys.size)
-        assertEquals(pair1.public.hex, account.keys[0].publicKey.base16Value)
-        assertEquals(pair2.public.hex, account.keys[1].publicKey.base16Value)
-        assertFalse(account.keys[0].revoked)
-        assertTrue(account.keys[1].revoked)
+        val removeKeyEvent = when (removeKeyResult) {
+            is FlowAccessApi.FlowResult.Success -> removeKeyResult.data
+            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to remove key: ${removeKeyResult.message}", removeKeyResult.throwable)
+        }
+
+        val finalAccount = when (val finalAccountResult = flow.getAccountAtLatestBlock(newAccountAddress)) {
+            is FlowAccessApi.FlowResult.Success -> finalAccountResult.data
+            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to get final account at latest block: ${finalAccountResult.message}", finalAccountResult.throwable)
+        }
+
+        assertEquals(2, finalAccount.keys.size)
+        assertEquals(pair1.public.hex, finalAccount.keys[0].publicKey.base16Value)
+        assertEquals(pair2.public.hex, finalAccount.keys[1].publicKey.base16Value)
+        assertFalse(finalAccount.keys[0].revoked)
+        assertTrue(finalAccount.keys[1].revoked)
     }
 }

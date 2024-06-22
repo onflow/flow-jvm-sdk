@@ -17,11 +17,16 @@ class FlowAccessApiImpl(
         }
     }
 
-    override fun ping() {
-        api.ping(
-            Access.PingRequest.newBuilder()
-                .build()
-        )
+    override fun ping(): FlowAccessApi.FlowResult<Unit> {
+        return try {
+            api.ping(
+                Access.PingRequest.newBuilder()
+                    .build()
+            )
+            FlowAccessApi.FlowResult.Success(Unit)
+        } catch (e: Exception) {
+            FlowAccessApi.FlowResult.Error("Failed to ping", e)
+        }
     }
 
     override fun getLatestBlockHeader(sealed: Boolean): FlowAccessApi.FlowResult<FlowBlockHeader> {

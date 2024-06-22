@@ -6,21 +6,21 @@ import java.util.concurrent.TimeoutException
 import java.util.logging.Logger
 
 @Throws(TimeoutException::class)
-fun waitForSeal(api: FlowAccessApi, transactionId: FlowId, pauseMs: Number = 500L, timeoutMs: Number = 10_000L): FlowTransactionResult {
+fun waitForSeal(api: FlowAccessApi, transactionId: FlowId, pauseMs: Number = 500L, timeoutMs: Number = 10_000L): FlowAccessApi.FlowResult<FlowTransactionResult> {
     check(pauseMs.toLong() < timeoutMs.toLong()) { "pause must be less than timeout" }
     val start = System.currentTimeMillis()
     while (true) {
         val ret = when (val result = api.getTransactionResultById(transactionId)) {
             is FlowAccessApi.FlowResult.Success -> result.data
-            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to retrieve transaction result: ${result.message}", result.throwable)
+            is FlowAccessApi.FlowResult.Error -> return FlowAccessApi.FlowResult.Error("Failed to retrieve transaction result: ${result.message}", result.throwable)
         }
 
         if (ret.status == FlowTransactionStatus.SEALED) {
-            return ret
+            return FlowAccessApi.FlowResult.Success(ret)
         }
         Thread.sleep(pauseMs.toLong())
         if (System.currentTimeMillis() - start > timeoutMs.toLong()) {
-            throw TimeoutException("Timeout waiting for seal")
+            return FlowAccessApi.FlowResult.Error("Timeout waiting for seal", TimeoutException("Timeout waiting for seal"))
         }
     }
 }
@@ -33,8 +33,7 @@ fun flowTransaction(block: TransactionBuilder.() -> Unit): FlowTransaction {
 
 fun FlowAccessApi.flowTransaction(referenceBlockId: FlowId? = null, block: TransactionBuilder.() -> Unit): FlowTransactionStub {
     val actualReferenceBlockId = referenceBlockId ?: run {
-        val result = this.getLatestBlockHeader()
-        when (result) {
+        when (val result = this.getLatestBlockHeader()) {
             is FlowAccessApi.FlowResult.Success -> result.data.id
             is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to retrieve latest block header: ${result.message}", result.throwable)
         }
@@ -96,14 +95,23 @@ class FlowTransactionStub(
         return this
     }
 
-    fun sendAndWaitForSeal(pauseMs: Number = 500L, timeoutMs: Number = 10_000L): FlowTransactionResult {
-        return send().waitForSeal(pauseMs, timeoutMs)
+    fun sendAndWaitForSeal(pauseMs: Number = 500L, timeoutMs: Number = 10_000L): FlowAccessApi.FlowResult<FlowTransactionResult> {
+        val sendResult = try {
+            send()
+            FlowAccessApi.FlowResult.Success(transactionId!!)
+        } catch (e: FlowException) {
+            FlowAccessApi.FlowResult.Error("Failed to send transaction", e)
+        }
+
+        return when (sendResult) {
+            is FlowAccessApi.FlowResult.Success -> waitForSeal(api, sendResult.data, pauseMs, timeoutMs)
+            is FlowAccessApi.FlowResult.Error -> sendResult
+        }
     }
 
     fun getResult(): FlowTransactionResult {
         checkSent()
-        val result = api.getTransactionResultById(transactionId!!)
-        return when (result) {
+        return when (val result = api.getTransactionResultById(transactionId!!)) {
             is FlowAccessApi.FlowResult.Success -> result.data
             is FlowAccessApi.FlowResult.Error -> throw FlowException("Transaction wasn't found: ${result.message}", result.throwable!!)
         }
@@ -111,7 +119,10 @@ class FlowTransactionStub(
 
     fun waitForSeal(pauseMs: Number = 500L, timeoutMs: Number = 10_000L): FlowTransactionResult {
         checkSent()
-        return waitForSeal(api, transactionId!!, pauseMs, timeoutMs)
+        return when (val result = waitForSeal(api, transactionId!!, pauseMs, timeoutMs)) {
+            is FlowAccessApi.FlowResult.Success -> result.data
+            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to wait for seal: ${result.message}", result.throwable)
+        }
     }
 
     fun getResult(
@@ -277,15 +288,13 @@ class TransactionBuilder(
 
     fun proposeAndPay(address: FlowAddress, keyIndex: Number, signer: Signer) {
         require(api != null) { "Builder not created with an API instance" }
-        val result = api.getAccountAtLatestBlock(address)
-        val account = when (result) {
+        val account = when (val result = api.getAccountAtLatestBlock(address)) {
             is FlowAccessApi.FlowResult.Success -> result.data
             is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Account for address not found: ${result.message}", result.throwable)
         }
         require(keyIndex.toInt() < account.keys.size) { "keyIndex out of bounds" }
         proposeAndPay(address, keyIndex, signer, account.keys[keyIndex.toInt()].sequenceNumber)
     }
-
 
     var payerAddress: FlowAddress
         get() { return _payerAddress!! }
