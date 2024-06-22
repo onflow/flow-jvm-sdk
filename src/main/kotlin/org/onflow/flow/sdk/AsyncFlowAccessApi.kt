@@ -8,51 +8,51 @@ interface AsyncFlowAccessApi {
 
     fun getLatestBlockHeader(sealed: Boolean = true): CompletableFuture<FlowAccessApi.FlowResult<FlowBlockHeader>>
 
-    fun getBlockHeaderById(id: FlowId): CompletableFuture<FlowBlockHeader?>
+    fun getBlockHeaderById(id: FlowId): CompletableFuture<FlowAccessApi.FlowResult<FlowBlockHeader?>>
 
-    fun getBlockHeaderByHeight(height: Long): CompletableFuture<FlowBlockHeader?>
+    fun getBlockHeaderByHeight(height: Long): CompletableFuture<FlowAccessApi.FlowResult<FlowBlockHeader?>>
 
-    fun getLatestBlock(sealed: Boolean = true): CompletableFuture<FlowBlock>
+    fun getLatestBlock(sealed: Boolean = true): CompletableFuture<FlowAccessApi.FlowResult<FlowBlock>>
 
-    fun getBlockById(id: FlowId): CompletableFuture<FlowBlock?>
+    fun getBlockById(id: FlowId): CompletableFuture<FlowAccessApi.FlowResult<FlowBlock?>>
 
-    fun getBlockByHeight(height: Long): CompletableFuture<FlowBlock?>
+    fun getBlockByHeight(height: Long): CompletableFuture<FlowAccessApi.FlowResult<FlowBlock?>>
 
-    fun getTransactionsByBlockId(id: FlowId): CompletableFuture<List<FlowTransaction>>
+    fun getTransactionsByBlockId(id: FlowId): CompletableFuture<FlowAccessApi.FlowResult<List<FlowTransaction>>>
 
-    fun getTransactionResultsByBlockId(id: FlowId): CompletableFuture<List<FlowTransactionResult>>
+    fun getTransactionResultsByBlockId(id: FlowId): CompletableFuture<FlowAccessApi.FlowResult<List<FlowTransactionResult>>>
 
-    fun getExecutionResultByBlockId(id: FlowId): CompletableFuture<ExecutionResult?>
+    fun getExecutionResultByBlockId(id: FlowId): CompletableFuture<FlowAccessApi.FlowResult<ExecutionResult?>>
 
-    fun getCollectionById(id: FlowId): CompletableFuture<FlowCollection?>
+    fun getCollectionById(id: FlowId): CompletableFuture<FlowAccessApi.FlowResult<FlowCollection?>>
 
-    fun sendTransaction(transaction: FlowTransaction): CompletableFuture<FlowId>
+    fun sendTransaction(transaction: FlowTransaction): CompletableFuture<FlowAccessApi.FlowResult<FlowId>>
 
-    fun getTransactionById(id: FlowId): CompletableFuture<FlowTransaction?>
+    fun getTransactionById(id: FlowId): CompletableFuture<FlowAccessApi.FlowResult<FlowTransaction?>>
 
-    fun getTransactionResultById(id: FlowId): CompletableFuture<FlowTransactionResult?>
+    fun getTransactionResultById(id: FlowId): CompletableFuture<FlowAccessApi.FlowResult<FlowTransactionResult?>>
 
     @Deprecated(
         message = "Behaves identically to getAccountAtLatestBlock",
         replaceWith = ReplaceWith("getAccountAtLatestBlock")
     )
-    fun getAccountByAddress(addresss: FlowAddress): CompletableFuture<FlowAccount?>
+    fun getAccountByAddress(addresss: FlowAddress): CompletableFuture<FlowAccessApi.FlowResult<FlowAccount?>>
 
-    fun getAccountAtLatestBlock(addresss: FlowAddress): CompletableFuture<FlowAccount?>
+    fun getAccountAtLatestBlock(addresss: FlowAddress): CompletableFuture<FlowAccessApi.FlowResult<FlowAccount?>>
 
-    fun getAccountByBlockHeight(addresss: FlowAddress, height: Long): CompletableFuture<FlowAccount?>
+    fun getAccountByBlockHeight(addresss: FlowAddress, height: Long): CompletableFuture<FlowAccessApi.FlowResult<FlowAccount?>>
 
-    fun executeScriptAtLatestBlock(script: FlowScript, arguments: Iterable<ByteString> = emptyList()): CompletableFuture<FlowScriptResponse>
+    fun executeScriptAtLatestBlock(script: FlowScript, arguments: Iterable<ByteString> = emptyList()): CompletableFuture<FlowAccessApi.FlowResult<FlowScriptResponse>>
 
-    fun executeScriptAtBlockId(script: FlowScript, blockId: FlowId, arguments: Iterable<ByteString> = emptyList()): CompletableFuture<FlowScriptResponse>
+    fun executeScriptAtBlockId(script: FlowScript, blockId: FlowId, arguments: Iterable<ByteString> = emptyList()): CompletableFuture<FlowAccessApi.FlowResult<FlowScriptResponse>>
 
-    fun executeScriptAtBlockHeight(script: FlowScript, height: Long, arguments: Iterable<ByteString> = emptyList()): CompletableFuture<FlowScriptResponse>
+    fun executeScriptAtBlockHeight(script: FlowScript, height: Long, arguments: Iterable<ByteString> = emptyList()): CompletableFuture<FlowAccessApi.FlowResult<FlowScriptResponse>>
 
-    fun getEventsForHeightRange(type: String, range: ClosedRange<Long>): CompletableFuture<List<FlowEventResult>>
+    fun getEventsForHeightRange(type: String, range: ClosedRange<Long>): CompletableFuture<FlowAccessApi.FlowResult<List<FlowEventResult>>>
 
-    fun getEventsForBlockIds(type: String, ids: Set<FlowId>): CompletableFuture<List<FlowEventResult>>
+    fun getEventsForBlockIds(type: String, ids: Set<FlowId>): CompletableFuture<FlowAccessApi.FlowResult<List<FlowEventResult>>>
 
-    fun getNetworkParameters(): CompletableFuture<FlowChainId>
+    fun getNetworkParameters(): CompletableFuture<FlowAccessApi.FlowResult<FlowChainId>>
 
-    fun getLatestProtocolStateSnapshot(): CompletableFuture<FlowSnapshot>
+    fun getLatestProtocolStateSnapshot(): CompletableFuture<FlowAccessApi.FlowResult<FlowSnapshot>>
 }
