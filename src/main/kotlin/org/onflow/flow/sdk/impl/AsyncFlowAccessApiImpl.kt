@@ -22,25 +22,35 @@ class AsyncFlowAccessApiImpl(
         }
     }
 
-    override fun ping(): CompletableFuture<Unit> {
-        return completableFuture(
-            api.ping(
-                Access.PingRequest.newBuilder()
-                    .build()
-            )
-        ).thenApply {
+    override fun ping(): CompletableFuture<FlowAccessApi.FlowResult<Unit>> {
+        return try {
+            completableFuture(
+                api.ping(Access.PingRequest.newBuilder().build())
+            ).handle { _, ex ->
+                if (ex != null) {
+                    FlowAccessApi.FlowResult.Error("Failed to ping", ex)
+                } else {
+                    FlowAccessApi.FlowResult.Success(Unit)
+                }
+            }
+        } catch (e: Exception) {
+            CompletableFuture.completedFuture(FlowAccessApi.FlowResult.Error("Failed to ping", e))
         }
     }
 
-    override fun getLatestBlockHeader(sealed: Boolean): CompletableFuture<FlowBlockHeader> {
-        return completableFuture(
-            api.getLatestBlockHeader(
-                Access.GetLatestBlockHeaderRequest.newBuilder()
-                    .setIsSealed(sealed)
-                    .build()
-            )
-        ).thenApply {
-            FlowBlockHeader.of(it.block)
+    override fun getLatestBlockHeader(sealed: Boolean): CompletableFuture<FlowAccessApi.FlowResult<FlowBlockHeader>> {
+        return try {
+            completableFuture(api.getLatestBlockHeader(
+                Access.GetLatestBlockHeaderRequest.newBuilder().setIsSealed(sealed).build()
+            )).handle { response, ex ->
+                if (ex != null) {
+                    FlowAccessApi.FlowResult.Error("Failed to get latest block header", ex)
+                } else {
+                    FlowAccessApi.FlowResult.Success(FlowBlockHeader.of(response.block))
+                }
+            }
+        } catch (e: Exception) {
+            CompletableFuture.completedFuture(FlowAccessApi.FlowResult.Error("Failed to get latest block header", e))
         }
     }
 
