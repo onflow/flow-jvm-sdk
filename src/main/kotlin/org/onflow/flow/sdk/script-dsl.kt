@@ -14,12 +14,16 @@ fun FlowAccessApi.simpleFlowScript(block: ScriptBuilder.() -> Unit): FlowAccessA
     val api = this
     val builder = flowScript(block)
     return try {
-        api.executeScriptAtLatestBlock(
+        val result = api.executeScriptAtLatestBlock(
             script = builder.script,
             arguments = builder.arguments.map { UnsafeByteOperations.unsafeWrap(Flow.encodeJsonCadence(it)) }
         )
+        when (result) {
+            is FlowAccessApi.FlowResult.Success -> FlowAccessApi.FlowResult.Success(result.data)
+            is FlowAccessApi.FlowResult.Error -> FlowAccessApi.FlowResult.Error(result.message, result.throwable)
+        }
     } catch (t: Throwable) {
-        throw FlowException("Error while running script", t)
+        FlowAccessApi.FlowResult.Error("Error while running script", t)
     }
 }
 
