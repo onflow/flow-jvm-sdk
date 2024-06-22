@@ -12,6 +12,7 @@ import org.onflow.protobuf.access.Access
 import org.onflow.protobuf.access.AccessAPIGrpc
 import org.onflow.protobuf.entities.ExecutionResultOuterClass
 import org.onflow.protobuf.entities.TransactionOuterClass
+import org.onflow.protobuf.executiondata.ExecutionDataAPIGrpc
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream
 import java.math.BigDecimal
@@ -20,16 +21,19 @@ import java.time.LocalDateTime
 class FlowAccessApiImplTest {
     private lateinit var flowAccessApiImpl: FlowAccessApiImpl
     private lateinit var mockApi: AccessAPIGrpc.AccessAPIBlockingStub
+    private lateinit var mockExecutionDataApi: ExecutionDataAPIGrpc.ExecutionDataAPIBlockingStub
     private lateinit var outputStreamCaptor: ByteArrayOutputStream
     private lateinit var originalOut: PrintStream
 
     private val api = mock(AccessAPIGrpc.AccessAPIBlockingStub::class.java)
-    private val flowAccessApi = FlowAccessApiImpl(api)
+    private val executionDataApi = mock(ExecutionDataAPIGrpc.ExecutionDataAPIBlockingStub::class.java)
+    private val flowAccessApi = FlowAccessApiImpl(api, executionDataApi)
 
     @BeforeEach
     fun setUp() {
         mockApi = mock(AccessAPIGrpc.AccessAPIBlockingStub::class.java)
-        flowAccessApiImpl = FlowAccessApiImpl(mockApi)
+        mockExecutionDataApi = mock(ExecutionDataAPIGrpc.ExecutionDataAPIBlockingStub::class.java)
+        flowAccessApiImpl = FlowAccessApiImpl(mockApi, mockExecutionDataApi)
         outputStreamCaptor = ByteArrayOutputStream()
         originalOut = System.out
         System.setOut(PrintStream(outputStreamCaptor))

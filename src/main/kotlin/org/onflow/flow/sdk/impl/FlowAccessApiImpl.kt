@@ -1,14 +1,20 @@
 package org.onflow.flow.sdk.impl
 
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.ReceiveChannel
+import kotlinx.coroutines.runBlocking
 import com.google.protobuf.ByteString
 import org.onflow.flow.sdk.*
 import io.grpc.ManagedChannel
 import org.onflow.protobuf.access.Access
 import org.onflow.protobuf.access.AccessAPIGrpc
+import org.onflow.protobuf.executiondata.ExecutionDataAPIGrpc
+import org.onflow.protobuf.executiondata.Executiondata
 import java.io.Closeable
 
 class FlowAccessApiImpl(
-    private val api: AccessAPIGrpc.AccessAPIBlockingStub
+    private val api: AccessAPIGrpc.AccessAPIBlockingStub,
+    private val executionDataApi: ExecutionDataAPIGrpc.ExecutionDataAPIBlockingStub
 ) : FlowAccessApi, Closeable {
     override fun close() {
         val chan = api.channel
@@ -279,5 +285,115 @@ class FlowAccessApiImpl(
                 .build()
         )
         return FlowSnapshot(ret.serializedSnapshot.toByteArray())
+    }
+
+    override fun subscribeExecutionDataByBlockId(
+        blockId: FlowId
+    ): Pair<ReceiveChannel<Executiondata.SubscribeExecutionDataResponse>, ReceiveChannel<Throwable>> {
+        val responseChannel = Channel<Executiondata.SubscribeExecutionDataResponse>(Channel.UNLIMITED)
+        val errorChannel = Channel<Throwable>(Channel.UNLIMITED)
+
+        runBlocking {
+            try {
+                val request = Executiondata.SubscribeExecutionDataFromStartBlockIDRequest.newBuilder()
+                    .setStartBlockId(blockId.byteStringValue)
+                    .build()
+
+                val responseIterator = executionDataApi.subscribeExecutionDataFromStartBlockID(request)
+
+                for (response in responseIterator) {
+                    responseChannel.send(response)
+                    // to-do: cast to custom response class
+                }
+            } catch (e: Exception) {
+                errorChannel.send(e)
+            } finally {
+                responseChannel.close()
+                errorChannel.close()
+            }
+        }
+        return responseChannel to errorChannel
+    }
+
+    override fun subscribeExecutionDataByBlockHeight(
+        height: Long
+    ): Pair<ReceiveChannel<Executiondata.SubscribeExecutionDataResponse>, ReceiveChannel<Throwable>> {
+        val responseChannel = Channel<Executiondata.SubscribeExecutionDataResponse>(Channel.UNLIMITED)
+        val errorChannel = Channel<Throwable>(Channel.UNLIMITED)
+
+        runBlocking {
+            try {
+                val request = Executiondata.SubscribeExecutionDataFromStartBlockHeightRequest.newBuilder()
+                    .setStartBlockHeight(height)
+                    .build()
+
+                val responseIterator = executionDataApi.subscribeExecutionDataFromStartBlockHeight(request)
+
+                for (response in responseIterator) {
+                    responseChannel.send(response)
+                    // to-do: cast to custom response class
+                }
+            } catch (e: Exception) {
+                errorChannel.send(e)
+            } finally {
+                responseChannel.close()
+                errorChannel.close()
+            }
+        }
+        return responseChannel to errorChannel
+    }
+
+    override fun subscribeEventsByBlockId(
+        blockId: FlowId
+    ): Pair<ReceiveChannel<List<FlowEvent>>, ReceiveChannel<Throwable>> {
+        val responseChannel = Channel<List<FlowEvent>>(Channel.UNLIMITED)
+        val errorChannel = Channel<Throwable>(Channel.UNLIMITED)
+
+        runBlocking {
+            try {
+                val request = Executiondata.SubscribeEventsFromStartBlockIDRequest.newBuilder()
+                    .setStartBlockId(blockId.byteStringValue)
+                    .build()
+
+                val responseIterator = executionDataApi.subscribeEventsFromStartBlockID(request)
+
+                for (response in responseIterator) {
+                    responseChannel.send(response.eventsList.map { FlowEvent.of(it) })
+                }
+            } catch (e: Exception) {
+                errorChannel.send(e)
+            } finally {
+                responseChannel.close()
+                errorChannel.close()
+            }
+        }
+        return responseChannel to errorChannel
+    }
+
+    override fun subscribeEventsByBlockHeight(
+        height: Long
+    ): Pair<ReceiveChannel<List<FlowEvent>>, ReceiveChannel<Throwable>> {
+        val responseChannel = Channel<List<FlowEvent>>(Channel.UNLIMITED)
+        val errorChannel = Channel<Throwable>(Channel.UNLIMITED)
+
+        runBlocking {
+            try {
+                val request = Executiondata.SubscribeEventsFromStartHeightRequest.newBuilder()
+                    .setStartBlockHeight(height)
+                    .build()
+
+                val responseIterator = executionDataApi.subscribeEventsFromStartHeight(request)
+
+                for (response in responseIterator) {
+                    responseChannel.send(response.eventsList.map { FlowEvent.of(it) })
+                }
+            } catch (e: Exception) {
+                errorChannel.send(e)
+            } finally {
+                responseChannel.close()
+                errorChannel.close()
+            }
+        }
+        return responseChannel to errorChannel
     }
 }
