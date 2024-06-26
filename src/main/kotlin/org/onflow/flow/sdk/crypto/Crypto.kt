@@ -175,7 +175,7 @@ internal class HasherImpl(
                 val kmac = KMAC(128, ByteArray(0))
                 kmac.init(KeyParameter(key))
                 val output = ByteArray(kmac.digestSize)
-                kmac.update(bytes, 0, bytes.size)
+                kmac.update(bytes)
                 kmac.doFinal(output, 0)
                 output
             }
