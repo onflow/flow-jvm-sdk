@@ -162,7 +162,7 @@ internal class HasherImpl(
     private val hashAlgo: HashAlgorithm,
     private val key: ByteArray? = null,
     private val customizer: ByteArray? = null,
-    private val outputSize: Int? = 0
+    private val outputSize: Int? = null
 ) : Hasher {
     override fun hash(bytes: ByteArray): ByteArray {
         return when (hashAlgo) {
