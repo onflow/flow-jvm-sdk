@@ -160,7 +160,9 @@ object Crypto {
 
 internal class HasherImpl(
     private val hashAlgo: HashAlgorithm,
-    private val key: ByteArray? = null
+    private val key: ByteArray? = null,
+    private val customizer: ByteArray? = null,
+    private val outputSize: Int? = 0
 ) : Hasher {
     override fun hash(bytes: ByteArray): ByteArray {
         return when (hashAlgo) {
@@ -172,11 +174,11 @@ internal class HasherImpl(
                 if (key == null) {
                     throw IllegalArgumentException("KMAC128 requires a key")
                 }
-                val kmac = KMAC(128, ByteArray(0))
+                val kmac = KMAC(128, customizer)
                 kmac.init(KeyParameter(key))
-                val output = ByteArray(kmac.digestSize)
-                kmac.update(bytes)
-                kmac.doFinal(output, 0, outputSize)
+                val output = ByteArray(outputSize ?: kmac.digestSize)
+                kmac.update(bytes, 0, output.size)
+                kmac.doFinal(output, 0, output.size)
                 output
             }
             else -> {
