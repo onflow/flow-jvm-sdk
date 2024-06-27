@@ -171,8 +171,8 @@ internal class HasherImpl(
                 keccakDigest.digest(bytes)
             }
             HashAlgorithm.KMAC128 -> {
-                if (key == null) {
-                    throw IllegalArgumentException("KMAC128 requires a key")
+                if (key == null || key.size < 16) {
+                    throw IllegalArgumentException("KMAC128 requires a key of at least 16 bytes")
                 }
                 if (outputSize != null && outputSize <= 0) {
                     throw IllegalArgumentException("Output size must be positive")
@@ -180,8 +180,21 @@ internal class HasherImpl(
                 val kmac = KMAC(128, customizer)
                 kmac.init(KeyParameter(key))
                 val output = ByteArray(outputSize ?: kmac.digestSize)
+
+                // Debug statements for intermediate values
+                println("KMAC128 Key: ${key.toList()}")
+                println("KMAC128 Customizer: ${customizer?.toList()}")
+                println("KMAC128 Output Size: $outputSize")
+
                 kmac.update(bytes, 0, bytes.size)
-                kmac.doFinal(output, 0, output.size)
+
+                // Debug statement for intermediate state after update
+                println("KMAC128 Intermediate State: ${kmac.digestSize}")
+
+                kmac.doFinal(output, 0)
+
+                // Debug statement for final output
+                println("KMAC128 Final Output: ${output.toList()}")
                 output
             }
             else -> {
