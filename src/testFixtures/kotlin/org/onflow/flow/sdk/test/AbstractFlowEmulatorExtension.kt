@@ -233,8 +233,8 @@ abstract class AbstractFlowEmulatorExtension : BeforeEachCallback, AfterEachCall
             )
 
             val address = when (createAccountResult) {
-                is FlowAccessApi.FlowResult.Success -> createAccountResult.data
-                is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to create account: ${createAccountResult.message}", createAccountResult.throwable)
+                is FlowAccessApi.AccessApiCallResponse.Success -> createAccountResult.data
+                is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to create account: ${createAccountResult.message}", createAccountResult.throwable)
             }
 
             val testAccount = TestAccount(
@@ -270,10 +270,10 @@ abstract class AbstractFlowEmulatorExtension : BeforeEachCallback, AfterEachCall
                 ).sendAndWaitForSeal()
 
                 when (deployResult) {
-                    is FlowAccessApi.FlowResult.Success -> {
+                    is FlowAccessApi.AccessApiCallResponse.Success -> {
                         // Contract deployment successful
                     }
-                    is FlowAccessApi.FlowResult.Error -> {
+                    is FlowAccessApi.AccessApiCallResponse.Error -> {
                         throw IllegalStateException("Failed to deploy contract: ${deployResult.message}", deployResult.throwable)
                     }
                 }

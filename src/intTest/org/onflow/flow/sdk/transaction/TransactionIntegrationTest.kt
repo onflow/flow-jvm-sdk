@@ -9,26 +9,23 @@ import org.junit.jupiter.api.Test
 class TransactionIntegrationTest {
     @Test
     fun wut() {
-        val account = when (val result = IntegrationTestUtils.newTestnetAccessApi().getAccountAtLatestBlock(FlowAddress("0x6bd3869f2631beb3"))) {
-            is FlowAccessApi.FlowResult.Success -> result.data
-            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to get account: ${result.message}", result.throwable)
-        }
+        val account = IntegrationTestUtils.handleResult(
+            IntegrationTestUtils.newTestnetAccessApi().getAccountAtLatestBlock(FlowAddress("0x6bd3869f2631beb3")),
+            "Failed to get account"
+        )
         assertThat(account.keys).isNotEmpty()
     }
 
     @Test
     fun `Can connect to mainnet`() {
         val accessAPI = IntegrationTestUtils.newMainnetAccessApi()
-        when (val pingResult = accessAPI.ping()) {
-            is FlowAccessApi.FlowResult.Success -> Unit
-            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to ping: ${pingResult.message}", pingResult.throwable)
-        }
+        IntegrationTestUtils.handleResult(accessAPI.ping(), "Failed to ping")
 
         val address = FlowAddress("e467b9dd11fa00df")
-        val account = when (val accountResult = accessAPI.getAccountAtLatestBlock(address)) {
-            is FlowAccessApi.FlowResult.Success -> accountResult.data
-            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to get account: ${accountResult.message}", accountResult.throwable)
-        }
+        val account = IntegrationTestUtils.handleResult(
+            accessAPI.getAccountAtLatestBlock(address),
+            "Failed to get account"
+        )
 
         assertThat(account).isNotNull
         println(account)
@@ -38,10 +35,10 @@ class TransactionIntegrationTest {
     @Test
     fun `Can get network parameters`() {
         val accessAPI = IntegrationTestUtils.newMainnetAccessApi()
-        val networkParams = when (val networkParamsResult = accessAPI.getNetworkParameters()) {
-            is FlowAccessApi.FlowResult.Success -> networkParamsResult.data
-            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to get network parameters: ${networkParamsResult.message}", networkParamsResult.throwable)
-        }
+        val networkParams = IntegrationTestUtils.handleResult(
+            accessAPI.getNetworkParameters(),
+            "Failed to get network parameters"
+        )
 
         assertThat(networkParams).isEqualTo(FlowChainId.MAINNET)
     }
@@ -49,10 +46,10 @@ class TransactionIntegrationTest {
     @Test
     fun `Can get latest protocol state snapshot`() {
         val accessAPI = IntegrationTestUtils.newMainnetAccessApi()
-        val snapshot = when (val snapshotResult = accessAPI.getLatestProtocolStateSnapshot()) {
-            is FlowAccessApi.FlowResult.Success -> snapshotResult.data
-            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to get latest protocol state snapshot: ${snapshotResult.message}", snapshotResult.throwable)
-        }
+        val snapshot = IntegrationTestUtils.handleResult(
+            accessAPI.getLatestProtocolStateSnapshot(),
+            "Failed to get latest protocol state snapshot"
+        )
 
         assertThat(snapshot).isNotNull
     }
@@ -62,17 +59,17 @@ class TransactionIntegrationTest {
         val accessApi = IntegrationTestUtils.newMainnetAccessApi()
 
         // https://flowscan.org/transaction/8c2e9d37a063240f236aa181e1454eb62991b42302534d4d6dd3839c2df0ef14
-        val tx = when (val txResult = accessApi.getTransactionById(FlowId("8c2e9d37a063240f236aa181e1454eb62991b42302534d4d6dd3839c2df0ef14"))) {
-            is FlowAccessApi.FlowResult.Success -> txResult.data
-            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to get transaction: ${txResult.message}", txResult.throwable)
-        }
+        val tx = IntegrationTestUtils.handleResult(
+            accessApi.getTransactionById(FlowId("8c2e9d37a063240f236aa181e1454eb62991b42302534d4d6dd3839c2df0ef14")),
+            "Failed to get transaction"
+        )
 
         assertThat(tx).isNotNull
 
-        val results = when (val resultsResult = accessApi.getTransactionResultById(FlowId("8c2e9d37a063240f236aa181e1454eb62991b42302534d4d6dd3839c2df0ef14"))) {
-            is FlowAccessApi.FlowResult.Success -> resultsResult.data
-            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to get transaction results: ${resultsResult.message}", resultsResult.throwable)
-        }
+        val results = IntegrationTestUtils.handleResult(
+            accessApi.getTransactionResultById(FlowId("8c2e9d37a063240f236aa181e1454eb62991b42302534d4d6dd3839c2df0ef14")),
+            "Failed to get transaction results"
+        )
 
         assertThat(results.events).hasSize(12)
         assertThat(results.events[0].event.id).isEqualTo("A.0b2a3299cc857e29.TopShot.Withdraw")
@@ -95,16 +92,17 @@ class TransactionIntegrationTest {
     fun `Can get block header by id`() {
         val accessAPI = IntegrationTestUtils.newMainnetAccessApi()
 
-        val latestBlock = when (val latestBlockResult = accessAPI.getLatestBlock(true)) {
-            is FlowAccessApi.FlowResult.Success -> latestBlockResult.data
-            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to get latest block: ${latestBlockResult.message}", latestBlockResult.throwable)
-        }
+        val latestBlock = IntegrationTestUtils.handleResult(
+            accessAPI.getLatestBlock(true),
+            "Failed to get latest block"
+        )
 
         assertThat(latestBlock).isNotNull
-        val blockHeaderById = when (val blockHeaderByIdResult = accessAPI.getBlockHeaderById(latestBlock.id)) {
-            is FlowAccessApi.FlowResult.Success -> blockHeaderByIdResult.data
-            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to get block header by ID: ${blockHeaderByIdResult.message}", blockHeaderByIdResult.throwable)
-        }
+
+        val blockHeaderById = IntegrationTestUtils.handleResult(
+            accessAPI.getBlockHeaderById(latestBlock.id),
+            "Failed to get block header by ID"
+        )
 
         assertThat(blockHeaderById).isNotNull
     }
@@ -113,16 +111,17 @@ class TransactionIntegrationTest {
     fun `Can get block header by height`() {
         val accessAPI = IntegrationTestUtils.newMainnetAccessApi()
 
-        val latestBlock = when (val latestBlockResult = accessAPI.getLatestBlock(true)) {
-            is FlowAccessApi.FlowResult.Success -> latestBlockResult.data
-            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to get latest block: ${latestBlockResult.message}", latestBlockResult.throwable)
-        }
+        val latestBlock = IntegrationTestUtils.handleResult(
+            accessAPI.getLatestBlock(true),
+            "Failed to get latest block"
+        )
 
         assertThat(latestBlock).isNotNull
-        val blockHeader = when (val blockHeaderResult = accessAPI.getBlockHeaderByHeight(latestBlock.height)) {
-            is FlowAccessApi.FlowResult.Success -> blockHeaderResult.data
-            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to get block header by height: ${blockHeaderResult.message}", blockHeaderResult.throwable)
-        }
+
+        val blockHeader = IntegrationTestUtils.handleResult(
+            accessAPI.getBlockHeaderByHeight(latestBlock.height),
+            "Failed to get block header by height"
+        )
 
         assertThat(blockHeader).isNotNull
         assertThat(blockHeader.height).isEqualTo(latestBlock.height)
@@ -132,10 +131,10 @@ class TransactionIntegrationTest {
     fun `Can get latest block`() {
         val accessAPI = IntegrationTestUtils.newMainnetAccessApi()
 
-        val latestBlock = when (val latestBlockResult = accessAPI.getLatestBlock(true)) {
-            is FlowAccessApi.FlowResult.Success -> latestBlockResult.data
-            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to get latest block: ${latestBlockResult.message}", latestBlockResult.throwable)
-        }
+        val latestBlock = IntegrationTestUtils.handleResult(
+            accessAPI.getLatestBlock(true),
+            "Failed to get latest block"
+        )
 
         assertThat(latestBlock).isNotNull
     }
@@ -144,17 +143,17 @@ class TransactionIntegrationTest {
     fun `Can get block by id`() {
         val accessAPI = IntegrationTestUtils.newMainnetAccessApi()
 
-        val latestBlock = when (val latestBlockResult = accessAPI.getLatestBlock(true)) {
-            is FlowAccessApi.FlowResult.Success -> latestBlockResult.data
-            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to get latest block: ${latestBlockResult.message}", latestBlockResult.throwable)
-        }
+        val latestBlock = IntegrationTestUtils.handleResult(
+            accessAPI.getLatestBlock(true),
+            "Failed to get latest block"
+        )
 
         assertThat(latestBlock).isNotNull
 
-        val blockById = when (val blockByIdResult = accessAPI.getBlockById(latestBlock.id)) {
-            is FlowAccessApi.FlowResult.Success -> blockByIdResult.data
-            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to get block by ID: ${blockByIdResult.message}", blockByIdResult.throwable)
-        }
+        val blockById = IntegrationTestUtils.handleResult(
+            accessAPI.getBlockById(latestBlock.id),
+            "Failed to get block by ID"
+        )
 
         assertThat(blockById).isNotNull
         assertThat(blockById.id).isEqualTo(latestBlock.id)
@@ -164,17 +163,17 @@ class TransactionIntegrationTest {
     fun `Can get block by height`() {
         val accessAPI = IntegrationTestUtils.newMainnetAccessApi()
 
-        val latestBlock = when (val latestBlockResult = accessAPI.getLatestBlock(true)) {
-            is FlowAccessApi.FlowResult.Success -> latestBlockResult.data
-            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to get latest block: ${latestBlockResult.message}", latestBlockResult.throwable)
-        }
+        val latestBlock = IntegrationTestUtils.handleResult(
+            accessAPI.getLatestBlock(true),
+            "Failed to get latest block"
+        )
 
         assertThat(latestBlock).isNotNull
 
-        val blockByHeight = when (val blockByHeightResult = accessAPI.getBlockByHeight(latestBlock.height)) {
-            is FlowAccessApi.FlowResult.Success -> blockByHeightResult.data
-            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to get block by height: ${blockByHeightResult.message}", blockByHeightResult.throwable)
-        }
+        val blockByHeight = IntegrationTestUtils.handleResult(
+            accessAPI.getBlockByHeight(latestBlock.height),
+            "Failed to get block by height"
+        )
 
         assertThat(blockByHeight).isNotNull
         assertThat(blockByHeight.height).isEqualTo(latestBlock.height)
@@ -185,10 +184,10 @@ class TransactionIntegrationTest {
         val accessAPI = IntegrationTestUtils.newMainnetAccessApi()
 
         val address = FlowAddress("18eb4ee6b3c026d2")
-        val account = when (val accountResult = accessAPI.getAccountByAddress(address)) {
-            is FlowAccessApi.FlowResult.Success -> accountResult.data
-            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to get account by address: ${accountResult.message}", accountResult.throwable)
-        }
+        val account = IntegrationTestUtils.handleResult(
+            accessAPI.getAccountByAddress(address),
+            "Failed to get account by address"
+        )
 
         assertThat(account).isNotNull
         assertThat(account.address).isEqualTo(address)
@@ -199,10 +198,10 @@ class TransactionIntegrationTest {
         val accessAPI = IntegrationTestUtils.newMainnetAccessApi()
 
         val address = FlowAddress("18eb4ee6b3c026d2")
-        val account = when (val accountResult = accessAPI.getAccountAtLatestBlock(address)) {
-            is FlowAccessApi.FlowResult.Success -> accountResult.data
-            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to get account at latest block: ${accountResult.message}", accountResult.throwable)
-        }
+        val account = IntegrationTestUtils.handleResult(
+            accessAPI.getAccountAtLatestBlock(address),
+            "Failed to get account at latest block"
+        )
 
         assertThat(account).isNotNull
         assertThat(account.address).isEqualTo(address)
@@ -212,22 +211,22 @@ class TransactionIntegrationTest {
     fun `Can get account by block height`() {
         val accessAPI = IntegrationTestUtils.newMainnetAccessApi()
 
-        val latestBlock = when (val latestBlockResult = accessAPI.getLatestBlock(true)) {
-            is FlowAccessApi.FlowResult.Success -> latestBlockResult.data
-            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to get latest block: ${latestBlockResult.message}", latestBlockResult.throwable)
-        }
+        val latestBlock = IntegrationTestUtils.handleResult(
+            accessAPI.getLatestBlock(true),
+            "Failed to get latest block"
+        )
 
-        val blockHeader = when (val blockHeaderResult = accessAPI.getBlockHeaderByHeight(latestBlock.height)) {
-            is FlowAccessApi.FlowResult.Success -> blockHeaderResult.data
-            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to get block header by height: ${blockHeaderResult.message}", blockHeaderResult.throwable)
-        }
+        val blockHeader = IntegrationTestUtils.handleResult(
+            accessAPI.getBlockHeaderByHeight(latestBlock.height),
+            "Failed to get block header by height"
+        )
 
         val address = FlowAddress("18eb4ee6b3c026d2")
-        val accountResult = blockHeader.let { accessAPI.getAccountByBlockHeight(address, it.height) }
-        val account = when (accountResult) {
-            is FlowAccessApi.FlowResult.Success -> accountResult.data
-            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to get account by block height: ${accountResult.message}", accountResult.throwable)
-        }
+        val accountResult = accessAPI.getAccountByBlockHeight(address, blockHeader.height)
+        val account = IntegrationTestUtils.handleResult(
+            accountResult,
+            "Failed to get account by block height"
+        )
 
         assertThat(account).isNotNull
         assertThat(account.address).isEqualTo(address)

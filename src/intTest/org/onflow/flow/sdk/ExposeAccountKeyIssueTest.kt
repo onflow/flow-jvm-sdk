@@ -1,6 +1,5 @@
 package org.onflow.flow.sdk
 
-import org.onflow.flow.sdk.cadence.AddressField
 import org.onflow.flow.sdk.crypto.Crypto
 import org.onflow.flow.sdk.test.FlowEmulatorTest
 import org.onflow.flow.sdk.test.FlowServiceAccountCredentials
@@ -34,8 +33,7 @@ class ExposeAccountKeyIssueTest {
             addressRegistry = addressRegistry
         )
 
-        // create the account
-
+        // Create the account
         val pair1 = Crypto.generateKeyPair(signatureAlgorithm1)
         val signer1 = Crypto.getSigner(pair1.private, hashAlgorithm1)
 
@@ -84,29 +82,16 @@ class ExposeAccountKeyIssueTest {
             }
         }.sendAndWaitForSeal()
 
-        val createAccountResultData = when (createAccountResult) {
-            is FlowAccessApi.FlowResult.Success -> createAccountResult.data
-            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to create account: ${createAccountResult.message}", createAccountResult.throwable)
-        }
+        val createAccountResultData = IntegrationTestUtils.handleResult(createAccountResult, "Failed to create account")
+        val newAccountAddress = IntegrationTestUtils.getAccountAddressFromResult(createAccountResultData)
 
-        val newAccountAddress = createAccountResultData.getEventsOfType("flow.AccountCreated", expectedCount = 1)
-            .first()
-            .get<AddressField>("address")
-            ?.value
-            ?.let { FlowAddress(it) }
-            ?: throw IllegalStateException("AccountCreated event not found")
-
-        val account = when (val accountResult = flow.getAccountAtLatestBlock(newAccountAddress)) {
-            is FlowAccessApi.FlowResult.Success -> accountResult.data
-            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to get account at latest block: ${accountResult.message}", accountResult.throwable)
-        }
+        val account = IntegrationTestUtils.getAccount(flow, newAccountAddress)
 
         assertEquals(1, account.keys.size)
         assertEquals(pair1.public.hex, account.keys[0].publicKey.base16Value)
         assertFalse(account.keys[0].revoked)
 
-        // add second pair
-
+        // Add second pair
         val signatureAlgorithm2 = SignatureAlgorithm.ECDSA_P256
         val hashAlgorithm2 = HashAlgorithm.SHA3_256
         val pair2 = Crypto.generateKeyPair(signatureAlgorithm2)
@@ -137,15 +122,9 @@ class ExposeAccountKeyIssueTest {
             }
         }.sendAndWaitForSeal()
 
-        val addKeyEvent = when (addKeyResult) {
-            is FlowAccessApi.FlowResult.Success -> addKeyResult.data
-            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to add key: ${addKeyResult.message}", addKeyResult.throwable)
-        }
+        IntegrationTestUtils.handleResult(addKeyResult, "Failed to add key")
 
-        val updatedAccount = when (val updatedAccountResult = flow.getAccountAtLatestBlock(newAccountAddress)) {
-            is FlowAccessApi.FlowResult.Success -> updatedAccountResult.data
-            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to get updated account at latest block: ${updatedAccountResult.message}", updatedAccountResult.throwable)
-        }
+        val updatedAccount = IntegrationTestUtils.getAccount(flow, newAccountAddress)
 
         assertEquals(2, updatedAccount.keys.size)
         assertEquals(pair1.public.hex, updatedAccount.keys[0].publicKey.base16Value)
@@ -153,8 +132,7 @@ class ExposeAccountKeyIssueTest {
         assertFalse(updatedAccount.keys[0].revoked)
         assertFalse(updatedAccount.keys[1].revoked)
 
-        // remove the second key
-
+        // Remove the second key
         val removeKeyResult = flow.simpleFlowTransaction(newAccountAddress, signer1) {
             script {
                 """
@@ -170,15 +148,9 @@ class ExposeAccountKeyIssueTest {
             }
         }.sendAndWaitForSeal()
 
-        val removeKeyEvent = when (removeKeyResult) {
-            is FlowAccessApi.FlowResult.Success -> removeKeyResult.data
-            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to remove key: ${removeKeyResult.message}", removeKeyResult.throwable)
-        }
+        IntegrationTestUtils.handleResult(removeKeyResult, "Failed to remove key")
 
-        val finalAccount = when (val finalAccountResult = flow.getAccountAtLatestBlock(newAccountAddress)) {
-            is FlowAccessApi.FlowResult.Success -> finalAccountResult.data
-            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to get final account at latest block: ${finalAccountResult.message}", finalAccountResult.throwable)
-        }
+        val finalAccount = IntegrationTestUtils.getAccount(flow, newAccountAddress)
 
         assertEquals(2, finalAccount.keys.size)
         assertEquals(pair1.public.hex, finalAccount.keys[0].publicKey.base16Value)

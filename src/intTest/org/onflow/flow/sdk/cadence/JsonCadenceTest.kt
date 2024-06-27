@@ -43,8 +43,8 @@ class JsonCadenceTest {
     fun `Can parse new JSON Cadence`() {
         val flow = IntegrationTestUtils.newMainnetAccessApi()
         val tx = when (val transactionResult = flow.getTransactionResultById(FlowId("273f68ffe175a0097db60bc7cf5e92c5a775d189af3f5636f5432c1206be771a"))) {
-            is FlowAccessApi.FlowResult.Success -> transactionResult.data
-            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to get transaction result: ${transactionResult.message}", transactionResult.throwable)
+            is FlowAccessApi.AccessApiCallResponse.Success -> transactionResult.data
+            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to get transaction result: ${transactionResult.message}", transactionResult.throwable)
         }
 
         val events = tx.events.map { it.payload.jsonCadence }
@@ -64,8 +64,8 @@ class JsonCadenceTest {
         }
 
         val data = when (result) {
-            is FlowAccessApi.FlowResult.Success -> result.data.jsonCadence.decode<Boolean?>()
-            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to execute script: ${result.message}", result.throwable)
+            is FlowAccessApi.AccessApiCallResponse.Success -> result.data.jsonCadence.decode<Boolean?>()
+            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to execute script: ${result.message}", result.throwable)
         }
 
         assertThat(data).isEqualTo(null)
@@ -84,8 +84,8 @@ class JsonCadenceTest {
         }
 
         val data = when (result) {
-            is FlowAccessApi.FlowResult.Success -> result.data.jsonCadence.decode<Boolean?>()
-            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to execute script: ${result.message}", result.throwable)
+            is FlowAccessApi.AccessApiCallResponse.Success -> result.data.jsonCadence.decode<Boolean?>()
+            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to execute script: ${result.message}", result.throwable)
         }
 
         assertThat(data).isEqualTo(true)
@@ -103,8 +103,8 @@ class JsonCadenceTest {
             }
         }
         val data = when (result) {
-            is FlowAccessApi.FlowResult.Success -> result.data.jsonCadence.decode<Boolean?>()
-            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to execute script: ${result.message}", result.throwable)
+            is FlowAccessApi.AccessApiCallResponse.Success -> result.data.jsonCadence.decode<Boolean?>()
+            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to execute script: ${result.message}", result.throwable)
         }
 
         assertThat(data).isEqualTo(true)
@@ -123,8 +123,8 @@ class JsonCadenceTest {
         }
 
         val data = when (result) {
-            is FlowAccessApi.FlowResult.Success -> result.data.jsonCadence.decode<List<ULong>>()
-            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to execute script: ${result.message}", result.throwable)
+            is FlowAccessApi.AccessApiCallResponse.Success -> result.data.jsonCadence.decode<List<ULong>>()
+            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to execute script: ${result.message}", result.throwable)
         }
 
         assertThat(data.first()).isEqualTo(1UL)
@@ -144,8 +144,8 @@ class JsonCadenceTest {
         }
 
         val data = when (result) {
-            is FlowAccessApi.FlowResult.Success -> result.data.jsonCadence.decode<Double>()
-            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to execute script: ${result.message}", result.throwable)
+            is FlowAccessApi.AccessApiCallResponse.Success -> result.data.jsonCadence.decode<Double>()
+            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to execute script: ${result.message}", result.throwable)
         }
 
         assertThat(data).isEqualTo(0.789111)
@@ -181,8 +181,8 @@ class JsonCadenceTest {
         }
 
         val data = when (result) {
-            is FlowAccessApi.FlowResult.Success -> result.data.jsonCadence.decode<List<StorageInfo>>().first()
-            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to execute script: ${result.message}", result.throwable)
+            is FlowAccessApi.AccessApiCallResponse.Success -> result.data.jsonCadence.decode<List<StorageInfo>>().first()
+            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to execute script: ${result.message}", result.throwable)
         }
 
         assertThat(data.capacity).isEqualTo(1)
@@ -233,8 +233,8 @@ class JsonCadenceTest {
         }
 
         val data = when (result) {
-            is FlowAccessApi.FlowResult.Success -> result.data.jsonCadence.decode<Map<String, List<StorageInfoComplex>>>()
-            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to execute script: ${result.message}", result.throwable)
+            is FlowAccessApi.AccessApiCallResponse.Success -> result.data.jsonCadence.decode<Map<String, List<StorageInfoComplex>>>()
+            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to execute script: ${result.message}", result.throwable)
         }
 
         assertThat(data["test"]!!.first().foo.bar).isEqualTo(1)
@@ -262,8 +262,8 @@ class JsonCadenceTest {
         }
 
         val decodedResource = when (result) {
-            is FlowAccessApi.FlowResult.Success -> result.data.jsonCadence.decode<SomeResource>()
-            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to execute script: ${result.message}", result.throwable)
+            is FlowAccessApi.AccessApiCallResponse.Success -> result.data.jsonCadence.decode<SomeResource>()
+            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to execute script: ${result.message}", result.throwable)
         }
 
         assertThat(decodedResource).isNotNull()
@@ -289,8 +289,8 @@ class JsonCadenceTest {
         }
 
         val decodedEnum = when (result) {
-            is FlowAccessApi.FlowResult.Success -> result.data.jsonCadence.decode<SomeEnum>()
-            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to execute script: ${result.message}", result.throwable)
+            is FlowAccessApi.AccessApiCallResponse.Success -> result.data.jsonCadence.decode<SomeEnum>()
+            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to execute script: ${result.message}", result.throwable)
         }
 
         assertThat(decodedEnum).isNotNull()
@@ -313,8 +313,8 @@ class JsonCadenceTest {
         }
 
         val decodedReference = when (result) {
-            is FlowAccessApi.FlowResult.Success -> result.data.jsonCadence.decodeToAny()
-            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to execute script: ${result.message}", result.throwable)
+            is FlowAccessApi.AccessApiCallResponse.Success -> result.data.jsonCadence.decodeToAny()
+            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to execute script: ${result.message}", result.throwable)
         }
 
         assertThat(decodedReference).isNotNull()

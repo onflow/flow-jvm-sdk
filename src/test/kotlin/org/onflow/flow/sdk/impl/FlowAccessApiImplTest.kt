@@ -55,8 +55,8 @@ class FlowAccessApiImplTest {
         `when`(api.getLatestBlockHeader(any())).thenReturn(blockHeaderProto)
 
         when (val result = flowAccessApi.getLatestBlockHeader(sealed = true)) {
-            is FlowAccessApi.FlowResult.Success -> assertEquals(mockBlockHeader, result.data)
-            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to get latest block header: ${result.message}", result.throwable)
+            is FlowAccessApi.AccessApiCallResponse.Success -> assertEquals(mockBlockHeader, result.data)
+            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to get latest block header: ${result.message}", result.throwable)
         }
     }
 
@@ -70,8 +70,8 @@ class FlowAccessApiImplTest {
         `when`(api.getBlockHeaderByID(any())).thenReturn(blockHeaderProto)
 
         when (val result = flowAccessApi.getBlockHeaderById(blockId)) {
-            is FlowAccessApi.FlowResult.Success -> assertEquals(mockBlockHeader, result.data)
-            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to get block header by ID: ${result.message}", result.throwable)
+            is FlowAccessApi.AccessApiCallResponse.Success -> assertEquals(mockBlockHeader, result.data)
+            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to get block header by ID: ${result.message}", result.throwable)
         }
     }
 
@@ -85,8 +85,8 @@ class FlowAccessApiImplTest {
         `when`(api.getBlockHeaderByHeight(any())).thenReturn(blockHeaderProto)
 
         when (val result = flowAccessApi.getBlockHeaderByHeight(height)) {
-            is FlowAccessApi.FlowResult.Success -> assertEquals(mockBlockHeader, result.data)
-            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to get block header by height: ${result.message}", result.throwable)
+            is FlowAccessApi.AccessApiCallResponse.Success -> assertEquals(mockBlockHeader, result.data)
+            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to get block header by height: ${result.message}", result.throwable)
         }
     }
 
@@ -99,8 +99,8 @@ class FlowAccessApiImplTest {
         `when`(api.getLatestBlock(any())).thenReturn(blockProto)
 
         when (val result = flowAccessApi.getLatestBlock(sealed = true)) {
-            is FlowAccessApi.FlowResult.Success -> assertEquals(mockBlock, result.data)
-            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to get latest block: ${result.message}", result.throwable)
+            is FlowAccessApi.AccessApiCallResponse.Success -> assertEquals(mockBlock, result.data)
+            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to get latest block: ${result.message}", result.throwable)
         }
     }
 
@@ -114,8 +114,8 @@ class FlowAccessApiImplTest {
         `when`(api.getBlockByID(any())).thenReturn(blockProto)
 
         when (val result = flowAccessApi.getBlockById(blockId)) {
-            is FlowAccessApi.FlowResult.Success -> assertEquals(mockBlock, result.data)
-            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to get block by ID: ${result.message}", result.throwable)
+            is FlowAccessApi.AccessApiCallResponse.Success -> assertEquals(mockBlock, result.data)
+            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to get block by ID: ${result.message}", result.throwable)
         }
     }
 
@@ -129,8 +129,8 @@ class FlowAccessApiImplTest {
         `when`(api.getBlockByHeight(any())).thenReturn(blockProto)
 
         when (val result = flowAccessApi.getBlockByHeight(height)) {
-            is FlowAccessApi.FlowResult.Success -> assertEquals(mockBlock, result.data)
-            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to get block by height: ${result.message}", result.throwable)
+            is FlowAccessApi.AccessApiCallResponse.Success -> assertEquals(mockBlock, result.data)
+            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to get block by height: ${result.message}", result.throwable)
         }
     }
 
@@ -144,8 +144,8 @@ class FlowAccessApiImplTest {
         `when`(api.getCollectionByID(any())).thenReturn(collectionProto)
 
         when (val result = flowAccessApi.getCollectionById(collectionId)) {
-            is FlowAccessApi.FlowResult.Success -> assertEquals(mockCollection, result.data)
-            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to get collection by ID: ${result.message}", result.throwable)
+            is FlowAccessApi.AccessApiCallResponse.Success -> assertEquals(mockCollection, result.data)
+            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to get collection by ID: ${result.message}", result.throwable)
         }
     }
 
@@ -168,8 +168,8 @@ class FlowAccessApiImplTest {
         `when`(api.sendTransaction(any())).thenReturn(transactionProto)
 
         when (val result = flowAccessApi.sendTransaction(mockTransaction)) {
-            is FlowAccessApi.FlowResult.Success -> assertEquals(FlowId.of("01".toByteArray()), result.data)
-            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to send transaction: ${result.message}", result.throwable)
+            is FlowAccessApi.AccessApiCallResponse.Success -> assertEquals(FlowId.of("01".toByteArray()), result.data)
+            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to send transaction: ${result.message}", result.throwable)
         }
     }
 
@@ -193,8 +193,8 @@ class FlowAccessApiImplTest {
         `when`(api.getTransaction(any())).thenReturn(transactionProto)
 
         when (val result = flowAccessApi.getTransactionById(flowId)) {
-            is FlowAccessApi.FlowResult.Success -> assertEquals(flowTransaction, result.data)
-            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to get transaction by ID: ${result.message}", result.throwable)
+            is FlowAccessApi.AccessApiCallResponse.Success -> assertEquals(flowTransaction, result.data)
+            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to get transaction by ID: ${result.message}", result.throwable)
         }
     }
 
@@ -213,8 +213,8 @@ class FlowAccessApiImplTest {
         `when`(api.getTransactionResult(any())).thenReturn(response)
 
         when (val result = flowAccessApi.getTransactionResultById(flowId)) {
-            is FlowAccessApi.FlowResult.Success -> assertEquals(flowTransactionResult, result.data)
-            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to get transaction result by ID: ${result.message}", result.throwable)
+            is FlowAccessApi.AccessApiCallResponse.Success -> assertEquals(flowTransactionResult, result.data)
+            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to get transaction result by ID: ${result.message}", result.throwable)
         }
     }
 
@@ -230,14 +230,14 @@ class FlowAccessApiImplTest {
         `when`(api.getAccount(any())).thenReturn(accountProto)
 
         when (val result = flowAccessApi.getAccountByAddress(flowAddress)) {
-            is FlowAccessApi.FlowResult.Success -> {
+            is FlowAccessApi.AccessApiCallResponse.Success -> {
                 val retrievedAccount = result.data
                 assertEquals(flowAccount.address, retrievedAccount.address)
                 assertEquals(flowAccount.balance.stripTrailingZeros(), retrievedAccount.balance.stripTrailingZeros())
                 assertEquals(flowAccount.keys, retrievedAccount.keys)
                 assertEquals(flowAccount.contracts, retrievedAccount.contracts)
             }
-            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to get account by address: ${result.message}", result.throwable)
+            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to get account by address: ${result.message}", result.throwable)
         }
     }
 
@@ -253,14 +253,14 @@ class FlowAccessApiImplTest {
         `when`(api.getAccountAtLatestBlock(any())).thenReturn(accountProto)
 
         when (val result = flowAccessApi.getAccountAtLatestBlock(flowAddress)) {
-            is FlowAccessApi.FlowResult.Success -> {
+            is FlowAccessApi.AccessApiCallResponse.Success -> {
                 val retrievedAccount = result.data
                 assertEquals(flowAccount.address, retrievedAccount.address)
                 assertEquals(flowAccount.balance.stripTrailingZeros(), retrievedAccount.balance.stripTrailingZeros())
                 assertEquals(flowAccount.keys, retrievedAccount.keys)
                 assertEquals(flowAccount.contracts, retrievedAccount.contracts)
             }
-            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to get account at latest block: ${result.message}", result.throwable)
+            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to get account at latest block: ${result.message}", result.throwable)
         }
     }
 
@@ -278,14 +278,14 @@ class FlowAccessApiImplTest {
         `when`(api.getAccountAtBlockHeight(any())).thenReturn(accountProto)
 
         when (val result = flowAccessApi.getAccountByBlockHeight(flowAddress, height)) {
-            is FlowAccessApi.FlowResult.Success -> {
+            is FlowAccessApi.AccessApiCallResponse.Success -> {
                 val retrievedAccount = result.data
                 assertEquals(flowAccount.address, retrievedAccount.address)
                 assertEquals(flowAccount.balance.stripTrailingZeros(), retrievedAccount.balance.stripTrailingZeros())
                 assertEquals(flowAccount.keys, retrievedAccount.keys)
                 assertEquals(flowAccount.contracts, retrievedAccount.contracts)
             }
-            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to get account by block height: ${result.message}", result.throwable)
+            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to get account by block height: ${result.message}", result.throwable)
         }
     }
 
@@ -310,8 +310,8 @@ class FlowAccessApiImplTest {
         )
 
         when (result) {
-            is FlowAccessApi.FlowResult.Success -> assertEquals("response_value", result.data.stringValue)
-            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to execute script at latest block: ${result.message}", result.throwable)
+            is FlowAccessApi.AccessApiCallResponse.Success -> assertEquals("response_value", result.data.stringValue)
+            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to execute script at latest block: ${result.message}", result.throwable)
         }
     }
 
@@ -338,8 +338,8 @@ class FlowAccessApiImplTest {
         )
 
         when (result) {
-            is FlowAccessApi.FlowResult.Success -> assertEquals("response_value", result.data.stringValue)
-            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to execute script at block ID: ${result.message}", result.throwable)
+            is FlowAccessApi.AccessApiCallResponse.Success -> assertEquals("response_value", result.data.stringValue)
+            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to execute script at block ID: ${result.message}", result.throwable)
         }
     }
 
@@ -366,8 +366,8 @@ class FlowAccessApiImplTest {
         )
 
         when (result) {
-            is FlowAccessApi.FlowResult.Success -> assertEquals("response_value", result.data.stringValue)
-            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to execute script at block height: ${result.message}", result.throwable)
+            is FlowAccessApi.AccessApiCallResponse.Success -> assertEquals("response_value", result.data.stringValue)
+            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to execute script at block height: ${result.message}", result.throwable)
         }
     }
 
@@ -396,8 +396,8 @@ class FlowAccessApiImplTest {
         )
 
         when (result) {
-            is FlowAccessApi.FlowResult.Success -> assertEquals(2, result.data.size)
-            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to get events for height range: ${result.message}", result.throwable)
+            is FlowAccessApi.AccessApiCallResponse.Success -> assertEquals(2, result.data.size)
+            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to get events for height range: ${result.message}", result.throwable)
         }
     }
 
@@ -417,8 +417,8 @@ class FlowAccessApiImplTest {
         `when`(api.getEventsForBlockIDs(any())).thenReturn(response)
 
         when (val result = flowAccessApi.getEventsForBlockIds(type, blockIds)) {
-            is FlowAccessApi.FlowResult.Success -> assertEquals(2, result.data.size)
-            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to get events for block IDs: ${result.message}", result.throwable)
+            is FlowAccessApi.AccessApiCallResponse.Success -> assertEquals(2, result.data.size)
+            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to get events for block IDs: ${result.message}", result.throwable)
         }
     }
 
@@ -434,8 +434,8 @@ class FlowAccessApiImplTest {
             .thenReturn(response)
 
         when (val result = flowAccessApi.getNetworkParameters()) {
-            is FlowAccessApi.FlowResult.Success -> assertEquals(mockFlowChainId, result.data)
-            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to get network parameters: ${result.message}", result.throwable)
+            is FlowAccessApi.AccessApiCallResponse.Success -> assertEquals(mockFlowChainId, result.data)
+            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to get network parameters: ${result.message}", result.throwable)
         }
     }
 
@@ -451,8 +451,8 @@ class FlowAccessApiImplTest {
             .thenReturn(response)
 
         when (val result = flowAccessApi.getLatestProtocolStateSnapshot()) {
-            is FlowAccessApi.FlowResult.Success -> assertEquals(mockFlowSnapshot, result.data)
-            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to get latest protocol state snapshot: ${result.message}", result.throwable)
+            is FlowAccessApi.AccessApiCallResponse.Success -> assertEquals(mockFlowSnapshot, result.data)
+            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to get latest protocol state snapshot: ${result.message}", result.throwable)
         }
     }
 
@@ -468,8 +468,8 @@ class FlowAccessApiImplTest {
         `when`(api.getTransactionsByBlockID(any())).thenReturn(response)
 
         when (val result = flowAccessApi.getTransactionsByBlockId(blockId)) {
-            is FlowAccessApi.FlowResult.Success -> assertEquals(transactions, result.data)
-            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to get transactions by block ID: ${result.message}", result.throwable)
+            is FlowAccessApi.AccessApiCallResponse.Success -> assertEquals(transactions, result.data)
+            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to get transactions by block ID: ${result.message}", result.throwable)
         }
     }
 
@@ -489,12 +489,12 @@ class FlowAccessApiImplTest {
         `when`(api.getTransactionsByBlockID(any())).thenReturn(response)
 
         when (val result = flowAccessApi.getTransactionsByBlockId(blockId)) {
-            is FlowAccessApi.FlowResult.Success -> {
+            is FlowAccessApi.AccessApiCallResponse.Success -> {
                 assertEquals(2, result.data.size)
                 assertEquals(transaction1, result.data[0])
                 assertEquals(transaction2, result.data[1])
             }
-            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to get transactions by block ID: ${result.message}", result.throwable)
+            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to get transactions by block ID: ${result.message}", result.throwable)
         }
     }
 
@@ -510,8 +510,8 @@ class FlowAccessApiImplTest {
         `when`(api.getTransactionResultsByBlockID(any())).thenReturn(response)
 
         when (val result = flowAccessApi.getTransactionResultsByBlockId(blockId)) {
-            is FlowAccessApi.FlowResult.Success -> assertEquals(transactionResults, result.data)
-            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to get transaction results by block ID: ${result.message}", result.throwable)
+            is FlowAccessApi.AccessApiCallResponse.Success -> assertEquals(transactionResults, result.data)
+            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to get transaction results by block ID: ${result.message}", result.throwable)
         }
     }
 
@@ -544,12 +544,12 @@ class FlowAccessApiImplTest {
         `when`(api.getTransactionResultsByBlockID(any())).thenReturn(response)
 
         when (val result = flowAccessApi.getTransactionResultsByBlockId(blockId)) {
-            is FlowAccessApi.FlowResult.Success -> {
+            is FlowAccessApi.AccessApiCallResponse.Success -> {
                 assertEquals(2, result.data.size)
                 assertEquals(transactionResult1, result.data[0])
                 assertEquals(transactionResult2, result.data[1])
             }
-            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to get transaction results by block ID: ${result.message}", result.throwable)
+            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to get transaction results by block ID: ${result.message}", result.throwable)
         }
     }
 
@@ -570,8 +570,8 @@ class FlowAccessApiImplTest {
         `when`(api.getExecutionResultByID(any())).thenReturn(response)
 
         when (val result = flowAccessApi.getExecutionResultByBlockId(blockId)) {
-            is FlowAccessApi.FlowResult.Success -> assertEquals(executionResult, result.data)
-            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to get execution result by block ID: ${result.message}", result.throwable)
+            is FlowAccessApi.AccessApiCallResponse.Success -> assertEquals(executionResult, result.data)
+            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to get execution result by block ID: ${result.message}", result.throwable)
         }
     }
 }

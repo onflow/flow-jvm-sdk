@@ -75,7 +75,7 @@ object FlowTestUtil {
         signAlgo: SignatureAlgorithm,
         hashAlgo: HashAlgorithm,
         balance: BigDecimal = BigDecimal(0.01)
-    ): FlowAccessApi.FlowResult<FlowAddress> {
+    ): FlowAccessApi.AccessApiCallResponse<FlowAddress> {
         val transactionResult = api.simpleFlowTransaction(
             address = serviceAccount.flowAddress,
             signer = serviceAccount.signer,
@@ -124,7 +124,7 @@ object FlowTestUtil {
         }.sendAndWaitForSeal()
 
         return when (transactionResult) {
-            is FlowAccessApi.FlowResult.Success -> {
+            is FlowAccessApi.AccessApiCallResponse.Success -> {
                 val result = transactionResult.data
                 val address = result.events
                     .find { it.type == "flow.AccountCreated" }
@@ -132,11 +132,11 @@ object FlowTestUtil {
                     ?.let { (it.jsonCadence as EventField).value }
                     ?.getRequiredField<AddressField>("address")
                     ?.value
-                    ?: return FlowAccessApi.FlowResult.Error("Couldn't find AccountCreated event with address for account that was created")
+                    ?: return FlowAccessApi.AccessApiCallResponse.Error("Couldn't find AccountCreated event with address for account that was created")
 
-                FlowAccessApi.FlowResult.Success(FlowAddress(address))
+                FlowAccessApi.AccessApiCallResponse.Success(FlowAddress(address))
             }
-            is FlowAccessApi.FlowResult.Error -> FlowAccessApi.FlowResult.Error("Failed to create account: ${transactionResult.message}", transactionResult.throwable)
+            is FlowAccessApi.AccessApiCallResponse.Error -> FlowAccessApi.AccessApiCallResponse.Error("Failed to create account: ${transactionResult.message}", transactionResult.throwable)
         }
     }
 
