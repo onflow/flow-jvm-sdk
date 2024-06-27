@@ -1,5 +1,8 @@
 package org.onflow.flow.sdk.crypto
 
+import org.bouncycastle.crypto.macs.KMAC
+import org.bouncycastle.crypto.params.KeyParameter
+import org.bouncycastle.jcajce.provider.digest.Keccak
 import org.onflow.flow.sdk.*
 import org.bouncycastle.jce.ECNamedCurveTable
 import org.bouncycastle.jce.ECPointUtil
@@ -156,11 +159,49 @@ object Crypto {
 }
 
 internal class HasherImpl(
-    private val hashAlgo: HashAlgorithm
+    private val hashAlgo: HashAlgorithm,
+    private val key: ByteArray? = null,
+    private val customizer: ByteArray? = null,
+    private val outputSize: Int? = null
 ) : Hasher {
     override fun hash(bytes: ByteArray): ByteArray {
-        val digest = MessageDigest.getInstance(hashAlgo.algorithm)
-        return digest.digest(bytes)
+        return when (hashAlgo) {
+            HashAlgorithm.KECCAK256 -> {
+                val keccakDigest = Keccak.Digest256()
+                keccakDigest.digest(bytes)
+            }
+            HashAlgorithm.KMAC128 -> {
+                if (key == null || key.size < 16) {
+                    throw IllegalArgumentException("KMAC128 requires a key of at least 16 bytes")
+                }
+                if (outputSize != null && outputSize <= 0) {
+                    throw IllegalArgumentException("Output size must be positive")
+                }
+                val kmac = KMAC(128, customizer)
+                kmac.init(KeyParameter(key))
+                val output = ByteArray(outputSize ?: kmac.digestSize)
+
+                // Debug statements for intermediate values
+                println("KMAC128 Key: ${key.toList()}")
+                println("KMAC128 Customizer: ${customizer?.toList()}")
+                println("KMAC128 Output Size: $outputSize")
+
+                kmac.update(bytes, 0, bytes.size)
+
+                // Debug statement for intermediate state after update
+                println("KMAC128 Intermediate State: ${kmac.digestSize}")
+
+                kmac.doFinal(output, 0)
+
+                // Debug statement for final output
+                println("KMAC128 Final Output: ${output.toList()}")
+                output
+            }
+            else -> {
+                val digest = MessageDigest.getInstance(hashAlgo.algorithm)
+                digest.digest(bytes)
+            }
+        }
     }
 }
 
@@ -170,11 +211,23 @@ internal class SignerImpl(
     override val hasher: Hasher = HasherImpl(hashAlgo)
 ) : Signer {
     override fun sign(bytes: ByteArray): ByteArray {
-        val ecdsaSign = Signature.getInstance(hashAlgo.id)
-        ecdsaSign.initSign(privateKey.key)
-        ecdsaSign.update(bytes)
+        val signature: ByteArray
 
-        val signature = ecdsaSign.sign()
+        if (hashAlgo == HashAlgorithm.KECCAK256 || hashAlgo == HashAlgorithm.KMAC128) {
+            // Handle Keccak-256 and KMAC128 separately
+            val hash = hasher.hash(bytes)
+            val ecdsaSign = Signature.getInstance("NONEwithECDSA")
+            ecdsaSign.initSign(privateKey.key)
+            ecdsaSign.update(hash)
+            signature = ecdsaSign.sign()
+        } else {
+            // Handle other algorithms with valid IDs
+            val ecdsaSign = Signature.getInstance(hashAlgo.id)
+            ecdsaSign.initSign(privateKey.key)
+            ecdsaSign.update(bytes)
+            signature = ecdsaSign.sign()
+        }
+
         if (privateKey.ecCoupleComponentSize <= 0) {
             return signature
         }
