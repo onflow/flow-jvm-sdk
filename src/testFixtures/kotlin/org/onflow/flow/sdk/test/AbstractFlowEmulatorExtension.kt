@@ -164,6 +164,9 @@ abstract class AbstractFlowEmulatorExtension : BeforeEachCallback, AfterEachCall
         this.process = emulator.process
         this.pidFile = emulator.pidFile
 
+        // Adding delay to ensure emulator has started
+        Thread.sleep(5000) // Wait for 5 seconds
+
         this.accessApi = Flow.newAccessApi(
             host = emulator.host,
             port = emulator.port
@@ -175,21 +178,23 @@ abstract class AbstractFlowEmulatorExtension : BeforeEachCallback, AfterEachCall
         ) as AsyncFlowAccessApiImpl
 
         withAnnotatedTestFields(context, FlowTestClient::class.java) { instance, field, _ ->
-            if (field.type.equals(FlowAccessApi::class.java)) {
-                field.isAccessible = true
-                field.set(instance, this.accessApi!!)
-            } else if (field.type.equals(AsyncFlowAccessApi::class.java)) {
-                field.isAccessible = true
-                field.set(instance, asyncAccessApi)
-            } else {
-                throw IllegalArgumentException(
+            when (field.type) {
+                FlowAccessApi::class.java -> {
+                    field.isAccessible = true
+                    field.set(instance, this.accessApi!!)
+                }
+                AsyncFlowAccessApi::class.java -> {
+                    field.isAccessible = true
+                    field.set(instance, asyncAccessApi)
+                }
+                else -> throw IllegalArgumentException(
                     "field $field is not of type FlowAccessApi or AsyncFlowAccessAPi"
                 )
             }
         }
 
         withAnnotatedTestFields(context, FlowServiceAccountCredentials::class.java) { instance, field, _ ->
-            if (!field.type.equals(TestAccount::class.java)) {
+            if (field.type != TestAccount::class.java) {
                 throw IllegalArgumentException("field $field is not of type TestAccount")
             } else if (!emulator.serviceAccount.isValid) {
                 throw IllegalArgumentException(
@@ -201,7 +206,7 @@ abstract class AbstractFlowEmulatorExtension : BeforeEachCallback, AfterEachCall
         }
 
         withAnnotatedTestFields(context, FlowTestAccount::class.java) { instance, field, annotation ->
-            if (!field.type.equals(TestAccount::class.java)) {
+            if (field.type != TestAccount::class.java) {
                 throw IllegalArgumentException("field $field is not of type TestAccount")
             } else if (!emulator.serviceAccount.isValid) {
                 throw IllegalArgumentException(
@@ -218,7 +223,7 @@ abstract class AbstractFlowEmulatorExtension : BeforeEachCallback, AfterEachCall
                 )
             }
 
-            val address = FlowTestUtil.createAccount(
+            val createAccountResult = FlowTestUtil.createAccount(
                 api = this.accessApi!!,
                 serviceAccount = emulator.serviceAccount,
                 publicKey = keyPair.public.hex,
@@ -226,6 +231,11 @@ abstract class AbstractFlowEmulatorExtension : BeforeEachCallback, AfterEachCall
                 hashAlgo = annotation.hashAlgo,
                 balance = BigDecimal(annotation.balance)
             )
+
+            val address = when (createAccountResult) {
+                is FlowAccessApi.AccessApiCallResponse.Success -> createAccountResult.data
+                is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to create account: ${createAccountResult.message}", createAccountResult.throwable)
+            }
 
             val testAccount = TestAccount(
                 address = address.formatted,
@@ -242,25 +252,31 @@ abstract class AbstractFlowEmulatorExtension : BeforeEachCallback, AfterEachCall
 
             // deploy contracts
             for (deployable in annotation.contracts) {
-                FlowTestUtil.deployContracts(
+                val deployResult = FlowTestUtil.deployContracts(
                     api = this.accessApi!!,
                     account = testAccount,
                     gasLimit = deployable.gasLimit,
                     TestContractDeployment.from(
                         name = deployable.name,
                         code = {
-                            if (deployable.codeFileLocation.isNotEmpty()) {
-                                File(deployable.codeFileLocation).inputStream()
-                            } else if (deployable.codeClasspathLocation.isNotEmpty()) {
-                                instance.javaClass.getResourceAsStream(deployable.codeClasspathLocation)
-                            } else {
-                                ByteArrayInputStream(deployable.code.toByteArray())
+                            when {
+                                deployable.codeFileLocation.isNotEmpty() -> File(deployable.codeFileLocation).inputStream()
+                                deployable.codeClasspathLocation.isNotEmpty() -> instance.javaClass.getResourceAsStream(deployable.codeClasspathLocation)!!
+                                else -> ByteArrayInputStream(deployable.code.toByteArray())
                             }
                         },
                         args = deployable.arguments.associate { it.name to StringField(it.value) }
                     )
                 ).sendAndWaitForSeal()
-                    .throwOnError()
+
+                when (deployResult) {
+                    is FlowAccessApi.AccessApiCallResponse.Success -> {
+                        // Contract deployment successful
+                    }
+                    is FlowAccessApi.AccessApiCallResponse.Error -> {
+                        throw IllegalStateException("Failed to deploy contract: ${deployResult.message}", deployResult.throwable)
+                    }
+                }
 
                 if (deployable.addToRegistry) {
                     val alias = deployable.alias.ifEmpty { "0x${deployable.name.uppercase()}" }

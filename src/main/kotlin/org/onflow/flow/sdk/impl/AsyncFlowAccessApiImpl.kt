@@ -323,8 +323,8 @@ class AsyncFlowAccessApiImpl(
                     .setEndHeight(range.endInclusive)
                     .build()
             )
-        ).thenApply {
-            it.resultsList
+        ).thenApply { eventsResponse ->
+            eventsResponse.resultsList
                 .map { FlowEventResult.of(it) }
         }
     }
@@ -337,8 +337,8 @@ class AsyncFlowAccessApiImpl(
                     .addAllBlockIds(ids.map { it.byteStringValue })
                     .build()
             )
-        ).thenApply {
-            it.resultsList
+        ).thenApply { eventsResponse ->
+            eventsResponse.resultsList
                 .map { FlowEventResult.of(it) }
         }
     }
