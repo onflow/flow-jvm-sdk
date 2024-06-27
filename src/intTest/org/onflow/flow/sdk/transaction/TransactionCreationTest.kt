@@ -46,15 +46,8 @@ class TransactionCreationTest {
 
     @Test
     fun `Can create an account using the transaction DSL`() {
-        val latestBlockId = when (val latestBlockHeaderResult = accessAPI.getLatestBlockHeader()) {
-            is FlowAccessApi.FlowResult.Success -> latestBlockHeaderResult.data.id
-            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to get latest block header: ${latestBlockHeaderResult.message}", latestBlockHeaderResult.throwable)
-        }
-
-        val payerAccount = when (val payerAccountResult = accessAPI.getAccountAtLatestBlock(serviceAccount.flowAddress)) {
-            is FlowAccessApi.FlowResult.Success -> payerAccountResult.data
-            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to get account at latest block: ${payerAccountResult.message}", payerAccountResult.throwable)
-        }
+        val latestBlockId = getLatestBlockId(accessAPI)
+        val payerAccount = IntegrationTestUtils.getAccount(accessAPI, serviceAccount.flowAddress)
 
         val newAccountKeyPair = Crypto.generateKeyPair(SignatureAlgorithm.ECDSA_P256)
         val newAccountPublicKey = FlowAccountKey(
@@ -73,7 +66,7 @@ class TransactionCreationTest {
                         account.addPublicKey(publicKey.decodeHex())
                     }
                 }
-            """
+                """
             }
 
             arguments {
@@ -100,15 +93,9 @@ class TransactionCreationTest {
             }
         }
 
-        val txID = when (val sendTransactionResult = accessAPI.sendTransaction(tx)) {
-            is FlowAccessApi.FlowResult.Success -> sendTransactionResult.data
-            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to send transaction: ${sendTransactionResult.message}", sendTransactionResult.throwable)
-        }
+        val txID = IntegrationTestUtils.handleResult(accessAPI.sendTransaction(tx), "Failed to send transaction")
 
-        val result = when (val waitForSealResult = waitForSeal(accessAPI, txID)) {
-            is FlowAccessApi.FlowResult.Success -> waitForSealResult.data
-            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to wait for seal: ${waitForSealResult.message}", waitForSealResult.throwable)
-        }
+        val result = IntegrationTestUtils.handleResult(waitForSeal(accessAPI, txID), "Failed to wait for seal")
 
         assertThat(result).isNotNull
         assertThat(result.status).isEqualTo(FlowTransactionStatus.SEALED)
@@ -133,7 +120,7 @@ class TransactionCreationTest {
                         account.addPublicKey(publicKey.decodeHex())
                     }
                 }
-            """
+                """
             }
 
             arguments {
@@ -141,11 +128,13 @@ class TransactionCreationTest {
             }
         }.sendAndWaitForSeal()
 
-        val result = when (transactionResult) {
-            is FlowAccessApi.FlowResult.Success -> transactionResult.data
-            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to create account: ${transactionResult.message}", transactionResult.throwable)
-        }
+        val result = IntegrationTestUtils.handleResult(transactionResult, "Failed to create account")
 
         assertThat(result.status).isEqualTo(FlowTransactionStatus.SEALED)
+    }
+
+    private fun getLatestBlockId(api: FlowAccessApi): FlowId {
+        val result = api.getLatestBlockHeader()
+        return IntegrationTestUtils.handleResult(result, "Failed to get latest block header").id
     }
 }

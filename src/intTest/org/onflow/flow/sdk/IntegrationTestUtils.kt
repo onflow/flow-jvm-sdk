@@ -1,5 +1,7 @@
 package org.onflow.flow.sdk
 
+import org.onflow.flow.sdk.cadence.AddressField
+
 object IntegrationTestUtils {
     fun newMainnetAccessApi(): FlowAccessApi = Flow.newAccessApi(MAINNET_HOSTNAME)
 
@@ -21,4 +23,22 @@ object IntegrationTestUtils {
         payerAddress = FlowAddress.of(byteArrayOf(6, 5, 4, 3, 2)),
         authorizers = listOf(FlowAddress.of(byteArrayOf(9, 9, 9, 9, 9)), FlowAddress.of(byteArrayOf(8, 9, 9, 9, 9)))
     )
+
+    fun <T> handleResult(result: FlowAccessApi.FlowResult<T>, errorMessage: String): T {
+        return when (result) {
+            is FlowAccessApi.FlowResult.Success -> result.data ?: throw IllegalStateException("$errorMessage: result data is null")
+            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("$errorMessage: ${result.message}", result.throwable)
+        }
+    }
+
+    fun getAccountAddressFromResult(result: Any): FlowAddress {
+        val addressField = (result as List<*>).find { it is AddressField } as? AddressField
+        return addressField?.value?.let { FlowAddress(it) }
+            ?: throw IllegalStateException("AccountCreated event not found")
+    }
+
+    fun getAccount(api: FlowAccessApi, address: FlowAddress): FlowAccount {
+        val result = api.getAccountAtLatestBlock(address)
+        return handleResult(result, "Failed to get account at latest block") as FlowAccount
+    }
 }
