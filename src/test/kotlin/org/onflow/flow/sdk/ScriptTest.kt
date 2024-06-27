@@ -61,7 +61,7 @@ class ScriptTest {
         }
 
         when (result) {
-            is FlowAccessApi.FlowResult.Success -> {
+            is FlowAccessApi.AccessApiCallResponse.Success -> {
                 val jsonCadence = result.data.jsonCadence
                 if (jsonCadence is StringField) {
                     assertEquals("Hello World", jsonCadence.value)
@@ -69,7 +69,7 @@ class ScriptTest {
                     throw IllegalStateException("Expected StringField but got ${jsonCadence::class.simpleName}")
                 }
             }
-            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to execute script: ${result.message}", result.throwable)
+            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to execute script: ${result.message}", result.throwable)
         }
     }
 
@@ -108,7 +108,7 @@ class ScriptTest {
         }
 
         when (result) {
-            is FlowAccessApi.FlowResult.Success -> {
+            is FlowAccessApi.AccessApiCallResponse.Success -> {
                 assertTrue(result.data.jsonCadence is StructField)
                 val struct = Flow.unmarshall(TestClass::class, result.data.jsonCadence)
                 assertEquals(address, struct.address.base16Value)
@@ -116,7 +116,7 @@ class ScriptTest {
                 assertEquals(HashAlgorithm.SHA3_256, struct.hashAlgorithm)
                 assertTrue(struct.isValid)
             }
-            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to execute script: ${result.message}", result.throwable)
+            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to execute script: ${result.message}", result.throwable)
         }
     }
 
@@ -212,11 +212,11 @@ class ScriptTest {
         }
 
         when (result) {
-            is FlowAccessApi.FlowResult.Success -> {
+            is FlowAccessApi.AccessApiCallResponse.Success -> {
                 assertTrue(result.data.jsonCadence is BooleanField)
                 assertTrue((result.data.jsonCadence as BooleanField).value!!)
             }
-            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("Failed to execute script: ${result.message}", result.throwable)
+            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to execute script: ${result.message}", result.throwable)
         }
     }
 }

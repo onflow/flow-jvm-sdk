@@ -24,10 +24,10 @@ object IntegrationTestUtils {
         authorizers = listOf(FlowAddress.of(byteArrayOf(9, 9, 9, 9, 9)), FlowAddress.of(byteArrayOf(8, 9, 9, 9, 9)))
     )
 
-    fun <T> handleResult(result: FlowAccessApi.FlowResult<T>, errorMessage: String): T {
+    fun <T> handleResult(result: FlowAccessApi.AccessApiCallResponse<T>, errorMessage: String): T {
         return when (result) {
-            is FlowAccessApi.FlowResult.Success -> result.data ?: throw IllegalStateException("$errorMessage: result data is null")
-            is FlowAccessApi.FlowResult.Error -> throw IllegalStateException("$errorMessage: ${result.message}", result.throwable)
+            is FlowAccessApi.AccessApiCallResponse.Success -> result.data ?: throw IllegalStateException("$errorMessage: result data is null")
+            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("$errorMessage: ${result.message}", result.throwable)
         }
     }
 
