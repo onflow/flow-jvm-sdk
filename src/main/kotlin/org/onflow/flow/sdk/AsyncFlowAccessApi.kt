@@ -4,55 +4,55 @@ import com.google.protobuf.ByteString
 import java.util.concurrent.CompletableFuture
 
 interface AsyncFlowAccessApi {
-    fun ping(): CompletableFuture<FlowAccessApi.FlowResult<Unit>>
+    fun ping(): CompletableFuture<FlowAccessApi.AccessApiCallResponse<Unit>>
 
-    fun getLatestBlockHeader(sealed: Boolean = true): CompletableFuture<FlowAccessApi.FlowResult<FlowBlockHeader>>
+    fun getLatestBlockHeader(sealed: Boolean = true): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowBlockHeader>>
 
-    fun getBlockHeaderById(id: FlowId): CompletableFuture<FlowAccessApi.FlowResult<FlowBlockHeader?>>
+    fun getBlockHeaderById(id: FlowId): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowBlockHeader?>>
 
-    fun getBlockHeaderByHeight(height: Long): CompletableFuture<FlowAccessApi.FlowResult<FlowBlockHeader?>>
+    fun getBlockHeaderByHeight(height: Long): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowBlockHeader?>>
 
-    fun getLatestBlock(sealed: Boolean = true): CompletableFuture<FlowAccessApi.FlowResult<FlowBlock>>
+    fun getLatestBlock(sealed: Boolean = true): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowBlock>>
 
-    fun getBlockById(id: FlowId): CompletableFuture<FlowAccessApi.FlowResult<FlowBlock?>>
+    fun getBlockById(id: FlowId): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowBlock?>>
 
-    fun getBlockByHeight(height: Long): CompletableFuture<FlowAccessApi.FlowResult<FlowBlock?>>
+    fun getBlockByHeight(height: Long): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowBlock?>>
 
-    fun getTransactionsByBlockId(id: FlowId): CompletableFuture<FlowAccessApi.FlowResult<List<FlowTransaction>>>
+    fun getTransactionsByBlockId(id: FlowId): CompletableFuture<FlowAccessApi.AccessApiCallResponse<List<FlowTransaction>>>
 
-    fun getTransactionResultsByBlockId(id: FlowId): CompletableFuture<FlowAccessApi.FlowResult<List<FlowTransactionResult>>>
+    fun getTransactionResultsByBlockId(id: FlowId): CompletableFuture<FlowAccessApi.AccessApiCallResponse<List<FlowTransactionResult>>>
 
-    fun getExecutionResultByBlockId(id: FlowId): CompletableFuture<FlowAccessApi.FlowResult<ExecutionResult?>>
+    fun getExecutionResultByBlockId(id: FlowId): CompletableFuture<FlowAccessApi.AccessApiCallResponse<ExecutionResult?>>
 
-    fun getCollectionById(id: FlowId): CompletableFuture<FlowAccessApi.FlowResult<FlowCollection?>>
+    fun getCollectionById(id: FlowId): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowCollection?>>
 
-    fun sendTransaction(transaction: FlowTransaction): CompletableFuture<FlowAccessApi.FlowResult<FlowId>>
+    fun sendTransaction(transaction: FlowTransaction): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowId>>
 
-    fun getTransactionById(id: FlowId): CompletableFuture<FlowAccessApi.FlowResult<FlowTransaction?>>
+    fun getTransactionById(id: FlowId): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowTransaction?>>
 
-    fun getTransactionResultById(id: FlowId): CompletableFuture<FlowAccessApi.FlowResult<FlowTransactionResult?>>
+    fun getTransactionResultById(id: FlowId): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowTransactionResult?>>
 
     @Deprecated(
         message = "Behaves identically to getAccountAtLatestBlock",
         replaceWith = ReplaceWith("getAccountAtLatestBlock")
     )
-    fun getAccountByAddress(addresss: FlowAddress): CompletableFuture<FlowAccessApi.FlowResult<FlowAccount>>
+    fun getAccountByAddress(addresss: FlowAddress): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowAccount>>
 
-    fun getAccountAtLatestBlock(addresss: FlowAddress): CompletableFuture<FlowAccessApi.FlowResult<FlowAccount>>
+    fun getAccountAtLatestBlock(addresss: FlowAddress): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowAccount>>
 
-    fun getAccountByBlockHeight(addresss: FlowAddress, height: Long): CompletableFuture<FlowAccessApi.FlowResult<FlowAccount>>
+    fun getAccountByBlockHeight(addresss: FlowAddress, height: Long): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowAccount>>
 
-    fun executeScriptAtLatestBlock(script: FlowScript, arguments: Iterable<ByteString> = emptyList()): CompletableFuture<FlowAccessApi.FlowResult<FlowScriptResponse>>
+    fun executeScriptAtLatestBlock(script: FlowScript, arguments: Iterable<ByteString> = emptyList()): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowScriptResponse>>
 
-    fun executeScriptAtBlockId(script: FlowScript, blockId: FlowId, arguments: Iterable<ByteString> = emptyList()): CompletableFuture<FlowAccessApi.FlowResult<FlowScriptResponse>>
+    fun executeScriptAtBlockId(script: FlowScript, blockId: FlowId, arguments: Iterable<ByteString> = emptyList()): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowScriptResponse>>
 
-    fun executeScriptAtBlockHeight(script: FlowScript, height: Long, arguments: Iterable<ByteString> = emptyList()): CompletableFuture<FlowAccessApi.FlowResult<FlowScriptResponse>>
+    fun executeScriptAtBlockHeight(script: FlowScript, height: Long, arguments: Iterable<ByteString> = emptyList()): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowScriptResponse>>
 
-    fun getEventsForHeightRange(type: String, range: ClosedRange<Long>): CompletableFuture<FlowAccessApi.FlowResult<List<FlowEventResult>>>
+    fun getEventsForHeightRange(type: String, range: ClosedRange<Long>): CompletableFuture<FlowAccessApi.AccessApiCallResponse<List<FlowEventResult>>>
 
-    fun getEventsForBlockIds(type: String, ids: Set<FlowId>): CompletableFuture<FlowAccessApi.FlowResult<List<FlowEventResult>>>
+    fun getEventsForBlockIds(type: String, ids: Set<FlowId>): CompletableFuture<FlowAccessApi.AccessApiCallResponse<List<FlowEventResult>>>
 
-    fun getNetworkParameters(): CompletableFuture<FlowAccessApi.FlowResult<FlowChainId>>
+    fun getNetworkParameters(): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowChainId>>
 
-    fun getLatestProtocolStateSnapshot(): CompletableFuture<FlowAccessApi.FlowResult<FlowSnapshot>>
+    fun getLatestProtocolStateSnapshot(): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowSnapshot>>
 }
