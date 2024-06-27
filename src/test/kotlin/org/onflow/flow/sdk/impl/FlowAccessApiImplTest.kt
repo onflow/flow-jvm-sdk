@@ -23,9 +23,6 @@ class FlowAccessApiImplTest {
     private lateinit var outputStreamCaptor: ByteArrayOutputStream
     private lateinit var originalOut: PrintStream
 
-    private val api = mock(AccessAPIGrpc.AccessAPIBlockingStub::class.java)
-    private val flowAccessApi = FlowAccessApiImpl(api)
-
     @BeforeEach
     fun setUp() {
         mockApi = mock(AccessAPIGrpc.AccessAPIBlockingStub::class.java)
@@ -42,167 +39,119 @@ class FlowAccessApiImplTest {
 
     @Test
     fun `Test ping`() {
-        flowAccessApi.ping()
-        verify(api).ping(Access.PingRequest.newBuilder().build())
+        flowAccessApiImpl.ping()
+        verify(mockApi).ping(Access.PingRequest.newBuilder().build())
     }
 
     @Test
     fun `Test getLatestBlockHeader`() {
         val mockBlockHeader = FlowBlockHeader(FlowId("01"), FlowId("01"), 123L)
-
         val blockHeaderProto = Access.BlockHeaderResponse.newBuilder().setBlock(mockBlockHeader.builder().build()).build()
 
-        `when`(api.getLatestBlockHeader(any())).thenReturn(blockHeaderProto)
+        `when`(mockApi.getLatestBlockHeader(any())).thenReturn(blockHeaderProto)
 
-        when (val result = flowAccessApi.getLatestBlockHeader(sealed = true)) {
-            is FlowAccessApi.AccessApiCallResponse.Success -> assertEquals(mockBlockHeader, result.data)
-            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to get latest block header: ${result.message}", result.throwable)
-        }
+        val result = flowAccessApiImpl.getLatestBlockHeader(sealed = true)
+        assertResultSuccess(result) { assertEquals(mockBlockHeader, it) }
     }
 
     @Test
     fun `Test getBlockHeaderById`() {
         val blockId = FlowId("01")
         val mockBlockHeader = FlowBlockHeader(blockId, FlowId("01"), 123L)
-
         val blockHeaderProto = Access.BlockHeaderResponse.newBuilder().setBlock(mockBlockHeader.builder().build()).build()
 
-        `when`(api.getBlockHeaderByID(any())).thenReturn(blockHeaderProto)
+        `when`(mockApi.getBlockHeaderByID(any())).thenReturn(blockHeaderProto)
 
-        when (val result = flowAccessApi.getBlockHeaderById(blockId)) {
-            is FlowAccessApi.AccessApiCallResponse.Success -> assertEquals(mockBlockHeader, result.data)
-            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to get block header by ID: ${result.message}", result.throwable)
-        }
+        val result = flowAccessApiImpl.getBlockHeaderById(blockId)
+        assertResultSuccess(result) { assertEquals(mockBlockHeader, it) }
     }
 
     @Test
     fun `Test getBlockHeaderByHeight`() {
         val height = 123L
         val mockBlockHeader = FlowBlockHeader(FlowId("01"), FlowId("01"), height)
-
         val blockHeaderProto = Access.BlockHeaderResponse.newBuilder().setBlock(mockBlockHeader.builder().build()).build()
 
-        `when`(api.getBlockHeaderByHeight(any())).thenReturn(blockHeaderProto)
+        `when`(mockApi.getBlockHeaderByHeight(any())).thenReturn(blockHeaderProto)
 
-        when (val result = flowAccessApi.getBlockHeaderByHeight(height)) {
-            is FlowAccessApi.AccessApiCallResponse.Success -> assertEquals(mockBlockHeader, result.data)
-            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to get block header by height: ${result.message}", result.throwable)
-        }
+        val result = flowAccessApiImpl.getBlockHeaderByHeight(height)
+        assertResultSuccess(result) { assertEquals(mockBlockHeader, it) }
     }
 
     @Test
     fun `Test getLatestBlock`() {
         val mockBlock = FlowBlock(FlowId("01"), FlowId("01"), 123L, LocalDateTime.now(), emptyList(), emptyList(), emptyList())
-
         val blockProto = Access.BlockResponse.newBuilder().setBlock(mockBlock.builder().build()).build()
 
-        `when`(api.getLatestBlock(any())).thenReturn(blockProto)
+        `when`(mockApi.getLatestBlock(any())).thenReturn(blockProto)
 
-        when (val result = flowAccessApi.getLatestBlock(sealed = true)) {
-            is FlowAccessApi.AccessApiCallResponse.Success -> assertEquals(mockBlock, result.data)
-            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to get latest block: ${result.message}", result.throwable)
-        }
+        val result = flowAccessApiImpl.getLatestBlock(sealed = true)
+        assertResultSuccess(result) { assertEquals(mockBlock, it) }
     }
 
     @Test
     fun `Test getBlockById`() {
         val blockId = FlowId("01")
         val mockBlock = FlowBlock(blockId, FlowId("01"), 123L, LocalDateTime.now(), emptyList(), emptyList(), emptyList())
-
         val blockProto = Access.BlockResponse.newBuilder().setBlock(mockBlock.builder().build()).build()
 
-        `when`(api.getBlockByID(any())).thenReturn(blockProto)
+        `when`(mockApi.getBlockByID(any())).thenReturn(blockProto)
 
-        when (val result = flowAccessApi.getBlockById(blockId)) {
-            is FlowAccessApi.AccessApiCallResponse.Success -> assertEquals(mockBlock, result.data)
-            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to get block by ID: ${result.message}", result.throwable)
-        }
+        val result = flowAccessApiImpl.getBlockById(blockId)
+        assertResultSuccess(result) { assertEquals(mockBlock, it) }
     }
 
     @Test
     fun `Test getBlockByHeight`() {
         val height = 123L
         val mockBlock = FlowBlock(FlowId("01"), FlowId("01"), height, LocalDateTime.now(), emptyList(), emptyList(), emptyList())
-
         val blockProto = Access.BlockResponse.newBuilder().setBlock(mockBlock.builder().build()).build()
 
-        `when`(api.getBlockByHeight(any())).thenReturn(blockProto)
+        `when`(mockApi.getBlockByHeight(any())).thenReturn(blockProto)
 
-        when (val result = flowAccessApi.getBlockByHeight(height)) {
-            is FlowAccessApi.AccessApiCallResponse.Success -> assertEquals(mockBlock, result.data)
-            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to get block by height: ${result.message}", result.throwable)
-        }
+        val result = flowAccessApiImpl.getBlockByHeight(height)
+        assertResultSuccess(result) { assertEquals(mockBlock, it) }
     }
 
     @Test
     fun `Test getCollectionById`() {
         val collectionId = FlowId("01")
         val mockCollection = FlowCollection(collectionId, emptyList())
-
         val collectionProto = Access.CollectionResponse.newBuilder().setCollection(mockCollection.builder().build()).build()
 
-        `when`(api.getCollectionByID(any())).thenReturn(collectionProto)
+        `when`(mockApi.getCollectionByID(any())).thenReturn(collectionProto)
 
-        when (val result = flowAccessApi.getCollectionById(collectionId)) {
-            is FlowAccessApi.AccessApiCallResponse.Success -> assertEquals(mockCollection, result.data)
-            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to get collection by ID: ${result.message}", result.throwable)
-        }
+        val result = flowAccessApiImpl.getCollectionById(collectionId)
+        assertResultSuccess(result) { assertEquals(mockCollection, it) }
     }
 
     @Test
     fun `Test sendTransaction`() {
-        val mockTransaction = FlowTransaction(
-            FlowScript("script"),
-            emptyList(),
-            FlowId.of("01".toByteArray()),
-            123L,
-            FlowTransactionProposalKey(FlowAddress("02"), 1, 123L),
-            FlowAddress("02"),
-            emptyList()
-        )
+        val mockTransaction = createMockTransaction()
+        val transactionProto = Access.SendTransactionResponse.newBuilder().setId(ByteString.copyFromUtf8("01")).build()
 
-        val transactionProto = Access.SendTransactionResponse.newBuilder()
-            .setId(ByteString.copyFromUtf8("01"))
-            .build()
+        `when`(mockApi.sendTransaction(any())).thenReturn(transactionProto)
 
-        `when`(api.sendTransaction(any())).thenReturn(transactionProto)
-
-        when (val result = flowAccessApi.sendTransaction(mockTransaction)) {
-            is FlowAccessApi.AccessApiCallResponse.Success -> assertEquals(FlowId.of("01".toByteArray()), result.data)
-            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to send transaction: ${result.message}", result.throwable)
-        }
+        val result = flowAccessApiImpl.sendTransaction(mockTransaction)
+        assertResultSuccess(result) { assertEquals(FlowId.of("01".toByteArray()), it) }
     }
 
     @Test
     fun `Test getTransactionById`() {
         val flowId = FlowId("01")
+        val flowTransaction = createMockTransaction(flowId)
+        val transactionProto = Access.TransactionResponse.newBuilder().setTransaction(flowTransaction.builder().build()).build()
 
-        val flowTransaction = FlowTransaction(
-            FlowScript("script"),
-            emptyList(),
-            flowId,
-            123L,
-            FlowTransactionProposalKey(FlowAddress("02"), 1, 123L),
-            FlowAddress("02"),
-            emptyList()
-        )
-        val transactionProto = Access.TransactionResponse.newBuilder()
-            .setTransaction(flowTransaction.builder().build())
-            .build()
+        `when`(mockApi.getTransaction(any())).thenReturn(transactionProto)
 
-        `when`(api.getTransaction(any())).thenReturn(transactionProto)
-
-        when (val result = flowAccessApi.getTransactionById(flowId)) {
-            is FlowAccessApi.AccessApiCallResponse.Success -> assertEquals(flowTransaction, result.data)
-            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to get transaction by ID: ${result.message}", result.throwable)
-        }
+        val result = flowAccessApiImpl.getTransactionById(flowId)
+        assertResultSuccess(result) { assertEquals(flowTransaction, it) }
     }
 
     @Test
     fun `Test getTransactionResultById`() {
         val flowId = FlowId.of("id".toByteArray())
         val flowTransactionResult = FlowTransactionResult(FlowTransactionStatus.SEALED, 1, "message", emptyList())
-
         val response = Access.TransactionResultResponse.newBuilder()
             .setStatus(TransactionOuterClass.TransactionStatus.SEALED)
             .setStatusCode(1)
@@ -210,82 +159,64 @@ class FlowAccessApiImplTest {
             .setBlockId(ByteString.copyFromUtf8("id"))
             .build()
 
-        `when`(api.getTransactionResult(any())).thenReturn(response)
+        `when`(mockApi.getTransactionResult(any())).thenReturn(response)
 
-        when (val result = flowAccessApi.getTransactionResultById(flowId)) {
-            is FlowAccessApi.AccessApiCallResponse.Success -> assertEquals(flowTransactionResult, result.data)
-            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to get transaction result by ID: ${result.message}", result.throwable)
-        }
+        val result = flowAccessApiImpl.getTransactionResultById(flowId)
+        assertResultSuccess(result) { assertEquals(flowTransactionResult, it) }
     }
 
     @Test
     fun `Test getAccountByAddress`() {
         val flowAddress = FlowAddress("01")
-        val flowAccount = FlowAccount(flowAddress, BigDecimal.ONE, FlowCode("code".toByteArray()), emptyList(), emptyMap())
+        val flowAccount = createMockAccount(flowAddress)
+        val accountProto = Access.GetAccountResponse.newBuilder().setAccount(flowAccount.builder().build()).build()
 
-        val accountProto = Access.GetAccountResponse.newBuilder()
-            .setAccount(flowAccount.builder().build())
-            .build()
+        `when`(mockApi.getAccount(any())).thenReturn(accountProto)
 
-        `when`(api.getAccount(any())).thenReturn(accountProto)
-
-        when (val result = flowAccessApi.getAccountByAddress(flowAddress)) {
-            is FlowAccessApi.AccessApiCallResponse.Success -> {
-                val retrievedAccount = result.data
-                assertEquals(flowAccount.address, retrievedAccount.address)
-                assertEquals(flowAccount.balance.stripTrailingZeros(), retrievedAccount.balance.stripTrailingZeros())
-                assertEquals(flowAccount.keys, retrievedAccount.keys)
-                assertEquals(flowAccount.contracts, retrievedAccount.contracts)
-            }
-            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to get account by address: ${result.message}", result.throwable)
+        val result = flowAccessApiImpl.getAccountByAddress(flowAddress)
+        assertResultSuccess(result) {
+            assertEquals(flowAccount.address, it.address)
+            assertEquals(flowAccount.code, it.code)
+            assertEquals(flowAccount.keys, it.keys)
+            assertEquals(flowAccount.contracts, it.contracts)
+            assertEquals(flowAccount.balance.stripTrailingZeros(), it.balance.stripTrailingZeros())
         }
     }
 
     @Test
     fun `Test getAccountAtLatestBlock`() {
         val flowAddress = FlowAddress("01")
-        val flowAccount = FlowAccount(flowAddress, BigDecimal.ONE, FlowCode("code".toByteArray()), emptyList(), emptyMap())
+        val flowAccount = createMockAccount(flowAddress)
+        val accountProto = Access.AccountResponse.newBuilder().setAccount(flowAccount.builder().build()).build()
 
-        val accountProto = Access.AccountResponse.newBuilder()
-            .setAccount(flowAccount.builder().build())
-            .build()
+        `when`(mockApi.getAccountAtLatestBlock(any())).thenReturn(accountProto)
 
-        `when`(api.getAccountAtLatestBlock(any())).thenReturn(accountProto)
-
-        when (val result = flowAccessApi.getAccountAtLatestBlock(flowAddress)) {
-            is FlowAccessApi.AccessApiCallResponse.Success -> {
-                val retrievedAccount = result.data
-                assertEquals(flowAccount.address, retrievedAccount.address)
-                assertEquals(flowAccount.balance.stripTrailingZeros(), retrievedAccount.balance.stripTrailingZeros())
-                assertEquals(flowAccount.keys, retrievedAccount.keys)
-                assertEquals(flowAccount.contracts, retrievedAccount.contracts)
-            }
-            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to get account at latest block: ${result.message}", result.throwable)
+        val result = flowAccessApiImpl.getAccountAtLatestBlock(flowAddress)
+        assertResultSuccess(result) {
+            assertEquals(flowAccount.address, it.address)
+            assertEquals(flowAccount.code, it.code)
+            assertEquals(flowAccount.keys, it.keys)
+            assertEquals(flowAccount.contracts, it.contracts)
+            assertEquals(flowAccount.balance.stripTrailingZeros(), it.balance.stripTrailingZeros())
         }
     }
 
     @Test
     fun `Test getAccountByBlockHeight`() {
         val flowAddress = FlowAddress("01")
-        val flowAccount = FlowAccount(flowAddress, BigDecimal.ONE, FlowCode("code".toByteArray()), emptyList(), emptyMap())
-
+        val flowAccount = createMockAccount(flowAddress)
         val height = 123L
+        val accountProto = Access.AccountResponse.newBuilder().setAccount(flowAccount.builder().build()).build()
 
-        val accountProto = Access.AccountResponse.newBuilder()
-            .setAccount(flowAccount.builder().build())
-            .build()
+        `when`(mockApi.getAccountAtBlockHeight(any())).thenReturn(accountProto)
 
-        `when`(api.getAccountAtBlockHeight(any())).thenReturn(accountProto)
-
-        when (val result = flowAccessApi.getAccountByBlockHeight(flowAddress, height)) {
-            is FlowAccessApi.AccessApiCallResponse.Success -> {
-                val retrievedAccount = result.data
-                assertEquals(flowAccount.address, retrievedAccount.address)
-                assertEquals(flowAccount.balance.stripTrailingZeros(), retrievedAccount.balance.stripTrailingZeros())
-                assertEquals(flowAccount.keys, retrievedAccount.keys)
-                assertEquals(flowAccount.contracts, retrievedAccount.contracts)
-            }
-            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to get account by block height: ${result.message}", result.throwable)
+        val result = flowAccessApiImpl.getAccountByBlockHeight(flowAddress, height)
+        assertResultSuccess(result) {
+            assertEquals(flowAccount.address, it.address)
+            assertEquals(flowAccount.code, it.code)
+            assertEquals(flowAccount.keys, it.keys)
+            assertEquals(flowAccount.contracts, it.contracts)
+            assertEquals(flowAccount.balance.stripTrailingZeros(), it.balance.stripTrailingZeros())
         }
     }
 
@@ -293,26 +224,19 @@ class FlowAccessApiImplTest {
     fun `Test executeScriptAtLatestBlock`() {
         val script = FlowScript("script".toByteArray())
         val arguments = listOf(ByteString.copyFromUtf8("argument1"), ByteString.copyFromUtf8("argument2"))
+        val response = Access.ExecuteScriptResponse.newBuilder().setValue(ByteString.copyFromUtf8("response_value")).build()
 
-        val response = Access.ExecuteScriptResponse.newBuilder()
-            .setValue(ByteString.copyFromUtf8("response_value"))
-            .build()
+        `when`(mockApi.executeScriptAtLatestBlock(any())).thenReturn(response)
 
-        `when`(api.executeScriptAtLatestBlock(any())).thenReturn(response)
+        val result = flowAccessApiImpl.executeScriptAtLatestBlock(script, arguments)
+        assertResultSuccess(result) { assertEquals("response_value", it.stringValue) }
 
-        val result = flowAccessApi.executeScriptAtLatestBlock(script, arguments)
-
-        verify(api).executeScriptAtLatestBlock(
+        verify(mockApi).executeScriptAtLatestBlock(
             Access.ExecuteScriptAtLatestBlockRequest.newBuilder()
                 .setScript(script.byteStringValue)
                 .addAllArguments(arguments)
                 .build()
         )
-
-        when (result) {
-            is FlowAccessApi.AccessApiCallResponse.Success -> assertEquals("response_value", result.data.stringValue)
-            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to execute script at latest block: ${result.message}", result.throwable)
-        }
     }
 
     @Test
@@ -320,27 +244,20 @@ class FlowAccessApiImplTest {
         val script = FlowScript("some_script")
         val blockId = FlowId("01")
         val arguments = listOf(ByteString.copyFromUtf8("argument1"), ByteString.copyFromUtf8("argument2"))
+        val response = Access.ExecuteScriptResponse.newBuilder().setValue(ByteString.copyFromUtf8("response_value")).build()
 
-        val response = Access.ExecuteScriptResponse.newBuilder()
-            .setValue(ByteString.copyFromUtf8("response_value"))
-            .build()
+        `when`(mockApi.executeScriptAtBlockID(any())).thenReturn(response)
 
-        `when`(api.executeScriptAtBlockID(any())).thenReturn(response)
+        val result = flowAccessApiImpl.executeScriptAtBlockId(script, blockId, arguments)
+        assertResultSuccess(result) { assertEquals("response_value", it.stringValue) }
 
-        val result = flowAccessApi.executeScriptAtBlockId(script, blockId, arguments)
-
-        verify(api).executeScriptAtBlockID(
+        verify(mockApi).executeScriptAtBlockID(
             Access.ExecuteScriptAtBlockIDRequest.newBuilder()
                 .setBlockId(blockId.byteStringValue)
                 .setScript(script.byteStringValue)
                 .addAllArguments(arguments)
                 .build()
         )
-
-        when (result) {
-            is FlowAccessApi.AccessApiCallResponse.Success -> assertEquals("response_value", result.data.stringValue)
-            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to execute script at block ID: ${result.message}", result.throwable)
-        }
     }
 
     @Test
@@ -348,153 +265,107 @@ class FlowAccessApiImplTest {
         val script = FlowScript("some_script")
         val height = 123L
         val arguments = listOf(ByteString.copyFromUtf8("argument1"), ByteString.copyFromUtf8("argument2"))
+        val response = Access.ExecuteScriptResponse.newBuilder().setValue(ByteString.copyFromUtf8("response_value")).build()
 
-        val response = Access.ExecuteScriptResponse.newBuilder()
-            .setValue(ByteString.copyFromUtf8("response_value"))
-            .build()
+        `when`(mockApi.executeScriptAtBlockHeight(any())).thenReturn(response)
 
-        `when`(api.executeScriptAtBlockHeight(any())).thenReturn(response)
+        val result = flowAccessApiImpl.executeScriptAtBlockHeight(script, height, arguments)
+        assertResultSuccess(result) { assertEquals("response_value", it.stringValue) }
 
-        val result = flowAccessApi.executeScriptAtBlockHeight(script, height, arguments)
-
-        verify(api).executeScriptAtBlockHeight(
+        verify(mockApi).executeScriptAtBlockHeight(
             Access.ExecuteScriptAtBlockHeightRequest.newBuilder()
                 .setBlockHeight(height)
                 .setScript(script.byteStringValue)
                 .addAllArguments(arguments)
                 .build()
         )
-
-        when (result) {
-            is FlowAccessApi.AccessApiCallResponse.Success -> assertEquals("response_value", result.data.stringValue)
-            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to execute script at block height: ${result.message}", result.throwable)
-        }
     }
 
     @Test
     fun `Test getEventsForHeightRange`() {
         val type = "event_type"
         val range = 1L..10L
-
         val eventResult1 = Access.EventsResponse.Result.newBuilder().build()
         val eventResult2 = Access.EventsResponse.Result.newBuilder().build()
-        val response = Access.EventsResponse.newBuilder()
-            .addResults(eventResult1)
-            .addResults(eventResult2)
-            .build()
+        val response = Access.EventsResponse.newBuilder().addResults(eventResult1).addResults(eventResult2).build()
 
-        `when`(api.getEventsForHeightRange(any())).thenReturn(response)
+        `when`(mockApi.getEventsForHeightRange(any())).thenReturn(response)
 
-        val result = flowAccessApi.getEventsForHeightRange(type, range)
+        val result = flowAccessApiImpl.getEventsForHeightRange(type, range)
+        assertResultSuccess(result) { assertEquals(2, it.size) }
 
-        verify(api).getEventsForHeightRange(
+        verify(mockApi).getEventsForHeightRange(
             Access.GetEventsForHeightRangeRequest.newBuilder()
                 .setType(type)
                 .setStartHeight(range.first)
                 .setEndHeight(range.last)
                 .build()
         )
-
-        when (result) {
-            is FlowAccessApi.AccessApiCallResponse.Success -> assertEquals(2, result.data.size)
-            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to get events for height range: ${result.message}", result.throwable)
-        }
     }
 
     @Test
-    fun `test getEventsForBlockIds`() {
+    fun `Test getEventsForBlockIds`() {
         val type = "event_type"
         val blockIds = setOf(FlowId("01"), FlowId("02"))
-
         val eventResult1 = Access.EventsResponse.Result.newBuilder().build()
         val eventResult2 = Access.EventsResponse.Result.newBuilder().build()
+        val response = Access.EventsResponse.newBuilder().addResults(eventResult1).addResults(eventResult2).build()
 
-        val response = Access.EventsResponse.newBuilder()
-            .addResults(eventResult1)
-            .addResults(eventResult2)
-            .build()
+        `when`(mockApi.getEventsForBlockIDs(any())).thenReturn(response)
 
-        `when`(api.getEventsForBlockIDs(any())).thenReturn(response)
-
-        when (val result = flowAccessApi.getEventsForBlockIds(type, blockIds)) {
-            is FlowAccessApi.AccessApiCallResponse.Success -> assertEquals(2, result.data.size)
-            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to get events for block IDs: ${result.message}", result.throwable)
-        }
+        val result = flowAccessApiImpl.getEventsForBlockIds(type, blockIds)
+        assertResultSuccess(result) { assertEquals(2, it.size) }
     }
 
     @Test
     fun `Test getNetworkParameters`() {
         val mockFlowChainId = FlowChainId.of("test_chain_id")
+        val response = Access.GetNetworkParametersResponse.newBuilder().setChainId("test_chain_id").build()
 
-        val response = Access.GetNetworkParametersResponse.newBuilder()
-            .setChainId("test_chain_id")
-            .build()
+        `when`(mockApi.getNetworkParameters(Access.GetNetworkParametersRequest.newBuilder().build())).thenReturn(response)
 
-        `when`(api.getNetworkParameters(Access.GetNetworkParametersRequest.newBuilder().build()))
-            .thenReturn(response)
-
-        when (val result = flowAccessApi.getNetworkParameters()) {
-            is FlowAccessApi.AccessApiCallResponse.Success -> assertEquals(mockFlowChainId, result.data)
-            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to get network parameters: ${result.message}", result.throwable)
-        }
+        val result = flowAccessApiImpl.getNetworkParameters()
+        assertResultSuccess(result) { assertEquals(mockFlowChainId, it) }
     }
 
     @Test
     fun `Test getLatestProtocolStateSnapshot`() {
         val mockFlowSnapshot = FlowSnapshot("test_serialized_snapshot".toByteArray())
+        val response = Access.ProtocolStateSnapshotResponse.newBuilder().setSerializedSnapshot(ByteString.copyFromUtf8("test_serialized_snapshot")).build()
 
-        val response = Access.ProtocolStateSnapshotResponse.newBuilder()
-            .setSerializedSnapshot(ByteString.copyFromUtf8("test_serialized_snapshot"))
-            .build()
+        `when`(mockApi.getLatestProtocolStateSnapshot(Access.GetLatestProtocolStateSnapshotRequest.newBuilder().build())).thenReturn(response)
 
-        `when`(api.getLatestProtocolStateSnapshot(Access.GetLatestProtocolStateSnapshotRequest.newBuilder().build()))
-            .thenReturn(response)
-
-        when (val result = flowAccessApi.getLatestProtocolStateSnapshot()) {
-            is FlowAccessApi.AccessApiCallResponse.Success -> assertEquals(mockFlowSnapshot, result.data)
-            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to get latest protocol state snapshot: ${result.message}", result.throwable)
-        }
+        val result = flowAccessApiImpl.getLatestProtocolStateSnapshot()
+        assertResultSuccess(result) { assertEquals(mockFlowSnapshot, it) }
     }
 
     @Test
     fun `Test getTransactionsByBlockId`() {
         val blockId = FlowId("01")
         val transactions = listOf(FlowTransaction.of(TransactionOuterClass.Transaction.getDefaultInstance()))
+        val response = Access.TransactionsResponse.newBuilder().addAllTransactions(transactions.map { it.builder().build() }).build()
 
-        val response = Access.TransactionsResponse.newBuilder()
-            .addAllTransactions(transactions.map { it.builder().build() })
-            .build()
+        `when`(mockApi.getTransactionsByBlockID(any())).thenReturn(response)
 
-        `when`(api.getTransactionsByBlockID(any())).thenReturn(response)
-
-        when (val result = flowAccessApi.getTransactionsByBlockId(blockId)) {
-            is FlowAccessApi.AccessApiCallResponse.Success -> assertEquals(transactions, result.data)
-            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to get transactions by block ID: ${result.message}", result.throwable)
-        }
+        val result = flowAccessApiImpl.getTransactionsByBlockId(blockId)
+        assertResultSuccess(result) { assertEquals(transactions, it) }
     }
 
     @Test
     fun `Test getTransactionsByBlockId with multiple results`() {
         val blockId = FlowId("01")
-
         val transaction1 = FlowTransaction.of(TransactionOuterClass.Transaction.getDefaultInstance())
         val transaction2 = FlowTransaction.of(TransactionOuterClass.Transaction.newBuilder().setReferenceBlockId(ByteString.copyFromUtf8("02")).build())
-
         val transactions = listOf(transaction1, transaction2)
+        val response = Access.TransactionsResponse.newBuilder().addAllTransactions(transactions.map { it.builder().build() }).build()
 
-        val response = Access.TransactionsResponse.newBuilder()
-            .addAllTransactions(transactions.map { it.builder().build() })
-            .build()
+        `when`(mockApi.getTransactionsByBlockID(any())).thenReturn(response)
 
-        `when`(api.getTransactionsByBlockID(any())).thenReturn(response)
-
-        when (val result = flowAccessApi.getTransactionsByBlockId(blockId)) {
-            is FlowAccessApi.AccessApiCallResponse.Success -> {
-                assertEquals(2, result.data.size)
-                assertEquals(transaction1, result.data[0])
-                assertEquals(transaction2, result.data[1])
-            }
-            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to get transactions by block ID: ${result.message}", result.throwable)
+        val result = flowAccessApiImpl.getTransactionsByBlockId(blockId)
+        assertResultSuccess(result) {
+            assertEquals(2, it.size)
+            assertEquals(transaction1, it[0])
+            assertEquals(transaction2, it[1])
         }
     }
 
@@ -502,23 +373,17 @@ class FlowAccessApiImplTest {
     fun `Test getTransactionResultsByBlockId`() {
         val blockId = FlowId("01")
         val transactionResults = listOf(FlowTransactionResult.of(Access.TransactionResultResponse.getDefaultInstance()))
+        val response = Access.TransactionResultsResponse.newBuilder().addAllTransactionResults(transactionResults.map { it.builder().build() }).build()
 
-        val response = Access.TransactionResultsResponse.newBuilder()
-            .addAllTransactionResults(transactionResults.map { it.builder().build() })
-            .build()
+        `when`(mockApi.getTransactionResultsByBlockID(any())).thenReturn(response)
 
-        `when`(api.getTransactionResultsByBlockID(any())).thenReturn(response)
-
-        when (val result = flowAccessApi.getTransactionResultsByBlockId(blockId)) {
-            is FlowAccessApi.AccessApiCallResponse.Success -> assertEquals(transactionResults, result.data)
-            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to get transaction results by block ID: ${result.message}", result.throwable)
-        }
+        val result = flowAccessApiImpl.getTransactionResultsByBlockId(blockId)
+        assertResultSuccess(result) { assertEquals(transactionResults, it) }
     }
 
     @Test
     fun `Test getTransactionResultsByBlockId with multiple results`() {
         val blockId = FlowId("01")
-
         val transactionResult1 = FlowTransactionResult.of(
             Access.TransactionResultResponse.newBuilder()
                 .setStatus(TransactionOuterClass.TransactionStatus.SEALED)
@@ -526,7 +391,6 @@ class FlowAccessApiImplTest {
                 .setErrorMessage("message1")
                 .build()
         )
-
         val transactionResult2 = FlowTransactionResult.of(
             Access.TransactionResultResponse.newBuilder()
                 .setStatus(TransactionOuterClass.TransactionStatus.SEALED)
@@ -534,22 +398,16 @@ class FlowAccessApiImplTest {
                 .setErrorMessage("message2")
                 .build()
         )
-
         val transactionResults = listOf(transactionResult1, transactionResult2)
+        val response = Access.TransactionResultsResponse.newBuilder().addAllTransactionResults(transactionResults.map { it.builder().build() }).build()
 
-        val response = Access.TransactionResultsResponse.newBuilder()
-            .addAllTransactionResults(transactionResults.map { it.builder().build() })
-            .build()
+        `when`(mockApi.getTransactionResultsByBlockID(any())).thenReturn(response)
 
-        `when`(api.getTransactionResultsByBlockID(any())).thenReturn(response)
-
-        when (val result = flowAccessApi.getTransactionResultsByBlockId(blockId)) {
-            is FlowAccessApi.AccessApiCallResponse.Success -> {
-                assertEquals(2, result.data.size)
-                assertEquals(transactionResult1, result.data[0])
-                assertEquals(transactionResult2, result.data[1])
-            }
-            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to get transaction results by block ID: ${result.message}", result.throwable)
+        val result = flowAccessApiImpl.getTransactionResultsByBlockId(blockId)
+        assertResultSuccess(result) {
+            assertEquals(2, it.size)
+            assertEquals(transactionResult1, it[0])
+            assertEquals(transactionResult2, it[1])
         }
     }
 
@@ -557,7 +415,6 @@ class FlowAccessApiImplTest {
     fun `Test getExecutionResultByBlockId`() {
         val blockId = FlowId("01")
         val executionResult = ExecutionResult(FlowId("01"), FlowId("02"))
-
         val response = Access.ExecutionResultByIDResponse.newBuilder()
             .setExecutionResult(
                 ExecutionResultOuterClass.ExecutionResult.newBuilder()
@@ -567,11 +424,34 @@ class FlowAccessApiImplTest {
             )
             .build()
 
-        `when`(api.getExecutionResultByID(any())).thenReturn(response)
+        `when`(mockApi.getExecutionResultByID(any())).thenReturn(response)
 
-        when (val result = flowAccessApi.getExecutionResultByBlockId(blockId)) {
-            is FlowAccessApi.AccessApiCallResponse.Success -> assertEquals(executionResult, result.data)
-            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to get execution result by block ID: ${result.message}", result.throwable)
+        val result = flowAccessApiImpl.getExecutionResultByBlockId(blockId)
+        assertResultSuccess(result) { assertEquals(executionResult, it) }
+    }
+
+    private fun <T> assertResultSuccess(result: FlowAccessApi.AccessApiCallResponse<T>, assertions: (T) -> Unit) {
+        when (result) {
+            is FlowAccessApi.AccessApiCallResponse.Success -> assertions(result.data)
+            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Request failed: ${result.message}", result.throwable)
         }
     }
+
+    private fun createMockTransaction(flowId: FlowId = FlowId("01")) = FlowTransaction(
+        FlowScript("script"),
+        emptyList(),
+        flowId,
+        123L,
+        FlowTransactionProposalKey(FlowAddress("02"), 1, 123L),
+        FlowAddress("02"),
+        emptyList()
+    )
+
+    private fun createMockAccount(flowAddress: FlowAddress) = FlowAccount(
+        flowAddress,
+        BigDecimal.ONE,
+        FlowCode("code".toByteArray()),
+        emptyList(),
+        emptyMap()
+    )
 }
