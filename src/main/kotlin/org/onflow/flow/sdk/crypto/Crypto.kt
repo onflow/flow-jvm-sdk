@@ -174,6 +174,9 @@ internal class HasherImpl(
                 if (key == null) {
                     throw IllegalArgumentException("KMAC128 requires a key")
                 }
+                if (outputSize != null && outputSize <= 0) {
+                    throw IllegalArgumentException("Output size must be positive")
+                }
                 val kmac = KMAC(128, customizer)
                 kmac.init(KeyParameter(key))
                 val output = ByteArray(outputSize ?: kmac.digestSize)
