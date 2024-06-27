@@ -1,6 +1,5 @@
 package org.onflow.flow.sdk
 
-import org.onflow.flow.sdk.cadence.AddressField
 import org.onflow.flow.sdk.crypto.Crypto
 import org.onflow.flow.sdk.test.FlowEmulatorTest
 import org.onflow.flow.sdk.test.FlowServiceAccountCredentials

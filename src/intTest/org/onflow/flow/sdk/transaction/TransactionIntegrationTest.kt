@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test
 
 @FlowEmulatorTest
 class TransactionIntegrationTest {
-
     @Test
     fun wut() {
         val account = IntegrationTestUtils.handleResult(
