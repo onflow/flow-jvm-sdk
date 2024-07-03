@@ -22,346 +22,463 @@ class AsyncFlowAccessApiImpl(
         }
     }
 
-    override fun ping(): CompletableFuture<Unit> {
-        return completableFuture(
-            api.ping(
-                Access.PingRequest.newBuilder()
-                    .build()
-            )
-        ).thenApply {
-        }
-    }
-
-    override fun getLatestBlockHeader(sealed: Boolean): CompletableFuture<FlowBlockHeader> {
-        return completableFuture(
-            api.getLatestBlockHeader(
-                Access.GetLatestBlockHeaderRequest.newBuilder()
-                    .setIsSealed(sealed)
-                    .build()
-            )
-        ).thenApply {
-            FlowBlockHeader.of(it.block)
-        }
-    }
-
-    override fun getBlockHeaderById(id: FlowId): CompletableFuture<FlowBlockHeader?> {
-        return completableFuture(
-            api.getBlockHeaderByID(
-                Access.GetBlockHeaderByIDRequest.newBuilder()
-                    .setId(id.byteStringValue)
-                    .build()
-            )
-        ).thenApply {
-            if (it.hasBlock()) {
-                FlowBlockHeader.of(it.block)
-            } else {
-                null
+    override fun ping(): CompletableFuture<FlowAccessApi.AccessApiCallResponse<Unit>> {
+        return try {
+            completableFuture(
+                api.ping(Access.PingRequest.newBuilder().build())
+            ).handle { _, ex ->
+                if (ex != null) {
+                    FlowAccessApi.AccessApiCallResponse.Error("Failed to ping", ex)
+                } else {
+                    FlowAccessApi.AccessApiCallResponse.Success(Unit)
+                }
             }
+        } catch (e: Exception) {
+            CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to ping", e))
         }
     }
 
-    override fun getBlockHeaderByHeight(height: Long): CompletableFuture<FlowBlockHeader?> {
-        return completableFuture(
-            api.getBlockHeaderByHeight(
-                Access.GetBlockHeaderByHeightRequest.newBuilder()
-                    .setHeight(height)
-                    .build()
-            )
-        ).thenApply {
-            if (it.hasBlock()) {
-                FlowBlockHeader.of(it.block)
-            } else {
-                null
+    override fun getLatestBlockHeader(sealed: Boolean): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowBlockHeader>> {
+        return try {
+            completableFuture(
+                api.getLatestBlockHeader(
+                    Access.GetLatestBlockHeaderRequest.newBuilder().setIsSealed(sealed).build()
+                )
+            ).handle { response, ex ->
+                if (ex != null) {
+                    FlowAccessApi.AccessApiCallResponse.Error("Failed to get latest block header", ex)
+                } else {
+                    FlowAccessApi.AccessApiCallResponse.Success(FlowBlockHeader.of(response.block))
+                }
             }
+        } catch (e: Exception) {
+            CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get latest block header", e))
         }
     }
 
-    override fun getLatestBlock(sealed: Boolean): CompletableFuture<FlowBlock> {
-        return completableFuture(
-            api.getLatestBlock(
-                Access.GetLatestBlockRequest.newBuilder()
-                    .setIsSealed(sealed)
-                    .build()
-            )
-        ).thenApply {
-            FlowBlock.of(it.block)
-        }
-    }
-
-    override fun getBlockById(id: FlowId): CompletableFuture<FlowBlock?> {
-        return completableFuture(
-            api.getBlockByID(
-                Access.GetBlockByIDRequest.newBuilder()
-                    .setId(id.byteStringValue)
-                    .build()
-            )
-        ).thenApply {
-            if (it.hasBlock()) {
-                FlowBlock.of(it.block)
-            } else {
-                null
+    override fun getBlockHeaderById(id: FlowId): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowBlockHeader?>> {
+        return try {
+            completableFuture(
+                api.getBlockHeaderByID(Access.GetBlockHeaderByIDRequest.newBuilder().setId(id.byteStringValue).build())
+            ).handle { response, ex ->
+                if (ex != null) {
+                    FlowAccessApi.AccessApiCallResponse.Error("Failed to get block header by ID", ex)
+                } else {
+                    if (response.hasBlock()) {
+                        FlowAccessApi.AccessApiCallResponse.Success(FlowBlockHeader.of(response.block))
+                    } else {
+                        FlowAccessApi.AccessApiCallResponse.Error("Block header not found")
+                    }
+                }
             }
+        } catch (e: Exception) {
+            CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get block header by ID", e))
         }
     }
 
-    override fun getBlockByHeight(height: Long): CompletableFuture<FlowBlock?> {
-        return completableFuture(
-            api.getBlockByHeight(
-                Access.GetBlockByHeightRequest.newBuilder()
-                    .setHeight(height)
-                    .build()
-            )
-        ).thenApply {
-            if (it.hasBlock()) {
-                FlowBlock.of(it.block)
-            } else {
-                null
+    override fun getBlockHeaderByHeight(height: Long): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowBlockHeader?>> {
+        return try {
+            completableFuture(
+                api.getBlockHeaderByHeight(Access.GetBlockHeaderByHeightRequest.newBuilder().setHeight(height).build())
+            ).handle { response, ex ->
+                if (ex != null) {
+                    FlowAccessApi.AccessApiCallResponse.Error("Failed to get block header by height", ex)
+                } else {
+                    if (response.hasBlock()) {
+                        FlowAccessApi.AccessApiCallResponse.Success(FlowBlockHeader.of(response.block))
+                    } else {
+                        FlowAccessApi.AccessApiCallResponse.Error("Block header not found")
+                    }
+                }
             }
+        } catch (e: Exception) {
+            CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get block header by height", e))
         }
     }
 
-    override fun getCollectionById(id: FlowId): CompletableFuture<FlowCollection?> {
-        return completableFuture(
-            api.getCollectionByID(
-                Access.GetCollectionByIDRequest.newBuilder()
-                    .setId(id.byteStringValue)
-                    .build()
-            )
-        ).thenApply {
-            if (it.hasCollection()) {
-                FlowCollection.of(it.collection)
-            } else {
-                null
+    override fun getLatestBlock(sealed: Boolean): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowBlock>> {
+        return try {
+            completableFuture(
+                api.getLatestBlock(Access.GetLatestBlockRequest.newBuilder().setIsSealed(sealed).build())
+            ).handle { response, ex ->
+                if (ex != null) {
+                    FlowAccessApi.AccessApiCallResponse.Error("Failed to get latest block", ex)
+                } else {
+                    FlowAccessApi.AccessApiCallResponse.Success(FlowBlock.of(response.block))
+                }
             }
+        } catch (e: Exception) {
+            CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get latest block", e))
         }
     }
 
-    override fun sendTransaction(transaction: FlowTransaction): CompletableFuture<FlowId> {
-        return completableFuture(
-            api.sendTransaction(
-                Access.SendTransactionRequest.newBuilder()
-                    .setTransaction(transaction.builder().build())
-                    .build()
-            )
-        ).thenApply {
-            FlowId.of(it.id.toByteArray())
-        }
-    }
-
-    override fun getTransactionById(id: FlowId): CompletableFuture<FlowTransaction?> {
-        return completableFuture(
-            api.getTransaction(
-                Access.GetTransactionRequest.newBuilder()
-                    .setId(id.byteStringValue)
-                    .build()
-            )
-        ).thenApply {
-            if (it.hasTransaction()) {
-                FlowTransaction.of(it.transaction)
-            } else {
-                null
+    override fun getBlockById(id: FlowId): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowBlock?>> {
+        return try {
+            completableFuture(
+                api.getBlockByID(Access.GetBlockByIDRequest.newBuilder().setId(id.byteStringValue).build())
+            ).handle { response, ex ->
+                if (ex != null) {
+                    FlowAccessApi.AccessApiCallResponse.Error("Failed to get block by ID", ex)
+                } else {
+                    if (response.hasBlock()) {
+                        FlowAccessApi.AccessApiCallResponse.Success(FlowBlock.of(response.block))
+                    } else {
+                        FlowAccessApi.AccessApiCallResponse.Error("Block not found")
+                    }
+                }
             }
+        } catch (e: Exception) {
+            CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get block by ID", e))
         }
     }
 
-    override fun getTransactionResultById(id: FlowId): CompletableFuture<FlowTransactionResult?> {
-        return completableFuture(
-            api.getTransactionResult(
-                Access.GetTransactionRequest.newBuilder()
-                    .setId(id.byteStringValue)
-                    .build()
-            )
-        ).thenApply {
-            FlowTransactionResult.of(it)
-        }
-    }
-
-    override fun getTransactionsByBlockId(id: FlowId): CompletableFuture<List<FlowTransaction>> {
-        return completableFuture(
-            api.getTransactionsByBlockID(
-                Access.GetTransactionsByBlockIDRequest.newBuilder()
-                    .setBlockId(id.byteStringValue)
-                    .build()
-            )
-        ).thenApply { transactionsResponse ->
-            transactionsResponse.transactionsList.map { FlowTransaction.of(it) }
-        }
-    }
-
-    override fun getTransactionResultsByBlockId(id: FlowId): CompletableFuture<List<FlowTransactionResult>> {
-        return completableFuture(
-            api.getTransactionResultsByBlockID(
-                Access.GetTransactionsByBlockIDRequest.newBuilder()
-                    .setBlockId(id.byteStringValue)
-                    .build()
-            )
-        ).thenApply { transactionResultsResponse ->
-            transactionResultsResponse.transactionResultsList.map { FlowTransactionResult.of(it) }
-        }
-    }
-
-    override fun getExecutionResultByBlockId(id: FlowId): CompletableFuture<ExecutionResult?> {
-        return completableFuture(
-            api.getExecutionResultByID(
-                Access.GetExecutionResultByIDRequest.newBuilder()
-                    .setId(id.byteStringValue)
-                    .build()
-            )
-        ).thenApply {
-            if (it.hasExecutionResult()) {
-                ExecutionResult.of(it)
-            } else {
-                null
+    override fun getBlockByHeight(height: Long): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowBlock?>> {
+        return try {
+            completableFuture(
+                api.getBlockByHeight(Access.GetBlockByHeightRequest.newBuilder().setHeight(height).build())
+            ).handle { response, ex ->
+                if (ex != null) {
+                    FlowAccessApi.AccessApiCallResponse.Error("Failed to get block by height", ex)
+                } else {
+                    if (response.hasBlock()) {
+                        FlowAccessApi.AccessApiCallResponse.Success(FlowBlock.of(response.block))
+                    } else {
+                        FlowAccessApi.AccessApiCallResponse.Error("Block not found")
+                    }
+                }
             }
+        } catch (e: Exception) {
+            CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get block by height", e))
+        }
+    }
+
+    override fun getCollectionById(id: FlowId): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowCollection?>> {
+        return try {
+            completableFuture(
+                api.getCollectionByID(Access.GetCollectionByIDRequest.newBuilder().setId(id.byteStringValue).build())
+            ).handle { response, ex ->
+                if (ex != null) {
+                    FlowAccessApi.AccessApiCallResponse.Error("Failed to get collection by ID", ex)
+                } else {
+                    if (response.hasCollection()) {
+                        FlowAccessApi.AccessApiCallResponse.Success(FlowCollection.of(response.collection))
+                    } else {
+                        FlowAccessApi.AccessApiCallResponse.Error("Collection not found")
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get collection by ID", e))
+        }
+    }
+
+    override fun sendTransaction(transaction: FlowTransaction): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowId>> {
+        return try {
+            completableFuture(
+                api.sendTransaction(Access.SendTransactionRequest.newBuilder().setTransaction(transaction.builder().build()).build())
+            ).handle { response, ex ->
+                if (ex != null) {
+                    FlowAccessApi.AccessApiCallResponse.Error("Failed to send transaction", ex)
+                } else {
+                    FlowAccessApi.AccessApiCallResponse.Success(FlowId.of(response.id.toByteArray()))
+                }
+            }
+        } catch (e: Exception) {
+            CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to send transaction", e))
+        }
+    }
+
+    override fun getTransactionById(id: FlowId): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowTransaction?>> {
+        return try {
+            completableFuture(
+                api.getTransaction(Access.GetTransactionRequest.newBuilder().setId(id.byteStringValue).build())
+            ).handle { response, ex ->
+                if (ex != null) {
+                    FlowAccessApi.AccessApiCallResponse.Error("Failed to get transaction by ID", ex)
+                } else {
+                    if (response.hasTransaction()) {
+                        FlowAccessApi.AccessApiCallResponse.Success(FlowTransaction.of(response.transaction))
+                    } else {
+                        FlowAccessApi.AccessApiCallResponse.Error("Transaction not found")
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get transaction by ID", e))
+        }
+    }
+
+    override fun getTransactionResultById(id: FlowId): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowTransactionResult?>> {
+        return try {
+            completableFuture(
+                api.getTransactionResult(Access.GetTransactionRequest.newBuilder().setId(id.byteStringValue).build())
+            ).handle { response, ex ->
+                if (ex != null) {
+                    FlowAccessApi.AccessApiCallResponse.Error("Failed to get transaction result by ID", ex)
+                } else {
+                    FlowAccessApi.AccessApiCallResponse.Success(FlowTransactionResult.of(response))
+                }
+            }
+        } catch (e: Exception) {
+            CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get transaction result by ID", e))
+        }
+    }
+
+    override fun getTransactionsByBlockId(id: FlowId): CompletableFuture<FlowAccessApi.AccessApiCallResponse<List<FlowTransaction>>> {
+        return try {
+            completableFuture(
+                api.getTransactionsByBlockID(Access.GetTransactionsByBlockIDRequest.newBuilder().setBlockId(id.byteStringValue).build())
+            ).handle { response, ex ->
+                if (ex != null) {
+                    FlowAccessApi.AccessApiCallResponse.Error("Failed to get transactions by block ID", ex)
+                } else {
+                    FlowAccessApi.AccessApiCallResponse.Success(response.transactionsList.map { FlowTransaction.of(it) })
+                }
+            }
+        } catch (e: Exception) {
+            CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get transactions by block ID", e))
+        }
+    }
+
+    override fun getTransactionResultsByBlockId(id: FlowId): CompletableFuture<FlowAccessApi.AccessApiCallResponse<List<FlowTransactionResult>>> {
+        return try {
+            completableFuture(
+                api.getTransactionResultsByBlockID(Access.GetTransactionsByBlockIDRequest.newBuilder().setBlockId(id.byteStringValue).build())
+            ).handle { response, ex ->
+                if (ex != null) {
+                    FlowAccessApi.AccessApiCallResponse.Error("Failed to get transaction results by block ID", ex)
+                } else {
+                    FlowAccessApi.AccessApiCallResponse.Success(response.transactionResultsList.map { FlowTransactionResult.of(it) })
+                }
+            }
+        } catch (e: Exception) {
+            CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get transaction results by block ID", e))
+        }
+    }
+
+    override fun getExecutionResultByBlockId(id: FlowId): CompletableFuture<FlowAccessApi.AccessApiCallResponse<ExecutionResult?>> {
+        return try {
+            completableFuture(
+                api.getExecutionResultByID(Access.GetExecutionResultByIDRequest.newBuilder().setId(id.byteStringValue).build())
+            ).handle { response, ex ->
+                if (ex != null) {
+                    FlowAccessApi.AccessApiCallResponse.Error("Failed to get execution result by block ID", ex)
+                } else {
+                    if (response.hasExecutionResult()) {
+                        FlowAccessApi.AccessApiCallResponse.Success(ExecutionResult.of(response))
+                    } else {
+                        FlowAccessApi.AccessApiCallResponse.Error("Execution result not found")
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get execution result by block ID", e))
         }
     }
 
     @Deprecated("Behaves identically to getAccountAtLatestBlock", replaceWith = ReplaceWith("getAccountAtLatestBlock"))
-    override fun getAccountByAddress(addresss: FlowAddress): CompletableFuture<FlowAccount?> {
-        return completableFuture(
-            api.getAccount(
-                Access.GetAccountRequest.newBuilder()
-                    .setAddress(addresss.byteStringValue)
-                    .build()
-            )
-        ).thenApply {
-            if (it.hasAccount()) {
-                FlowAccount.of(it.account)
-            } else {
-                null
+    override fun getAccountByAddress(addresss: FlowAddress): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowAccount>> {
+        return try {
+            completableFuture(
+                api.getAccount(Access.GetAccountRequest.newBuilder().setAddress(addresss.byteStringValue).build())
+            ).handle { response, ex ->
+                if (ex != null) {
+                    FlowAccessApi.AccessApiCallResponse.Error("Failed to get account by address", ex)
+                } else {
+                    if (response.hasAccount()) {
+                        FlowAccessApi.AccessApiCallResponse.Success(FlowAccount.of(response.account))
+                    } else {
+                        FlowAccessApi.AccessApiCallResponse.Error("Account not found")
+                    }
+                }
             }
+        } catch (e: Exception) {
+            CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get account by address", e))
         }
     }
 
-    override fun getAccountAtLatestBlock(addresss: FlowAddress): CompletableFuture<FlowAccount?> {
-        return completableFuture(
-            api.getAccountAtLatestBlock(
-                Access.GetAccountAtLatestBlockRequest.newBuilder()
-                    .setAddress(addresss.byteStringValue)
-                    .build()
-            )
-        ).thenApply {
-            if (it.hasAccount()) {
-                FlowAccount.of(it.account)
-            } else {
-                null
+    override fun getAccountAtLatestBlock(addresss: FlowAddress): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowAccount>> {
+        return try {
+            completableFuture(
+                api.getAccountAtLatestBlock(Access.GetAccountAtLatestBlockRequest.newBuilder().setAddress(addresss.byteStringValue).build())
+            ).handle { response, ex ->
+                if (ex != null) {
+                    FlowAccessApi.AccessApiCallResponse.Error("Failed to get account at latest block", ex)
+                } else {
+                    if (response.hasAccount()) {
+                        FlowAccessApi.AccessApiCallResponse.Success(FlowAccount.of(response.account))
+                    } else {
+                        FlowAccessApi.AccessApiCallResponse.Error("Account not found")
+                    }
+                }
             }
+        } catch (e: Exception) {
+            CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get account at latest block", e))
         }
     }
 
-    override fun getAccountByBlockHeight(addresss: FlowAddress, height: Long): CompletableFuture<FlowAccount?> {
-        return completableFuture(
-            api.getAccountAtBlockHeight(
-                Access.GetAccountAtBlockHeightRequest.newBuilder()
-                    .setAddress(addresss.byteStringValue)
-                    .setBlockHeight(height)
-                    .build()
-            )
-        ).thenApply {
-            if (it.hasAccount()) {
-                FlowAccount.of(it.account)
-            } else {
-                null
+    override fun getAccountByBlockHeight(addresss: FlowAddress, height: Long): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowAccount>> {
+        return try {
+            completableFuture(
+                api.getAccountAtBlockHeight(
+                    Access.GetAccountAtBlockHeightRequest.newBuilder()
+                        .setAddress(addresss.byteStringValue)
+                        .setBlockHeight(height)
+                        .build()
+                )
+            ).handle { response, ex ->
+                if (ex != null) {
+                    FlowAccessApi.AccessApiCallResponse.Error("Failed to get account by block height", ex)
+                } else {
+                    if (response.hasAccount()) {
+                        FlowAccessApi.AccessApiCallResponse.Success(FlowAccount.of(response.account))
+                    } else {
+                        FlowAccessApi.AccessApiCallResponse.Error("Account not found")
+                    }
+                }
             }
+        } catch (e: Exception) {
+            CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get account by block height", e))
         }
     }
 
-    override fun executeScriptAtLatestBlock(script: FlowScript, arguments: Iterable<ByteString>): CompletableFuture<FlowScriptResponse> {
-        return completableFuture(
-            api.executeScriptAtLatestBlock(
-                Access.ExecuteScriptAtLatestBlockRequest.newBuilder()
-                    .setScript(script.byteStringValue)
-                    .addAllArguments(arguments)
-                    .build()
-            )
-        ).thenApply {
-            FlowScriptResponse(it.value.toByteArray())
+    override fun executeScriptAtLatestBlock(script: FlowScript, arguments: Iterable<ByteString>): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowScriptResponse>> {
+        return try {
+            completableFuture(
+                api.executeScriptAtLatestBlock(
+                    Access.ExecuteScriptAtLatestBlockRequest.newBuilder()
+                        .setScript(script.byteStringValue)
+                        .addAllArguments(arguments)
+                        .build()
+                )
+            ).handle { response, ex ->
+                if (ex != null) {
+                    FlowAccessApi.AccessApiCallResponse.Error("Failed to execute script at latest block", ex)
+                } else {
+                    FlowAccessApi.AccessApiCallResponse.Success(FlowScriptResponse(response.value.toByteArray()))
+                }
+            }
+        } catch (e: Exception) {
+            CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to execute script at latest block", e))
         }
     }
 
-    override fun executeScriptAtBlockId(script: FlowScript, blockId: FlowId, arguments: Iterable<ByteString>): CompletableFuture<FlowScriptResponse> {
-        return completableFuture(
-            api.executeScriptAtBlockID(
-                Access.ExecuteScriptAtBlockIDRequest.newBuilder()
-                    .setBlockId(blockId.byteStringValue)
-                    .setScript(script.byteStringValue)
-                    .addAllArguments(arguments)
-                    .build()
-            )
-        ).thenApply {
-            FlowScriptResponse(it.value.toByteArray())
+    override fun executeScriptAtBlockId(script: FlowScript, blockId: FlowId, arguments: Iterable<ByteString>): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowScriptResponse>> {
+        return try {
+            completableFuture(
+                api.executeScriptAtBlockID(
+                    Access.ExecuteScriptAtBlockIDRequest.newBuilder()
+                        .setBlockId(blockId.byteStringValue)
+                        .setScript(script.byteStringValue)
+                        .addAllArguments(arguments)
+                        .build()
+                )
+            ).handle { response, ex ->
+                if (ex != null) {
+                    FlowAccessApi.AccessApiCallResponse.Error("Failed to execute script at block ID", ex)
+                } else {
+                    FlowAccessApi.AccessApiCallResponse.Success(FlowScriptResponse(response.value.toByteArray()))
+                }
+            }
+        } catch (e: Exception) {
+            CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to execute script at block ID", e))
         }
     }
 
-    override fun executeScriptAtBlockHeight(
-        script: FlowScript,
-        height: Long,
-        arguments: Iterable<ByteString>
-    ): CompletableFuture<FlowScriptResponse> {
-        return completableFuture(
-            api.executeScriptAtBlockHeight(
-                Access.ExecuteScriptAtBlockHeightRequest.newBuilder()
-                    .setBlockHeight(height)
-                    .setScript(script.byteStringValue)
-                    .addAllArguments(arguments)
-                    .build()
-            )
-        ).thenApply {
-            FlowScriptResponse(it.value.toByteArray())
+    override fun executeScriptAtBlockHeight(script: FlowScript, height: Long, arguments: Iterable<ByteString>): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowScriptResponse>> {
+        return try {
+            completableFuture(
+                api.executeScriptAtBlockHeight(
+                    Access.ExecuteScriptAtBlockHeightRequest.newBuilder()
+                        .setBlockHeight(height)
+                        .setScript(script.byteStringValue)
+                        .addAllArguments(arguments)
+                        .build()
+                )
+            ).handle { response, ex ->
+                if (ex != null) {
+                    FlowAccessApi.AccessApiCallResponse.Error("Failed to execute script at block height", ex)
+                } else {
+                    FlowAccessApi.AccessApiCallResponse.Success(FlowScriptResponse(response.value.toByteArray()))
+                }
+            }
+        } catch (e: Exception) {
+            CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to execute script at block height", e))
         }
     }
 
-    override fun getEventsForHeightRange(
-        type: String,
-        range: ClosedRange<Long>
-    ): CompletableFuture<List<FlowEventResult>> {
-        return completableFuture(
-            api.getEventsForHeightRange(
-                Access.GetEventsForHeightRangeRequest.newBuilder()
-                    .setType(type)
-                    .setStartHeight(range.start)
-                    .setEndHeight(range.endInclusive)
-                    .build()
-            )
-        ).thenApply {
-            it.resultsList
-                .map { FlowEventResult.of(it) }
+    override fun getEventsForHeightRange(type: String, range: ClosedRange<Long>): CompletableFuture<FlowAccessApi.AccessApiCallResponse<List<FlowEventResult>>> {
+        return try {
+            completableFuture(
+                api.getEventsForHeightRange(
+                    Access.GetEventsForHeightRangeRequest.newBuilder()
+                        .setType(type)
+                        .setStartHeight(range.start)
+                        .setEndHeight(range.endInclusive)
+                        .build()
+                )
+            ).handle { response, ex ->
+                if (ex != null) {
+                    FlowAccessApi.AccessApiCallResponse.Error("Failed to get events for height range", ex)
+                } else {
+                    FlowAccessApi.AccessApiCallResponse.Success(response.resultsList.map { FlowEventResult.of(it) })
+                }
+            }
+        } catch (e: Exception) {
+            CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get events for height range", e))
         }
     }
 
-    override fun getEventsForBlockIds(type: String, ids: Set<FlowId>): CompletableFuture<List<FlowEventResult>> {
-        return completableFuture(
-            api.getEventsForBlockIDs(
-                Access.GetEventsForBlockIDsRequest.newBuilder()
-                    .setType(type)
-                    .addAllBlockIds(ids.map { it.byteStringValue })
-                    .build()
-            )
-        ).thenApply {
-            it.resultsList
-                .map { FlowEventResult.of(it) }
+    override fun getEventsForBlockIds(type: String, ids: Set<FlowId>): CompletableFuture<FlowAccessApi.AccessApiCallResponse<List<FlowEventResult>>> {
+        return try {
+            completableFuture(
+                api.getEventsForBlockIDs(
+                    Access.GetEventsForBlockIDsRequest.newBuilder()
+                        .setType(type)
+                        .addAllBlockIds(ids.map { it.byteStringValue })
+                        .build()
+                )
+            ).handle { response, ex ->
+                if (ex != null) {
+                    FlowAccessApi.AccessApiCallResponse.Error("Failed to get events for block IDs", ex)
+                } else {
+                    FlowAccessApi.AccessApiCallResponse.Success(response.resultsList.map { FlowEventResult.of(it) })
+                }
+            }
+        } catch (e: Exception) {
+            CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get events for block IDs", e))
         }
     }
 
-    override fun getNetworkParameters(): CompletableFuture<FlowChainId> {
-        return completableFuture(
-            api.getNetworkParameters(
-                Access.GetNetworkParametersRequest.newBuilder()
-                    .build()
-            )
-        ).thenApply {
-            FlowChainId.of(it.chainId)
+    override fun getNetworkParameters(): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowChainId>> {
+        return try {
+            completableFuture(
+                api.getNetworkParameters(Access.GetNetworkParametersRequest.newBuilder().build())
+            ).handle { response, ex ->
+                if (ex != null) {
+                    FlowAccessApi.AccessApiCallResponse.Error("Failed to get network parameters", ex)
+                } else {
+                    FlowAccessApi.AccessApiCallResponse.Success(FlowChainId.of(response.chainId))
+                }
+            }
+        } catch (e: Exception) {
+            CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get network parameters", e))
         }
     }
 
-    override fun getLatestProtocolStateSnapshot(): CompletableFuture<FlowSnapshot> {
-        return completableFuture(
-            api.getLatestProtocolStateSnapshot(
-                Access.GetLatestProtocolStateSnapshotRequest.newBuilder()
-                    .build()
-            )
-        ).thenApply {
-            FlowSnapshot(it.serializedSnapshot.toByteArray())
+    override fun getLatestProtocolStateSnapshot(): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowSnapshot>> {
+        return try {
+            completableFuture(
+                api.getLatestProtocolStateSnapshot(Access.GetLatestProtocolStateSnapshotRequest.newBuilder().build())
+            ).handle { response, ex ->
+                if (ex != null) {
+                    FlowAccessApi.AccessApiCallResponse.Error("Failed to get latest protocol state snapshot", ex)
+                } else {
+                    FlowAccessApi.AccessApiCallResponse.Success(FlowSnapshot(response.serializedSnapshot.toByteArray()))
+                }
+            }
+        } catch (e: Exception) {
+            CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get latest protocol state snapshot", e))
         }
     }
 }

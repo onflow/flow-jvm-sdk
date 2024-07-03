@@ -46,9 +46,8 @@ class TransactionCreationTest {
 
     @Test
     fun `Can create an account using the transaction DSL`() {
-        val latestBlockId = accessAPI.getLatestBlockHeader().id
-
-        val payerAccount = accessAPI.getAccountAtLatestBlock(serviceAccount.flowAddress)!!
+        val latestBlockId = getLatestBlockId(accessAPI)
+        val payerAccount = IntegrationTestUtils.getAccount(accessAPI, serviceAccount.flowAddress)
 
         val newAccountKeyPair = Crypto.generateKeyPair(SignatureAlgorithm.ECDSA_P256)
         val newAccountPublicKey = FlowAccountKey(
@@ -61,12 +60,12 @@ class TransactionCreationTest {
         val tx = flowTransaction {
             script {
                 """
-                    transaction(publicKey: String) {
-                        prepare(signer: AuthAccount) {
-                            let account = AuthAccount(payer: signer)
-                            account.addPublicKey(publicKey.decodeHex())
-                        }
+                transaction(publicKey: String) {
+                    prepare(signer: AuthAccount) {
+                        let account = AuthAccount(payer: signer)
+                        account.addPublicKey(publicKey.decodeHex())
                     }
+                }
                 """
             }
 
@@ -94,8 +93,10 @@ class TransactionCreationTest {
             }
         }
 
-        val txID = accessAPI.sendTransaction(tx)
-        val result = waitForSeal(accessAPI, txID).throwOnError()
+        val txID = IntegrationTestUtils.handleResult(accessAPI.sendTransaction(tx), "Failed to send transaction")
+
+        val result = IntegrationTestUtils.handleResult(waitForSeal(accessAPI, txID), "Failed to wait for seal")
+
         assertThat(result).isNotNull
         assertThat(result.status).isEqualTo(FlowTransactionStatus.SEALED)
     }
@@ -110,15 +111,15 @@ class TransactionCreationTest {
             weight = 1000
         )
 
-        val result = accessAPI.simpleFlowTransaction(serviceAccount.flowAddress, serviceAccount.signer) {
+        val transactionResult = accessAPI.simpleFlowTransaction(serviceAccount.flowAddress, serviceAccount.signer) {
             script {
                 """
-                    transaction(publicKey: String) {
-                        prepare(signer: AuthAccount) {
-                            let account = AuthAccount(payer: signer)
-                            account.addPublicKey(publicKey.decodeHex())
-                        }
+                transaction(publicKey: String) {
+                    prepare(signer: AuthAccount) {
+                        let account = AuthAccount(payer: signer)
+                        account.addPublicKey(publicKey.decodeHex())
                     }
+                }
                 """
             }
 
@@ -126,7 +127,14 @@ class TransactionCreationTest {
                 arg { string(newAccountPublicKey.encoded.bytesToHex()) }
             }
         }.sendAndWaitForSeal()
-            .throwOnError()
+
+        val result = IntegrationTestUtils.handleResult(transactionResult, "Failed to create account")
+
         assertThat(result.status).isEqualTo(FlowTransactionStatus.SEALED)
+    }
+
+    private fun getLatestBlockId(api: FlowAccessApi): FlowId {
+        val result = api.getLatestBlockHeader()
+        return IntegrationTestUtils.handleResult(result, "Failed to get latest block header").id
     }
 }

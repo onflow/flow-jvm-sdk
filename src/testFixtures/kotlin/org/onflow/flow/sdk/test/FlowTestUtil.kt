@@ -75,44 +75,44 @@ object FlowTestUtil {
         signAlgo: SignatureAlgorithm,
         hashAlgo: HashAlgorithm,
         balance: BigDecimal = BigDecimal(0.01)
-    ): FlowAddress {
-        val result = api.simpleFlowTransaction(
+    ): FlowAccessApi.AccessApiCallResponse<FlowAddress> {
+        val transactionResult = api.simpleFlowTransaction(
             address = serviceAccount.flowAddress,
             signer = serviceAccount.signer,
             keyIndex = serviceAccount.keyIndex
         ) {
             script {
                 """
-                    import FlowToken from 0xFLOWTOKEN
-                    import FungibleToken from 0xFUNGIBLETOKEN
-                    
-                    transaction(startingBalance: UFix64, publicKey: String, signatureAlgorithm: UInt8, hashAlgorithm: UInt8) {
-                        prepare(signer: AuthAccount) {
+                import FlowToken from 0xFLOWTOKEN
+                import FungibleToken from 0xFUNGIBLETOKEN
+                
+                transaction(startingBalance: UFix64, publicKey: String, signatureAlgorithm: UInt8, hashAlgorithm: UInt8) {
+                    prepare(signer: AuthAccount) {
 
-                            let newAccount = AuthAccount(payer: signer)
-                            
-                            let provider = signer.borrow<&FlowToken.Vault>(from: /storage/flowTokenVault)
-                                ?? panic("Could not borrow FlowToken.Vault reference")
-                            
-                            let newVault = newAccount
-                                .getCapability(/public/flowTokenReceiver)
-                                .borrow<&{FungibleToken.Receiver}>()
-                                ?? panic("Could not borrow FungibleToken.Receiver reference")
+                        let newAccount = AuthAccount(payer: signer)
+                        
+                        let provider = signer.borrow<&FlowToken.Vault>(from: /storage/flowTokenVault)
+                            ?? panic("Could not borrow FlowToken.Vault reference")
+                        
+                        let newVault = newAccount
+                            .getCapability(/public/flowTokenReceiver)
+                            .borrow<&{FungibleToken.Receiver}>()
+                            ?? panic("Could not borrow FungibleToken.Receiver reference")
 
-                            let coin <- provider.withdraw(amount: startingBalance)
-                            newVault.deposit(from: <- coin)
-                            
-                            newAccount.keys.add(
-                                publicKey: PublicKey(
-                                    publicKey: publicKey.decodeHex(),
-                                    signatureAlgorithm: SignatureAlgorithm(rawValue: signatureAlgorithm)!
-                                ),
-                                hashAlgorithm: HashAlgorithm(rawValue: hashAlgorithm)!,
-                                weight: UFix64(1000)
-                            )
-                        }
+                        let coin <- provider.withdraw(amount: startingBalance)
+                        newVault.deposit(from: <- coin)
+                        
+                        newAccount.keys.add(
+                            publicKey: PublicKey(
+                                publicKey: publicKey.decodeHex(),
+                                signatureAlgorithm: SignatureAlgorithm(rawValue: signatureAlgorithm)!
+                            ),
+                            hashAlgorithm: HashAlgorithm(rawValue: hashAlgorithm)!,
+                            weight: UFix64(1000)
+                        )
                     }
-                """
+                }
+            """
             }
             gasLimit(1000)
             arguments {
@@ -122,17 +122,22 @@ object FlowTestUtil {
                 arg { uint8(hashAlgo.index) }
             }
         }.sendAndWaitForSeal()
-            .throwOnError()
 
-        val address = result.events
-            .find { it.type == "flow.AccountCreated" }
-            ?.payload
-            ?.let { (it.jsonCadence as EventField).value }
-            ?.getRequiredField<AddressField>("address")
-            ?.value
-            ?: throw FlowException("Couldn't find AccountCreated event with address for account that was created")
+        return when (transactionResult) {
+            is FlowAccessApi.AccessApiCallResponse.Success -> {
+                val result = transactionResult.data
+                val address = result.events
+                    .find { it.type == "flow.AccountCreated" }
+                    ?.payload
+                    ?.let { (it.jsonCadence as EventField).value }
+                    ?.getRequiredField<AddressField>("address")
+                    ?.value
+                    ?: return FlowAccessApi.AccessApiCallResponse.Error("Couldn't find AccountCreated event with address for account that was created")
 
-        return FlowAddress(address)
+                FlowAccessApi.AccessApiCallResponse.Success(FlowAddress(address))
+            }
+            is FlowAccessApi.AccessApiCallResponse.Error -> FlowAccessApi.AccessApiCallResponse.Error("Failed to create account: ${transactionResult.message}", transactionResult.throwable)
+        }
     }
 
     @JvmStatic
