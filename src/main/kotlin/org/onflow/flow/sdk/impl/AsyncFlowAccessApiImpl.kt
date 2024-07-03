@@ -25,7 +25,11 @@ class AsyncFlowAccessApiImpl(
     override fun ping(): CompletableFuture<FlowAccessApi.AccessApiCallResponse<Unit>> {
         return try {
             completableFuture(
-                api.ping(Access.PingRequest.newBuilder().build())
+                try {
+                    api.ping(Access.PingRequest.newBuilder().build())
+                } catch (e: Exception) {
+                    return CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to ping", e))
+                }
             ).handle { _, ex ->
                 if (ex != null) {
                     FlowAccessApi.AccessApiCallResponse.Error("Failed to ping", ex)
@@ -41,9 +45,13 @@ class AsyncFlowAccessApiImpl(
     override fun getLatestBlockHeader(sealed: Boolean): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowBlockHeader>> {
         return try {
             completableFuture(
-                api.getLatestBlockHeader(
-                    Access.GetLatestBlockHeaderRequest.newBuilder().setIsSealed(sealed).build()
-                )
+                try {
+                    api.getLatestBlockHeader(
+                        Access.GetLatestBlockHeaderRequest.newBuilder().setIsSealed(sealed).build()
+                    )
+                } catch (e: Exception) {
+                    return CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get latest block header", e))
+                }
             ).handle { response, ex ->
                 if (ex != null) {
                     FlowAccessApi.AccessApiCallResponse.Error("Failed to get latest block header", ex)
@@ -59,7 +67,11 @@ class AsyncFlowAccessApiImpl(
     override fun getBlockHeaderById(id: FlowId): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowBlockHeader?>> {
         return try {
             completableFuture(
-                api.getBlockHeaderByID(Access.GetBlockHeaderByIDRequest.newBuilder().setId(id.byteStringValue).build())
+                try {
+                    api.getBlockHeaderByID(Access.GetBlockHeaderByIDRequest.newBuilder().setId(id.byteStringValue).build())
+                } catch (e: Exception) {
+                    return CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get block header by ID", e))
+                }
             ).handle { response, ex ->
                 if (ex != null) {
                     FlowAccessApi.AccessApiCallResponse.Error("Failed to get block header by ID", ex)
@@ -79,7 +91,11 @@ class AsyncFlowAccessApiImpl(
     override fun getBlockHeaderByHeight(height: Long): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowBlockHeader?>> {
         return try {
             completableFuture(
-                api.getBlockHeaderByHeight(Access.GetBlockHeaderByHeightRequest.newBuilder().setHeight(height).build())
+                try {
+                    api.getBlockHeaderByHeight(Access.GetBlockHeaderByHeightRequest.newBuilder().setHeight(height).build())
+                } catch (e: Exception) {
+                    return CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get block header by height", e))
+                }
             ).handle { response, ex ->
                 if (ex != null) {
                     FlowAccessApi.AccessApiCallResponse.Error("Failed to get block header by height", ex)
@@ -99,7 +115,11 @@ class AsyncFlowAccessApiImpl(
     override fun getLatestBlock(sealed: Boolean): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowBlock>> {
         return try {
             completableFuture(
-                api.getLatestBlock(Access.GetLatestBlockRequest.newBuilder().setIsSealed(sealed).build())
+                try {
+                    api.getLatestBlock(Access.GetLatestBlockRequest.newBuilder().setIsSealed(sealed).build())
+                } catch (e: Exception) {
+                    return CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get latest block", e))
+                }
             ).handle { response, ex ->
                 if (ex != null) {
                     FlowAccessApi.AccessApiCallResponse.Error("Failed to get latest block", ex)
@@ -115,7 +135,11 @@ class AsyncFlowAccessApiImpl(
     override fun getBlockById(id: FlowId): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowBlock?>> {
         return try {
             completableFuture(
-                api.getBlockByID(Access.GetBlockByIDRequest.newBuilder().setId(id.byteStringValue).build())
+                try {
+                    api.getBlockByID(Access.GetBlockByIDRequest.newBuilder().setId(id.byteStringValue).build())
+                } catch (e: Exception) {
+                    return CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get block by ID", e))
+                }
             ).handle { response, ex ->
                 if (ex != null) {
                     FlowAccessApi.AccessApiCallResponse.Error("Failed to get block by ID", ex)
@@ -135,7 +159,11 @@ class AsyncFlowAccessApiImpl(
     override fun getBlockByHeight(height: Long): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowBlock?>> {
         return try {
             completableFuture(
-                api.getBlockByHeight(Access.GetBlockByHeightRequest.newBuilder().setHeight(height).build())
+                try {
+                    api.getBlockByHeight(Access.GetBlockByHeightRequest.newBuilder().setHeight(height).build())
+                } catch (e: Exception) {
+                    return CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get block by height", e))
+                }
             ).handle { response, ex ->
                 if (ex != null) {
                     FlowAccessApi.AccessApiCallResponse.Error("Failed to get block by height", ex)
@@ -155,7 +183,11 @@ class AsyncFlowAccessApiImpl(
     override fun getCollectionById(id: FlowId): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowCollection?>> {
         return try {
             completableFuture(
-                api.getCollectionByID(Access.GetCollectionByIDRequest.newBuilder().setId(id.byteStringValue).build())
+                try {
+                    api.getCollectionByID(Access.GetCollectionByIDRequest.newBuilder().setId(id.byteStringValue).build())
+                } catch (e: Exception) {
+                    return CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get collection by ID", e))
+                }
             ).handle { response, ex ->
                 if (ex != null) {
                     FlowAccessApi.AccessApiCallResponse.Error("Failed to get collection by ID", ex)
@@ -175,7 +207,11 @@ class AsyncFlowAccessApiImpl(
     override fun sendTransaction(transaction: FlowTransaction): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowId>> {
         return try {
             completableFuture(
-                api.sendTransaction(Access.SendTransactionRequest.newBuilder().setTransaction(transaction.builder().build()).build())
+                try {
+                    api.sendTransaction(Access.SendTransactionRequest.newBuilder().setTransaction(transaction.builder().build()).build())
+                } catch (e: Exception) {
+                    return CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to send transaction", e))
+                }
             ).handle { response, ex ->
                 if (ex != null) {
                     FlowAccessApi.AccessApiCallResponse.Error("Failed to send transaction", ex)
@@ -191,7 +227,11 @@ class AsyncFlowAccessApiImpl(
     override fun getTransactionById(id: FlowId): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowTransaction?>> {
         return try {
             completableFuture(
-                api.getTransaction(Access.GetTransactionRequest.newBuilder().setId(id.byteStringValue).build())
+                try {
+                    api.getTransaction(Access.GetTransactionRequest.newBuilder().setId(id.byteStringValue).build())
+                } catch (e: Exception) {
+                    return CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get transaction by ID", e))
+                }
             ).handle { response, ex ->
                 if (ex != null) {
                     FlowAccessApi.AccessApiCallResponse.Error("Failed to get transaction by ID", ex)
@@ -211,7 +251,11 @@ class AsyncFlowAccessApiImpl(
     override fun getTransactionResultById(id: FlowId): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowTransactionResult?>> {
         return try {
             completableFuture(
-                api.getTransactionResult(Access.GetTransactionRequest.newBuilder().setId(id.byteStringValue).build())
+                try {
+                    api.getTransactionResult(Access.GetTransactionRequest.newBuilder().setId(id.byteStringValue).build())
+                } catch (e: Exception) {
+                   return CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get transaction result by ID", e))
+                }
             ).handle { response, ex ->
                 if (ex != null) {
                     FlowAccessApi.AccessApiCallResponse.Error("Failed to get transaction result by ID", ex)
@@ -227,7 +271,13 @@ class AsyncFlowAccessApiImpl(
     override fun getTransactionsByBlockId(id: FlowId): CompletableFuture<FlowAccessApi.AccessApiCallResponse<List<FlowTransaction>>> {
         return try {
             completableFuture(
-                api.getTransactionsByBlockID(Access.GetTransactionsByBlockIDRequest.newBuilder().setBlockId(id.byteStringValue).build())
+                try {
+                    api.getTransactionsByBlockID(
+                        Access.GetTransactionsByBlockIDRequest.newBuilder().setBlockId(id.byteStringValue).build()
+                    )
+                } catch (e: Exception) {
+                    return CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get transactions by block ID", e))
+                }
             ).handle { response, ex ->
                 if (ex != null) {
                     FlowAccessApi.AccessApiCallResponse.Error("Failed to get transactions by block ID", ex)
@@ -243,7 +293,13 @@ class AsyncFlowAccessApiImpl(
     override fun getTransactionResultsByBlockId(id: FlowId): CompletableFuture<FlowAccessApi.AccessApiCallResponse<List<FlowTransactionResult>>> {
         return try {
             completableFuture(
-                api.getTransactionResultsByBlockID(Access.GetTransactionsByBlockIDRequest.newBuilder().setBlockId(id.byteStringValue).build())
+                try {
+                    api.getTransactionResultsByBlockID(
+                        Access.GetTransactionsByBlockIDRequest.newBuilder().setBlockId(id.byteStringValue).build()
+                    )
+                } catch (e: Exception) {
+                   return CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get transaction results by block ID", e))
+                }
             ).handle { response, ex ->
                 if (ex != null) {
                     FlowAccessApi.AccessApiCallResponse.Error("Failed to get transaction results by block ID", ex)
@@ -259,7 +315,11 @@ class AsyncFlowAccessApiImpl(
     override fun getExecutionResultByBlockId(id: FlowId): CompletableFuture<FlowAccessApi.AccessApiCallResponse<ExecutionResult?>> {
         return try {
             completableFuture(
-                api.getExecutionResultByID(Access.GetExecutionResultByIDRequest.newBuilder().setId(id.byteStringValue).build())
+                try {
+                    api.getExecutionResultByID(Access.GetExecutionResultByIDRequest.newBuilder().setId(id.byteStringValue).build())
+                } catch (e: Exception) {
+                    return CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get execution result by block ID", e))
+                }
             ).handle { response, ex ->
                 if (ex != null) {
                     FlowAccessApi.AccessApiCallResponse.Error("Failed to get execution result by block ID", ex)
@@ -280,7 +340,11 @@ class AsyncFlowAccessApiImpl(
     override fun getAccountByAddress(addresss: FlowAddress): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowAccount>> {
         return try {
             completableFuture(
-                api.getAccount(Access.GetAccountRequest.newBuilder().setAddress(addresss.byteStringValue).build())
+                try {
+                    api.getAccount(Access.GetAccountRequest.newBuilder().setAddress(addresss.byteStringValue).build())
+                } catch (e: Exception) {
+                    return CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get account by address", e))
+                }
             ).handle { response, ex ->
                 if (ex != null) {
                     FlowAccessApi.AccessApiCallResponse.Error("Failed to get account by address", ex)
@@ -300,7 +364,11 @@ class AsyncFlowAccessApiImpl(
     override fun getAccountAtLatestBlock(addresss: FlowAddress): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowAccount>> {
         return try {
             completableFuture(
-                api.getAccountAtLatestBlock(Access.GetAccountAtLatestBlockRequest.newBuilder().setAddress(addresss.byteStringValue).build())
+                try {
+                    api.getAccountAtLatestBlock(Access.GetAccountAtLatestBlockRequest.newBuilder().setAddress(addresss.byteStringValue).build())
+                } catch (e: Exception) {
+                   return CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get account at latest block", e))
+                }
             ).handle { response, ex ->
                 if (ex != null) {
                     FlowAccessApi.AccessApiCallResponse.Error("Failed to get account at latest block", ex)
@@ -320,12 +388,16 @@ class AsyncFlowAccessApiImpl(
     override fun getAccountByBlockHeight(addresss: FlowAddress, height: Long): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowAccount>> {
         return try {
             completableFuture(
-                api.getAccountAtBlockHeight(
-                    Access.GetAccountAtBlockHeightRequest.newBuilder()
-                        .setAddress(addresss.byteStringValue)
-                        .setBlockHeight(height)
-                        .build()
-                )
+                try {
+                    api.getAccountAtBlockHeight(
+                        Access.GetAccountAtBlockHeightRequest.newBuilder()
+                            .setAddress(addresss.byteStringValue)
+                            .setBlockHeight(height)
+                            .build()
+                    )
+                } catch (e: Exception) {
+                    return CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get account by block height", e))
+                }
             ).handle { response, ex ->
                 if (ex != null) {
                     FlowAccessApi.AccessApiCallResponse.Error("Failed to get account by block height", ex)
@@ -345,12 +417,16 @@ class AsyncFlowAccessApiImpl(
     override fun executeScriptAtLatestBlock(script: FlowScript, arguments: Iterable<ByteString>): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowScriptResponse>> {
         return try {
             completableFuture(
-                api.executeScriptAtLatestBlock(
-                    Access.ExecuteScriptAtLatestBlockRequest.newBuilder()
-                        .setScript(script.byteStringValue)
-                        .addAllArguments(arguments)
-                        .build()
-                )
+                try {
+                    api.executeScriptAtLatestBlock(
+                        Access.ExecuteScriptAtLatestBlockRequest.newBuilder()
+                            .setScript(script.byteStringValue)
+                            .addAllArguments(arguments)
+                            .build()
+                    )
+                } catch (e: Exception) {
+                    return  CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to execute script at latest block", e))
+                }
             ).handle { response, ex ->
                 if (ex != null) {
                     FlowAccessApi.AccessApiCallResponse.Error("Failed to execute script at latest block", ex)
@@ -366,13 +442,17 @@ class AsyncFlowAccessApiImpl(
     override fun executeScriptAtBlockId(script: FlowScript, blockId: FlowId, arguments: Iterable<ByteString>): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowScriptResponse>> {
         return try {
             completableFuture(
-                api.executeScriptAtBlockID(
-                    Access.ExecuteScriptAtBlockIDRequest.newBuilder()
-                        .setBlockId(blockId.byteStringValue)
-                        .setScript(script.byteStringValue)
-                        .addAllArguments(arguments)
-                        .build()
-                )
+                try {
+                    api.executeScriptAtBlockID(
+                        Access.ExecuteScriptAtBlockIDRequest.newBuilder()
+                            .setBlockId(blockId.byteStringValue)
+                            .setScript(script.byteStringValue)
+                            .addAllArguments(arguments)
+                            .build()
+                    )
+                } catch (e: Exception) {
+                    return CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to execute script at block ID", e))
+                }
             ).handle { response, ex ->
                 if (ex != null) {
                     FlowAccessApi.AccessApiCallResponse.Error("Failed to execute script at block ID", ex)
@@ -388,13 +468,17 @@ class AsyncFlowAccessApiImpl(
     override fun executeScriptAtBlockHeight(script: FlowScript, height: Long, arguments: Iterable<ByteString>): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowScriptResponse>> {
         return try {
             completableFuture(
-                api.executeScriptAtBlockHeight(
-                    Access.ExecuteScriptAtBlockHeightRequest.newBuilder()
-                        .setBlockHeight(height)
-                        .setScript(script.byteStringValue)
-                        .addAllArguments(arguments)
-                        .build()
-                )
+                try {
+                    api.executeScriptAtBlockHeight(
+                        Access.ExecuteScriptAtBlockHeightRequest.newBuilder()
+                            .setBlockHeight(height)
+                            .setScript(script.byteStringValue)
+                            .addAllArguments(arguments)
+                            .build()
+                    )
+                } catch (e: Exception) {
+                    return CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to execute script at block height", e))
+                }
             ).handle { response, ex ->
                 if (ex != null) {
                     FlowAccessApi.AccessApiCallResponse.Error("Failed to execute script at block height", ex)
@@ -410,13 +494,17 @@ class AsyncFlowAccessApiImpl(
     override fun getEventsForHeightRange(type: String, range: ClosedRange<Long>): CompletableFuture<FlowAccessApi.AccessApiCallResponse<List<FlowEventResult>>> {
         return try {
             completableFuture(
-                api.getEventsForHeightRange(
-                    Access.GetEventsForHeightRangeRequest.newBuilder()
-                        .setType(type)
-                        .setStartHeight(range.start)
-                        .setEndHeight(range.endInclusive)
-                        .build()
-                )
+                try {
+                    api.getEventsForHeightRange(
+                        Access.GetEventsForHeightRangeRequest.newBuilder()
+                            .setType(type)
+                            .setStartHeight(range.start)
+                            .setEndHeight(range.endInclusive)
+                            .build()
+                    )
+                } catch (e: Exception) {
+                    return CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get events for height range", e))
+                }
             ).handle { response, ex ->
                 if (ex != null) {
                     FlowAccessApi.AccessApiCallResponse.Error("Failed to get events for height range", ex)
@@ -432,12 +520,16 @@ class AsyncFlowAccessApiImpl(
     override fun getEventsForBlockIds(type: String, ids: Set<FlowId>): CompletableFuture<FlowAccessApi.AccessApiCallResponse<List<FlowEventResult>>> {
         return try {
             completableFuture(
-                api.getEventsForBlockIDs(
-                    Access.GetEventsForBlockIDsRequest.newBuilder()
-                        .setType(type)
-                        .addAllBlockIds(ids.map { it.byteStringValue })
-                        .build()
-                )
+                try {
+                    api.getEventsForBlockIDs(
+                        Access.GetEventsForBlockIDsRequest.newBuilder()
+                            .setType(type)
+                            .addAllBlockIds(ids.map { it.byteStringValue })
+                            .build()
+                    )
+                } catch (e: Exception) {
+                    return CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get events for block IDs", e))
+                }
             ).handle { response, ex ->
                 if (ex != null) {
                     FlowAccessApi.AccessApiCallResponse.Error("Failed to get events for block IDs", ex)
@@ -453,7 +545,11 @@ class AsyncFlowAccessApiImpl(
     override fun getNetworkParameters(): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowChainId>> {
         return try {
             completableFuture(
-                api.getNetworkParameters(Access.GetNetworkParametersRequest.newBuilder().build())
+                try {
+                    api.getNetworkParameters(Access.GetNetworkParametersRequest.newBuilder().build())
+                } catch (e: Exception) {
+                    return CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get network parameters", e))
+                }
             ).handle { response, ex ->
                 if (ex != null) {
                     FlowAccessApi.AccessApiCallResponse.Error("Failed to get network parameters", ex)
@@ -469,7 +565,11 @@ class AsyncFlowAccessApiImpl(
     override fun getLatestProtocolStateSnapshot(): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowSnapshot>> {
         return try {
             completableFuture(
-                api.getLatestProtocolStateSnapshot(Access.GetLatestProtocolStateSnapshotRequest.newBuilder().build())
+                try {
+                    api.getLatestProtocolStateSnapshot(Access.GetLatestProtocolStateSnapshotRequest.newBuilder().build())
+                } catch (e: Exception) {
+                   return CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get latest protocol state snapshot", e))
+                }
             ).handle { response, ex ->
                 if (ex != null) {
                     FlowAccessApi.AccessApiCallResponse.Error("Failed to get latest protocol state snapshot", ex)
