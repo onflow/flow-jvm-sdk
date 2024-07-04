@@ -216,21 +216,25 @@ internal class SignerImpl(
 ) : Signer {
     override fun sign(bytes: ByteArray): ByteArray {
         val signature: ByteArray
+        val ecdsaSign: Signature
 
-        if (hashAlgo == HashAlgorithm.KECCAK256 || hashAlgo == HashAlgorithm.KMAC128) {
-            // Handle Keccak-256 and KMAC128 separately
-            val hash = hasher.hash(bytes)
-            val ecdsaSign = Signature.getInstance("NONEwithECDSA")
-            ecdsaSign.initSign(privateKey.key)
-            ecdsaSign.update(hash)
-            signature = ecdsaSign.sign()
-        } else {
-            // Handle other algorithms with valid IDs
-            val ecdsaSign = Signature.getInstance(hashAlgo.id)
-            ecdsaSign.initSign(privateKey.key)
-            ecdsaSign.update(bytes)
-            signature = ecdsaSign.sign()
+        val hash = hasher.hash(bytes)
+
+        // Determine the appropriate Signature instance based on the hash algorithm
+        ecdsaSign = when (hashAlgo) {
+            HashAlgorithm.KECCAK256, HashAlgorithm.KMAC128 -> {
+                Signature.getInstance("NONEwithECDSA")
+            }
+            HashAlgorithm.SHA2_256 -> Signature.getInstance("SHA256withECDSA")
+            HashAlgorithm.SHA2_384 -> Signature.getInstance("SHA384withECDSA")
+            HashAlgorithm.SHA3_256 -> Signature.getInstance("SHA3-256withECDSA")
+            HashAlgorithm.SHA3_384 -> Signature.getInstance("SHA3-384withECDSA")
+            else -> throw IllegalArgumentException("Unsupported hash algorithm: ${hashAlgo.algorithm}")
         }
+
+        ecdsaSign.initSign(privateKey.key)
+        ecdsaSign.update(hash)
+        signature = ecdsaSign.sign()
 
         if (privateKey.ecCoupleComponentSize <= 0) {
             return signature

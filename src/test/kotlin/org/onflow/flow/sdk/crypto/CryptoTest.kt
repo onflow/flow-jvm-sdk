@@ -70,7 +70,7 @@ internal class CryptoTest {
     fun `Test normalizeSignature`() {
         val keyPair = Crypto.generateKeyPair()
 
-        val ecdsaSign = Signature.getInstance(HashAlgorithm.SHA3_256.id)
+        val ecdsaSign = Signature.getInstance("SHA3-256withECDSA")
         ecdsaSign.initSign(keyPair.private.key)
         ecdsaSign.update("test".toByteArray())
 
@@ -82,13 +82,13 @@ internal class CryptoTest {
         assertEquals(expectedLength, normalizedSignature.size)
     }
 
+
     @Test
     fun `Test extractRS`() {
         val keyPair = Crypto.generateKeyPair()
 
-        val ecdsaSign = Signature.getInstance(HashAlgorithm.SHA3_256.id)
+        val ecdsaSign = Signature.getInstance("SHA3-256withECDSA")
         ecdsaSign.initSign(keyPair.private.key)
-
         ecdsaSign.update("test".toByteArray())
 
         val signature = ecdsaSign.sign()
