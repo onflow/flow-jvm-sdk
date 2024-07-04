@@ -675,17 +675,6 @@ data class FlowBlock(
     }
 }
 
-data class ExecutionResult(
-    val id: FlowId,
-    val parentId: FlowId
-) : Serializable {
-    companion object {
-        fun of(grpcExecutionResult: Access.ExecutionResultByIDResponse) = ExecutionResult(
-            id = FlowId.of(grpcExecutionResult.executionResult.blockId.toByteArray()),
-            parentId = FlowId.of(grpcExecutionResult.executionResult.previousResultId.toByteArray())
-        )
-    }
-}
 data class FlowCollectionGuarantee(
     val id: FlowId,
     val signatures: List<FlowSignature>

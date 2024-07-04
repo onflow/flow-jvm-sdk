@@ -18,12 +18,6 @@ interface AsyncFlowAccessApi {
 
     fun getBlockByHeight(height: Long): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowBlock?>>
 
-    fun getTransactionsByBlockId(id: FlowId): CompletableFuture<FlowAccessApi.AccessApiCallResponse<List<FlowTransaction>>>
-
-    fun getTransactionResultsByBlockId(id: FlowId): CompletableFuture<FlowAccessApi.AccessApiCallResponse<List<FlowTransactionResult>>>
-
-    fun getExecutionResultByBlockId(id: FlowId): CompletableFuture<FlowAccessApi.AccessApiCallResponse<ExecutionResult?>>
-
     fun getCollectionById(id: FlowId): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowCollection?>>
 
     fun sendTransaction(transaction: FlowTransaction): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowId>>

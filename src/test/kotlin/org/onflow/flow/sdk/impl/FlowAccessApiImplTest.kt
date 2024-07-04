@@ -10,7 +10,6 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.*
 import org.onflow.protobuf.access.Access
 import org.onflow.protobuf.access.AccessAPIGrpc
-import org.onflow.protobuf.entities.ExecutionResultOuterClass
 import org.onflow.protobuf.entities.TransactionOuterClass
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream
