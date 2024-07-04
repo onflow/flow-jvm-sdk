@@ -189,8 +189,7 @@ internal class CryptoTest {
 
         // Test full input processing
         val hasher1 = HasherImpl(HashAlgorithm.KMAC128, key, customizers[0], outputSize)
-        hasher1.update(input, 0, input.size)
-        val hash1 = hasher1.doFinal()
+        val hash1 = hasher1.hash(input)
         assertArrayEquals(expected[0], hash1)
 
         // Test incremental input processing
