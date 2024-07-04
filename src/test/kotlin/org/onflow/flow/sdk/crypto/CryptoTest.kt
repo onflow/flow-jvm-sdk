@@ -1,11 +1,8 @@
 package org.onflow.flow.sdk.crypto
 
-import org.bouncycastle.crypto.macs.KMAC
-import org.bouncycastle.crypto.params.KeyParameter
 import org.onflow.flow.sdk.HashAlgorithm
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import java.math.BigInteger
 import java.security.Signature
 
@@ -62,6 +59,7 @@ internal class CryptoTest {
         val signer = Crypto.getSigner(keyPair.private)
         assertNotNull(signer)
     }
+
     @Test
     fun `Get hasher`() {
         val hasher = Crypto.getHasher()
@@ -176,15 +174,9 @@ internal class CryptoTest {
     @Test
     fun `Sanity check KMAC128`() {
         val input = byteArrayOf(0x00, 0x01, 0x02, 0x03)
-        val expected = listOf(
-            hexStringToByteArray("E5780B0D3EA6F7D3A429C5706AA43A00FADBD7D49628839E3187243F456EE14E"),
-            hexStringToByteArray("3B1FBA963CD8B0B59E8C1A6D71888B7143651AF8BA0A7070C0979E2811324AA5")
-        )
+        val expected = listOf(hexStringToByteArray("E5780B0D3EA6F7D3A429C5706AA43A00FADBD7D49628839E3187243F456EE14E"), hexStringToByteArray("3B1FBA963CD8B0B59E8C1A6D71888B7143651AF8BA0A7070C0979E2811324AA5"))
         val key = hexStringToByteArray("404142434445464748494A4B4C4D4E4F505152535455565758595A5B5C5D5E5F")
-        val customizers = listOf(
-            "".toByteArray(),
-            "My Tagged Application".toByteArray()
-        )
+        val customizers = listOf("".toByteArray(), "My Tagged Application".toByteArray())
         val outputSize = 32
 
         // Test full input processing
@@ -217,8 +209,7 @@ internal class CryptoTest {
         val len = hexString.length
         val data = ByteArray(len / 2)
         for (i in 0 until len step 2) {
-            data[i / 2] = ((Character.digit(hexString[i], 16) shl 4)
-                + Character.digit(hexString[i + 1], 16)).toByte()
+            data[i / 2] = ((Character.digit(hexString[i], 16) shl 4) + Character.digit(hexString[i + 1], 16)).toByte()
         }
         return data
     }
