@@ -336,7 +336,6 @@ class FlowAccessApiImpl(
         }
     }
 
-
     override fun getTransactionsByBlockId(id: FlowId): FlowAccessApi.AccessApiCallResponse<List<FlowTransaction>> {
         return try {
             val ret = api.getTransactionsByBlockID(
