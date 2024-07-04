@@ -296,7 +296,7 @@ internal class CryptoTest {
     @Test
     fun `Signer implementation for ECDSA_SECP256k1 and non-standard hasher`() {
         val keyPair = Crypto.generateKeyPair(SignatureAlgorithm.ECDSA_SECP256k1)
-        val key = "key".toByteArray()
+        val key = "thisKeyIsAtLeast16Bytes".toByteArray()
         val hasher = HasherImpl(HashAlgorithm.KMAC128, key)
         val signer = SignerImpl(keyPair.private, HashAlgorithm.KMAC128, hasher)
         val signature = signer.sign("test".toByteArray())
