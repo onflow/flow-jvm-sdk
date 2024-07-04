@@ -335,4 +335,48 @@ class FlowAccessApiImpl(
             FlowAccessApi.AccessApiCallResponse.Error("Failed to get latest protocol state snapshot", e)
         }
     }
+
+
+    override fun getTransactionsByBlockId(id: FlowId): FlowAccessApi.AccessApiCallResponse<List<FlowTransaction>> {
+        return try {
+            val ret = api.getTransactionsByBlockID(
+                Access.GetTransactionsByBlockIDRequest.newBuilder()
+                    .setBlockId(id.byteStringValue)
+                    .build()
+            )
+            FlowAccessApi.AccessApiCallResponse.Success(ret.transactionsList.map { FlowTransaction.of(it) })
+        } catch (e: Exception) {
+            FlowAccessApi.AccessApiCallResponse.Error("Failed to get transactions by block ID", e)
+        }
+    }
+
+    override fun getTransactionResultsByBlockId(id: FlowId): FlowAccessApi.AccessApiCallResponse<List<FlowTransactionResult>> {
+        return try {
+            val ret = api.getTransactionResultsByBlockID(
+                Access.GetTransactionsByBlockIDRequest.newBuilder()
+                    .setBlockId(id.byteStringValue)
+                    .build()
+            )
+            FlowAccessApi.AccessApiCallResponse.Success(ret.transactionResultsList.map { FlowTransactionResult.of(it) })
+        } catch (e: Exception) {
+            FlowAccessApi.AccessApiCallResponse.Error("Failed to get transaction results by block ID", e)
+        }
+    }
+
+    override fun getExecutionResultByBlockId(id: FlowId): FlowAccessApi.AccessApiCallResponse<ExecutionResult> {
+        return try {
+            val ret = api.getExecutionResultByID(
+                Access.GetExecutionResultByIDRequest.newBuilder()
+                    .setId(id.byteStringValue)
+                    .build()
+            )
+            if (ret.hasExecutionResult()) {
+                FlowAccessApi.AccessApiCallResponse.Success(ExecutionResult.of(ret))
+            } else {
+                FlowAccessApi.AccessApiCallResponse.Error("Execution result not found")
+            }
+        } catch (e: Exception) {
+            FlowAccessApi.AccessApiCallResponse.Error("Failed to get execution result by block ID", e)
+        }
+    }
 }

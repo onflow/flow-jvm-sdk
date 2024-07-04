@@ -513,6 +513,74 @@ class AsyncFlowAccessApiImpl(
             CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get latest protocol state snapshot", e))
         }
     }
+
+    override fun getTransactionsByBlockId(id: FlowId): CompletableFuture<FlowAccessApi.AccessApiCallResponse<List<FlowTransaction>>> {
+        return try {
+            completableFuture(
+                try {
+                    api.getTransactionsByBlockID(
+                        Access.GetTransactionsByBlockIDRequest.newBuilder().setBlockId(id.byteStringValue).build()
+                    )
+                } catch (e: Exception) {
+                    return CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get transactions by block ID", e))
+                }
+            ).handle { response, ex ->
+                if (ex != null) {
+                    FlowAccessApi.AccessApiCallResponse.Error("Failed to get transactions by block ID", ex)
+                } else {
+                    FlowAccessApi.AccessApiCallResponse.Success(response.transactionsList.map { FlowTransaction.of(it) })
+                }
+            }
+        } catch (e: Exception) {
+            CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get transactions by block ID", e))
+        }
+    }
+
+    override fun getTransactionResultsByBlockId(id: FlowId): CompletableFuture<FlowAccessApi.AccessApiCallResponse<List<FlowTransactionResult>>> {
+        return try {
+            completableFuture(
+                try {
+                    api.getTransactionResultsByBlockID(
+                        Access.GetTransactionsByBlockIDRequest.newBuilder().setBlockId(id.byteStringValue).build()
+                    )
+                } catch (e: Exception) {
+                    return CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get transaction results by block ID", e))
+                }
+            ).handle { response, ex ->
+                if (ex != null) {
+                    FlowAccessApi.AccessApiCallResponse.Error("Failed to get transaction results by block ID", ex)
+                } else {
+                    FlowAccessApi.AccessApiCallResponse.Success(response.transactionResultsList.map { FlowTransactionResult.of(it) })
+                }
+            }
+        } catch (e: Exception) {
+            CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get transaction results by block ID", e))
+        }
+    }
+
+    override fun getExecutionResultByBlockId(id: FlowId): CompletableFuture<FlowAccessApi.AccessApiCallResponse<ExecutionResult?>> {
+        return try {
+            completableFuture(
+                try {
+                    api.getExecutionResultByID(Access.GetExecutionResultByIDRequest.newBuilder().setId(id.byteStringValue).build())
+                } catch (e: Exception) {
+                    return CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get execution result by block ID", e))
+                }
+            ).handle { response, ex ->
+                if (ex != null) {
+                    FlowAccessApi.AccessApiCallResponse.Error("Failed to get execution result by block ID", ex)
+                } else {
+                    if (response.hasExecutionResult()) {
+                        FlowAccessApi.AccessApiCallResponse.Success(ExecutionResult.of(response))
+                    } else {
+                        FlowAccessApi.AccessApiCallResponse.Error("Execution result not found")
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get execution result by block ID", e))
+        }
+    }
 }
 
 fun <T> completableFuture(future: ListenableFuture<T>): CompletableFuture<T> {

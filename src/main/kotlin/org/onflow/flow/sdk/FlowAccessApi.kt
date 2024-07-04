@@ -53,4 +53,11 @@ interface FlowAccessApi {
     fun getNetworkParameters(): AccessApiCallResponse<FlowChainId>
 
     fun getLatestProtocolStateSnapshot(): AccessApiCallResponse<FlowSnapshot>
+
+    fun getTransactionsByBlockId(id: FlowId): AccessApiCallResponse<List<FlowTransaction>>
+
+    fun getTransactionResultsByBlockId(id: FlowId): AccessApiCallResponse<List<FlowTransactionResult>>
+
+    fun getExecutionResultByBlockId(id: FlowId): AccessApiCallResponse<ExecutionResult>
+
 }
