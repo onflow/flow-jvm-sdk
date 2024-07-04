@@ -254,7 +254,7 @@ class AsyncFlowAccessApiImpl(
                 try {
                     api.getTransactionResult(Access.GetTransactionRequest.newBuilder().setId(id.byteStringValue).build())
                 } catch (e: Exception) {
-                   return CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get transaction result by ID", e))
+                    return CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get transaction result by ID", e))
                 }
             ).handle { response, ex ->
                 if (ex != null) {
@@ -299,7 +299,7 @@ class AsyncFlowAccessApiImpl(
                 try {
                     api.getAccountAtLatestBlock(Access.GetAccountAtLatestBlockRequest.newBuilder().setAddress(addresss.byteStringValue).build())
                 } catch (e: Exception) {
-                   return CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get account at latest block", e))
+                    return CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get account at latest block", e))
                 }
             ).handle { response, ex ->
                 if (ex != null) {
@@ -357,7 +357,7 @@ class AsyncFlowAccessApiImpl(
                             .build()
                     )
                 } catch (e: Exception) {
-                    return  CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to execute script at latest block", e))
+                    return CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to execute script at latest block", e))
                 }
             ).handle { response, ex ->
                 if (ex != null) {
@@ -500,7 +500,7 @@ class AsyncFlowAccessApiImpl(
                 try {
                     api.getLatestProtocolStateSnapshot(Access.GetLatestProtocolStateSnapshotRequest.newBuilder().build())
                 } catch (e: Exception) {
-                   return CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get latest protocol state snapshot", e))
+                    return CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get latest protocol state snapshot", e))
                 }
             ).handle { response, ex ->
                 if (ex != null) {
