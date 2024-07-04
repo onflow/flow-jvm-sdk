@@ -1,5 +1,7 @@
 package org.onflow.flow.sdk.crypto
 
+import org.bouncycastle.crypto.macs.KMAC
+import org.bouncycastle.crypto.params.KeyParameter
 import org.onflow.flow.sdk.HashAlgorithm
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
@@ -115,7 +117,7 @@ internal class CryptoTest {
 
     @Test
     fun `Hasher implementation for KMAC128`() {
-        val key = "key".toByteArray()
+        val key = "thisKeyIsAtLeast16Bytes".toByteArray()
         val hasher = HasherImpl(HashAlgorithm.KMAC128, key)
         val hashedBytes = hasher.hash("test".toByteArray())
         assertNotNull(hashedBytes)
@@ -142,6 +144,26 @@ internal class CryptoTest {
     }
 
     @Test
+    fun `Sanity check SHA3_384`() {
+        val input = "test".toByteArray()
+        val expected = hexStringToByteArray("e516dabb23b6e30026863543282780a3ae0dccf05551cf0295178d7ff0f1b41eecb9db3ff219007c4e097260d58621bd")
+
+        val hasher = HasherImpl(HashAlgorithm.SHA3_384)
+        val hash = hasher.hash(input)
+        assertEquals(expected.toList(), hash.toList())
+    }
+
+    @Test
+    fun `Sanity check SHA2_384`() {
+        val input = "test".toByteArray()
+        val expected = hexStringToByteArray("768412320f7b0aa5812fce428dc4706b3cae50e02a64caa16a782249bfe8efc4b7ef1ccb126255d196047dfedf17a0a9")
+
+        val hasher = HasherImpl(HashAlgorithm.SHA2_384)
+        val hash = hasher.hash(input)
+        assertEquals(expected.toList(), hash.toList())
+    }
+
+    @Test
     fun `Sanity check Keccak_256`() {
         val input = "test".toByteArray()
         val expected = hexStringToByteArray("9c22ff5f21f0b81b113e63f7db6da94fedef11b2119b4088b89664fb9a3cb658")
@@ -151,51 +173,53 @@ internal class CryptoTest {
         assertEquals(expected.toList(), hash.toList())
     }
 
-    private fun ByteArray.toUnsignedIntList() = this.map { it.toInt() and 0xFF }
-
     @Test
     fun `Sanity check KMAC128`() {
         val input = byteArrayOf(0x00, 0x01, 0x02, 0x03)
         val expected = listOf(
-            hexStringToByteArray("e5780b0d3ea6f7d3a429c5706aa43a00fadb7d4d9628839e3187243f456ee14e"),
-            hexStringToByteArray("3b1fba963cd8b0b59e8c1a6d71888b7143651af8ba0a7070c0979e2811324aa5")
+            hexStringToByteArray("E5780B0D3EA6F7D3A429C5706AA43A00FADBD7D49628839E3187243F456EE14E"),
+            hexStringToByteArray("3B1FBA963CD8B0B59E8C1A6D71888B7143651AF8BA0A7070C0979E2811324AA5")
         )
-        val key = hexStringToByteArray("404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f")
+        val key = hexStringToByteArray("404142434445464748494A4B4C4D4E4F505152535455565758595A5B5C5D5E5F")
         val customizers = listOf(
-           "".toByteArray(),
+            "".toByteArray(),
             "My Tagged Application".toByteArray()
         )
         val outputSize = 32
+
+        // Test full input processing
+        val hasher1 = HasherImpl(HashAlgorithm.KMAC128, key, customizers[0], outputSize)
+        hasher1.update(input, 0, input.size)
+        val hash1 = hasher1.doFinal()
+        assertArrayEquals(expected[0], hash1)
+
+        // Test incremental input processing
+        val hasher2 = HasherImpl(HashAlgorithm.KMAC128, key, customizers[0], outputSize)
+        hasher2.update(input, 0, 2)
+        hasher2.update(input, 2, input.size - 2)
+        val hash2 = hasher2.doFinal()
+        assertArrayEquals(expected[0], hash2)
+
+        // Test each customizer
+        customizers.forEachIndexed { index, customizer ->
+            val hasher = HasherImpl(HashAlgorithm.KMAC128, key, customizer, outputSize)
+            val hash = hasher.hash(input)
+            assertArrayEquals(expected[index], hash)
+        }
 
         // Test short key length
         val exception = assertThrows(IllegalArgumentException::class.java) {
             HasherImpl(HashAlgorithm.KMAC128, key.sliceArray(0 until 15), customizers[0], outputSize).hash(input)
         }
         assertEquals("KMAC128 requires a key of at least 16 bytes", exception.message)
-
-        customizers.forEachIndexed { index, customizer ->
-            val hasher = HasherImpl(HashAlgorithm.KMAC128, key, customizer, outputSize)
-            val hash = hasher.hash(input)
-
-            // Detailed debug statements
-            println("Customizer: ${customizer.decodeToString()}")
-            println("Expected: ${expected[index].toUnsignedIntList()}")
-            println("Actual  : ${hash.toUnsignedIntList()}")
-            println("Key     : ${key.toUnsignedIntList()}")
-            println("Input   : ${input.toUnsignedIntList()}")
-            println("Customizer Bytes: ${customizer.toList()}")
-
-            assertEquals(expected[index].toUnsignedIntList(), hash.toUnsignedIntList())
-        }
-
-
     }
 
-    private fun hexStringToByteArray(hex: String): ByteArray {
-        val len = hex.length
+    private fun hexStringToByteArray(hexString: String): ByteArray {
+        val len = hexString.length
         val data = ByteArray(len / 2)
         for (i in 0 until len step 2) {
-            data[i / 2] = ((Character.digit(hex[i], 16) shl 4) + Character.digit(hex[i + 1], 16)).toByte()
+            data[i / 2] = ((Character.digit(hexString[i], 16) shl 4)
+                + Character.digit(hexString[i + 1], 16)).toByte()
         }
         return data
     }
@@ -219,7 +243,7 @@ internal class CryptoTest {
     @Test
     fun `Signer implementation for KMAC128`() {
         val keyPair = Crypto.generateKeyPair()
-        val key = "key".toByteArray()
+        val key = "thisKeyIsAtLeast16Bytes".toByteArray()
         val hasher = HasherImpl(HashAlgorithm.KMAC128, key)
         val signer = SignerImpl(keyPair.private, HashAlgorithm.KMAC128, hasher)
         val signature = signer.sign("test".toByteArray())
