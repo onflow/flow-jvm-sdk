@@ -160,8 +160,25 @@ object Crypto {
 
 internal class HasherImpl(
     private val hashAlgo: HashAlgorithm,
-    private val key: ByteArray? = null
+    private val key: ByteArray? = null,
+    private val customizer: ByteArray? = null,
+    private val outputSize: Int? = null
 ) : Hasher {
+    private var kmac: KMAC? = null
+
+    init {
+        if (hashAlgo == HashAlgorithm.KMAC128) {
+            if (key == null || key.size < 16) {
+                throw IllegalArgumentException("KMAC128 requires a key of at least 16 bytes")
+            }
+            if (outputSize != null && outputSize <= 0) {
+                throw IllegalArgumentException("Output size must be positive")
+            }
+            kmac = KMAC(128, customizer)
+            kmac!!.init(KeyParameter(key))
+        }
+    }
+
     override fun hash(bytes: ByteArray): ByteArray {
         return when (hashAlgo) {
             HashAlgorithm.KECCAK256 -> {
@@ -169,14 +186,9 @@ internal class HasherImpl(
                 keccakDigest.digest(bytes)
             }
             HashAlgorithm.KMAC128 -> {
-                if (key == null) {
-                    throw IllegalArgumentException("KMAC128 requires a key")
-                }
-                val kmac = KMAC(128, ByteArray(0))
-                kmac.init(KeyParameter(key))
-                val output = ByteArray(kmac.digestSize)
-                kmac.update(bytes, 0, bytes.size)
-                kmac.doFinal(output, 0)
+                val output = ByteArray(outputSize ?: kmac!!.digestSize)
+                kmac!!.update(bytes, 0, bytes.size)
+                kmac!!.doFinal(output, 0)
                 output
             }
             else -> {
@@ -184,6 +196,16 @@ internal class HasherImpl(
                 digest.digest(bytes)
             }
         }
+    }
+
+    fun update(bytes: ByteArray, off: Int, len: Int) {
+        kmac?.update(bytes, off, len)
+    }
+
+    fun doFinal(): ByteArray {
+        val output = ByteArray(outputSize ?: kmac!!.digestSize)
+        kmac?.doFinal(output, 0)
+        return output
     }
 }
 
