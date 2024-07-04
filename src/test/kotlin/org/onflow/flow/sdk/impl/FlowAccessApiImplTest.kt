@@ -152,12 +152,7 @@ class FlowAccessApiImplTest {
     fun `Test getTransactionResultById`() {
         val flowId = FlowId.of("id".toByteArray())
         val flowTransactionResult = FlowTransactionResult(FlowTransactionStatus.SEALED, 1, "message", emptyList())
-        val response = Access.TransactionResultResponse.newBuilder()
-            .setStatus(TransactionOuterClass.TransactionStatus.SEALED)
-            .setStatusCode(1)
-            .setErrorMessage("message")
-            .setBlockId(ByteString.copyFromUtf8("id"))
-            .build()
+        val response = Access.TransactionResultResponse.newBuilder().setStatus(TransactionOuterClass.TransactionStatus.SEALED).setStatusCode(1).setErrorMessage("message").setBlockId(ByteString.copyFromUtf8("id")).build()
 
         `when`(mockApi.getTransactionResult(any())).thenReturn(response)
 
@@ -231,12 +226,7 @@ class FlowAccessApiImplTest {
         val result = flowAccessApiImpl.executeScriptAtLatestBlock(script, arguments)
         assertResultSuccess(result) { assertEquals("response_value", it.stringValue) }
 
-        verify(mockApi).executeScriptAtLatestBlock(
-            Access.ExecuteScriptAtLatestBlockRequest.newBuilder()
-                .setScript(script.byteStringValue)
-                .addAllArguments(arguments)
-                .build()
-        )
+        verify(mockApi).executeScriptAtLatestBlock(Access.ExecuteScriptAtLatestBlockRequest.newBuilder().setScript(script.byteStringValue).addAllArguments(arguments).build())
     }
 
     @Test
@@ -251,13 +241,7 @@ class FlowAccessApiImplTest {
         val result = flowAccessApiImpl.executeScriptAtBlockId(script, blockId, arguments)
         assertResultSuccess(result) { assertEquals("response_value", it.stringValue) }
 
-        verify(mockApi).executeScriptAtBlockID(
-            Access.ExecuteScriptAtBlockIDRequest.newBuilder()
-                .setBlockId(blockId.byteStringValue)
-                .setScript(script.byteStringValue)
-                .addAllArguments(arguments)
-                .build()
-        )
+        verify(mockApi).executeScriptAtBlockID(Access.ExecuteScriptAtBlockIDRequest.newBuilder().setBlockId(blockId.byteStringValue).setScript(script.byteStringValue).addAllArguments(arguments).build())
     }
 
     @Test
@@ -272,13 +256,7 @@ class FlowAccessApiImplTest {
         val result = flowAccessApiImpl.executeScriptAtBlockHeight(script, height, arguments)
         assertResultSuccess(result) { assertEquals("response_value", it.stringValue) }
 
-        verify(mockApi).executeScriptAtBlockHeight(
-            Access.ExecuteScriptAtBlockHeightRequest.newBuilder()
-                .setBlockHeight(height)
-                .setScript(script.byteStringValue)
-                .addAllArguments(arguments)
-                .build()
-        )
+        verify(mockApi).executeScriptAtBlockHeight(Access.ExecuteScriptAtBlockHeightRequest.newBuilder().setBlockHeight(height).setScript(script.byteStringValue).addAllArguments(arguments).build())
     }
 
     @Test
@@ -294,13 +272,7 @@ class FlowAccessApiImplTest {
         val result = flowAccessApiImpl.getEventsForHeightRange(type, range)
         assertResultSuccess(result) { assertEquals(2, it.size) }
 
-        verify(mockApi).getEventsForHeightRange(
-            Access.GetEventsForHeightRangeRequest.newBuilder()
-                .setType(type)
-                .setStartHeight(range.first)
-                .setEndHeight(range.last)
-                .build()
-        )
+        verify(mockApi).getEventsForHeightRange(Access.GetEventsForHeightRangeRequest.newBuilder().setType(type).setStartHeight(range.first).setEndHeight(range.last).build())
     }
 
     @Test
@@ -384,20 +356,8 @@ class FlowAccessApiImplTest {
     @Test
     fun `Test getTransactionResultsByBlockId with multiple results`() {
         val blockId = FlowId("01")
-        val transactionResult1 = FlowTransactionResult.of(
-            Access.TransactionResultResponse.newBuilder()
-                .setStatus(TransactionOuterClass.TransactionStatus.SEALED)
-                .setStatusCode(1)
-                .setErrorMessage("message1")
-                .build()
-        )
-        val transactionResult2 = FlowTransactionResult.of(
-            Access.TransactionResultResponse.newBuilder()
-                .setStatus(TransactionOuterClass.TransactionStatus.SEALED)
-                .setStatusCode(2)
-                .setErrorMessage("message2")
-                .build()
-        )
+        val transactionResult1 = FlowTransactionResult.of(Access.TransactionResultResponse.newBuilder().setStatus (TransactionOuterClass.TransactionStatus.SEALED).setStatusCode(1).setErrorMessage("message1").build())
+        val transactionResult2 = FlowTransactionResult.of(Access.TransactionResultResponse.newBuilder().setStatus(TransactionOuterClass.TransactionStatus.SEALED).setStatusCode(2).setErrorMessage("message2").build())
         val transactionResults = listOf(transactionResult1, transactionResult2)
         val response = Access.TransactionResultsResponse.newBuilder().addAllTransactionResults(transactionResults.map { it.builder().build() }).build()
 
@@ -415,14 +375,7 @@ class FlowAccessApiImplTest {
     fun `Test getExecutionResultByBlockId`() {
         val blockId = FlowId("01")
         val executionResult = ExecutionResult(FlowId("01"), FlowId("02"))
-        val response = Access.ExecutionResultByIDResponse.newBuilder()
-            .setExecutionResult(
-                ExecutionResultOuterClass.ExecutionResult.newBuilder()
-                    .setBlockId(blockId.byteStringValue)
-                    .setPreviousResultId((FlowId("02").byteStringValue))
-                    .build()
-            )
-            .build()
+        val response = Access.ExecutionResultByIDResponse.newBuilder().setExecutionResult(ExecutionResultOuterClass.ExecutionResult.newBuilder().setBlockId(blockId.byteStringValue).setPreviousResultId((FlowId("02").byteStringValue)).build()).build()
 
         `when`(mockApi.getExecutionResultByID(any())).thenReturn(response)
 
@@ -437,21 +390,7 @@ class FlowAccessApiImplTest {
         }
     }
 
-    private fun createMockTransaction(flowId: FlowId = FlowId("01")) = FlowTransaction(
-        FlowScript("script"),
-        emptyList(),
-        flowId,
-        123L,
-        FlowTransactionProposalKey(FlowAddress("02"), 1, 123L),
-        FlowAddress("02"),
-        emptyList()
-    )
+    private fun createMockTransaction(flowId: FlowId = FlowId("01")) = FlowTransaction(FlowScript("script"), emptyList(), flowId, 123L, FlowTransactionProposalKey(FlowAddress("02"), 1, 123L), FlowAddress("02"), emptyList())
 
-    private fun createMockAccount(flowAddress: FlowAddress) = FlowAccount(
-        flowAddress,
-        BigDecimal.ONE,
-        FlowCode("code".toByteArray()),
-        emptyList(),
-        emptyMap()
-    )
+    private fun createMockAccount(flowAddress: FlowAddress) = FlowAccount(flowAddress, BigDecimal.ONE, FlowCode("code".toByteArray()), emptyList(), emptyMap())
 }
