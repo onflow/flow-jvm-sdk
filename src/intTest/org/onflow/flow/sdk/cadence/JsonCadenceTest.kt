@@ -1,12 +1,9 @@
 package org.onflow.flow.sdk.cadence
 
-import org.onflow.flow.sdk.FlowId
-import org.onflow.flow.sdk.IntegrationTestUtils
-import org.onflow.flow.sdk.decode
-import org.onflow.flow.sdk.simpleFlowScript
 import kotlinx.serialization.Serializable
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import org.onflow.flow.sdk.*
 
 class JsonCadenceTest {
     @Serializable
@@ -45,7 +42,11 @@ class JsonCadenceTest {
     @Test
     fun `Can parse new JSON Cadence`() {
         val flow = IntegrationTestUtils.newMainnetAccessApi()
-        val tx = flow.getTransactionResultById(FlowId("273f68ffe175a0097db60bc7cf5e92c5a775d189af3f5636f5432c1206be771a"))!!
+        val tx = when (val transactionResult = flow.getTransactionResultById(FlowId("273f68ffe175a0097db60bc7cf5e92c5a775d189af3f5636f5432c1206be771a"))) {
+            is FlowAccessApi.AccessApiCallResponse.Success -> transactionResult.data
+            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to get transaction result: ${transactionResult.message}", transactionResult.throwable)
+        }
+
         val events = tx.events.map { it.payload.jsonCadence }
         assertThat(events).hasSize(7)
     }
@@ -55,13 +56,18 @@ class JsonCadenceTest {
         val result = flow.simpleFlowScript {
             script {
                 """
-                pub fun main(): Bool? {
-                 return nil
-                }
+            pub fun main(): Bool? {
+             return nil
+            }
                 """.trimIndent()
             }
         }
-        val data = result.jsonCadence.decode<Boolean?>()
+
+        val data = when (result) {
+            is FlowAccessApi.AccessApiCallResponse.Success -> result.data.jsonCadence.decode<Boolean?>()
+            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to execute script: ${result.message}", result.throwable)
+        }
+
         assertThat(data).isEqualTo(null)
     }
 
@@ -70,13 +76,18 @@ class JsonCadenceTest {
         val result = flow.simpleFlowScript {
             script {
                 """
-                pub fun main(): Bool? {
-                 return true
-                }
+            pub fun main(): Bool? {
+             return true
+            }
                 """.trimIndent()
             }
         }
-        val data = result.jsonCadence.decode<Boolean?>()
+
+        val data = when (result) {
+            is FlowAccessApi.AccessApiCallResponse.Success -> result.data.jsonCadence.decode<Boolean?>()
+            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to execute script: ${result.message}", result.throwable)
+        }
+
         assertThat(data).isEqualTo(true)
     }
 
@@ -91,7 +102,11 @@ class JsonCadenceTest {
                 """.trimIndent()
             }
         }
-        val data = result.jsonCadence.decode<Boolean>()
+        val data = when (result) {
+            is FlowAccessApi.AccessApiCallResponse.Success -> result.data.jsonCadence.decode<Boolean?>()
+            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to execute script: ${result.message}", result.throwable)
+        }
+
         assertThat(data).isEqualTo(true)
     }
 
@@ -100,14 +115,18 @@ class JsonCadenceTest {
         val result = flow.simpleFlowScript {
             script {
                 """
-                pub fun main(): [UInt64] {
-                 return [1,3,4,5]
-                }
+            pub fun main(): [UInt64] {
+                return [1,3,4,5]
+            }
                 """.trimIndent()
             }
         }
 
-        val data = result.jsonCadence.decode<List<ULong>>()
+        val data = when (result) {
+            is FlowAccessApi.AccessApiCallResponse.Success -> result.data.jsonCadence.decode<List<ULong>>()
+            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to execute script: ${result.message}", result.throwable)
+        }
+
         assertThat(data.first()).isEqualTo(1UL)
         assertThat(data).hasSize(4)
     }
@@ -117,14 +136,18 @@ class JsonCadenceTest {
         val result = flow.simpleFlowScript {
             script {
                 """
-                pub fun main(): UFix64 {
-                 return 0.789111
-                }
+            pub fun main(): UFix64 {
+                return 0.789111
+            }
                 """.trimIndent()
             }
         }
 
-        val data = result.jsonCadence.decode<Double>()
+        val data = when (result) {
+            is FlowAccessApi.AccessApiCallResponse.Success -> result.data.jsonCadence.decode<Double>()
+            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to execute script: ${result.message}", result.throwable)
+        }
+
         assertThat(data).isEqualTo(0.789111)
     }
 
@@ -133,31 +156,35 @@ class JsonCadenceTest {
         val result = flow.simpleFlowScript {
             script {
                 """
-                  pub struct StorageInfo {
-                      pub let capacity: Int
-                      pub let used: Int
-                      pub let available: Int
+              pub struct StorageInfo {
+                  pub let capacity: Int
+                  pub let used: Int
+                  pub let available: Int
 
-                      init(capacity: Int, used: Int, available: Int) {
-                          self.capacity = capacity
-                          self.used = used
-                          self.available = available
-                      }
+                  init(capacity: Int, used: Int, available: Int) {
+                      self.capacity = capacity
+                      self.used = used
+                      self.available = available
                   }
+              }
 
-                  pub fun main(addr: Address): [StorageInfo] {
-                    let acct = getAccount(addr)
-                    return [StorageInfo(capacity: 1,
-                                       used: 2,
-                                       available: 3)]
-                  }
+              pub fun main(addr: Address): [StorageInfo] {
+                let acct = getAccount(addr)
+                return [StorageInfo(capacity: 1,
+                                   used: 2,
+                                   available: 3)]
+              }
                 """.trimIndent()
             }
 
             arg { address("0x84221fe0294044d7") }
         }
 
-        val data = result.jsonCadence.decode<List<StorageInfo>>().first()
+        val data = when (result) {
+            is FlowAccessApi.AccessApiCallResponse.Success -> result.data.jsonCadence.decode<List<StorageInfo>>().first()
+            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to execute script: ${result.message}", result.throwable)
+        }
+
         assertThat(data.capacity).isEqualTo(1)
         assertThat(data.used).isEqualTo(2)
         assertThat(data.available).isEqualTo(3)
@@ -168,44 +195,48 @@ class JsonCadenceTest {
         val result = flow.simpleFlowScript {
             script {
                 """
-                            pub struct StorageInfo {
-                                pub let capacity: UInt64
-                                pub let used: UInt64
-                                pub let available: UInt64
-                                pub let foo: Foo
+                pub struct StorageInfo {
+                    pub let capacity: UInt64
+                    pub let used: UInt64
+                    pub let available: UInt64
+                    pub let foo: Foo
 
-                                init(capacity: UInt64, used: UInt64, available: UInt64, foo: Foo) {
-                                    self.capacity = capacity
-                                    self.used = used
-                                    self.available = available
-                                    self.foo = foo
-                                }
-                            }
-                            
-                            pub struct Foo {
-                                pub let bar: Int
+                    init(capacity: UInt64, used: UInt64, available: UInt64, foo: Foo) {
+                        self.capacity = capacity
+                        self.used = used
+                        self.available = available
+                        self.foo = foo
+                    }
+                }
+                
+                pub struct Foo {
+                    pub let bar: Int
 
-                                    init(bar: Int) {
-                                        self.bar = bar
-                                    }
-                            }
+                    init(bar: Int) {
+                        self.bar = bar
+                    }
+                }
 
-                            pub fun main(addr: Address): {String: [StorageInfo]} {
-                              let acct = getAccount(addr)
-                              
-                               let foo = Foo(bar: 1)
-                              return {"test": [StorageInfo(capacity: acct.storageCapacity,
-                                                used: acct.storageUsed,
-                                                available: acct.storageCapacity - acct.storageUsed,
-                                                foo: foo)]}
-                            }
+                pub fun main(addr: Address): {String: [StorageInfo]} {
+                    let acct = getAccount(addr)
+                    
+                    let foo = Foo(bar: 1)
+                    return {"test": [StorageInfo(capacity: acct.storageCapacity,
+                                      used: acct.storageUsed,
+                                      available: acct.storageCapacity - acct.storageUsed,
+                                      foo: foo)]}
+                }
                 """.trimIndent()
             }
 
             arg { address("0x84221fe0294044d7") }
         }
 
-        val data = result.decode<Map<String, List<StorageInfoComplex>>>()
+        val data = when (result) {
+            is FlowAccessApi.AccessApiCallResponse.Success -> result.data.jsonCadence.decode<Map<String, List<StorageInfoComplex>>>()
+            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to execute script: ${result.message}", result.throwable)
+        }
+
         assertThat(data["test"]!!.first().foo.bar).isEqualTo(1)
     }
 
@@ -214,22 +245,27 @@ class JsonCadenceTest {
         val result = flow.simpleFlowScript {
             script {
                 """
-                pub resource SomeResource {
-                    pub var value: Int
-                    
-                    init(value: Int) {
-                        self.value = value
-                    }
-                }
+            pub resource SomeResource {
+                pub var value: Int
                 
-                pub fun main(): @SomeResource {
-                    let newResource <- create SomeResource(value: 20)
-                    return <-newResource
+                init(value: Int) {
+                    self.value = value
                 }
+            }
+            
+            pub fun main(): @SomeResource {
+                let newResource <- create SomeResource(value: 20)
+                return <-newResource
+            }
                 """.trimIndent()
             }
         }
-        val decodedResource = result.jsonCadence.decode<SomeResource>()
+
+        val decodedResource = when (result) {
+            is FlowAccessApi.AccessApiCallResponse.Success -> result.data.jsonCadence.decode<SomeResource>()
+            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to execute script: ${result.message}", result.throwable)
+        }
+
         assertThat(decodedResource).isNotNull()
         assertThat(decodedResource.value).isEqualTo(20)
     }
@@ -239,20 +275,24 @@ class JsonCadenceTest {
         val result = flow.simpleFlowScript {
             script {
                 """
-                pub enum Color: UInt8 {
-                   pub case red
-                   pub case green
-                   pub case blue
-                }
-    
-                pub fun main() : Color {
-                    return Color.red
-                }
+            pub enum Color: UInt8 {
+               pub case red
+               pub case green
+               pub case blue
+            }
+
+            pub fun main() : Color {
+                return Color.red
+            }
                 """.trimIndent()
             }
         }
 
-        val decodedEnum = result.jsonCadence.decode<SomeEnum>()
+        val decodedEnum = when (result) {
+            is FlowAccessApi.AccessApiCallResponse.Success -> result.data.jsonCadence.decode<SomeEnum>()
+            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to execute script: ${result.message}", result.throwable)
+        }
+
         assertThat(decodedEnum).isNotNull()
         assertThat(decodedEnum.rawValue).isEqualTo(0)
     }
@@ -262,17 +302,21 @@ class JsonCadenceTest {
         val result = flow.simpleFlowScript {
             script {
                 """
-                pub let hello = "Hello"
-                pub let helloRef: &String = &hello as &String
-                
-                pub fun main(): &String {
-                    return helloRef
-                }
+            pub let hello = "Hello"
+            pub let helloRef: &String = &hello as &String
+            
+            pub fun main(): &String {
+                return helloRef
+            }
                 """.trimIndent()
             }
         }
 
-        val decodedReference = result.jsonCadence.decodeToAny()
+        val decodedReference = when (result) {
+            is FlowAccessApi.AccessApiCallResponse.Success -> result.data.jsonCadence.decodeToAny()
+            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to execute script: ${result.message}", result.throwable)
+        }
+
         assertThat(decodedReference).isNotNull()
         assertThat(decodedReference).isEqualTo("Hello")
     }
