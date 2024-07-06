@@ -1,9 +1,7 @@
 package org.onflow.flow.sdk
 
 import com.google.protobuf.ByteString
-import io.grpc.stub.StreamObserver
 import kotlinx.coroutines.channels.ReceiveChannel
-import org.onflow.protobuf.executiondata.Executiondata
 
 interface FlowAccessApi {
     sealed class AccessApiCallResponse<out T> {
@@ -78,5 +76,4 @@ interface FlowAccessApi {
     fun subscribeEventsByBlockHeight(
         height: Long
     ): AccessApiCallResponse<Pair<ReceiveChannel<List<FlowEvent>>, ReceiveChannel<Throwable>>>
-
 }

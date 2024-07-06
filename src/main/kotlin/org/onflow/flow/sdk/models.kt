@@ -17,7 +17,12 @@ private const val FLOW_ID_SIZE_BYTES = 32
 private const val FLOW_ADDRESS_SIZE_BYTES = 8
 
 enum class FlowTransactionStatus(val num: Int) {
-    UNKNOWN(0), PENDING(1), FINALIZED(2), EXECUTED(3), SEALED(4), EXPIRED(5);
+    UNKNOWN(0),
+    PENDING(1),
+    FINALIZED(2),
+    EXECUTED(3),
+    SEALED(4),
+    EXPIRED(5);
 
     companion object {
         @JvmStatic
@@ -26,7 +31,11 @@ enum class FlowTransactionStatus(val num: Int) {
 }
 
 enum class FlowChainId(val id: String) {
-    UNKNOWN("unknown"), MAINNET("flow-mainnet"), TESTNET("flow-testnet"), CANARYNET("flow-canarynet"), EMULATOR("flow-emulator");
+    UNKNOWN("unknown"),
+    MAINNET("flow-mainnet"),
+    TESTNET("flow-testnet"),
+    CANARYNET("flow-canarynet"),
+    EMULATOR("flow-emulator");
 
     companion object {
         @JvmStatic
@@ -35,7 +44,9 @@ enum class FlowChainId(val id: String) {
 }
 
 enum class SignatureAlgorithm(val algorithm: String, val curve: String, val id: String, val code: Int, val index: Int) {
-    UNKNOWN("unknown", "unknown", "unknown", -1, 0), ECDSA_P256("ECDSA", "P-256", "ECDSA_P256", 2, 1), ECDSA_SECP256k1("ECDSA", "secp256k1", "ECDSA_secp256k1", 3, 2);
+    UNKNOWN("unknown", "unknown", "unknown", -1, 0),
+    ECDSA_P256("ECDSA", "P-256", "ECDSA_P256", 2, 1),
+    ECDSA_SECP256k1("ECDSA", "secp256k1", "ECDSA_secp256k1", 3, 2);
 
     companion object {
         @JvmStatic
@@ -47,7 +58,11 @@ enum class SignatureAlgorithm(val algorithm: String, val curve: String, val id: 
 }
 
 enum class HashAlgorithm(val algorithm: String, val outputSize: Int, val id: String, val code: Int, val index: Int) {
-    UNKNOWN("unknown", -1, "unknown", -1, 0), SHA2_256("SHA-256", 256, "SHA256withECDSA", 1, 1), SHA2_384("SHA-384", 384, "SHA384withECDSA", 1, 2), SHA3_256("SHA3-256", 256, "SHA3-256withECDSA", 3, 3), SHA3_384("SHA3-384", 384, "SHA3-384withECDSA", 3, 4);
+    UNKNOWN("unknown", -1, "unknown", -1, 0),
+    SHA2_256("SHA-256", 256, "SHA256withECDSA", 1, 1),
+    SHA2_384("SHA-384", 384, "SHA384withECDSA", 1, 2),
+    SHA3_256("SHA3-256", 256, "SHA3-256withECDSA", 3, 3),
+    SHA3_384("SHA3-384", 384, "SHA3-384withECDSA", 3, 4);
 
     companion object {
         @JvmStatic
@@ -75,7 +90,14 @@ interface Hasher {
     fun hashAsHexString(bytes: ByteArray): String = hash(bytes).bytesToHex()
 }
 
-data class FlowAccount(val address: FlowAddress, val balance: BigDecimal, @Deprecated(message = "use contracts instead", replaceWith = ReplaceWith("contracts")) val code: FlowCode, val keys: List<FlowAccountKey>, val contracts: Map<String, FlowCode>) : Serializable {
+data class FlowAccount(
+    val address: FlowAddress,
+    val balance: BigDecimal,
+    @Deprecated(message = "use contracts instead", replaceWith = ReplaceWith("contracts"))
+    val code: FlowCode,
+    val keys: List<FlowAccountKey>,
+    val contracts: Map<String, FlowCode>
+) : Serializable {
     companion object {
         @JvmStatic
         fun of(value: AccountOuterClass.Account): FlowAccount = FlowAccount(address = FlowAddress.of(value.address.toByteArray()), balance = BigDecimal(java.lang.Long.toUnsignedString(value.balance)).movePointLeft(8), code = FlowCode(value.code.toByteArray()), keys = value.keysList.map { FlowAccountKey.of(it) }, contracts = value.contractsMap.mapValues { FlowCode(it.value.toByteArray()) })
@@ -92,8 +114,8 @@ data class FlowAccount(val address: FlowAddress, val balance: BigDecimal, @Depre
      */
     fun getKeyIndex(publicKey: String): Int {
         return this.keys.filter { !it.revoked }.find {
-                it.publicKey.base16Value.lowercase().endsWith(publicKey.lowercase()) || publicKey.lowercase().endsWith(it.publicKey.base16Value.lowercase())
-            }?.id ?: -1
+            it.publicKey.base16Value.lowercase().endsWith(publicKey.lowercase()) || publicKey.lowercase().endsWith(it.publicKey.base16Value.lowercase())
+        }?.id ?: -1
     }
 }
 
@@ -168,54 +190,113 @@ data class FlowTransactionResult(val status: FlowTransactionStatus, val statusCo
     @JvmOverloads
     fun getEventsOfType(type: String, exact: Boolean = false, expectedCount: Int? = null): List<EventField> {
         val ret = this.events.filter {
-                if (exact) {
-                    it.type == type
-                } else {
-                    it.type.endsWith(type)
-                }
-            }.map { it.event }
+            if (exact) {
+                it.type == type
+            } else {
+                it.type.endsWith(type)
+            }
+        }.map { it.event }
         check(expectedCount == null || ret.size == expectedCount) { "Expected $expectedCount events of type $type but there were ${ret.size}" }
         return ret
     }
 }
 
-internal class Payload(@RLP(0) val script: ByteArray, @RLP(1) val arguments: List<ByteArray>, @RLP(2) val referenceBlockId: ByteArray, @RLP(3) val gasLimit: Long, @RLP(4) val proposalKeyAddress: ByteArray, @RLP(5) val proposalKeyIndex: Long, @RLP(6) val proposalKeySequenceNumber: Long, @RLP(7) val payer: ByteArray, @RLP(8) val authorizers: List<ByteArray>) {
+internal class Payload(
+    @RLP(0) val script: ByteArray,
+    @RLP(1) val arguments: List<ByteArray>,
+    @RLP(2) val referenceBlockId: ByteArray,
+    @RLP(3) val gasLimit: Long,
+    @RLP(4) val proposalKeyAddress: ByteArray,
+    @RLP(5) val proposalKeyIndex: Long,
+    @RLP(6) val proposalKeySequenceNumber: Long,
+    @RLP(7) val payer: ByteArray,
+    @RLP(8) val authorizers: List<ByteArray>
+) {
     // no-arg constructor required for decoding
     constructor() : this(byteArrayOf(), listOf(), byteArrayOf(), 0, byteArrayOf(), 0, 0, byteArrayOf(), listOf())
 }
 
-internal class PayloadEnvelope(@RLP(0) val payload: Payload, @RLP(1) val payloadSignatures: List<EnvelopeSignature>)
+internal class PayloadEnvelope(
+    @RLP(0) val payload: Payload,
+    @RLP(1) val payloadSignatures: List<EnvelopeSignature>
+)
 
-internal class PaymentEnvelope(@RLP(0) val payloadEnvelope: PayloadEnvelope, @RLP(1) val envelopeSignatures: List<EnvelopeSignature>)
+internal class PaymentEnvelope(
+    @RLP(0) val payloadEnvelope: PayloadEnvelope,
+    @RLP(1) val envelopeSignatures: List<EnvelopeSignature>
+)
 
-internal class TransactionEnvelope(@RLP(0) val payload: Payload = Payload(), @RLP(1) val payloadSignatures: List<EnvelopeSignature> = emptyList(), @RLP(2) val envelopeSignatures: List<EnvelopeSignature> = emptyList())
+internal class TransactionEnvelope(
+    @RLP(0) val payload: Payload = Payload(),
+    @RLP(1) val payloadSignatures: List<EnvelopeSignature> = emptyList(),
+    @RLP(2) val envelopeSignatures: List<EnvelopeSignature> = emptyList()
+)
 
-internal class EnvelopeSignature(@RLP(0) val signerIndex: Int, @RLP(1) val keyIndex: Int, @RLP(2) val signature: ByteArray) {
+internal class EnvelopeSignature(
+    @RLP(0) val signerIndex: Int,
+    @RLP(1) val keyIndex: Int,
+    @RLP(2) val signature: ByteArray
+) {
     // no-arg constructor required for decoding
     constructor() : this(0, 0, byteArrayOf())
 }
 
 data class FlowTransaction(val script: FlowScript, val arguments: List<FlowArgument>, val referenceBlockId: FlowId, val gasLimit: Long, val proposalKey: FlowTransactionProposalKey, val payerAddress: FlowAddress, val authorizers: List<FlowAddress>, val payloadSignatures: List<FlowTransactionSignature> = emptyList(), val envelopeSignatures: List<FlowTransactionSignature> = emptyList()) : Serializable {
     private val payload: Payload
-        get() = Payload(script = script.bytes, arguments = arguments.map { it.bytes }, referenceBlockId = referenceBlockId.bytes, gasLimit = gasLimit, proposalKeyAddress = proposalKey.address.bytes, proposalKeyIndex = proposalKey.keyIndex.toLong(), // TODO: type mismatch here
-            proposalKeySequenceNumber = proposalKey.sequenceNumber, payer = payerAddress.bytes, authorizers = authorizers.map { it.bytes })
+        get() = Payload(
+            script = script.bytes,
+            arguments = arguments.map { it.bytes },
+            referenceBlockId = referenceBlockId.bytes,
+            gasLimit = gasLimit,
+            proposalKeyAddress = proposalKey.address.bytes,
+            proposalKeyIndex = proposalKey.keyIndex.toLong(), // TODO: type mismatch here
+            proposalKeySequenceNumber = proposalKey.sequenceNumber,
+            payer = payerAddress.bytes,
+            authorizers = authorizers.map { it.bytes }
+        )
 
     private val authorization: PayloadEnvelope
-        get() = PayloadEnvelope(payload = payload, payloadSignatures = payloadSignatures.map {
-            EnvelopeSignature(signerIndex = it.signerIndex, keyIndex = it.keyIndex, signature = it.signature.bytes)
-        })
+        get() = PayloadEnvelope(
+            payload = payload,
+            payloadSignatures = payloadSignatures.map {
+                EnvelopeSignature(
+                    signerIndex = it.signerIndex,
+                    keyIndex = it.keyIndex,
+                    signature = it.signature.bytes
+                )
+            }
+        )
 
     private val payment: PaymentEnvelope
-        get() = PaymentEnvelope(payloadEnvelope = authorization, envelopeSignatures = envelopeSignatures.map {
-            EnvelopeSignature(signerIndex = it.signerIndex, keyIndex = it.keyIndex, signature = it.signature.bytes)
-        })
+        get() = PaymentEnvelope(
+            payloadEnvelope = authorization,
+            envelopeSignatures = envelopeSignatures.map {
+                EnvelopeSignature(
+                    signerIndex = it.signerIndex,
+                    keyIndex = it.keyIndex,
+                    signature = it.signature.bytes
+                )
+            }
+        )
 
     private val transaction: TransactionEnvelope
-        get() = TransactionEnvelope(payload = payload, payloadSignatures = payloadSignatures.map {
-            EnvelopeSignature(signerIndex = it.signerIndex, keyIndex = it.keyIndex, signature = it.signature.bytes)
-        }, envelopeSignatures = envelopeSignatures.map {
-            EnvelopeSignature(signerIndex = it.signerIndex, keyIndex = it.keyIndex, signature = it.signature.bytes)
-        })
+        get() = TransactionEnvelope(
+            payload = payload,
+            payloadSignatures = payloadSignatures.map {
+                EnvelopeSignature(
+                    signerIndex = it.signerIndex,
+                    keyIndex = it.keyIndex,
+                    signature = it.signature.bytes
+                )
+            },
+            envelopeSignatures = envelopeSignatures.map {
+                EnvelopeSignature(
+                    signerIndex = it.signerIndex,
+                    keyIndex = it.keyIndex,
+                    signature = it.signature.bytes
+                )
+            }
+        )
 
     val canonicalPayload: ByteArray get() = RLPCodec.encode(payload)
     val canonicalAuthorizationEnvelope: ByteArray get() = RLPCodec.encode(authorization)
@@ -466,8 +547,11 @@ data class FlowExecutionResult(
     }
 }
 
-data class FlowChunkExecutionData(val collection: FlowExecutionDataCollection, val events: List<FlowEvent>, val trieUpdate: FlowTrieUpdate, val transactionResults: List<FlowExecutionDataTransactionResult>
-
+data class FlowChunkExecutionData(
+    val collection: FlowExecutionDataCollection,
+    val events: List<FlowEvent>,
+    val trieUpdate: FlowTrieUpdate,
+    val transactionResults: List<FlowExecutionDataTransactionResult>
 ) : Serializable {
     companion object {
         fun of(grpcExecutionResult: BlockExecutionDataOuterClass.ChunkExecutionData) = FlowChunkExecutionData(
@@ -479,8 +563,10 @@ data class FlowChunkExecutionData(val collection: FlowExecutionDataCollection, v
     }
 }
 
-data class FlowTrieUpdate(val rootHash: ByteArray, val paths: List<ByteArray>, val payloads: List<FlowPayload>
-
+data class FlowTrieUpdate(
+    val rootHash: ByteArray,
+    val paths: List<ByteArray>,
+    val payloads: List<FlowPayload>
 ) : Serializable {
     companion object {
         fun of(grpcExecutionResult: BlockExecutionDataOuterClass.TrieUpdate) = FlowTrieUpdate(
@@ -582,9 +668,12 @@ data class FlowBlockExecutionData(
     val chunkExecutionData: List<FlowChunkExecutionData>,
 ) : Serializable {
     companion object {
-        fun of(grpcExecutionResult: BlockExecutionDataOuterClass.BlockExecutionData) = FlowBlockExecutionData(blockId = FlowId.of(grpcExecutionResult.blockId.toByteArray()), chunkExecutionData = grpcExecutionResult.chunkExecutionDataList.map { chunkExecutionData ->
-            FlowChunkExecutionData(collection = FlowExecutionDataCollection.of(chunkExecutionData.collection), events = chunkExecutionData.eventsList.map { FlowEvent.of(it) }, trieUpdate = FlowTrieUpdate.of(chunkExecutionData.trieUpdate), transactionResults = chunkExecutionData.transactionResultsList.map { FlowExecutionDataTransactionResult.of(it) })
-        })
+        fun of(grpcExecutionResult: BlockExecutionDataOuterClass.BlockExecutionData) = FlowBlockExecutionData(
+            blockId = FlowId.of(grpcExecutionResult.blockId.toByteArray()),
+            chunkExecutionData = grpcExecutionResult.chunkExecutionDataList.map { chunkExecutionData ->
+                FlowChunkExecutionData(collection = FlowExecutionDataCollection.of(chunkExecutionData.collection), events = chunkExecutionData.eventsList.map { FlowEvent.of(it) }, trieUpdate = FlowTrieUpdate.of(chunkExecutionData.trieUpdate), transactionResults = chunkExecutionData.transactionResultsList.map { FlowExecutionDataTransactionResult.of(it) })
+            }
+        )
     }
 }
 

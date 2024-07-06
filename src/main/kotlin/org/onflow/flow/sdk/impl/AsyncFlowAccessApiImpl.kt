@@ -606,4 +606,3 @@ fun <T> completableFuture(future: ListenableFuture<T>): CompletableFuture<T> {
     )
     return completable
 }
-
