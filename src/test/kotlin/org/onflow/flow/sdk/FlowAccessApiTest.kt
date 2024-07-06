@@ -316,7 +316,7 @@ class FlowAccessApiTest {
     fun `Test getExecutionResultByBlockId`() {
         val flowAccessApi = mock(FlowAccessApi::class.java)
         val blockId = FlowId("01")
-        val executionResult = ExecutionResult.of(Access.ExecutionResultByIDResponse.getDefaultInstance())
+        val executionResult = FlowExecutionResult.of(Access.ExecutionResultByIDResponse.getDefaultInstance())
         `when`(flowAccessApi.getExecutionResultByBlockId(blockId)).thenReturn(FlowAccessApi.AccessApiCallResponse.Success(executionResult))
 
         val result = flowAccessApi.getExecutionResultByBlockId(blockId)

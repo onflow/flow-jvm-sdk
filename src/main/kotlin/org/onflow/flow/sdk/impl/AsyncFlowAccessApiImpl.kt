@@ -558,7 +558,7 @@ class AsyncFlowAccessApiImpl(
         }
     }
 
-    override fun getExecutionResultByBlockId(id: FlowId): CompletableFuture<FlowAccessApi.AccessApiCallResponse<ExecutionResult?>> {
+    override fun getExecutionResultByBlockId(id: FlowId): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowExecutionResult?>> {
         return try {
             completableFuture(
                 try {
@@ -571,7 +571,7 @@ class AsyncFlowAccessApiImpl(
                     FlowAccessApi.AccessApiCallResponse.Error("Failed to get execution result by block ID", ex)
                 } else {
                     if (response.hasExecutionResult()) {
-                        FlowAccessApi.AccessApiCallResponse.Success(ExecutionResult.of(response))
+                        FlowAccessApi.AccessApiCallResponse.Success(FlowExecutionResult.of(response))
                     } else {
                         FlowAccessApi.AccessApiCallResponse.Error("Execution result not found")
                     }

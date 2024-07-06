@@ -179,7 +179,7 @@ class AsyncFlowAccessApiImplTest {
         val accountResponse = Access.GetAccountResponse.newBuilder().setAccount(flowAccount.builder().build()).build()
         `when`(api.getAccount(any())).thenReturn(setupFutureMock(accountResponse))
 
-        val result = asyncFlowAccessApi.getAccountByAddress(flowAddress).get()
+        val result = asyncFlowAccessApi.getAccountAtLatestBlock(flowAddress).get()
         assert(result is FlowAccessApi.AccessApiCallResponse.Success)
         result as FlowAccessApi.AccessApiCallResponse.Success
         assertEquals(flowAccount.address, result.data.address)
@@ -379,8 +379,45 @@ class AsyncFlowAccessApiImplTest {
     @Test
     fun `test getExecutionResultByBlockId`() {
         val blockId = FlowId("01")
-        val executionResult = ExecutionResult(FlowId("01"), FlowId("02"))
-        val response = Access.ExecutionResultByIDResponse.newBuilder().setExecutionResult(ExecutionResultOuterClass.ExecutionResult.newBuilder().setBlockId(ByteString.copyFrom(BLOCK_ID_BYTES)).setPreviousResultId(ByteString.copyFrom(PARENT_ID_BYTES)).build()).build()
+
+        val chunks = listOf(FlowChunk(collectionIndex = 1, startState = ByteArray(0), eventCollection = ByteArray(0), blockId = FlowId("01"), totalComputationUsed = 1000L, numberOfTransactions = 10, index = 1L, endState = ByteArray(0), executionDataId = FlowId("02"), stateDeltaCommitment = ByteArray(0)))
+
+        val serviceEvents = listOf(FlowServiceEvent(type = "ServiceEventType", payload = ByteArray(0)))
+
+        val executionResult = FlowExecutionResult(blockId = FlowId("01"), previousResultId = FlowId("02"), chunks = chunks, serviceEvents = serviceEvents)
+
+        val grpcChunks = chunks.map {
+            ExecutionResultOuterClass.Chunk.newBuilder()
+                .setCollectionIndex(it.collectionIndex)
+                .setStartState(ByteString.copyFrom(it.startState))
+                .setEventCollection(ByteString.copyFrom(it.eventCollection))
+                .setBlockId(ByteString.copyFrom(it.blockId.bytes))
+                .setTotalComputationUsed(it.totalComputationUsed)
+                .setNumberOfTransactions(it.numberOfTransactions)
+                .setIndex(it.index)
+                .setEndState(ByteString.copyFrom(it.endState))
+                .setExecutionDataId(ByteString.copyFrom(it.executionDataId.bytes))
+                .setStateDeltaCommitment(ByteString.copyFrom(it.stateDeltaCommitment))
+                .build()
+        }
+
+        val grpcServiceEvents = serviceEvents.map {
+            ExecutionResultOuterClass.ServiceEvent.newBuilder()
+                .setType(it.type)
+                .setPayload(ByteString.copyFrom(it.payload))
+                .build()
+        }
+
+        val response = Access.ExecutionResultByIDResponse.newBuilder()
+            .setExecutionResult(
+                ExecutionResultOuterClass.ExecutionResult.newBuilder()
+                    .setBlockId(ByteString.copyFrom(BLOCK_ID_BYTES))
+                    .setPreviousResultId(ByteString.copyFrom(PARENT_ID_BYTES))
+                    .addAllChunks(grpcChunks)
+                    .addAllServiceEvents(grpcServiceEvents)
+                    .build()
+            ).build()
+
         `when`(api.getExecutionResultByID(any())).thenReturn(setupFutureMock(response))
 
         val result = asyncFlowAccessApi.getExecutionResultByBlockId(blockId).get()
@@ -405,5 +442,4 @@ class AsyncFlowAccessApiImplTest {
         executor.shutdown()
         executor.awaitTermination(2, TimeUnit.SECONDS)
     }
-
 }

@@ -362,7 +362,7 @@ class FlowAccessApiImpl(
         }
     }
 
-    override fun getExecutionResultByBlockId(id: FlowId): FlowAccessApi.AccessApiCallResponse<ExecutionResult> {
+    override fun getExecutionResultByBlockId(id: FlowId): FlowAccessApi.AccessApiCallResponse<FlowExecutionResult> {
         return try {
             val ret = api.getExecutionResultByID(
                 Access.GetExecutionResultByIDRequest.newBuilder()
@@ -370,7 +370,7 @@ class FlowAccessApiImpl(
                     .build()
             )
             if (ret.hasExecutionResult()) {
-                FlowAccessApi.AccessApiCallResponse.Success(ExecutionResult.of(ret))
+                FlowAccessApi.AccessApiCallResponse.Success(FlowExecutionResult.of(ret))
             } else {
                 FlowAccessApi.AccessApiCallResponse.Error("Execution result not found")
             }

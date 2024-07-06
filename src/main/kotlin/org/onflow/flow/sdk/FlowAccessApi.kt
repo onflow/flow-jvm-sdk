@@ -58,5 +58,5 @@ interface FlowAccessApi {
 
     fun getTransactionResultsByBlockId(id: FlowId): AccessApiCallResponse<List<FlowTransactionResult>>
 
-    fun getExecutionResultByBlockId(id: FlowId): AccessApiCallResponse<ExecutionResult>
+    fun getExecutionResultByBlockId(id: FlowId): AccessApiCallResponse<FlowExecutionResult>
 }
