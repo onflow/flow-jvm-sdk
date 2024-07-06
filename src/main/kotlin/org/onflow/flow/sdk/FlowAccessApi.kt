@@ -65,17 +65,18 @@ interface FlowAccessApi {
 
     fun subscribeExecutionDataByBlockId(
         blockId: FlowId
-    ): Pair<ReceiveChannel<Executiondata.SubscribeExecutionDataResponse>, ReceiveChannel<Throwable>>
+    ): AccessApiCallResponse<Pair<ReceiveChannel<Executiondata.SubscribeExecutionDataResponse>, ReceiveChannel<Throwable>>>
 
     fun subscribeExecutionDataByBlockHeight(
         height: Long
-    ): Pair<ReceiveChannel<Executiondata.SubscribeExecutionDataResponse>, ReceiveChannel<Throwable>>
+    ): AccessApiCallResponse<Pair<ReceiveChannel<Executiondata.SubscribeExecutionDataResponse>, ReceiveChannel<Throwable>>>
 
     fun subscribeEventsByBlockId(
         blockId: FlowId
-    ): Pair<ReceiveChannel<List<FlowEvent>>, ReceiveChannel<Throwable>>
+    ): AccessApiCallResponse<Pair<ReceiveChannel<List<FlowEvent>>, ReceiveChannel<Throwable>>>
 
     fun subscribeEventsByBlockHeight(
         height: Long
-    ): Pair<ReceiveChannel<List<FlowEvent>>, ReceiveChannel<Throwable>>
+    ): AccessApiCallResponse<Pair<ReceiveChannel<List<FlowEvent>>, ReceiveChannel<Throwable>>>
+
 }
