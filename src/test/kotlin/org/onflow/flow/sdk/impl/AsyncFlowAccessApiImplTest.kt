@@ -179,7 +179,7 @@ class AsyncFlowAccessApiImplTest {
         val accountResponse = Access.GetAccountResponse.newBuilder().setAccount(flowAccount.builder().build()).build()
         `when`(api.getAccount(any())).thenReturn(setupFutureMock(accountResponse))
 
-        val result = asyncFlowAccessApi.getAccountAtLatestBlock(flowAddress).get()
+        val result = asyncFlowAccessApi.getAccountByAddress(flowAddress).get()
         assert(result is FlowAccessApi.AccessApiCallResponse.Success)
         result as FlowAccessApi.AccessApiCallResponse.Success
         assertEquals(flowAccount.address, result.data.address)
