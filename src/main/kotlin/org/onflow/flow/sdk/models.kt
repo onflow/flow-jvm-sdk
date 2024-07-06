@@ -573,7 +573,7 @@ data class FlowExecutionDataCollection(
     val transactions: List<FlowTransaction>,
 ) : Serializable {
     companion object {
-        fun of(grpcExecutionResult: BlockExecutionDataOuterClass.ExecutionDataCollection) = FlowExecutionDataCollection(transactions = grpcExecutionResult.transactionsList.map { FlowTransaction(it) })
+        fun of(grpcExecutionResult: BlockExecutionDataOuterClass.ExecutionDataCollection) = FlowExecutionDataCollection(transactions = grpcExecutionResult.transactionsList.map { FlowTransaction.of(it) })
     }
 }
 
