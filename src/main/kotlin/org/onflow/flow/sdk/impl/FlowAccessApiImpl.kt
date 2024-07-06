@@ -415,8 +415,8 @@ class FlowAccessApiImpl(
 
     override fun subscribeExecutionDataByBlockHeight(
         height: Long
-    ): FlowAccessApi.AccessApiCallResponse<Pair<ReceiveChannel<Executiondata.SubscribeExecutionDataResponse>, ReceiveChannel<Throwable>>> {
-        val responseChannel = Channel<Executiondata.SubscribeExecutionDataResponse>(Channel.UNLIMITED)
+    ): FlowAccessApi.AccessApiCallResponse<Pair<ReceiveChannel<FlowBlockExecutionData>, ReceiveChannel<Throwable>>> {
+        val responseChannel = Channel<FlowBlockExecutionData>(Channel.UNLIMITED)
         val errorChannel = Channel<Throwable>(Channel.UNLIMITED)
 
         return runBlocking {
@@ -428,7 +428,7 @@ class FlowAccessApiImpl(
                 val responseIterator = executionDataApi.subscribeExecutionDataFromStartBlockHeight(request)
 
                 for (response in responseIterator) {
-                    responseChannel.send(response)
+                    responseChannel.send(FlowBlockExecutionData.of(response.blockExecutionData))
                 }
                 FlowAccessApi.AccessApiCallResponse.Success(responseChannel to errorChannel)
             } catch (e: Exception) {
