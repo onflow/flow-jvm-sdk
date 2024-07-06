@@ -6,57 +6,62 @@ import kotlinx.coroutines.channels.ReceiveChannel
 import org.onflow.protobuf.executiondata.Executiondata
 
 interface FlowAccessApi {
-    fun ping()
+    sealed class AccessApiCallResponse<out T> {
+        data class Success<out T>(val data: T) : AccessApiCallResponse<T>()
+        data class Error(val message: String, val throwable: Throwable? = null) : AccessApiCallResponse<Nothing>()
+    }
 
-    fun getLatestBlockHeader(sealed: Boolean = true): FlowBlockHeader
+    fun ping(): AccessApiCallResponse<Unit>
 
-    fun getBlockHeaderById(id: FlowId): FlowBlockHeader?
+    fun getLatestBlockHeader(sealed: Boolean = true): AccessApiCallResponse<FlowBlockHeader>
 
-    fun getBlockHeaderByHeight(height: Long): FlowBlockHeader?
+    fun getBlockHeaderById(id: FlowId): AccessApiCallResponse<FlowBlockHeader>
 
-    fun getLatestBlock(sealed: Boolean = true): FlowBlock
+    fun getBlockHeaderByHeight(height: Long): AccessApiCallResponse<FlowBlockHeader>
 
-    fun getBlockById(id: FlowId): FlowBlock?
+    fun getLatestBlock(sealed: Boolean = true): AccessApiCallResponse<FlowBlock>
 
-    fun getTransactionsByBlockId(id: FlowId): List<FlowTransaction>?
+    fun getBlockById(id: FlowId): AccessApiCallResponse<FlowBlock>
 
-    fun getTransactionResultsByBlockId(id: FlowId): List<FlowTransactionResult>?
+    fun getBlockByHeight(height: Long): AccessApiCallResponse<FlowBlock>
 
-    fun getExecutionResultByBlockId(id: FlowId): ExecutionResult?
+    fun getCollectionById(id: FlowId): AccessApiCallResponse<FlowCollection>
 
-    fun getBlockByHeight(height: Long): FlowBlock?
+    fun sendTransaction(transaction: FlowTransaction): AccessApiCallResponse<FlowId>
 
-    fun getCollectionById(id: FlowId): FlowCollection?
+    fun getTransactionById(id: FlowId): AccessApiCallResponse<FlowTransaction>
 
-    fun sendTransaction(transaction: FlowTransaction): FlowId
-
-    fun getTransactionById(id: FlowId): FlowTransaction?
-
-    fun getTransactionResultById(id: FlowId): FlowTransactionResult?
+    fun getTransactionResultById(id: FlowId): AccessApiCallResponse<FlowTransactionResult>
 
     @Deprecated(
         message = "Behaves identically to getAccountAtLatestBlock",
         replaceWith = ReplaceWith("getAccountAtLatestBlock")
     )
-    fun getAccountByAddress(addresss: FlowAddress): FlowAccount?
+    fun getAccountByAddress(addresss: FlowAddress): AccessApiCallResponse<FlowAccount>
 
-    fun getAccountAtLatestBlock(addresss: FlowAddress): FlowAccount?
+    fun getAccountAtLatestBlock(addresss: FlowAddress): AccessApiCallResponse<FlowAccount>
 
-    fun getAccountByBlockHeight(addresss: FlowAddress, height: Long): FlowAccount?
+    fun getAccountByBlockHeight(addresss: FlowAddress, height: Long): AccessApiCallResponse<FlowAccount>
 
-    fun executeScriptAtLatestBlock(script: FlowScript, arguments: Iterable<ByteString> = emptyList()): FlowScriptResponse
+    fun executeScriptAtLatestBlock(script: FlowScript, arguments: Iterable<ByteString> = emptyList()): AccessApiCallResponse<FlowScriptResponse>
 
-    fun executeScriptAtBlockId(script: FlowScript, blockId: FlowId, arguments: Iterable<ByteString> = emptyList()): FlowScriptResponse
+    fun executeScriptAtBlockId(script: FlowScript, blockId: FlowId, arguments: Iterable<ByteString> = emptyList()): AccessApiCallResponse<FlowScriptResponse>
 
-    fun executeScriptAtBlockHeight(script: FlowScript, height: Long, arguments: Iterable<ByteString> = emptyList()): FlowScriptResponse
+    fun executeScriptAtBlockHeight(script: FlowScript, height: Long, arguments: Iterable<ByteString> = emptyList()): AccessApiCallResponse<FlowScriptResponse>
 
-    fun getEventsForHeightRange(type: String, range: ClosedRange<Long>): List<FlowEventResult>
+    fun getEventsForHeightRange(type: String, range: ClosedRange<Long>): AccessApiCallResponse<List<FlowEventResult>>
 
-    fun getEventsForBlockIds(type: String, ids: Set<FlowId>): List<FlowEventResult>
+    fun getEventsForBlockIds(type: String, ids: Set<FlowId>): AccessApiCallResponse<List<FlowEventResult>>
 
-    fun getNetworkParameters(): FlowChainId
+    fun getNetworkParameters(): AccessApiCallResponse<FlowChainId>
 
-    fun getLatestProtocolStateSnapshot(): FlowSnapshot
+    fun getLatestProtocolStateSnapshot(): AccessApiCallResponse<FlowSnapshot>
+
+    fun getTransactionsByBlockId(id: FlowId): AccessApiCallResponse<List<FlowTransaction>>
+
+    fun getTransactionResultsByBlockId(id: FlowId): AccessApiCallResponse<List<FlowTransactionResult>>
+
+    fun getExecutionResultByBlockId(id: FlowId): AccessApiCallResponse<FlowExecutionResult>
 
     fun subscribeExecutionDataByBlockId(
         blockId: FlowId
