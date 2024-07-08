@@ -1,22 +1,21 @@
 package org.onflow.flow.sdk
 
 import com.google.protobuf.ByteString
-import io.grpc.stub.StreamObserver
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.consumeEach
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import org.mockito.ArgumentCaptor
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.`when`
+import org.mockito.Mockito.*
 import org.onflow.protobuf.access.Access
 import org.onflow.protobuf.entities.AccountOuterClass
+import org.onflow.protobuf.entities.BlockExecutionDataOuterClass
 import org.onflow.protobuf.entities.BlockHeaderOuterClass
 import org.onflow.protobuf.entities.BlockOuterClass
 import org.onflow.protobuf.entities.EventOuterClass
 import org.onflow.protobuf.entities.TransactionOuterClass
-import org.onflow.protobuf.executiondata.Executiondata
 
 class FlowAccessApiTest {
     @Test
@@ -332,32 +331,178 @@ class FlowAccessApiTest {
     }
 
     @Test
+    fun `Test subscribeExecutionDataByBlockId`() = runBlocking {
+        val flowAccessApi = mock(FlowAccessApi::class.java)
+        val blockId = FlowId("01")
+        val responseChannel = Channel<FlowBlockExecutionData>(Channel.UNLIMITED)
+        val errorChannel = Channel<Throwable>(Channel.UNLIMITED)
+
+        `when`(flowAccessApi.subscribeExecutionDataByBlockId(blockId)).thenReturn(
+            FlowAccessApi.AccessApiCallResponse.Success(responseChannel to errorChannel)
+        )
+
+        val result = flowAccessApi.subscribeExecutionDataByBlockId(blockId)
+        val expectedExecutionData = FlowBlockExecutionData.of(BlockExecutionDataOuterClass.BlockExecutionData.getDefaultInstance())
+
+        responseChannel.send(expectedExecutionData)
+        responseChannel.close()
+
+        verify(flowAccessApi).subscribeExecutionDataByBlockId(blockId)
+
+        when (result) {
+            is FlowAccessApi.AccessApiCallResponse.Success -> {
+                val (responseChannel, errorChannel) = result.data
+                launch {
+                    responseChannel.consumeEach { executionData ->
+                        assertEquals(expectedExecutionData, executionData)
+                    }
+                }
+
+                launch {
+                    errorChannel.consumeEach { error ->
+                        throw error
+                    }
+                }
+            }
+            is FlowAccessApi.AccessApiCallResponse.Error -> {
+                throw result.throwable!!
+            }
+        }
+
+        errorChannel.close()
+
+        delay(100)
+    }
+
+    @Test
+    fun `Test subscribeExecutionDataByBlockHeight`() = runBlocking {
+        val flowAccessApi = mock(FlowAccessApi::class.java)
+        val blockHeight = 100L
+        val responseChannel = Channel<FlowBlockExecutionData>(Channel.UNLIMITED)
+        val errorChannel = Channel<Throwable>(Channel.UNLIMITED)
+
+        `when`(flowAccessApi.subscribeExecutionDataByBlockHeight(blockHeight)).thenReturn(
+            FlowAccessApi.AccessApiCallResponse.Success(responseChannel to errorChannel)
+        )
+
+        val result = flowAccessApi.subscribeExecutionDataByBlockHeight(blockHeight)
+        val expectedExecutionData = FlowBlockExecutionData.of(BlockExecutionDataOuterClass.BlockExecutionData.getDefaultInstance())
+
+        responseChannel.send(expectedExecutionData)
+        responseChannel.close()
+
+        verify(flowAccessApi).subscribeExecutionDataByBlockHeight(blockHeight)
+
+        when (result) {
+            is FlowAccessApi.AccessApiCallResponse.Success -> {
+                val (responseChannel, errorChannel) = result.data
+                launch {
+                    responseChannel.consumeEach { executionData ->
+                        assertEquals(expectedExecutionData, executionData)
+                    }
+                }
+
+                launch {
+                    errorChannel.consumeEach { error ->
+                        throw error
+                    }
+                }
+            }
+            is FlowAccessApi.AccessApiCallResponse.Error -> {
+                throw result.throwable!!
+            }
+        }
+
+        errorChannel.close()
+
+        delay(100)
+    }
+
+    @Test
     fun `Test subscribeEventsByBlockId`() = runBlocking {
         val flowAccessApi = mock(FlowAccessApi::class.java)
         val blockId = FlowId("01")
-        val responseObserverCaptor = ArgumentCaptor.forClass(StreamObserver::class.java) as ArgumentCaptor<StreamObserver<Executiondata.SubscribeEventsResponse>>
+        val responseChannel = Channel<List<FlowEvent>>(Channel.UNLIMITED)
+        val errorChannel = Channel<Throwable>(Channel.UNLIMITED)
 
+        `when`(flowAccessApi.subscribeEventsByBlockId(blockId)).thenReturn(
+            FlowAccessApi.AccessApiCallResponse.Success(responseChannel to errorChannel)
+        )
 
-        `when`(flowAccessApi.subscribeEventsByBlockId(blockId)).thenAnswer {
-            val observer = responseObserverCaptor.value
-            val response = Executiondata.SubscribeEventsResponse.newBuilder()
-                .addEvents(EventOuterClass.Event.newBuilder().setEventIndex(0).build())
-                .addEvents(EventOuterClass.Event.newBuilder().setEventIndex(1).build())
-                .build()
-            observer.onNext(response)
-            observer.onCompleted()
+        val result = flowAccessApi.subscribeEventsByBlockId(blockId)
+        val expectedEvents = listOf(FlowEvent.of(EventOuterClass.Event.getDefaultInstance()))
+
+        responseChannel.send(expectedEvents)
+        responseChannel.close()
+
+        verify(flowAccessApi).subscribeEventsByBlockId(blockId)
+
+        when (result) {
+            is FlowAccessApi.AccessApiCallResponse.Success -> {
+                val (responseChannel, errorChannel) = result.data
+                launch {
+                    responseChannel.consumeEach { events ->
+                        assertEquals(expectedEvents, events)
+                    }
+                }
+
+                launch {
+                    errorChannel.consumeEach { error ->
+                        throw error
+                    }
+                }
+            }
+            is FlowAccessApi.AccessApiCallResponse.Error -> {
+                throw result.throwable!!
+            }
         }
 
-        val (responseChannel, errorChannel) = flowAccessApi.subscribeEventsByBlockId(blockId)
+        errorChannel.close()
 
-        responseChannel.consumeEach { events ->
-            assertEquals(2, events.size)
-            assertEquals(0, events[0].eventIndex)
-            assertEquals(1, events[1].eventIndex)
+        delay(100)
+    }
+
+    @Test
+    fun `Test subscribeEventsByBlockHeight`() = runBlocking {
+        val flowAccessApi = mock(FlowAccessApi::class.java)
+        val blockHeight = 100L
+        val responseChannel = Channel<List<FlowEvent>>(Channel.UNLIMITED)
+        val errorChannel = Channel<Throwable>(Channel.UNLIMITED)
+
+        `when`(flowAccessApi.subscribeEventsByBlockHeight(blockHeight)).thenReturn(
+            FlowAccessApi.AccessApiCallResponse.Success(responseChannel to errorChannel)
+        )
+
+        val result = flowAccessApi.subscribeEventsByBlockHeight(blockHeight)
+        val expectedEvents = listOf(FlowEvent.of(EventOuterClass.Event.getDefaultInstance()))
+
+        responseChannel.send(expectedEvents)
+        responseChannel.close()
+
+        verify(flowAccessApi).subscribeEventsByBlockHeight(blockHeight)
+
+        when (result) {
+            is FlowAccessApi.AccessApiCallResponse.Success -> {
+                val (responseChannel, errorChannel) = result.data
+                launch {
+                    responseChannel.consumeEach { events ->
+                        assertEquals(expectedEvents, events)
+                    }
+                }
+
+                launch {
+                    errorChannel.consumeEach { error ->
+                        throw error
+                    }
+                }
+            }
+            is FlowAccessApi.AccessApiCallResponse.Error -> {
+                throw result.throwable!!
+            }
         }
 
-        errorChannel.consumeEach { error ->
-            throw error
-        }
+        errorChannel.close()
+
+        delay(100)
     }
 }
