@@ -3,7 +3,6 @@ package org.onflow.flow.sdk
 import com.google.protobuf.ByteString
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.consumeEach
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -331,7 +330,7 @@ class FlowAccessApiTest {
     }
 
     @Test
-    fun `Test subscribeExecutionDataByBlockId`() = runBlocking {
+    fun `Test subscribeExecutionDataByBlockId`(): Unit = runBlocking {
         val flowAccessApi = mock(FlowAccessApi::class.java)
         val blockId = FlowId("01")
         val responseChannel = Channel<FlowBlockExecutionData>(Channel.UNLIMITED)
@@ -351,15 +350,15 @@ class FlowAccessApiTest {
 
         when (result) {
             is FlowAccessApi.AccessApiCallResponse.Success -> {
-                val (responseChannel, errorChannel) = result.data
+                val (responseChannell, errorChannell) = result.data
                 launch {
-                    responseChannel.consumeEach { executionData ->
+                    responseChannell.consumeEach { executionData ->
                         assertEquals(expectedExecutionData, executionData)
                     }
                 }
 
                 launch {
-                    errorChannel.consumeEach { error ->
+                    errorChannell.consumeEach { error ->
                         throw error
                     }
                 }
@@ -370,12 +369,10 @@ class FlowAccessApiTest {
         }
 
         errorChannel.close()
-
-        delay(100)
     }
 
     @Test
-    fun `Test subscribeExecutionDataByBlockHeight`() = runBlocking {
+    fun `Test subscribeExecutionDataByBlockHeight`(): Unit = runBlocking {
         val flowAccessApi = mock(FlowAccessApi::class.java)
         val blockHeight = 100L
         val responseChannel = Channel<FlowBlockExecutionData>(Channel.UNLIMITED)
@@ -395,15 +392,15 @@ class FlowAccessApiTest {
 
         when (result) {
             is FlowAccessApi.AccessApiCallResponse.Success -> {
-                val (responseChannel, errorChannel) = result.data
+                val (responseChannell, errorChannell) = result.data
                 launch {
-                    responseChannel.consumeEach { executionData ->
+                    responseChannell.consumeEach { executionData ->
                         assertEquals(expectedExecutionData, executionData)
                     }
                 }
 
                 launch {
-                    errorChannel.consumeEach { error ->
+                    errorChannell.consumeEach { error ->
                         throw error
                     }
                 }
@@ -414,12 +411,10 @@ class FlowAccessApiTest {
         }
 
         errorChannel.close()
-
-        delay(100)
     }
 
     @Test
-    fun `Test subscribeEventsByBlockId`() = runBlocking {
+    fun `Test subscribeEventsByBlockId`(): Unit = runBlocking {
         val flowAccessApi = mock(FlowAccessApi::class.java)
         val blockId = FlowId("01")
         val responseChannel = Channel<List<FlowEvent>>(Channel.UNLIMITED)
@@ -439,15 +434,15 @@ class FlowAccessApiTest {
 
         when (result) {
             is FlowAccessApi.AccessApiCallResponse.Success -> {
-                val (responseChannel, errorChannel) = result.data
+                val (responseChannell, errorChannell) = result.data
                 launch {
-                    responseChannel.consumeEach { events ->
+                    responseChannell.consumeEach { events ->
                         assertEquals(expectedEvents, events)
                     }
                 }
 
                 launch {
-                    errorChannel.consumeEach { error ->
+                    errorChannell.consumeEach { error ->
                         throw error
                     }
                 }
@@ -458,12 +453,10 @@ class FlowAccessApiTest {
         }
 
         errorChannel.close()
-
-        delay(100)
     }
 
     @Test
-    fun `Test subscribeEventsByBlockHeight`() = runBlocking {
+    fun `Test subscribeEventsByBlockHeight`(): Unit = runBlocking {
         val flowAccessApi = mock(FlowAccessApi::class.java)
         val blockHeight = 100L
         val responseChannel = Channel<List<FlowEvent>>(Channel.UNLIMITED)
@@ -483,15 +476,15 @@ class FlowAccessApiTest {
 
         when (result) {
             is FlowAccessApi.AccessApiCallResponse.Success -> {
-                val (responseChannel, errorChannel) = result.data
+                val (responseChannell, errorChannell) = result.data
                 launch {
-                    responseChannel.consumeEach { events ->
+                    responseChannell.consumeEach { events ->
                         assertEquals(expectedEvents, events)
                     }
                 }
 
                 launch {
-                    errorChannel.consumeEach { error ->
+                    errorChannell.consumeEach { error ->
                         throw error
                     }
                 }
@@ -502,7 +495,5 @@ class FlowAccessApiTest {
         }
 
         errorChannel.close()
-
-        delay(100)
     }
 }

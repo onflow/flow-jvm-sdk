@@ -1,18 +1,25 @@
 package org.onflow.flow.sdk.impl
 
 import com.google.protobuf.ByteString
+import kotlinx.coroutines.channels.consumeEach
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.onflow.flow.sdk.*
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.fail
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.*
 import org.onflow.protobuf.access.Access
 import org.onflow.protobuf.access.AccessAPIGrpc
+import org.onflow.protobuf.entities.BlockExecutionDataOuterClass
+import org.onflow.protobuf.entities.EventOuterClass
 import org.onflow.protobuf.entities.ExecutionResultOuterClass
 import org.onflow.protobuf.entities.TransactionOuterClass
 import org.onflow.protobuf.executiondata.ExecutionDataAPIGrpc
+import org.onflow.protobuf.executiondata.Executiondata
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream
 import java.math.BigDecimal
@@ -401,6 +408,202 @@ class FlowAccessApiImplTest {
         when (result) {
             is FlowAccessApi.AccessApiCallResponse.Success -> assertions(result.data)
             is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Request failed: ${result.message}", result.throwable)
+        }
+    }
+
+    @Test
+    fun `Test subscribeExecutionDataByBlockHeight success case`(): Unit = runBlocking {
+        val blockHeight = 100L
+        val expectedExecutionDataProto = BlockExecutionDataOuterClass.BlockExecutionData.getDefaultInstance()
+        val expectedExecutionData = FlowBlockExecutionData.of(expectedExecutionDataProto)
+
+        val responseIterator = mock(Iterator::class.java) as Iterator<Executiondata.SubscribeExecutionDataResponse>
+        `when`(responseIterator.hasNext()).thenReturn(true, false)
+        `when`(responseIterator.next()).thenReturn(
+            Executiondata.SubscribeExecutionDataResponse.newBuilder()
+                .setBlockExecutionData(expectedExecutionDataProto)
+                .build()
+        )
+
+        `when`(mockExecutionDataApi.subscribeExecutionDataFromStartBlockHeight(any())).thenReturn(responseIterator)
+
+        when (val result = flowAccessApiImpl.subscribeExecutionDataByBlockHeight(blockHeight)) {
+            is FlowAccessApi.AccessApiCallResponse.Success -> {
+                val (responseChannel, _) = result.data
+                launch {
+                    responseChannel.consumeEach { executionData ->
+                        assertEquals(expectedExecutionData, executionData)
+                    }
+                }
+            }
+            is FlowAccessApi.AccessApiCallResponse.Error -> {
+                fail("Expected success but got error: ${result.message}")
+            }
+        }
+    }
+
+    @Test
+    fun `Test subscribeExecutionDataByBlockHeight error case`() = runBlocking {
+        val blockHeight = 100L
+        val exception = RuntimeException("Test exception")
+
+        `when`(mockExecutionDataApi.subscribeExecutionDataFromStartBlockHeight(any())).thenThrow(exception)
+
+        when (val result = flowAccessApiImpl.subscribeExecutionDataByBlockHeight(blockHeight)) {
+            is FlowAccessApi.AccessApiCallResponse.Success -> {
+                fail("Expected error but got success")
+            }
+            is FlowAccessApi.AccessApiCallResponse.Error -> {
+                assertEquals("Failed to subscribe execution data by block height", result.message)
+                assertEquals(exception, result.throwable)
+            }
+        }
+    }
+
+    @Test
+    fun `Test subscribeEventsByBlockId success case`(): Unit = runBlocking {
+        val blockId = FlowId("01")
+        val expectedEventsProto = EventOuterClass.Event.getDefaultInstance()
+        val expectedEvents = listOf(FlowEvent.of(expectedEventsProto))
+
+        val responseIterator = mock(Iterator::class.java) as Iterator<Executiondata.SubscribeEventsResponse>
+        `when`(responseIterator.hasNext()).thenReturn(true, false)
+        `when`(responseIterator.next()).thenReturn(
+            Executiondata.SubscribeEventsResponse.newBuilder()
+                .addAllEvents(listOf(expectedEventsProto))
+                .build()
+        )
+
+        `when`(mockExecutionDataApi.subscribeEventsFromStartBlockID(any())).thenReturn(responseIterator)
+
+        when (val result = flowAccessApiImpl.subscribeEventsByBlockId(blockId)) {
+            is FlowAccessApi.AccessApiCallResponse.Success -> {
+                val (responseChannel, _) = result.data
+                launch {
+                    responseChannel.consumeEach { events ->
+                        assertEquals(expectedEvents, events)
+                    }
+                }
+            }
+            is FlowAccessApi.AccessApiCallResponse.Error -> {
+                fail("Expected success but got error: ${result.message}")
+            }
+        }
+    }
+
+    @Test
+    fun `Test subscribeEventsByBlockId error case`() = runBlocking {
+        val blockId = FlowId("01")
+        val exception = RuntimeException("Test exception")
+
+        `when`(mockExecutionDataApi.subscribeEventsFromStartBlockID(any())).thenThrow(exception)
+
+        when (val result = flowAccessApiImpl.subscribeEventsByBlockId(blockId)) {
+            is FlowAccessApi.AccessApiCallResponse.Success -> {
+                fail("Expected error but got success")
+            }
+            is FlowAccessApi.AccessApiCallResponse.Error -> {
+                assertEquals("Failed to subscribe events by block ID", result.message)
+                assertEquals(exception, result.throwable)
+            }
+        }
+    }
+
+    @Test
+    fun `Test subscribeEventsByBlockHeight success case`(): Unit = runBlocking {
+        val blockHeight = 100L
+        val expectedEventsProto = EventOuterClass.Event.getDefaultInstance()
+        val expectedEvents = listOf(FlowEvent.of(expectedEventsProto))
+
+        val responseIterator = mock(Iterator::class.java) as Iterator<Executiondata.SubscribeEventsResponse>
+        `when`(responseIterator.hasNext()).thenReturn(true, false)
+        `when`(responseIterator.next()).thenReturn(
+            Executiondata.SubscribeEventsResponse.newBuilder()
+                .addAllEvents(listOf(expectedEventsProto))
+                .build()
+        )
+
+        `when`(mockExecutionDataApi.subscribeEventsFromStartHeight(any())).thenReturn(responseIterator)
+
+        when (val result = flowAccessApiImpl.subscribeEventsByBlockHeight(blockHeight)) {
+            is FlowAccessApi.AccessApiCallResponse.Success -> {
+                val (responseChannel, _) = result.data
+                launch {
+                    responseChannel.consumeEach { events ->
+                        assertEquals(expectedEvents, events)
+                    }
+                }
+            }
+            is FlowAccessApi.AccessApiCallResponse.Error -> {
+                fail("Expected success but got error: ${result.message}")
+            }
+        }
+    }
+
+    @Test
+    fun `Test subscribeEventsByBlockHeight error case`() = runBlocking {
+        val blockHeight = 100L
+        val exception = RuntimeException("Test exception")
+
+        `when`(mockExecutionDataApi.subscribeEventsFromStartHeight(any())).thenThrow(exception)
+
+        when (val result = flowAccessApiImpl.subscribeEventsByBlockHeight(blockHeight)) {
+            is FlowAccessApi.AccessApiCallResponse.Success -> {
+                fail("Expected error but got success")
+            }
+            is FlowAccessApi.AccessApiCallResponse.Error -> {
+                assertEquals("Failed to subscribe events by block height", result.message)
+                assertEquals(exception, result.throwable)
+            }
+        }
+    }
+
+    @Test
+    fun `Test subscribeExecutionDataByBlockId success case`(): Unit = runBlocking {
+        val blockId = FlowId("01")
+        val expectedExecutionDataProto = BlockExecutionDataOuterClass.BlockExecutionData.getDefaultInstance()
+        val expectedExecutionData = FlowBlockExecutionData.of(expectedExecutionDataProto)
+
+        val responseIterator = mock(Iterator::class.java) as Iterator<Executiondata.SubscribeExecutionDataResponse>
+        `when`(responseIterator.hasNext()).thenReturn(true, false)
+        `when`(responseIterator.next()).thenReturn(
+            Executiondata.SubscribeExecutionDataResponse.newBuilder()
+                .setBlockExecutionData(expectedExecutionDataProto)
+                .build()
+        )
+
+        `when`(mockExecutionDataApi.subscribeExecutionDataFromStartBlockID(any())).thenReturn(responseIterator)
+
+        when (val result = flowAccessApiImpl.subscribeExecutionDataByBlockId(blockId)) {
+            is FlowAccessApi.AccessApiCallResponse.Success -> {
+                val (responseChannel, _) = result.data
+                launch {
+                    responseChannel.consumeEach { executionData ->
+                        assertEquals(expectedExecutionData, executionData)
+                    }
+                }
+            }
+            is FlowAccessApi.AccessApiCallResponse.Error -> {
+                fail("Expected success but got error: ${result.message}")
+            }
+        }
+    }
+
+    @Test
+    fun `Test subscribeExecutionDataByBlockId error case`() = runBlocking {
+        val blockId = FlowId("01")
+        val exception = RuntimeException("Test exception")
+
+        `when`(mockExecutionDataApi.subscribeExecutionDataFromStartBlockID(any())).thenThrow(exception)
+
+        when (val result = flowAccessApiImpl.subscribeExecutionDataByBlockId(blockId)) {
+            is FlowAccessApi.AccessApiCallResponse.Success -> {
+                fail("Expected error but got success")
+            }
+            is FlowAccessApi.AccessApiCallResponse.Error -> {
+                assertEquals("Failed to subscribe execution data by block ID", result.message)
+                assertEquals(exception, result.throwable)
+            }
         }
     }
 
