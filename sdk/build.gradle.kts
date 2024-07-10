@@ -1,43 +1,25 @@
 import com.vanniktech.maven.publish.SonatypeHost
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-// configuration variables
-val defaultGroupId = "org.onflow"
-val defaultVersion = "1.0.1"
-
-// other variables
-
-fun getProp(name: String, defaultValue: String? = null): String? {
-    return project.findProperty("flow.$name")?.toString()?.trim()?.ifBlank { null }
-        ?: project.findProperty(name)?.toString()?.trim()?.ifBlank { null }
-        ?: defaultValue
-}
-
-group = getProp("groupId", defaultGroupId)!!
-version = when {
-    getProp("version") !in setOf("unspecified", null) -> { getProp("version")!! }
-    getProp("snapshotDate") != null -> { "${defaultVersion.replace("-SNAPSHOT", "")}.${getProp("snapshotDate")!!}-SNAPSHOT" }
-    else -> { defaultVersion }
-}
-
 plugins {
-    id("org.jetbrains.dokka") version "1.9.10"
-    kotlin("jvm") version "1.9.22"
     idea
     jacoco
     signing
     `java-library`
     `java-test-fixtures`
     `maven-publish`
-    id ("com.vanniktech.maven.publish") version "0.28.0"
-    id("org.jmailen.kotlinter") version "4.2.0"
-    id("kotlinx-serialization") version "1.8.0"
+}
+
+// Helper function to get properties
+fun getProp(name: String, defaultValue: String? = null): String? {
+    return project.findProperty("flow.$name")?.toString()?.trim()?.ifBlank { null }
+        ?: project.findProperty(name)?.toString()?.trim()?.ifBlank { null }
+        ?: defaultValue
 }
 
 repositories {
     gradlePluginPortal()
     mavenCentral()
-    maven { url = uri("https://jitpack.io") }
 }
 
 dependencies {
@@ -45,13 +27,9 @@ dependencies {
     dokkaHtmlPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:1.9.10")
 
     api("org.onflow:flow:1.0.0")
-
     api("com.github.TrustedDataFramework:java-rlp:1.1.20")
-
     api("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
-
     api("org.bouncycastle:bcpkix-jdk18on:1.76")
-
     api(platform("com.fasterxml.jackson:jackson-bom:2.16.1"))
     api("com.fasterxml.jackson.core:jackson-core")
     api("com.fasterxml.jackson.module:jackson-module-kotlin")
@@ -62,21 +40,6 @@ dependencies {
     testFixturesImplementation("org.junit.jupiter:junit-jupiter:5.10.1")
     testFixturesImplementation("org.mockito:mockito-core:3.12.4")
     testFixturesImplementation("org.mockito:mockito-inline:3.11.2")
-}
-
-tasks.withType<KotlinCompile> {
-    kotlinOptions.apply {
-        jvmTarget = JavaVersion.VERSION_20.toString()
-        freeCompilerArgs = listOf("-Xjsr305=strict", "-opt-in=kotlin.RequiresOptIn")
-    }
-}
-
-tasks.named<KotlinCompile>("compileTestKotlin") {
-    kotlinOptions.apply {
-        jvmTarget = JavaVersion.VERSION_20.toString()
-        freeCompilerArgs = listOf("-Xjvm-default=all", "-opt-in=com.squareup.kotlinpoet.metadata.KotlinPoetMetadataPreview")
-        allWarningsAsErrors = false
-    }
 }
 
 sourceSets {
@@ -123,7 +86,6 @@ java {
 }
 
 tasks {
-
     test {
         useJUnitPlatform()
         testLogging {
@@ -209,4 +171,3 @@ signing {
     }
     sign(publishing.publications)
 }
-

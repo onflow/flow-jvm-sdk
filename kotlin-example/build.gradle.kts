@@ -1,13 +1,19 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.9.22"
     java
     application
 }
 
-val FLOW_JVM_SDK_VERSION    = "1.0.1"
-val USE_KOTLIN_APP          = project.findProperty("USE_KOTLIN_APP") == "true"
+// Helper function to get properties
+fun getProp(name: String, defaultValue: String? = null): String? {
+    return project.findProperty("flow.$name")?.toString()?.trim()?.ifBlank { null }
+        ?: project.findProperty(name)?.toString()?.trim()?.ifBlank { null }
+        ?: defaultValue
+}
+
+val FLOW_JVM_SDK_VERSION = "1.0.1"
+val USE_KOTLIN_APP = project.findProperty("USE_KOTLIN_APP") == "true"
 
 tasks.withType<JavaCompile> {
     sourceCompatibility = JavaVersion.VERSION_21.toString()
@@ -15,7 +21,7 @@ tasks.withType<JavaCompile> {
 }
 
 tasks.withType<KotlinCompile> {
-    kotlinOptions.apply {
+    kotlinOptions {
         jvmTarget = JavaVersion.VERSION_21.toString()
         freeCompilerArgs = listOf("-Xjsr305=strict", "-opt-in=kotlin.RequiresOptIn")
     }
