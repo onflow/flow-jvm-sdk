@@ -167,8 +167,8 @@ Also, the following annotations are available in tests as helpers:
 - `@FlowTestAccount` - used to automatically create an account in the emulator and inject a `TestAccount` instance
   containing the new account's credentials.
 
-See [ProjectTestExtensionsTest](src/test/kotlin/com/nftco/flow/sdk/ProjectTestExtensionsTest.kt) and
-[TestExtensionsTest](src/test/kotlin/com/nftco/flow/sdk/TestExtensionsTest.kt) for examples.
+See [ProjectTestExtensionsTest](sdk/src/test/kotlin/com/nftco/flow/sdk/ProjectTestExtensionsTest.kt) and
+[TestExtensionsTest](sdk/src/test/kotlin/com/nftco/flow/sdk/TestExtensionsTest.kt) for examples.
 
 ## Contribute to this SDK
 

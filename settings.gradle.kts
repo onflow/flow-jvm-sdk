@@ -14,3 +14,4 @@ pluginManagement {
 }
 
 rootProject.name="flow-jvm-sdk"
+include("sdk", "kotlin-example")
