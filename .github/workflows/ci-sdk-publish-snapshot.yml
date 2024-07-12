@@ -38,16 +38,17 @@ jobs:
         run: sh -ci "$(curl -fsSL https://storage.googleapis.com/flow-cli/install.sh)"
 
       - name: Make gradle executable
-        run: chmod +x ./gradlew
+        run: chmod +x ./sdk/gradlew
 
       - name: Build
         id: build
-        run: ./gradlew --warning-mode all check build -x test -x integrationTest
+        run: cd sdk && ./gradlew --warning-mode all check build -x test -x integrationTest
 
       - name: Run Unit Tests
         id: unit_test
         if: ${{ steps.build.outcome == 'success' }}
         run: |
+          cd sdk
           export PATH="$HOME/.local/bin:$PATH"
           ./gradlew --no-daemon --max-workers=2 --warning-mode=all test --continue --stacktrace
 
@@ -63,6 +64,7 @@ jobs:
       - name: Run Integration Tests
         if: ${{ steps.unit_test.outcome == 'success' }}
         run: |
+          cd sdk
           export PATH="$HOME/.local/bin:$PATH"
           ./gradlew --no-daemon --max-workers=2 --warning-mode=all integrationTest --continue --stacktrace
 
@@ -84,6 +86,7 @@ jobs:
           ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.FLOW_JVM_SDK_SIGNING_PASSWORD }}
 
         run: |
+          cd sdk
           if [[ "${{ secrets.FLOW_JVM_SDK_CICD_PUBLISH_ENABLED }}" != "true" ]];
           then
             exit 0;
