@@ -32,7 +32,7 @@ jobs:
         run: sh -ci "$(curl -fsSL https://storage.googleapis.com/flow-cli/install.sh)"
 
       - name: Make gradle executable
-        run: chmod +x ./sdk/gradlew
+        run: chmod +x ./gradlew
 
       - name: Build
         id: build
