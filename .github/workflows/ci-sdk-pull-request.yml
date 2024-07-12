@@ -36,15 +36,14 @@ jobs:
 
       - name: Build
         id: build
-        run: cd sdk && ./gradlew --warning-mode all check build -x test -x integrationTest
+        run: ./gradlew --warning-mode all check build -x test -x integrationTest
 
       - name: Run Unit Tests
         id: unit_test
         if: ${{ steps.build.outcome == 'success' }}
         run: |
-          cd sdk
           export PATH="$HOME/.local/bin:$PATH"
-          ./gradlew --no-daemon --max-workers=2 --warning-mode=all test --continue --stacktrace
+          ./gradlew --no-daemon --max-workers=2 --warning-mode=all :sdk:test --continue --stacktrace
 
       - name: Publish Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action@v1.18
@@ -58,9 +57,8 @@ jobs:
       - name: Run Integration Tests
         if: ${{ steps.unit_test.outcome == 'success' }}
         run: |
-          cd sdk
           export PATH="$HOME/.local/bin:$PATH"
-          ./gradlew --no-daemon --max-workers=2 --warning-mode=all integrationTest --continue --stacktrace
+          ./gradlew --no-daemon --max-workers=2 --warning-mode=all :sdk:integrationTest --continue --stacktrace
 
       - name: Publish Integration Test Results
         uses: EnricoMi/publish-unit-test-result-action@v1.18
