@@ -7,20 +7,18 @@ import org.junit.jupiter.api.Test
 import org.onflow.flow.sdk.FlowAddress
 import org.onflow.flow.sdk.crypto.Crypto
 
-
 val serviceAccountAddress: FlowAddress = FlowAddress("f8d6e0586b0a20c7")
-const val servicePrivateKeyHex          = "a2f983853e61b3e27d94b7bf3d7094dd756aead2a813dd5cf738e1da56fa9c17"
+const val servicePrivateKeyHex = "a2f983853e61b3e27d94b7bf3d7094dd756aead2a813dd5cf738e1da56fa9c17"
 
 internal class AppTest {
-
     private var userPrivateKeyHex: String = ""
     private var userPublicKeyHex: String = ""
 
     @BeforeEach
-    fun setupUser()  {
+    fun setupUser() {
         val keyPair = Crypto.generateKeyPair()
-        userPrivateKeyHex   = keyPair.private.hex
-        userPublicKeyHex    = keyPair.public.hex
+        userPrivateKeyHex = keyPair.private.hex
+        userPublicKeyHex = keyPair.public.hex
     }
 
     @Test
@@ -52,5 +50,4 @@ internal class AppTest {
         val balance = app.getAccountBalance(serviceAccountAddress)
         println(balance)
     }
-
 }

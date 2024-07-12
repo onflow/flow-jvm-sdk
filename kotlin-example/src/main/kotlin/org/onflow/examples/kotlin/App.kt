@@ -8,7 +8,6 @@ import org.onflow.flow.sdk.crypto.Crypto
 import java.math.BigDecimal
 
 internal class App(host: String, port: Int, privateKeyHex: String) {
-
     private val accessAPI = Flow.newAccessApi(host, port)
     private val privateKey = Crypto.decodePrivateKey(privateKeyHex)
 
@@ -56,11 +55,9 @@ internal class App(host: String, port: Int, privateKeyHex: String) {
         return FlowAddress(addressHex.substring(2))
     }
 
-    private fun loadScript(name: String): ByteArray
-        = javaClass.classLoader.getResourceAsStream(name)!!.use { it.readAllBytes() }
+    private fun loadScript(name: String): ByteArray = javaClass.classLoader.getResourceAsStream(name)!!.use { it.readAllBytes() }
 
     fun createAccount(payerAddress: FlowAddress, publicKeyHex: String): FlowAddress {
-
         // find payer account
         val payerAccountKey = getAccountKey(payerAddress, 0)
 
@@ -93,7 +90,7 @@ internal class App(host: String, port: Int, privateKeyHex: String) {
 
         // sign the transaction
         val signer = Crypto.getSigner(privateKey, payerAccountKey.hashAlgo)
-        tx = tx.addEnvelopeSignature(payerAddress, payerAccountKey.id,  signer)
+        tx = tx.addEnvelopeSignature(payerAddress, payerAccountKey.id, signer)
 
         // send the transaction
         val txID = accessAPI.sendTransaction(tx)
@@ -131,7 +128,7 @@ internal class App(host: String, port: Int, privateKeyHex: String) {
 
         // sign the transaction
         val signer = Crypto.getSigner(privateKey, senderAccountKey.hashAlgo)
-        tx = tx.addEnvelopeSignature(senderAddress, senderAccountKey.id,  signer)
+        tx = tx.addEnvelopeSignature(senderAddress, senderAccountKey.id, signer)
 
         // send the transaction
         val txID = accessAPI.sendTransaction(tx)
