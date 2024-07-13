@@ -1,4 +1,4 @@
-name: Build Kotlin Examples Pull Request
+name: Build Java Examples Pull Request
 on: pull_request
 
 jobs:
@@ -36,7 +36,7 @@ jobs:
 
       - name: Build
         id: build
-        run: ./gradlew --warning-mode all check :kotlin-example:build -x test -x integrationTest
+        run: ./gradlew --warning-mode all check :java-example:build -x test -x integrationTest
 
       - name: Start emulator
         id: start_emulator
@@ -49,12 +49,12 @@ jobs:
         if: ${{ steps.start_emulator.outcome == 'success' }}
         run: sleep 15
 
-      - name: Run Kotlin Example Unit Tests
+      - name: Run Java Example Unit Tests
         id: unit_test
         if: ${{ steps.wait_for_emulator.outcome == 'success' }}
-        run: ./gradlew --no-daemon --max-workers=2 --warning-mode=all :kotlin-example:test -i --continue --stacktrace
+        run: ./gradlew --no-daemon --max-workers=2 --warning-mode=all :java-example:test -i --continue --stacktrace
 
-      - name: Publish Kotlin Example Unit Test Results
+      - name: Publish Java Example Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action@v1.18
         if: always()
         with:
