@@ -37,3 +37,23 @@ jobs:
       - name: Build
         id: build
         run: ./gradlew --warning-mode all check :kotlin-example:build -x test -x integrationTest
+
+      - name: Start emulator
+        id: start_emulator
+        run: flow emulator start -v
+
+      - name: Run Unit Tests
+        id: unit_test
+        if: ${{ steps.build.outcome == 'success' }}
+        run: |
+          export PATH="$HOME/.local/bin:$PATH"
+          ./gradlew --no-daemon --max-workers=2 --warning-mode=all :kotlin-example:test -i --continue --stacktrace
+
+      - name: Publish Unit Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v1.18
+        if: always()
+        with:
+          check_name: "Unit Test Results"
+          files: "**/test-results/test/**/*.xml"
+          seconds_between_github_writes: 5
+          secondary_rate_limit_wait_seconds: 120
