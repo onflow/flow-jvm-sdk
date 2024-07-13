@@ -42,7 +42,6 @@ jobs:
         id: start_emulator
         if: ${{ steps.build.outcome == 'success' }}
         run: |
-          cd ./kotlin-example
           nohup flow emulator start -v > flow-emulator.log 2>&1 &
 
       - name: Wait for emulator to start
