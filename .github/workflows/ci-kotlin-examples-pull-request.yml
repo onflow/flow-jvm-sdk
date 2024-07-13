@@ -40,9 +40,12 @@ jobs:
 
       - name: Start emulator
         id: start_emulator
+        if: ${{ steps.build.outcome == 'success' }}
         run: |
           flow init
           flow emulator start -v
+          export PATH="$HOME/.local/bin:$PATH"
+          ./gradlew --no-daemon --max-workers=2 --warning-mode=all :kotlin-example:test -i --continue --stacktrace
           
 
       - name: Run Unit Tests
