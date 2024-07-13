@@ -40,7 +40,10 @@ jobs:
 
       - name: Start emulator
         id: start_emulator
-        run: flow emulator start -v
+        run: |
+          flow init
+          flow emulator start -v
+          
 
       - name: Run Unit Tests
         id: unit_test
