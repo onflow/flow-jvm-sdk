@@ -1,4 +1,4 @@
-name: Build Pull Request
+name: Build Kotlin Examples Pull Request
 on: pull_request
 
 jobs:
@@ -32,8 +32,8 @@ jobs:
         run: sh -ci "$(curl -fsSL https://storage.googleapis.com/flow-cli/install.sh)"
 
       - name: Make gradle executable
-        run: chmod +x ./kotlin-example/gradlew
+        run: chmod +x ./gradlew
 
       - name: Build
         id: build
-        run: cd kotlin-example &&  ./gradlew --warning-mode all check build -x test
+        run: ./gradlew --warning-mode all check build -x test
