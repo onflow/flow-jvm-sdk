@@ -1,12 +1,5 @@
 package org.onflow.examples.java;
 
-import org.bouncycastle.util.encoders.Hex;
-import org.onflow.flow.sdk.cadence.AddressField;
-import org.onflow.flow.sdk.cadence.StringField;
-import org.onflow.flow.sdk.cadence.UFix64NumberField;
-import org.onflow.flow.sdk.crypto.Crypto;
-import org.onflow.flow.sdk.crypto.PrivateKey;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
@@ -14,6 +7,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+
+import org.bouncycastle.util.encoders.Hex;
+import org.onflow.flow.sdk.*;
+import org.onflow.flow.sdk.cadence.AddressField;
+import org.onflow.flow.sdk.cadence.StringField;
+import org.onflow.flow.sdk.cadence.UFix64NumberField;
+import org.onflow.flow.sdk.crypto.Crypto;
+import org.onflow.flow.sdk.crypto.PrivateKey;
 
 public final class App {
 
