@@ -125,12 +125,11 @@ data class FlowAccount(
 ) : Serializable {
     companion object {
         @JvmStatic
-        fun of(
-            value: AccountOuterClass.Account
-        ): FlowAccount = FlowAccount(
+        fun of(value: AccountOuterClass.Account): FlowAccount = FlowAccount(
             address = FlowAddress.of(value.address.toByteArray()),
             balance = BigDecimal(java.lang.Long.toUnsignedString(value.balance)).movePointLeft(8),
-            code = FlowCode(value.code.toByteArray()), keys = value.keysList.map { FlowAccountKey.of(it) },
+            code = FlowCode(value.code.toByteArray()),
+            keys = value.keysList.map { FlowAccountKey.of(it) },
             contracts = value.contractsMap.mapValues { FlowCode(it.value.toByteArray()) }
         )
     }
@@ -253,7 +252,6 @@ data class FlowEvent(
     val event: EventField get() = payload.jsonCadence as EventField
 
     private fun <T : Field<*>> getField(name: String): T? = event[name]
-
     @Suppress("UNCHECKED_CAST")
     operator fun <T> get(name: String): T? = getField<Field<*>>(name) as T
     operator fun contains(name: String): Boolean = name in event
@@ -448,7 +446,9 @@ data class FlowTransaction(
 
     val signerMap: Map<FlowAddress, Int>
         get() {
-            return signerList.withIndex().map { it.value to it.index }.toMap()
+            return signerList.withIndex()
+                .map { it.value to it.index }
+                .toMap()
         }
 
     companion object {
@@ -625,12 +625,11 @@ data class FlowBlockHeader(
 ) : Serializable {
     companion object {
         @JvmStatic
-        fun of(value: BlockHeaderOuterClass.BlockHeader): FlowBlockHeader =
-            FlowBlockHeader(
-                id = FlowId.of(value.id.toByteArray()),
-                parentId = FlowId.of(value.parentId.toByteArray()),
-                height = value.height
-            )
+        fun of(value: BlockHeaderOuterClass.BlockHeader): FlowBlockHeader = FlowBlockHeader(
+            id = FlowId.of(value.id.toByteArray()),
+            parentId = FlowId.of(value.parentId.toByteArray()),
+            height = value.height
+        )
     }
 
     @JvmOverloads
@@ -669,7 +668,8 @@ data class FlowBlock(
         return builder
             .setId(id.byteStringValue)
             .setParentId(parentId.byteStringValue)
-            .setHeight(height).setTimestamp(timestamp.asTimestamp())
+            .setHeight(height)
+            .setTimestamp(timestamp.asTimestamp())
             .addAllCollectionGuarantees(collectionGuarantees.map { it.builder().build() })
             .addAllBlockSeals(blockSeals.map { it.builder().build() })
             .addAllSignatures(signatures.map { it.byteStringValue })
