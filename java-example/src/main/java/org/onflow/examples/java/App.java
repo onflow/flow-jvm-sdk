@@ -15,9 +15,10 @@ import org.onflow.flow.sdk.cadence.StringField;
 import org.onflow.flow.sdk.cadence.UFix64NumberField;
 import org.onflow.flow.sdk.crypto.Crypto;
 import org.onflow.flow.sdk.crypto.PrivateKey;
+import java.util.logging.Logger;
 
 public final class App {
-
+    private static final Logger logger = Logger.getLogger(App.class.getName());
     private final FlowAccessApi accessAPI;
     private final PrivateKey privateKey;
 
@@ -26,13 +27,18 @@ public final class App {
         this.privateKey = Crypto.decodePrivateKey(privateKeyHex);
     }
 
+    private boolean isValidHex(String hex) {
+        return hex.matches("[0-9a-fA-F]+");
+    }
+
     public FlowAddress createAccount(FlowAddress payerAddress, String publicKeyHex) {
-        FlowAccountKey payerAccountKey = this.getAccountKey(payerAddress);
+        FlowAccountKey payerAccountKey = getAccountKey(payerAddress, 0);
+
         FlowAccountKey newAccountPublicKey = new FlowAccountKey(
                 0,
                 new FlowPublicKey(publicKeyHex),
                 SignatureAlgorithm.ECDSA_P256,
-                HashAlgorithm.SHA2_256,
+                HashAlgorithm.SHA3_256,
                 1,
                 0,
                 false);
@@ -51,14 +57,15 @@ public final class App {
                 new ArrayList<>(),
                 new ArrayList<>());
 
-        Signer signer = Crypto.getSigner(this.privateKey, payerAccountKey.getHashAlgo());
-        tx = tx.addPayloadSignature(payerAddress, 0, signer);
-        tx = tx.addEnvelopeSignature(payerAddress, 0, signer);
+        Signer signer = Crypto.getSigner(privateKey, payerAccountKey.getHashAlgo());
+        tx = tx.addEnvelopeSignature(payerAddress, payerAccountKey.getId(), signer);
+        FlowId txID = accessAPI.sendTransaction(tx);
 
-        FlowId txID = this.accessAPI.sendTransaction(tx);
-        FlowTransactionResult txResult = this.waitForSeal(txID);
+        FlowTransactionResult txResult = waitForSeal(txID);
 
-        return this.getAccountCreatedAddress(txResult);
+        FlowAddress newAddress = getAccountCreatedAddress(txResult);
+
+        return newAddress;
     }
 
     public void transferTokens(FlowAddress senderAddress, FlowAddress recipientAddress, BigDecimal amount) throws Exception {
@@ -67,7 +74,7 @@ public final class App {
             throw new Exception("FLOW amount must have exactly 8 decimal places of precision (e.g. 10.00000000)");
         }
 
-        FlowAccountKey senderAccountKey = this.getAccountKey(senderAddress);
+        FlowAccountKey senderAccountKey = this.getAccountKey(senderAddress, 0);
         FlowTransaction tx = new FlowTransaction(
                 new FlowScript(Objects.requireNonNull(loadScript("transfer_flow.cdc"))),
                 Arrays.asList(
@@ -104,9 +111,9 @@ public final class App {
         return this.accessAPI.getLatestBlockHeader(true).getId();
     }
 
-    private FlowAccountKey getAccountKey(FlowAddress address) {
-        FlowAccount account = this.getAccount(address);
-        return account.getKeys().getFirst();
+    private FlowAccountKey getAccountKey(FlowAddress address, int keyIndex) {
+        FlowAccount account = getAccount(address);
+        return account.getKeys().get(keyIndex);
     }
 
     private FlowTransactionResult getTransactionResult(FlowId txID) {
@@ -148,13 +155,13 @@ public final class App {
     }
 
     private byte[] loadScript(String name) {
-        try (InputStream is = this.getClass().getClassLoader().getResourceAsStream(name)) {
-            assert is != null;
+        try (InputStream is = getClass().getClassLoader().getResourceAsStream(name)) {
+            if (is == null) {
+                throw new IOException("Script " + name + " not found.");
+            }
             return is.readAllBytes();
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Failed to load script " + name, e);
         }
-
-        return null;
     }
 }
