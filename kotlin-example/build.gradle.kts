@@ -55,3 +55,7 @@ tasks.test {
     // Use junit platform for unit tests.
     useJUnitPlatform()
 }
+
+tasks.withType<Copy> {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}

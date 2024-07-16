@@ -8,6 +8,7 @@ import org.onflow.flow.sdk.FlowAddress
 import org.onflow.flow.sdk.crypto.Crypto
 
 val serviceAccountAddress: FlowAddress = FlowAddress("f8d6e0586b0a20c7")
+val testRecipientAddress: FlowAddress = FlowAddress("0x01cf0e2f2f715450")
 const val servicePrivateKeyHex = "a2f983853e61b3e27d94b7bf3d7094dd756aead2a813dd5cf738e1da56fa9c17"
 
 internal class AppTest {
@@ -34,7 +35,7 @@ internal class AppTest {
         val app = App("localhost", 3569, servicePrivateKeyHex)
 
         // service account address
-        val recipient: FlowAddress = app.createAccount(serviceAccountAddress, userPublicKeyHex)
+        val recipient: FlowAddress = testRecipientAddress
 
         // FLOW amounts always have 8 decimal places
         val amount = BigDecimal("10.00000001")

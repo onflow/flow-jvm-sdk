@@ -135,13 +135,6 @@ public final class App {
             return null;
         }
 
-        System.out.println(txResult
-                .getEvents()
-                .get(0)
-                .getEvent()
-                .getValue()
-                .getFields()[0]);
-
         String addressHex = (String) txResult
                 .getEvents()
                 .get(0)
