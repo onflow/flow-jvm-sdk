@@ -55,11 +55,3 @@ tasks.test {
     // Use junit platform for unit tests.
     useJUnitPlatform()
 }
-
-sourceSets {
-    main {
-        resources {
-            srcDir("src/main/resources")
-        }
-    }
-}
