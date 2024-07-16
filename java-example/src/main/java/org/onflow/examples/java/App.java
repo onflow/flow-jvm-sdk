@@ -15,20 +15,14 @@ import org.onflow.flow.sdk.cadence.StringField;
 import org.onflow.flow.sdk.cadence.UFix64NumberField;
 import org.onflow.flow.sdk.crypto.Crypto;
 import org.onflow.flow.sdk.crypto.PrivateKey;
-import java.util.logging.Logger;
 
 public final class App {
-    private static final Logger logger = Logger.getLogger(App.class.getName());
     private final FlowAccessApi accessAPI;
     private final PrivateKey privateKey;
 
     public App(String host, int port, String privateKeyHex) {
         this.accessAPI = Flow.newAccessApi(host, port);
         this.privateKey = Crypto.decodePrivateKey(privateKeyHex);
-    }
-
-    private boolean isValidHex(String hex) {
-        return hex.matches("[0-9a-fA-F]+");
     }
 
     public FlowAddress createAccount(FlowAddress payerAddress, String publicKeyHex) {
@@ -63,9 +57,7 @@ public final class App {
 
         FlowTransactionResult txResult = waitForSeal(txID);
 
-        FlowAddress newAddress = getAccountCreatedAddress(txResult);
-
-        return newAddress;
+        return getAccountCreatedAddress(txResult);
     }
 
     public void transferTokens(FlowAddress senderAddress, FlowAddress recipientAddress, BigDecimal amount) throws Exception {
@@ -143,15 +135,22 @@ public final class App {
             return null;
         }
 
-        String rez = Objects.requireNonNull(Objects.requireNonNull(txResult
-                        .getEvents()
-                        .getFirst()
-                        .getEvent()
-                        .getValue())
+        System.out.println(txResult
+                .getEvents()
+                .get(0)
+                .getEvent()
+                .getValue()
+                .getFields()[0]);
+
+        String addressHex = (String) txResult
+                .getEvents()
+                .get(0)
+                .getEvent()
+                .getValue()
                 .getFields()[0]
                 .getValue()
-                .getValue()).toString();
-        return new FlowAddress(rez.substring(2));
+                .getValue();
+        return new FlowAddress(addressHex.substring(2));
     }
 
     private byte[] loadScript(String name) {

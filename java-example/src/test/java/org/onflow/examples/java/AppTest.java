@@ -5,16 +5,19 @@ import org.junit.jupiter.api.Test;
 import org.onflow.flow.sdk.FlowAddress;
 import org.onflow.flow.sdk.crypto.Crypto;
 import org.onflow.flow.sdk.crypto.KeyPair;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class AppTest {
-
+    private static final Logger logger = Logger.getLogger(AppTest.class.getName());
     public static final String SERVICE_PRIVATE_KEY_HEX = "a2f983853e61b3e27d94b7bf3d7094dd756aead2a813dd5cf738e1da56fa9c17";
 
     private final FlowAddress serviceAccountAddress = new FlowAddress("f8d6e0586b0a20c7");
+    private final FlowAddress testRecipientAddress = new FlowAddress("0x01cf0e2f2f715450");
     private String userPublicKeyHex;
 
     @BeforeEach
@@ -41,16 +44,23 @@ class AppTest {
 
         // service account address
         var sender = serviceAccountAddress;
-        var recipient = app.createAccount(sender, this.userPublicKeyHex);
+        var recipient = testRecipientAddress;
+
+        System.out.println(recipient);
+        assertNotNull(recipient, "Account creation should return a non-null address");
 
         // FLOW amounts always have 8 decimal places
         var amount = new BigDecimal("10.00000001");
 
         var balance1 = app.getAccountBalance(recipient);
 
+        logger.log(Level.INFO, "Initial balance of recipient: {0}", balance1);
+
         app.transferTokens(sender, recipient, amount);
 
         var balance2 = app.getAccountBalance(recipient);
+
+        logger.log(Level.INFO, "Balance of recipient after transfer: {0}", balance2);
 
         assertEquals(balance1.add(amount), balance2);
     }
