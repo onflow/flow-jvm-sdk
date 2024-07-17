@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import org.onflow.flow.sdk.FlowAddress;
 import org.onflow.flow.sdk.crypto.Crypto;
 import org.onflow.flow.sdk.crypto.KeyPair;
-import java.util.logging.Logger;
 
 import java.math.BigDecimal;
 
@@ -15,7 +14,7 @@ class AppTest {
     public static final String SERVICE_PRIVATE_KEY_HEX = "a2f983853e61b3e27d94b7bf3d7094dd756aead2a813dd5cf738e1da56fa9c17";
 
     private final FlowAddress serviceAccountAddress = new FlowAddress("f8d6e0586b0a20c7");
-    private final FlowAddress testRecipientAddress = new FlowAddress("0x01cf0e2f2f715450");
+    private final FlowAddress testRecipientAddress = new FlowAddress("01cf0e2f2f715450");
     private String userPublicKeyHex;
 
     @BeforeEach
@@ -29,8 +28,6 @@ class AppTest {
 
         App app = new App("localhost", 3569, SERVICE_PRIVATE_KEY_HEX);
 
-        // service account address
-
         FlowAddress account = app.createAccount(serviceAccountAddress, this.userPublicKeyHex);
         assertNotNull(account);
     }
@@ -40,7 +37,6 @@ class AppTest {
 
         App app = new App("localhost", 3569, SERVICE_PRIVATE_KEY_HEX);
 
-        var sender = serviceAccountAddress;
         var recipient = testRecipientAddress;
 
         // FLOW amounts always have 8 decimal places
@@ -48,7 +44,7 @@ class AppTest {
 
         var balance1 = app.getAccountBalance(recipient);
 
-        app.transferTokens(sender, recipient, amount);
+        app.transferTokens(serviceAccountAddress, recipient, amount);
 
         var balance2 = app.getAccountBalance(recipient);
 
@@ -60,7 +56,6 @@ class AppTest {
 
         App app = new App("localhost", 3569, SERVICE_PRIVATE_KEY_HEX);
         var balance = app.getAccountBalance(serviceAccountAddress);
-
-        System.out.println(balance);
+        assertNotNull(balance);
     }
 }

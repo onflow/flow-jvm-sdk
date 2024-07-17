@@ -1,14 +1,14 @@
 package org.onflow.examples.kotlin
 
-import java.math.BigDecimal
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.onflow.flow.sdk.FlowAddress
 import org.onflow.flow.sdk.crypto.Crypto
+import java.math.BigDecimal
 
 val serviceAccountAddress: FlowAddress = FlowAddress("f8d6e0586b0a20c7")
-val testRecipientAddress: FlowAddress = FlowAddress("0x01cf0e2f2f715450")
+val testRecipientAddress: FlowAddress = FlowAddress("01cf0e2f2f715450")
 const val servicePrivateKeyHex = "a2f983853e61b3e27d94b7bf3d7094dd756aead2a813dd5cf738e1da56fa9c17"
 
 internal class AppTest {
@@ -26,8 +26,8 @@ internal class AppTest {
     fun `Can create an account`() {
         val app = App("localhost", 3569, servicePrivateKeyHex)
 
-        // service account address
-        app.createAccount(serviceAccountAddress, userPublicKeyHex)
+        val account = app.createAccount(serviceAccountAddress, userPublicKeyHex)
+        Assertions.assertNotNull(account)
     }
 
     @Test
@@ -49,6 +49,6 @@ internal class AppTest {
     fun `Can get an account balance`() {
         val app = App("localhost", 3569, servicePrivateKeyHex)
         val balance = app.getAccountBalance(serviceAccountAddress)
-        println(balance)
+        Assertions.assertNotNull(balance)
     }
 }

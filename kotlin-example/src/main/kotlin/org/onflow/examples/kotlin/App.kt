@@ -69,7 +69,6 @@ internal class App(host: String, port: Int, privateKeyHex: String) {
             weight = 1000
         )
 
-        println(loadScript("create_account.cdc"))
         // create transaction
         var tx = FlowTransaction(
             script = FlowScript(loadScript("create_account.cdc")),
