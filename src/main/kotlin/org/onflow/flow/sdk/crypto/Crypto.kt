@@ -189,7 +189,7 @@ internal class HasherImpl(
             HashAlgorithm.KMAC128 -> {
                 val output = ByteArray(outputSize)
                 kmac!!.update(bytes, 0, bytes.size)
-                kmac!!.doFinal(output, 0)
+                kmac!!.doFinal(output, 0, outputSize)
                 output
             }
             else -> {
@@ -203,9 +203,9 @@ internal class HasherImpl(
         kmac?.update(bytes, off, len)
     }
 
-    fun doFinal(): ByteArray {
+    fun doFinal(outputSize: Int): ByteArray {
         val output = ByteArray(outputSize)
-        kmac?.doFinal(output, 0)
+        kmac?.doFinal(output, 0, outputSize)
         return output
     }
 }
