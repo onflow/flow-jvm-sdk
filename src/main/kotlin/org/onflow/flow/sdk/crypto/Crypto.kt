@@ -162,17 +162,18 @@ internal class HasherImpl(
     private val hashAlgo: HashAlgorithm,
     private val key: ByteArray? = null,
     private val customizer: ByteArray? = null,
-    private val outputSize: Int? = null
+    private val outputSize: Int = 32
 ) : Hasher {
     private var kmac: KMAC? = null
 
     init {
+        if (outputSize < 32) {
+            throw IllegalArgumentException("Output size must be at least 256 bits (32 bytes)")
+        }
+
         if (hashAlgo == HashAlgorithm.KMAC128) {
             if (key == null || key.size < 16) {
                 throw IllegalArgumentException("KMAC128 requires a key of at least 16 bytes")
-            }
-            if (outputSize != null && outputSize <= 0) {
-                throw IllegalArgumentException("Output size must be positive")
             }
             kmac = KMAC(128, customizer)
             kmac!!.init(KeyParameter(key))
@@ -186,7 +187,7 @@ internal class HasherImpl(
                 keccakDigest.digest(bytes)
             }
             HashAlgorithm.KMAC128 -> {
-                val output = ByteArray(outputSize ?: kmac!!.digestSize)
+                val output = ByteArray(outputSize)
                 kmac!!.update(bytes, 0, bytes.size)
                 kmac!!.doFinal(output, 0)
                 output
@@ -203,7 +204,7 @@ internal class HasherImpl(
     }
 
     fun doFinal(): ByteArray {
-        val output = ByteArray(outputSize ?: kmac!!.digestSize)
+        val output = ByteArray(outputSize)
         kmac?.doFinal(output, 0)
         return output
     }
@@ -216,9 +217,8 @@ internal class SignerImpl(
 ) : Signer {
     override fun sign(bytes: ByteArray): ByteArray {
         val signature: ByteArray
-        val ecdsaSign: Signature
 
-        ecdsaSign = when (hashAlgo) {
+        val ecdsaSign: Signature = when (hashAlgo) {
             HashAlgorithm.KECCAK256, HashAlgorithm.SHA2_256, HashAlgorithm.SHA3_256 -> {
                 Signature.getInstance("NONEwithECDSA")
             }
