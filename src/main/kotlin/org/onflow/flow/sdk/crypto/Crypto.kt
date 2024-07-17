@@ -218,20 +218,13 @@ internal class SignerImpl(
         val signature: ByteArray
         val ecdsaSign: Signature
 
-        val hash = hasher.hash(bytes)
-
-        // Determine the appropriate Signature instance based on the hash algorithm
         ecdsaSign = when (hashAlgo) {
-            HashAlgorithm.KECCAK256, HashAlgorithm.KMAC128 -> {
+            HashAlgorithm.KECCAK256, HashAlgorithm.SHA2_256, HashAlgorithm.SHA3_256 -> {
                 Signature.getInstance("NONEwithECDSA")
             }
-            HashAlgorithm.SHA2_256 -> Signature.getInstance("SHA256withECDSA")
-            HashAlgorithm.SHA2_384 -> Signature.getInstance("SHA384withECDSA")
-            HashAlgorithm.SHA3_256 -> Signature.getInstance("SHA3-256withECDSA")
-            HashAlgorithm.SHA3_384 -> Signature.getInstance("SHA3-384withECDSA")
             else -> throw IllegalArgumentException("Unsupported hash algorithm: ${hashAlgo.algorithm}")
         }
-
+        val hash = hasher.hash(bytes)
         ecdsaSign.initSign(privateKey.key)
         ecdsaSign.update(hash)
         signature = ecdsaSign.sign()

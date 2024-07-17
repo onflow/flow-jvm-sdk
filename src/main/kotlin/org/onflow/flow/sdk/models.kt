@@ -79,11 +79,10 @@ enum class HashAlgorithm(
 ) {
     UNKNOWN("unknown", -1, -1, 0),
     SHA2_256("SHA-256", 256, 1, 1),
-    SHA2_384("SHA-384", 384, 1, 2),
-    SHA3_256("SHA3-256", 256, 3, 3),
-    SHA3_384("SHA3-384", 384, 3, 4),
-    KECCAK256("KECCAK256", 256, 4, 5),
-    KMAC128("KMAC128", 128, 5, 6);
+    SHA3_256("SHA3-256", 256, 3, 2),
+    KMAC128("KMAC128", 128, 5, 3),
+    KECCAK256("KECCAK256", 256, 6, 4);
+
 
     companion object {
         @JvmStatic
