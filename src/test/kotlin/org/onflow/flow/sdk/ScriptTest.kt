@@ -34,7 +34,7 @@ class TestClassConverterJson : JsonCadenceConverter<TestClass> {
                     listOf(
                         "address" to address(value.address.base16Value),
                         "balance" to ufix64(value.balance),
-                        "signatureAlgorithm" to enum(value.hashAlgorithm),
+                        "hashAlgorithm" to enum(value.hashAlgorithm),
                         "isValid" to boolean(value.isValid)
                     )
                 }
@@ -53,15 +53,24 @@ class ScriptTest {
         val result = accessAPI.simpleFlowScript {
             script {
                 """
-                    pub fun main(): String {
-                        return "Hello World"
-                    }
-                """
+                pub fun main(): String {
+                    return "Hello World"
+                }
+            """
             }
         }
 
-        assertTrue(result.jsonCadence is StringField)
-        assertEquals("Hello World", result.jsonCadence.value)
+        when (result) {
+            is FlowAccessApi.AccessApiCallResponse.Success -> {
+                val jsonCadence = result.data.jsonCadence
+                if (jsonCadence is StringField) {
+                    assertEquals("Hello World", jsonCadence.value)
+                } else {
+                    throw IllegalStateException("Expected StringField but got ${jsonCadence::class.simpleName}")
+                }
+            }
+            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to execute script: ${result.message}", result.throwable)
+        }
     }
 
     @Test
@@ -71,39 +80,44 @@ class ScriptTest {
         val result = accessAPI.simpleFlowScript {
             script {
                 """
-                pub struct TestClass {
-                    pub let address: Address
-                    pub let balance: UFix64
-                    pub let hashAlgorithm: HashAlgorithm
-                    pub let isValid: Bool
-                    
-                    init(address: Address, balance: UFix64, hashAlgorithm: HashAlgorithm, isValid: Bool) {
-                        self.address = address
-                        self.balance = balance
-                        self.hashAlgorithm = hashAlgorithm
-                        self.isValid = isValid
+                    pub struct TestClass {
+                        pub let address: Address
+                        pub let balance: UFix64
+                        pub let hashAlgorithm: HashAlgorithm
+                        pub let isValid: Bool
+
+                        init(address: Address, balance: UFix64, hashAlgorithm: HashAlgorithm, isValid: Bool) {
+                            self.address = address
+                            self.balance = balance
+                            self.hashAlgorithm = hashAlgorithm
+                            self.isValid = isValid
+                        }
                     }
-                }
-                
-                pub fun main(address: Address): TestClass {
-                    return TestClass(
-                        address: address,
-                        balance: UFix64(1234),
-                        hashAlgorithm: HashAlgorithm.SHA3_256,
-                        isValid: true
-                    )
-                }
-            """
+
+                    pub fun main(address: Address): TestClass {
+                        return TestClass(
+                            address: address,
+                            balance: UFix64(1234),
+                            hashAlgorithm: HashAlgorithm.SHA3_256,
+                            isValid: true
+                        )
+                    }
+                """
             }
             arg { address(address) }
         }
 
-        assertTrue(result.jsonCadence is StructField)
-        val struct = Flow.unmarshall(TestClass::class, result.jsonCadence)
-        assertEquals(address, struct.address.base16Value)
-        assertEquals(BigDecimal("1234"), struct.balance.stripTrailingZeros())
-        assertEquals(HashAlgorithm.SHA3_256, struct.hashAlgorithm)
-        assertTrue(struct.isValid)
+        when (result) {
+            is FlowAccessApi.AccessApiCallResponse.Success -> {
+                assertTrue(result.data.jsonCadence is StructField)
+                val struct = Flow.unmarshall(TestClass::class, result.data.jsonCadence)
+                assertEquals(address, struct.address.base16Value)
+                assertEquals(BigDecimal("1234"), struct.balance.stripTrailingZeros())
+                assertEquals(HashAlgorithm.SHA3_256, struct.hashAlgorithm)
+                assertTrue(struct.isValid)
+            }
+            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to execute script: ${result.message}", result.throwable)
+        }
     }
 
     @Test
@@ -157,7 +171,7 @@ class ScriptTest {
                       signatures: [String],
                       message: String,
                     ): Bool {
-                    
+
                       var i = 0
                       let keyList = Crypto.KeyList()
                       for rawPublicKey in rawPublicKeys {
@@ -171,7 +185,7 @@ class ScriptTest {
                         )
                         i = i + 1
                       }
-                      
+
                       i = 0
                       let signatureSet: [Crypto.KeyListSignature] = []
                       for signature in signatures {
@@ -183,7 +197,7 @@ class ScriptTest {
                         )
                         i = i + 1
                       }
-                      
+
                       return keyList.verify(
                         signatureSet: signatureSet,
                         signedData: message.decodeHex(),
@@ -197,7 +211,12 @@ class ScriptTest {
             arg { string(message) }
         }
 
-        assertTrue(result.jsonCadence is BooleanField)
-        assertTrue((result.jsonCadence as BooleanField).value!!)
+        when (result) {
+            is FlowAccessApi.AccessApiCallResponse.Success -> {
+                assertTrue(result.data.jsonCadence is BooleanField)
+                assertTrue((result.data.jsonCadence as BooleanField).value!!)
+            }
+            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to execute script: ${result.message}", result.throwable)
+        }
     }
 }
