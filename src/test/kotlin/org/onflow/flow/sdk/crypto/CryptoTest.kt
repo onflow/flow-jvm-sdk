@@ -215,6 +215,21 @@ internal class CryptoTest {
         assertEquals("Output size must be at least 256 bits (32 bytes)", exception.message)
     }
 
+   @Test
+    fun `Test output size longer than 32 bytes`() {
+        // wip: using sample 4 from https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/Kmac_samples.pdf
+        val input = byteArrayOf(0x00, 0x01, 0x02, 0x03)
+        val key = hexStringToByteArray("404142434445464748494A4B4C4D4E4F505152535455565758595A5B5C5D5E5F")
+        val customizer = "My Tagged Application".toByteArray()
+        val outputSize = 64
+
+        val expectedHash = hexStringToByteArray("20C570C31346F703C9AC36C61C03CB64C3970D0CFC787E9B79599D273A68D2F7F69D4CC3DE9D104A351689F27CF6F5951F0103F33F4F24871024D9C27773A8DD")
+
+        val hasher = HasherImpl(HashAlgorithm.KMAC128, key, customizer, outputSize)
+        val hash = hasher.hash(input)
+       assertArrayEquals(hash, expectedHash)
+    }
+
     private fun hexStringToByteArray(hexString: String): ByteArray {
         val len = hexString.length
         val data = ByteArray(len / 2)
