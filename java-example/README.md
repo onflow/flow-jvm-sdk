@@ -1,6 +1,6 @@
-# Java Flow Client Example
+# JVM SDK - Java Example
 
-Example Java application using the [Flow JVM SDK](https://github.com/onflow/flow-jvm-sdk) to interact with Flow blockchain.
+Example Java application using the [Flow JVM SDK](https://github.com/onflow/flow-jvm-sdk) to interact with the Flow blockchain.
 
 ## Usage
 
