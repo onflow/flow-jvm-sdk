@@ -59,6 +59,6 @@ jobs:
         if: always()
         with:
           check_name: "Java Example Unit Test Results"
-          files: "**/test-results/java-test/**/*.xml"
+          files: "**/test-results/test/**/*.xml"
           seconds_between_github_writes: 5
           secondary_rate_limit_wait_seconds: 120
