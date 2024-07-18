@@ -6,15 +6,6 @@ transaction(startingBalance: UFix64, publicKey: String, signatureAlgorithm: UInt
 
         let newAccount = AuthAccount(payer: signer)
 
-        newAccount.keys.add(
-            publicKey: PublicKey(
-                publicKey: publicKey.decodeHex(),
-                signatureAlgorithm: SignatureAlgorithm(rawValue: signatureAlgorithm)!
-            ),
-            hashAlgorithm: HashAlgorithm(rawValue: hashAlgorithm)!,
-            weight: UFix64(1000)
-        )
-
         let provider = signer.borrow<&FlowToken.Vault>(from: /storage/flowTokenVault)
             ?? panic("Could not borrow FlowToken.Vault reference")
 
@@ -25,5 +16,14 @@ transaction(startingBalance: UFix64, publicKey: String, signatureAlgorithm: UInt
 
         let coin <- provider.withdraw(amount: startingBalance)
         newVault.deposit(from: <- coin)
+
+        newAccount.keys.add(
+            publicKey: PublicKey(
+                publicKey: publicKey.decodeHex(),
+                signatureAlgorithm: SignatureAlgorithm(rawValue: signatureAlgorithm)!
+            ),
+            hashAlgorithm: HashAlgorithm(rawValue: hashAlgorithm)!,
+            weight: UFix64(1000)
+        )
     }
 }

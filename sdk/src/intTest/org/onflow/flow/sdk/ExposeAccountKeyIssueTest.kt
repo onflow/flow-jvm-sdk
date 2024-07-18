@@ -6,7 +6,9 @@ import org.onflow.flow.sdk.test.FlowServiceAccountCredentials
 import org.onflow.flow.sdk.test.FlowTestClient
 import org.onflow.flow.sdk.test.TestAccount
 import org.junit.jupiter.api.Assertions.*
+import org.onflow.flow.sdk.IntegrationTestUtils.loadScript
 import java.math.BigDecimal
+import java.nio.charset.StandardCharsets
 
 @FlowEmulatorTest
 class ExposeAccountKeyIssueTest {
@@ -37,42 +39,13 @@ class ExposeAccountKeyIssueTest {
         val pair1 = Crypto.generateKeyPair(signatureAlgorithm1)
         val signer1 = Crypto.getSigner(pair1.private, hashAlgorithm1)
 
+        val loadedScript1 = String(loadScript("cadence/expose_account_key_issue_1.cdc"), StandardCharsets.UTF_8)
         val createAccountResult = flow.simpleFlowTransaction(
             serviceAccount.flowAddress,
             serviceAccount.signer
         ) {
             script {
-                """
-                import FlowToken from 0xFLOWTOKEN
-                import FungibleToken from 0xFUNGIBLETOKEN
-
-                transaction(startingBalance: UFix64, publicKey: String, signatureAlgorithm: UInt8, hashAlgorithm: UInt8) {
-                    prepare(signer: AuthAccount) {
-                        
-                        let newAccount = AuthAccount(payer: signer)
-
-                        newAccount.keys.add(
-                            publicKey: PublicKey(
-                                publicKey: publicKey.decodeHex(),
-                                signatureAlgorithm: SignatureAlgorithm(rawValue: signatureAlgorithm)!
-                            ),
-                            hashAlgorithm: HashAlgorithm(rawValue: hashAlgorithm)!,
-                            weight: UFix64(1000)
-                        )
-
-                        let provider = signer.borrow<&FlowToken.Vault>(from: /storage/flowTokenVault)
-                            ?? panic("Could not borrow FlowToken.Vault reference")
-                        
-                        let newVault = newAccount
-                            .getCapability(/public/flowTokenReceiver)
-                            .borrow<&{FungibleToken.Receiver}>()
-                            ?? panic("Could not borrow FungibleToken.Receiver reference")
-                            
-                        let coin <- provider.withdraw(amount: startingBalance)
-                        newVault.deposit(from: <- coin)
-                    }
-                }
-            """
+                loadedScript1
             }
             arguments {
                 arg { ufix64(startingBalance) }
@@ -97,22 +70,10 @@ class ExposeAccountKeyIssueTest {
         val pair2 = Crypto.generateKeyPair(signatureAlgorithm2)
         val signer2 = Crypto.getSigner(pair2.private, hashAlgorithm2)
 
+        val loadedScript2 = String(loadScript("cadence/expose_account_key_issue_2.cdc"), StandardCharsets.UTF_8)
         val addKeyResult = flow.simpleFlowTransaction(newAccountAddress, signer1) {
             script {
-                """
-                    transaction(publicKey: String, signatureAlgorithm: UInt8, hashAlgorithm: UInt8, weight: UFix64) {
-                        prepare(signer: AuthAccount) {
-                            signer.keys.add(
-                                publicKey: PublicKey(
-                                    publicKey: publicKey.decodeHex(),
-                                    signatureAlgorithm: SignatureAlgorithm(rawValue: signatureAlgorithm)!
-                                ),
-                                hashAlgorithm: HashAlgorithm(rawValue: hashAlgorithm)!,
-                                weight: weight
-                            )
-                        }
-                    }
-                """
+                loadedScript2
             }
             arguments {
                 arg { string(pair2.public.hex) }
@@ -132,16 +93,11 @@ class ExposeAccountKeyIssueTest {
         assertFalse(updatedAccount.keys[0].revoked)
         assertFalse(updatedAccount.keys[1].revoked)
 
+        val loadedScript3 = String(loadScript("cadence/expose_account_key_issue_3.cdc"), StandardCharsets.UTF_8)
         // Remove the second key
         val removeKeyResult = flow.simpleFlowTransaction(newAccountAddress, signer1) {
             script {
-                """
-                    transaction(index: Int) {
-                        prepare(signer: AuthAccount) {
-                            signer.keys.revoke(keyIndex: index) ?? panic("Key not found to revoke")
-                        }
-                    }
-                """
+                loadedScript3
             }
             arguments {
                 arg { int(1) }
