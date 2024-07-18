@@ -6,6 +6,9 @@ import org.onflow.flow.sdk.test.FlowServiceAccountCredentials
 import org.onflow.flow.sdk.test.FlowTestClient
 import org.onflow.flow.sdk.test.TestAccount
 import org.junit.jupiter.api.Assertions.*
+import org.onflow.flow.sdk.IntegrationTestUtils.getAccount
+import org.onflow.flow.sdk.IntegrationTestUtils.getAccountAddressFromResult
+import org.onflow.flow.sdk.IntegrationTestUtils.handleResult
 import org.onflow.flow.sdk.IntegrationTestUtils.loadScript
 import java.math.BigDecimal
 import java.nio.charset.StandardCharsets
