@@ -7,7 +7,9 @@ import org.onflow.flow.sdk.test.FlowTestClient
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import org.onflow.flow.sdk.TestUtils.loadScript
 import java.math.BigDecimal
+import java.nio.charset.StandardCharsets
 
 @JsonCadenceConversion(TestClassConverterJson::class)
 open class TestClass(
@@ -50,13 +52,10 @@ class ScriptTest {
 
     @Test
     fun `Can execute a script`() {
+        val loadedScript = String(loadScript("hello_world.cdc"), StandardCharsets.UTF_8)
         val result = accessAPI.simpleFlowScript {
             script {
-                """
-                pub fun main(): String {
-                    return "Hello World"
-                }
-            """
+                loadedScript
             }
         }
 
@@ -76,33 +75,11 @@ class ScriptTest {
     @Test
     fun `Can input and export arguments`() {
         val address = "e467b9dd11fa00df"
+        val loadedScript = String(loadScript("import_export_arguments.cdc"), StandardCharsets.UTF_8)
 
         val result = accessAPI.simpleFlowScript {
             script {
-                """
-                    pub struct TestClass {
-                        pub let address: Address
-                        pub let balance: UFix64
-                        pub let hashAlgorithm: HashAlgorithm
-                        pub let isValid: Bool
-
-                        init(address: Address, balance: UFix64, hashAlgorithm: HashAlgorithm, isValid: Bool) {
-                            self.address = address
-                            self.balance = balance
-                            self.hashAlgorithm = hashAlgorithm
-                            self.isValid = isValid
-                        }
-                    }
-
-                    pub fun main(address: Address): TestClass {
-                        return TestClass(
-                            address: address,
-                            balance: UFix64(1234),
-                            hashAlgorithm: HashAlgorithm.SHA3_256,
-                            isValid: true
-                        )
-                    }
-                """
+                loadedScript
             }
             arg { address(address) }
         }
@@ -159,51 +136,11 @@ class ScriptTest {
                 )
             }
         }
+        val loadedScript = String(loadScript("domain_tags.cdc"), StandardCharsets.UTF_8)
 
         val result = accessAPI.simpleFlowScript {
             script {
-                """
-                    import Crypto
-
-                    pub fun main(
-                      rawPublicKeys: [String],
-                      weights: [UFix64],
-                      signatures: [String],
-                      message: String,
-                    ): Bool {
-
-                      var i = 0
-                      let keyList = Crypto.KeyList()
-                      for rawPublicKey in rawPublicKeys {
-                        keyList.add(
-                          PublicKey(
-                            publicKey: rawPublicKey.decodeHex(),
-                            signatureAlgorithm: SignatureAlgorithm.ECDSA_P256
-                          ),
-                          hashAlgorithm: HashAlgorithm.SHA3_256,
-                          weight: weights[i],
-                        )
-                        i = i + 1
-                      }
-
-                      i = 0
-                      let signatureSet: [Crypto.KeyListSignature] = []
-                      for signature in signatures {
-                        signatureSet.append(
-                          Crypto.KeyListSignature(
-                            keyIndex: i,
-                            signature: signature.decodeHex()
-                          )
-                        )
-                        i = i + 1
-                      }
-
-                      return keyList.verify(
-                        signatureSet: signatureSet,
-                        signedData: message.decodeHex(),
-                      )
-                    }
-                """
+               loadedScript
             }
             arg { publicKeys }
             arg { weights }
