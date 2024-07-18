@@ -55,10 +55,10 @@ class ExposeAccountKeyIssueTest {
             }
         }.sendAndWaitForSeal()
 
-        val createAccountResultData = IntegrationTestUtils.handleResult(createAccountResult, "Failed to create account")
-        val newAccountAddress = IntegrationTestUtils.getAccountAddressFromResult(createAccountResultData)
+        val createAccountResultData = handleResult(createAccountResult, "Failed to create account")
+        val newAccountAddress = getAccountAddressFromResult(createAccountResultData)
 
-        val account = IntegrationTestUtils.getAccount(flow, newAccountAddress)
+        val account = getAccount(flow, newAccountAddress)
 
         assertEquals(1, account.keys.size)
         assertEquals(pair1.public.hex, account.keys[0].publicKey.base16Value)
@@ -83,9 +83,9 @@ class ExposeAccountKeyIssueTest {
             }
         }.sendAndWaitForSeal()
 
-        IntegrationTestUtils.handleResult(addKeyResult, "Failed to add key")
+        handleResult(addKeyResult, "Failed to add key")
 
-        val updatedAccount = IntegrationTestUtils.getAccount(flow, newAccountAddress)
+        val updatedAccount = getAccount(flow, newAccountAddress)
 
         assertEquals(2, updatedAccount.keys.size)
         assertEquals(pair1.public.hex, updatedAccount.keys[0].publicKey.base16Value)
@@ -104,9 +104,9 @@ class ExposeAccountKeyIssueTest {
             }
         }.sendAndWaitForSeal()
 
-        IntegrationTestUtils.handleResult(removeKeyResult, "Failed to remove key")
+        handleResult(removeKeyResult, "Failed to remove key")
 
-        val finalAccount = IntegrationTestUtils.getAccount(flow, newAccountAddress)
+        val finalAccount = getAccount(flow, newAccountAddress)
 
         assertEquals(2, finalAccount.keys.size)
         assertEquals(pair1.public.hex, finalAccount.keys[0].publicKey.base16Value)

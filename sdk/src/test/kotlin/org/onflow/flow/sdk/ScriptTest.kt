@@ -140,7 +140,7 @@ class ScriptTest {
 
         val result = accessAPI.simpleFlowScript {
             script {
-               loadedScript
+                loadedScript
             }
             arg { publicKeys }
             arg { weights }

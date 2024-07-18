@@ -8,7 +8,10 @@ import org.onflow.flow.sdk.test.FlowServiceAccountCredentials
 import org.onflow.flow.sdk.test.FlowTestClient
 import org.onflow.flow.sdk.test.TestAccount
 import org.junit.jupiter.api.Test
+import org.onflow.flow.sdk.IntegrationTestUtils.getAccount
+import org.onflow.flow.sdk.IntegrationTestUtils.handleResult
 import org.onflow.flow.sdk.IntegrationTestUtils.loadScript
+import org.onflow.flow.sdk.IntegrationTestUtils.transaction
 import java.nio.charset.StandardCharsets
 
 @FlowEmulatorTest
@@ -48,7 +51,7 @@ class TransactionCreationTest {
     @Test
     fun `Can create an account using the transaction DSL`() {
         val latestBlockId = getLatestBlockId(accessAPI)
-        val payerAccount = IntegrationTestUtils.getAccount(accessAPI, serviceAccount.flowAddress)
+        val payerAccount = getAccount(accessAPI, serviceAccount.flowAddress)
 
         val newAccountKeyPair = Crypto.generateKeyPair(SignatureAlgorithm.ECDSA_P256)
         val newAccountPublicKey = FlowAccountKey(
@@ -89,9 +92,9 @@ class TransactionCreationTest {
             }
         }
 
-        val txID = IntegrationTestUtils.handleResult(accessAPI.sendTransaction(tx), "Failed to send transaction")
+        val txID = handleResult(accessAPI.sendTransaction(tx), "Failed to send transaction")
 
-        val result = IntegrationTestUtils.handleResult(waitForSeal(accessAPI, txID), "Failed to wait for seal")
+        val result = handleResult(waitForSeal(accessAPI, txID), "Failed to wait for seal")
 
         assertThat(result).isNotNull
         assertThat(result.status).isEqualTo(FlowTransactionStatus.SEALED)
@@ -119,13 +122,13 @@ class TransactionCreationTest {
             }
         }.sendAndWaitForSeal()
 
-        val result = IntegrationTestUtils.handleResult(transactionResult, "Failed to create account")
+        val result = handleResult(transactionResult, "Failed to create account")
 
         assertThat(result.status).isEqualTo(FlowTransactionStatus.SEALED)
     }
 
     private fun getLatestBlockId(api: FlowAccessApi): FlowId {
         val result = api.getLatestBlockHeader()
-        return IntegrationTestUtils.handleResult(result, "Failed to get latest block header").id
+        return handleResult(result, "Failed to get latest block header").id
     }
 }
