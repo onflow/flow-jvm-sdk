@@ -9,6 +9,8 @@ import org.onflow.flow.sdk.test.FlowServiceAccountCredentials
 import org.onflow.flow.sdk.test.FlowTestClient
 import org.onflow.flow.sdk.test.TestAccount
 import org.junit.jupiter.api.Test
+import org.onflow.flow.sdk.IntegrationTestUtils.loadScript
+import java.nio.charset.StandardCharsets
 
 @FlowEmulatorTest
 class TransactionCreationTest {
@@ -57,16 +59,11 @@ class TransactionCreationTest {
             weight = 1000
         )
 
+        val loadedScript = String(loadScript("cadence/transaction_creation.cdc"), StandardCharsets.UTF_8)
+
         val tx = flowTransaction {
             script {
-                """
-                transaction(publicKey: String) {
-                    prepare(signer: AuthAccount) {
-                        let account = AuthAccount(payer: signer)
-                        account.addPublicKey(publicKey.decodeHex())
-                    }
-                }
-                """
+                loadedScript
             }
 
             arguments {
@@ -111,16 +108,11 @@ class TransactionCreationTest {
             weight = 1000
         )
 
+        val loadedScript = String(loadScript("cadence/transaction_creation_simple_transaction.cdc"), StandardCharsets.UTF_8)
+
         val transactionResult = accessAPI.simpleFlowTransaction(serviceAccount.flowAddress, serviceAccount.signer) {
             script {
-                """
-                transaction(publicKey: String) {
-                    prepare(signer: AuthAccount) {
-                        let account = AuthAccount(payer: signer)
-                        account.addPublicKey(publicKey.decodeHex())
-                    }
-                }
-                """
+                loadedScript
             }
 
             arguments {
