@@ -11,7 +11,11 @@ import java.nio.charset.StandardCharsets
 import kotlin.io.path.createTempDirectory
 
 object FlowTestUtil {
-    private fun loadScript(name: String): ByteArray = javaClass.classLoader.getResourceAsStream(name)!!.use { it.readAllBytes() }
+    private fun loadScript(name: String): ByteArray {
+        val resource = javaClass.classLoader.getResourceAsStream(name)
+            ?: throw IllegalArgumentException("Script file $name not found")
+        return resource.use { it.readAllBytes() }
+    }
 
     @JvmStatic
     @JvmOverloads
