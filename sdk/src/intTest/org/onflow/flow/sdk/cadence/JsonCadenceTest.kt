@@ -8,7 +8,6 @@ import org.onflow.flow.sdk.*
 import java.nio.charset.StandardCharsets
 
 class JsonCadenceTest {
-
     @Serializable
     data class StorageInfo(
         val capacity: Int,
