@@ -2,7 +2,6 @@ package org.onflow.flow.sdk.transaction
 
 import org.onflow.flow.sdk.*
 import org.onflow.flow.sdk.crypto.Crypto
-import org.onflow.flow.sdk.IntegrationTestUtils.transaction
 import org.assertj.core.api.Assertions.assertThat
 import org.onflow.flow.sdk.test.FlowEmulatorTest
 import org.onflow.flow.sdk.test.FlowServiceAccountCredentials
@@ -59,7 +58,7 @@ class TransactionCreationTest {
             weight = 1000
         )
 
-        val loadedScript = String(loadScript("cadence/transaction_creation.cdc"), StandardCharsets.UTF_8)
+        val loadedScript = String(loadScript("cadence/transaction_creation/transaction_creation.cdc"), StandardCharsets.UTF_8)
 
         val tx = flowTransaction {
             script {
@@ -108,7 +107,7 @@ class TransactionCreationTest {
             weight = 1000
         )
 
-        val loadedScript = String(loadScript("cadence/transaction_creation_simple_transaction.cdc"), StandardCharsets.UTF_8)
+        val loadedScript = String(loadScript("cadence/transaction_creation/transaction_creation_simple_transaction.cdc"), StandardCharsets.UTF_8)
 
         val transactionResult = accessAPI.simpleFlowTransaction(serviceAccount.flowAddress, serviceAccount.signer) {
             script {

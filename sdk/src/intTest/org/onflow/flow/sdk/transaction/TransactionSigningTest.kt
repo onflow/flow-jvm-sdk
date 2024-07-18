@@ -48,7 +48,7 @@ class TransactionSigningTest {
 
     @Test
     fun `Byte arrays are properly handled`() {
-        val loadedScript = String(loadScript("cadence/transaction_signing_byte_arrays.cdc"), StandardCharsets.UTF_8)
+        val loadedScript = String(loadScript("cadence/transaction_signing/transaction_signing_byte_arrays.cdc"), StandardCharsets.UTF_8)
         accessAPI.simpleFlowTransaction(serviceAccount.flowAddress, serviceAccount.signer) {
             script {
                 loadedScript

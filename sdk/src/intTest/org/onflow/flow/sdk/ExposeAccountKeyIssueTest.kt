@@ -39,7 +39,7 @@ class ExposeAccountKeyIssueTest {
         val pair1 = Crypto.generateKeyPair(signatureAlgorithm1)
         val signer1 = Crypto.getSigner(pair1.private, hashAlgorithm1)
 
-        val loadedScript1 = String(loadScript("cadence/expose_account_key_issue_1.cdc"), StandardCharsets.UTF_8)
+        val loadedScript1 = String(loadScript("cadence/expose_account_key_issue/expose_account_key_issue_1.cdc"), StandardCharsets.UTF_8)
         val createAccountResult = flow.simpleFlowTransaction(
             serviceAccount.flowAddress,
             serviceAccount.signer
@@ -70,7 +70,7 @@ class ExposeAccountKeyIssueTest {
         val pair2 = Crypto.generateKeyPair(signatureAlgorithm2)
         val signer2 = Crypto.getSigner(pair2.private, hashAlgorithm2)
 
-        val loadedScript2 = String(loadScript("cadence/expose_account_key_issue_2.cdc"), StandardCharsets.UTF_8)
+        val loadedScript2 = String(loadScript("cadence/expose_account_key_issue/expose_account_key_issue_2.cdc"), StandardCharsets.UTF_8)
         val addKeyResult = flow.simpleFlowTransaction(newAccountAddress, signer1) {
             script {
                 loadedScript2
@@ -93,7 +93,7 @@ class ExposeAccountKeyIssueTest {
         assertFalse(updatedAccount.keys[0].revoked)
         assertFalse(updatedAccount.keys[1].revoked)
 
-        val loadedScript3 = String(loadScript("cadence/expose_account_key_issue_3.cdc"), StandardCharsets.UTF_8)
+        val loadedScript3 = String(loadScript("cadence/expose_account_key_issue/expose_account_key_issue_3.cdc"), StandardCharsets.UTF_8)
         // Remove the second key
         val removeKeyResult = flow.simpleFlowTransaction(newAccountAddress, signer1) {
             script {

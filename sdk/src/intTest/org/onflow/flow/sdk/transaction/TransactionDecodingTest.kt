@@ -54,7 +54,7 @@ class TransactionDecodingTest {
         val proposerAddress = "f8d6e0586b0a20c7"
         val payerAddress = "ee82856bf20e2aa6"
 
-        val loadedScript = String(loadScript("cadence/transaction_decoding_precompute_txid.cdc"), StandardCharsets.UTF_8)
+        val loadedScript = String(loadScript("cadence/transaction_decoding/transaction_decoding_precompute_txid.cdc"), StandardCharsets.UTF_8)
 
         var testTx = FlowTransaction(
             script = FlowScript(loadedScript),
