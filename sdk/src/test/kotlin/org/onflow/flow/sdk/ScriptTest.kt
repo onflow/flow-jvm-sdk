@@ -52,7 +52,7 @@ class ScriptTest {
 
     @Test
     fun `Can execute a script`() {
-        val loadedScript = String(loadScript("hello_world.cdc"), StandardCharsets.UTF_8)
+        val loadedScript = String(loadScript("cadence/hello_world.cdc"), StandardCharsets.UTF_8)
         val result = accessAPI.simpleFlowScript {
             script {
                 loadedScript
@@ -75,7 +75,7 @@ class ScriptTest {
     @Test
     fun `Can input and export arguments`() {
         val address = "e467b9dd11fa00df"
-        val loadedScript = String(loadScript("import_export_arguments.cdc"), StandardCharsets.UTF_8)
+        val loadedScript = String(loadScript("cadence/import_export_arguments.cdc"), StandardCharsets.UTF_8)
 
         val result = accessAPI.simpleFlowScript {
             script {
@@ -136,7 +136,7 @@ class ScriptTest {
                 )
             }
         }
-        val loadedScript = String(loadScript("domain_tags.cdc"), StandardCharsets.UTF_8)
+        val loadedScript = String(loadScript("cadence/domain_tags.cdc"), StandardCharsets.UTF_8)
 
         val result = accessAPI.simpleFlowScript {
             script {

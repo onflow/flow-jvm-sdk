@@ -79,7 +79,7 @@ object FlowTestUtil {
         hashAlgo: HashAlgorithm,
         balance: BigDecimal = BigDecimal(0.01)
     ): FlowAccessApi.AccessApiCallResponse<FlowAddress> {
-        val loadedScript = String(loadScript("test_utils_create_account.cdc"), StandardCharsets.UTF_8)
+        val loadedScript = String(loadScript("cadence/test_utils_create_account.cdc"), StandardCharsets.UTF_8)
         val transactionResult = api.simpleFlowTransaction(
             address = serviceAccount.flowAddress,
             signer = serviceAccount.signer,

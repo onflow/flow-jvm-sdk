@@ -35,7 +35,7 @@ class TestExtensionsTest {
         contracts = [
             FlowTestContractDeployment(
                 name = "NothingContract",
-                codeClasspathLocation = "/cadence/NothingContract.cdc",
+                codeClasspathLocation = "/cadence/test_extensions/NothingContract.cdc",
                 arguments = [
                     TestContractArg("name", "The Name"),
                     TestContractArg("description", "The Description"),
@@ -51,7 +51,7 @@ class TestExtensionsTest {
         contracts = [
             FlowTestContractDeployment(
                 name = "EmptyContract",
-                code = "pub contract EmptyContract { init() { } }"
+                codeClasspathLocation = "/cadence/test_extensions/EmptyContract.cdc",
             )
         ]
     )
@@ -65,7 +65,7 @@ class TestExtensionsTest {
             ),
             FlowTestContractDeployment(
                 name = "NothingContract",
-                codeClasspathLocation = "/cadence/NothingContract.cdc",
+                codeClasspathLocation = "/cadence/test_extensions/NothingContract.cdc",
                 arguments = [
                     TestContractArg("name", "The Name"),
                     TestContractArg("description", "The Description"),
@@ -73,7 +73,7 @@ class TestExtensionsTest {
             ),
             FlowTestContractDeployment(
                 name = "EmptyContract",
-                code = "pub contract EmptyContract { init() { } }"
+                codeClasspathLocation = "/cadence/test_extensions/EmptyContract.cdc",
             )
         ]
     )
@@ -88,14 +88,11 @@ class TestExtensionsTest {
         contracts = [
             FlowTestContractDeployment(
                 name = "ContractInterface",
-                code = "pub contract interface ContractInterface { }"
+                codeClasspathLocation = "/cadence/test_extensions/ContractInterface.cdc",
             ),
             FlowTestContractDeployment(
                 name = "ContractSuccessor",
-                code = """
-                    import ContractInterface from 0xCONTRACTINTERFACE
-                    pub contract ContractSuccessor : ContractInterface { init() { } }
-                """
+                codeClasspathLocation = "/cadence/test_extensions/ContractSuccessor.cdc",
             ),
         ]
     )
