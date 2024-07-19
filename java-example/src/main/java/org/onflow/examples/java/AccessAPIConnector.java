@@ -16,11 +16,11 @@ import org.onflow.flow.sdk.cadence.UFix64NumberField;
 import org.onflow.flow.sdk.crypto.Crypto;
 import org.onflow.flow.sdk.crypto.PrivateKey;
 
-public final class App {
+public final class AccessAPIConnector {
     private final FlowAccessApi accessAPI;
     private final PrivateKey privateKey;
 
-    public App(String host, int port, String privateKeyHex) {
+    public AccessAPIConnector(String host, int port, String privateKeyHex) {
         this.accessAPI = Flow.newAccessApi(host, port);
         this.privateKey = Crypto.decodePrivateKey(privateKeyHex);
     }

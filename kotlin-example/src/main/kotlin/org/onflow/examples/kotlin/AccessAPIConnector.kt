@@ -7,7 +7,7 @@ import org.onflow.flow.sdk.cadence.UFix64NumberField
 import org.onflow.flow.sdk.crypto.Crypto
 import java.math.BigDecimal
 
-internal class App(host: String, port: Int, privateKeyHex: String) {
+internal class AccessAPIConnector(host: String, port: Int, privateKeyHex: String) {
     private val accessAPI = Flow.newAccessApi(host, port)
     private val privateKey = Crypto.decodePrivateKey(privateKeyHex)
 

@@ -11,7 +11,7 @@ val serviceAccountAddress: FlowAddress = FlowAddress("f8d6e0586b0a20c7")
 val testRecipientAddress: FlowAddress = FlowAddress("01cf0e2f2f715450")
 const val servicePrivateKeyHex = "a2f983853e61b3e27d94b7bf3d7094dd756aead2a813dd5cf738e1da56fa9c17"
 
-internal class AppTest {
+internal class AccessAPIConnectorTest {
     private var userPrivateKeyHex: String = ""
     private var userPublicKeyHex: String = ""
 
@@ -24,31 +24,31 @@ internal class AppTest {
 
     @Test
     fun `Can create an account`() {
-        val app = App("localhost", 3569, servicePrivateKeyHex)
+        val accessAPIConnector = AccessAPIConnector("localhost", 3569, servicePrivateKeyHex)
 
-        val account = app.createAccount(serviceAccountAddress, userPublicKeyHex)
+        val account = accessAPIConnector.createAccount(serviceAccountAddress, userPublicKeyHex)
         Assertions.assertNotNull(account)
     }
 
     @Test
     fun `Can transfer tokens`() {
-        val app = App("localhost", 3569, servicePrivateKeyHex)
+        val accessAPIConnector = AccessAPIConnector("localhost", 3569, servicePrivateKeyHex)
 
         // service account address
         val recipient: FlowAddress = testRecipientAddress
 
         // FLOW amounts always have 8 decimal places
         val amount = BigDecimal("10.00000001")
-        val balance1 = app.getAccountBalance(recipient)
-        app.transferTokens(serviceAccountAddress, recipient, amount)
-        val balance2 = app.getAccountBalance(recipient)
+        val balance1 = accessAPIConnector.getAccountBalance(recipient)
+        accessAPIConnector.transferTokens(serviceAccountAddress, recipient, amount)
+        val balance2 = accessAPIConnector.getAccountBalance(recipient)
         Assertions.assertEquals(balance1.add(amount), balance2)
     }
 
     @Test
     fun `Can get an account balance`() {
-        val app = App("localhost", 3569, servicePrivateKeyHex)
-        val balance = app.getAccountBalance(serviceAccountAddress)
+        val accessAPIConnector = AccessAPIConnector("localhost", 3569, servicePrivateKeyHex)
+        val balance = accessAPIConnector.getAccountBalance(serviceAccountAddress)
         Assertions.assertNotNull(balance)
     }
 }

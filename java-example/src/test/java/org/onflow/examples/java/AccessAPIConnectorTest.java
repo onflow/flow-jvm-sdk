@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class AppTest {
+class AccessAPIConnectorTest {
     public static final String SERVICE_PRIVATE_KEY_HEX = "a2f983853e61b3e27d94b7bf3d7094dd756aead2a813dd5cf738e1da56fa9c17";
 
     private final FlowAddress serviceAccountAddress = new FlowAddress("f8d6e0586b0a20c7");
@@ -26,27 +26,27 @@ class AppTest {
     @Test
     void createAccount() {
 
-        App app = new App("localhost", 3569, SERVICE_PRIVATE_KEY_HEX);
+        AccessAPIConnector accessAPIConnector = new AccessAPIConnector("localhost", 3569, SERVICE_PRIVATE_KEY_HEX);
 
-        FlowAddress account = app.createAccount(serviceAccountAddress, this.userPublicKeyHex);
+        FlowAddress account = accessAPIConnector.createAccount(serviceAccountAddress, this.userPublicKeyHex);
         assertNotNull(account);
     }
 
     @Test
     void transferTokens() throws Exception {
 
-        App app = new App("localhost", 3569, SERVICE_PRIVATE_KEY_HEX);
+        AccessAPIConnector accessAPIConnector = new AccessAPIConnector("localhost", 3569, SERVICE_PRIVATE_KEY_HEX);
 
         var recipient = testRecipientAddress;
 
         // FLOW amounts always have 8 decimal places
         var amount = new BigDecimal("10.00000001");
 
-        var balance1 = app.getAccountBalance(recipient);
+        var balance1 = accessAPIConnector.getAccountBalance(recipient);
 
-        app.transferTokens(serviceAccountAddress, recipient, amount);
+        accessAPIConnector.transferTokens(serviceAccountAddress, recipient, amount);
 
-        var balance2 = app.getAccountBalance(recipient);
+        var balance2 = accessAPIConnector.getAccountBalance(recipient);
 
         assertEquals(balance1.add(amount), balance2);
     }
@@ -54,8 +54,8 @@ class AppTest {
     @Test
     void getAccountBalance() {
 
-        App app = new App("localhost", 3569, SERVICE_PRIVATE_KEY_HEX);
-        var balance = app.getAccountBalance(serviceAccountAddress);
+        AccessAPIConnector accessAPIConnector = new AccessAPIConnector("localhost", 3569, SERVICE_PRIVATE_KEY_HEX);
+        var balance = accessAPIConnector.getAccountBalance(serviceAccountAddress);
         assertNotNull(balance);
     }
 }
