@@ -13,7 +13,6 @@ fun getProp(name: String, defaultValue: String? = null): String? {
 }
 
 val FLOW_JVM_SDK_VERSION = "1.0.1"
-val USE_KOTLIN_APP = project.findProperty("USE_KOTLIN_APP") == "true"
 
 tasks.withType<JavaCompile> {
     sourceCompatibility = JavaVersion.VERSION_21.toString()
@@ -44,11 +43,7 @@ dependencies {
 
 application {
     // Define the main class for the application.
-    mainClass.set(if (USE_KOTLIN_APP) {
-        "org.onflow.examples.kotlin.App"
-    } else {
-        "org.onflow.examples.java.App"
-    })
+    mainClass.set("org.onflow.examples.kotlin.AccessAPIConnector")
 }
 
 tasks.test {

@@ -36,7 +36,7 @@ jobs:
 
       - name: Build
         id: build
-        run: ./gradlew --warning-mode all check :java-example:build -x test -x integrationTest
+        run: ./gradlew --warning-mode all check build -x test -x integrationTest
 
       - name: Start emulator
         id: start_emulator
@@ -53,6 +53,12 @@ jobs:
         id: unit_test
         if: ${{ steps.wait_for_emulator.outcome == 'success' }}
         run: ./gradlew --no-daemon --max-workers=2 --warning-mode=all :java-example:test -i --continue --stacktrace
+
+      - name: Run Kotlin Example Unit Tests
+        id: unit_test_2
+        if: ${{ steps.wait_for_emulator.outcome == 'success' }}
+        run: ./gradlew --no-daemon --max-workers=2 --warning-mode=all :kotlin-example:test -i --continue --stacktrace
+
 
       - name: Publish Java Example Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action@v1.18
