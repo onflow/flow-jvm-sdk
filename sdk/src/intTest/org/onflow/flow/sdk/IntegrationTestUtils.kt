@@ -3,6 +3,7 @@ package org.onflow.flow.sdk
 import org.onflow.flow.sdk.cadence.AddressField
 
 object IntegrationTestUtils {
+    fun loadScript(name: String): ByteArray = javaClass.classLoader.getResourceAsStream(name)!!.use { it.readAllBytes() }
     fun newMainnetAccessApi(): FlowAccessApi = Flow.newAccessApi(MAINNET_HOSTNAME)
 
     fun newTestnetAccessApi(): FlowAccessApi = Flow.newAccessApi(TESTNET_HOSTNAME)
@@ -39,6 +40,6 @@ object IntegrationTestUtils {
 
     fun getAccount(api: FlowAccessApi, address: FlowAddress): FlowAccount {
         val result = api.getAccountAtLatestBlock(address)
-        return handleResult(result, "Failed to get account at latest block") as FlowAccount
+        return handleResult(result, "Failed to get account at latest block")
     }
 }

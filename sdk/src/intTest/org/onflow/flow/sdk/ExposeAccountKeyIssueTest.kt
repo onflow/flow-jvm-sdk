@@ -6,7 +6,12 @@ import org.onflow.flow.sdk.test.FlowServiceAccountCredentials
 import org.onflow.flow.sdk.test.FlowTestClient
 import org.onflow.flow.sdk.test.TestAccount
 import org.junit.jupiter.api.Assertions.*
+import org.onflow.flow.sdk.IntegrationTestUtils.getAccount
+import org.onflow.flow.sdk.IntegrationTestUtils.getAccountAddressFromResult
+import org.onflow.flow.sdk.IntegrationTestUtils.handleResult
+import org.onflow.flow.sdk.IntegrationTestUtils.loadScript
 import java.math.BigDecimal
+import java.nio.charset.StandardCharsets
 
 @FlowEmulatorTest
 class ExposeAccountKeyIssueTest {
@@ -37,42 +42,13 @@ class ExposeAccountKeyIssueTest {
         val pair1 = Crypto.generateKeyPair(signatureAlgorithm1)
         val signer1 = Crypto.getSigner(pair1.private, hashAlgorithm1)
 
+        val loadedScript1 = String(loadScript("cadence/expose_account_key_issue/expose_account_key_issue_1.cdc"), StandardCharsets.UTF_8)
         val createAccountResult = flow.simpleFlowTransaction(
             serviceAccount.flowAddress,
             serviceAccount.signer
         ) {
             script {
-                """
-                import FlowToken from 0xFLOWTOKEN
-                import FungibleToken from 0xFUNGIBLETOKEN
-
-                transaction(startingBalance: UFix64, publicKey: String, signatureAlgorithm: UInt8, hashAlgorithm: UInt8) {
-                    prepare(signer: AuthAccount) {
-                        
-                        let newAccount = AuthAccount(payer: signer)
-
-                        newAccount.keys.add(
-                            publicKey: PublicKey(
-                                publicKey: publicKey.decodeHex(),
-                                signatureAlgorithm: SignatureAlgorithm(rawValue: signatureAlgorithm)!
-                            ),
-                            hashAlgorithm: HashAlgorithm(rawValue: hashAlgorithm)!,
-                            weight: UFix64(1000)
-                        )
-
-                        let provider = signer.borrow<&FlowToken.Vault>(from: /storage/flowTokenVault)
-                            ?? panic("Could not borrow FlowToken.Vault reference")
-                        
-                        let newVault = newAccount
-                            .getCapability(/public/flowTokenReceiver)
-                            .borrow<&{FungibleToken.Receiver}>()
-                            ?? panic("Could not borrow FungibleToken.Receiver reference")
-                            
-                        let coin <- provider.withdraw(amount: startingBalance)
-                        newVault.deposit(from: <- coin)
-                    }
-                }
-            """
+                loadedScript1
             }
             arguments {
                 arg { ufix64(startingBalance) }
@@ -82,10 +58,10 @@ class ExposeAccountKeyIssueTest {
             }
         }.sendAndWaitForSeal()
 
-        val createAccountResultData = IntegrationTestUtils.handleResult(createAccountResult, "Failed to create account")
-        val newAccountAddress = IntegrationTestUtils.getAccountAddressFromResult(createAccountResultData)
+        val createAccountResultData = handleResult(createAccountResult, "Failed to create account")
+        val newAccountAddress = getAccountAddressFromResult(createAccountResultData)
 
-        val account = IntegrationTestUtils.getAccount(flow, newAccountAddress)
+        val account = getAccount(flow, newAccountAddress)
 
         assertEquals(1, account.keys.size)
         assertEquals(pair1.public.hex, account.keys[0].publicKey.base16Value)
@@ -97,22 +73,10 @@ class ExposeAccountKeyIssueTest {
         val pair2 = Crypto.generateKeyPair(signatureAlgorithm2)
         val signer2 = Crypto.getSigner(pair2.private, hashAlgorithm2)
 
+        val loadedScript2 = String(loadScript("cadence/expose_account_key_issue/expose_account_key_issue_2.cdc"), StandardCharsets.UTF_8)
         val addKeyResult = flow.simpleFlowTransaction(newAccountAddress, signer1) {
             script {
-                """
-                    transaction(publicKey: String, signatureAlgorithm: UInt8, hashAlgorithm: UInt8, weight: UFix64) {
-                        prepare(signer: AuthAccount) {
-                            signer.keys.add(
-                                publicKey: PublicKey(
-                                    publicKey: publicKey.decodeHex(),
-                                    signatureAlgorithm: SignatureAlgorithm(rawValue: signatureAlgorithm)!
-                                ),
-                                hashAlgorithm: HashAlgorithm(rawValue: hashAlgorithm)!,
-                                weight: weight
-                            )
-                        }
-                    }
-                """
+                loadedScript2
             }
             arguments {
                 arg { string(pair2.public.hex) }
@@ -122,9 +86,9 @@ class ExposeAccountKeyIssueTest {
             }
         }.sendAndWaitForSeal()
 
-        IntegrationTestUtils.handleResult(addKeyResult, "Failed to add key")
+        handleResult(addKeyResult, "Failed to add key")
 
-        val updatedAccount = IntegrationTestUtils.getAccount(flow, newAccountAddress)
+        val updatedAccount = getAccount(flow, newAccountAddress)
 
         assertEquals(2, updatedAccount.keys.size)
         assertEquals(pair1.public.hex, updatedAccount.keys[0].publicKey.base16Value)
@@ -132,25 +96,20 @@ class ExposeAccountKeyIssueTest {
         assertFalse(updatedAccount.keys[0].revoked)
         assertFalse(updatedAccount.keys[1].revoked)
 
+        val loadedScript3 = String(loadScript("cadence/expose_account_key_issue/expose_account_key_issue_3.cdc"), StandardCharsets.UTF_8)
         // Remove the second key
         val removeKeyResult = flow.simpleFlowTransaction(newAccountAddress, signer1) {
             script {
-                """
-                    transaction(index: Int) {
-                        prepare(signer: AuthAccount) {
-                            signer.keys.revoke(keyIndex: index) ?? panic("Key not found to revoke")
-                        }
-                    }
-                """
+                loadedScript3
             }
             arguments {
                 arg { int(1) }
             }
         }.sendAndWaitForSeal()
 
-        IntegrationTestUtils.handleResult(removeKeyResult, "Failed to remove key")
+        handleResult(removeKeyResult, "Failed to remove key")
 
-        val finalAccount = IntegrationTestUtils.getAccount(flow, newAccountAddress)
+        val finalAccount = getAccount(flow, newAccountAddress)
 
         assertEquals(2, finalAccount.keys.size)
         assertEquals(pair1.public.hex, finalAccount.keys[0].publicKey.base16Value)

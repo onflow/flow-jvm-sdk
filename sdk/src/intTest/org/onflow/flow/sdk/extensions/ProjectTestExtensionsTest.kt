@@ -44,7 +44,7 @@ class ProjectTestExtensionsTest {
         contracts = [
             FlowTestContractDeployment(
                 name = "NothingContract",
-                codeClasspathLocation = "/cadence/NothingContract.cdc",
+                codeClasspathLocation = "/cadence/test_extensions/NothingContract.cdc",
                 arguments = [
                     TestContractArg("name", "The Name"),
                     TestContractArg("description", "The Description"),
@@ -74,7 +74,7 @@ class ProjectTestExtensionsTest {
             ),
             FlowTestContractDeployment(
                 name = "NothingContract",
-                codeClasspathLocation = "/cadence/NothingContract.cdc",
+                codeClasspathLocation = "/cadence/test_extensions/NothingContract.cdc",
                 arguments = [
                     TestContractArg("name", "The Name"),
                     TestContractArg("description", "The Description"),

@@ -1,16 +1,15 @@
 package org.onflow.flow.sdk.transaction
 
-import org.onflow.flow.sdk.FlowAccessApi
-import org.onflow.flow.sdk.FlowAddress
-import org.onflow.flow.sdk.IntegrationTestUtils.transaction
-import org.onflow.flow.sdk.bytesToHex
 import org.onflow.flow.sdk.crypto.Crypto
-import org.onflow.flow.sdk.simpleFlowTransaction
 import org.onflow.flow.sdk.test.FlowEmulatorTest
 import org.onflow.flow.sdk.test.FlowServiceAccountCredentials
 import org.onflow.flow.sdk.test.FlowTestClient
 import org.onflow.flow.sdk.test.TestAccount
 import org.junit.jupiter.api.Test
+import org.onflow.flow.sdk.*
+import org.onflow.flow.sdk.IntegrationTestUtils.loadScript
+import org.onflow.flow.sdk.IntegrationTestUtils.transaction
+import java.nio.charset.StandardCharsets
 import kotlin.random.Random
 
 @FlowEmulatorTest
@@ -46,15 +45,10 @@ class TransactionSigningTest {
 
     @Test
     fun `Byte arrays are properly handled`() {
+        val loadedScript = String(loadScript("cadence/transaction_signing/transaction_signing_byte_arrays.cdc"), StandardCharsets.UTF_8)
         accessAPI.simpleFlowTransaction(serviceAccount.flowAddress, serviceAccount.signer) {
             script {
-                """
-                    transaction(bytes: [UInt8]) {
-                        prepare(signer: AuthAccount) {
-                            log(bytes)
-                        }
-                    }
-                """.trimIndent()
+                loadedScript
             }
             arguments {
                 arg { byteArray(Random.nextBytes(2048)) }

@@ -7,4 +7,6 @@ object TestUtils {
 
     private const val MAINNET_HOSTNAME = "access.mainnet.nodes.onflow.org"
     private const val TESTNET_HOSTNAME = "access.devnet.nodes.onflow.org"
+
+    fun loadScript(name: String): ByteArray = javaClass.classLoader.getResourceAsStream(name)!!.use { it.readAllBytes() }
 }

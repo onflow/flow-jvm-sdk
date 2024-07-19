@@ -5,14 +5,17 @@ import org.onflow.flow.sdk.test.FlowEmulatorTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.fail
+import org.onflow.flow.sdk.IntegrationTestUtils.handleResult
+import org.onflow.flow.sdk.IntegrationTestUtils.newMainnetAccessApi
+import org.onflow.flow.sdk.IntegrationTestUtils.newTestnetAccessApi
 
 @FlowEmulatorTest
 class TransactionIntegrationTest {
     @Test
     fun wut() {
         val account = try {
-            IntegrationTestUtils.handleResult(
-                IntegrationTestUtils.newTestnetAccessApi().getAccountAtLatestBlock(FlowAddress("0x6bd3869f2631beb3")),
+            handleResult(
+                newTestnetAccessApi().getAccountAtLatestBlock(FlowAddress("0x6bd3869f2631beb3")),
                 "Failed to get account"
             )
         } catch (e: Exception) {
@@ -23,16 +26,16 @@ class TransactionIntegrationTest {
 
     @Test
     fun `Can connect to mainnet`() {
-        val accessAPI = IntegrationTestUtils.newMainnetAccessApi()
+        val accessAPI = newMainnetAccessApi()
         try {
-            IntegrationTestUtils.handleResult(accessAPI.ping(), "Failed to ping")
+            handleResult(accessAPI.ping(), "Failed to ping")
         } catch (e: Exception) {
             fail("Failed to ping mainnet: ${e.message}")
         }
 
         val address = FlowAddress("e467b9dd11fa00df")
         val account = try {
-            IntegrationTestUtils.handleResult(
+            handleResult(
                 accessAPI.getAccountAtLatestBlock(address),
                 "Failed to get account"
             )
@@ -47,9 +50,9 @@ class TransactionIntegrationTest {
 
     @Test
     fun `Can get network parameters`() {
-        val accessAPI = IntegrationTestUtils.newMainnetAccessApi()
+        val accessAPI = newMainnetAccessApi()
         val networkParams = try {
-            IntegrationTestUtils.handleResult(
+            handleResult(
                 accessAPI.getNetworkParameters(),
                 "Failed to get network parameters"
             )
@@ -62,9 +65,9 @@ class TransactionIntegrationTest {
 
     @Test
     fun `Can get latest protocol state snapshot`() {
-        val accessAPI = IntegrationTestUtils.newMainnetAccessApi()
+        val accessAPI = newMainnetAccessApi()
         val snapshot = try {
-            IntegrationTestUtils.handleResult(
+            handleResult(
                 accessAPI.getLatestProtocolStateSnapshot(),
                 "Failed to get latest protocol state snapshot"
             )
@@ -77,11 +80,11 @@ class TransactionIntegrationTest {
 
     @Test
     fun `Can parse events`() {
-        val accessApi = IntegrationTestUtils.newMainnetAccessApi()
+        val accessApi = newMainnetAccessApi()
 
         // https://flowscan.org/transaction/8c2e9d37a063240f236aa181e1454eb62991b42302534d4d6dd3839c2df0ef14
         val tx = try {
-            IntegrationTestUtils.handleResult(
+            handleResult(
                 accessApi.getTransactionById(FlowId("8c2e9d37a063240f236aa181e1454eb62991b42302534d4d6dd3839c2df0ef14")),
                 "Failed to get transaction"
             )
@@ -92,7 +95,7 @@ class TransactionIntegrationTest {
         assertThat(tx).isNotNull
 
         val results = try {
-            IntegrationTestUtils.handleResult(
+            handleResult(
                 accessApi.getTransactionResultById(FlowId("8c2e9d37a063240f236aa181e1454eb62991b42302534d4d6dd3839c2df0ef14")),
                 "Failed to get transaction results"
             )
@@ -119,10 +122,10 @@ class TransactionIntegrationTest {
 
     @Test
     fun `Can get block header by id`() {
-        val accessAPI = IntegrationTestUtils.newMainnetAccessApi()
+        val accessAPI = newMainnetAccessApi()
 
         val latestBlock = try {
-            IntegrationTestUtils.handleResult(
+            handleResult(
                 accessAPI.getLatestBlock(true),
                 "Failed to get latest block"
             )
@@ -133,7 +136,7 @@ class TransactionIntegrationTest {
         assertThat(latestBlock).isNotNull
 
         val blockHeaderById = try {
-            IntegrationTestUtils.handleResult(
+            handleResult(
                 accessAPI.getBlockHeaderById(latestBlock.id),
                 "Failed to get block header by ID"
             )
@@ -146,10 +149,10 @@ class TransactionIntegrationTest {
 
     @Test
     fun `Can get block header by height`() {
-        val accessAPI = IntegrationTestUtils.newMainnetAccessApi()
+        val accessAPI = newMainnetAccessApi()
 
         val latestBlock = try {
-            IntegrationTestUtils.handleResult(
+            handleResult(
                 accessAPI.getLatestBlock(true),
                 "Failed to get latest block"
             )
@@ -160,7 +163,7 @@ class TransactionIntegrationTest {
         assertThat(latestBlock).isNotNull
 
         val blockHeader = try {
-            IntegrationTestUtils.handleResult(
+            handleResult(
                 accessAPI.getBlockHeaderByHeight(latestBlock.height),
                 "Failed to get block header by height"
             )
@@ -174,10 +177,10 @@ class TransactionIntegrationTest {
 
     @Test
     fun `Can get latest block`() {
-        val accessAPI = IntegrationTestUtils.newMainnetAccessApi()
+        val accessAPI = newMainnetAccessApi()
 
         val latestBlock = try {
-            IntegrationTestUtils.handleResult(
+            handleResult(
                 accessAPI.getLatestBlock(true),
                 "Failed to get latest block"
             )
@@ -190,10 +193,10 @@ class TransactionIntegrationTest {
 
     @Test
     fun `Can get block by id`() {
-        val accessAPI = IntegrationTestUtils.newMainnetAccessApi()
+        val accessAPI = newMainnetAccessApi()
 
         val latestBlock = try {
-            IntegrationTestUtils.handleResult(
+            handleResult(
                 accessAPI.getLatestBlock(true),
                 "Failed to get latest block"
             )
@@ -204,7 +207,7 @@ class TransactionIntegrationTest {
         assertThat(latestBlock).isNotNull
 
         val blockById = try {
-            IntegrationTestUtils.handleResult(
+            handleResult(
                 accessAPI.getBlockById(latestBlock.id),
                 "Failed to get block by ID"
             )
@@ -218,10 +221,10 @@ class TransactionIntegrationTest {
 
     @Test
     fun `Can get block by height`() {
-        val accessAPI = IntegrationTestUtils.newMainnetAccessApi()
+        val accessAPI = newMainnetAccessApi()
 
         val latestBlock = try {
-            IntegrationTestUtils.handleResult(
+            handleResult(
                 accessAPI.getLatestBlock(true),
                 "Failed to get latest block"
             )
@@ -232,7 +235,7 @@ class TransactionIntegrationTest {
         assertThat(latestBlock).isNotNull
 
         val blockByHeight = try {
-            IntegrationTestUtils.handleResult(
+            handleResult(
                 accessAPI.getBlockByHeight(latestBlock.height),
                 "Failed to get block by height"
             )
@@ -246,11 +249,11 @@ class TransactionIntegrationTest {
 
     @Test
     fun `Can get account by address`() {
-        val accessAPI = IntegrationTestUtils.newMainnetAccessApi()
+        val accessAPI = newMainnetAccessApi()
 
         val address = FlowAddress("18eb4ee6b3c026d2")
         val account = try {
-            IntegrationTestUtils.handleResult(
+            handleResult(
                 accessAPI.getAccountByAddress(address),
                 "Failed to get account by address"
             )
@@ -264,11 +267,11 @@ class TransactionIntegrationTest {
 
     @Test
     fun `Can get account by address at latest block`() {
-        val accessAPI = IntegrationTestUtils.newMainnetAccessApi()
+        val accessAPI = newMainnetAccessApi()
 
         val address = FlowAddress("18eb4ee6b3c026d2")
         val account = try {
-            IntegrationTestUtils.handleResult(
+            handleResult(
                 accessAPI.getAccountAtLatestBlock(address),
                 "Failed to get account at latest block"
             )
@@ -282,10 +285,10 @@ class TransactionIntegrationTest {
 
     @Test
     fun `Can get account by block height`() {
-        val accessAPI = IntegrationTestUtils.newMainnetAccessApi()
+        val accessAPI = newMainnetAccessApi()
 
         val latestBlock = try {
-            IntegrationTestUtils.handleResult(
+            handleResult(
                 accessAPI.getLatestBlock(true),
                 "Failed to get latest block"
             )
@@ -294,7 +297,7 @@ class TransactionIntegrationTest {
         }
 
         val blockHeader = try {
-            IntegrationTestUtils.handleResult(
+            handleResult(
                 accessAPI.getBlockHeaderByHeight(latestBlock.height),
                 "Failed to get block header by height"
             )
@@ -304,7 +307,7 @@ class TransactionIntegrationTest {
 
         val address = FlowAddress("18eb4ee6b3c026d2")
         val account = try {
-            IntegrationTestUtils.handleResult(
+            handleResult(
                 accessAPI.getAccountByBlockHeight(address, blockHeader.height),
                 "Failed to get account by block height"
             )

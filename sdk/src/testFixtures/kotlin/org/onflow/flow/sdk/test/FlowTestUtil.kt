@@ -7,9 +7,16 @@ import org.onflow.flow.sdk.impl.FlowAccessApiImpl
 import java.io.File
 import java.io.IOException
 import java.math.BigDecimal
+import java.nio.charset.StandardCharsets
 import kotlin.io.path.createTempDirectory
 
 object FlowTestUtil {
+    private fun loadScript(name: String): ByteArray {
+        val resource = javaClass.classLoader.getResourceAsStream(name)
+            ?: throw IllegalArgumentException("Script file $name not found")
+        return resource.use { it.readAllBytes() }
+    }
+
     @JvmStatic
     @JvmOverloads
     fun deployContracts(
@@ -76,43 +83,14 @@ object FlowTestUtil {
         hashAlgo: HashAlgorithm,
         balance: BigDecimal = BigDecimal(0.01)
     ): FlowAccessApi.AccessApiCallResponse<FlowAddress> {
+        val loadedScript = String(loadScript("cadence/test_utils_create_account.cdc"), StandardCharsets.UTF_8)
         val transactionResult = api.simpleFlowTransaction(
             address = serviceAccount.flowAddress,
             signer = serviceAccount.signer,
             keyIndex = serviceAccount.keyIndex
         ) {
             script {
-                """
-                import FlowToken from 0xFLOWTOKEN
-                import FungibleToken from 0xFUNGIBLETOKEN
-                
-                transaction(startingBalance: UFix64, publicKey: String, signatureAlgorithm: UInt8, hashAlgorithm: UInt8) {
-                    prepare(signer: AuthAccount) {
-
-                        let newAccount = AuthAccount(payer: signer)
-                        
-                        let provider = signer.borrow<&FlowToken.Vault>(from: /storage/flowTokenVault)
-                            ?? panic("Could not borrow FlowToken.Vault reference")
-                        
-                        let newVault = newAccount
-                            .getCapability(/public/flowTokenReceiver)
-                            .borrow<&{FungibleToken.Receiver}>()
-                            ?? panic("Could not borrow FungibleToken.Receiver reference")
-
-                        let coin <- provider.withdraw(amount: startingBalance)
-                        newVault.deposit(from: <- coin)
-                        
-                        newAccount.keys.add(
-                            publicKey: PublicKey(
-                                publicKey: publicKey.decodeHex(),
-                                signatureAlgorithm: SignatureAlgorithm(rawValue: signatureAlgorithm)!
-                            ),
-                            hashAlgorithm: HashAlgorithm(rawValue: hashAlgorithm)!,
-                            weight: UFix64(1000)
-                        )
-                    }
-                }
-            """
+                loadedScript
             }
             gasLimit(1000)
             arguments {
