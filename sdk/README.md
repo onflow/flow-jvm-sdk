@@ -78,7 +78,7 @@ of how to use this SDK in your Kotlin or Java application.
 Tests annotated with `FlowEmulatorTest` depend on the [Flow Emulator](https://github.com/onflow/flow-emulator), which is part of the [Flow CLI](https://github.com/onflow/flow-cli) to be installed on your machine.
 
 The`FlowEmulatorTest` extension may be used by consumers of this library as well to streamline unit tests that interact
-with the FLOW blockchian. The `FlowEmulatorTest` extension uses the local flow emulator to prepare the test environment
+with the FLOW blockchain. The `FlowEmulatorTest` extension uses the local flow emulator to prepare the test environment
 for unit and integration tests. For example:
 
 Setup dependency on the SDK:
