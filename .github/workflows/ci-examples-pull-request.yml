@@ -63,7 +63,7 @@ jobs:
         uses: EnricoMi/publish-unit-test-result-action@v1.18
         if: always()
         with:
-          check_name: "Java Example Unit Test Results"
+          check_name: "SDK Examples Unit Test Results"
           files: "**/test-results/test/**/*.xml"
           seconds_between_github_writes: 5
           secondary_rate_limit_wait_seconds: 120
