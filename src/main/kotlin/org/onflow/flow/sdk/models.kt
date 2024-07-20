@@ -675,6 +675,110 @@ data class FlowBlock(
     }
 }
 
+data class FlowChunk(
+    val collectionIndex: Int,
+    val startState: ByteArray,
+    val eventCollection: ByteArray,
+    val blockId: FlowId,
+    val totalComputationUsed: Long,
+    val numberOfTransactions: Int,
+    val index: Long,
+    val endState: ByteArray,
+    val executionDataId: FlowId,
+    val stateDeltaCommitment: ByteArray,
+) : Serializable {
+    companion object {
+        fun of(grpcExecutionResult: ExecutionResultOuterClass.Chunk) = FlowChunk(
+            collectionIndex = grpcExecutionResult.collectionIndex,
+            startState = grpcExecutionResult.startState.toByteArray(),
+            eventCollection = grpcExecutionResult.eventCollection.toByteArray(),
+            blockId = FlowId.of(grpcExecutionResult.blockId.toByteArray()),
+            totalComputationUsed = grpcExecutionResult.totalComputationUsed,
+            numberOfTransactions = grpcExecutionResult.numberOfTransactions,
+            index = grpcExecutionResult.index,
+            endState = grpcExecutionResult.endState.toByteArray(),
+            executionDataId = FlowId.of(grpcExecutionResult.executionDataId.toByteArray()),
+            stateDeltaCommitment = grpcExecutionResult.stateDeltaCommitment.toByteArray()
+        )
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is FlowChunk) return false
+
+        if (collectionIndex != other.collectionIndex) return false
+        if (!startState.contentEquals(other.startState)) return false
+        if (!eventCollection.contentEquals(other.eventCollection)) return false
+        if (blockId != other.blockId) return false
+        if (totalComputationUsed != other.totalComputationUsed) return false
+        if (numberOfTransactions != other.numberOfTransactions) return false
+        if (index != other.index) return false
+        if (!endState.contentEquals(other.endState)) return false
+        if (executionDataId != other.executionDataId) return false
+        if (!stateDeltaCommitment.contentEquals(other.stateDeltaCommitment)) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = collectionIndex
+        result = 31 * result + startState.contentHashCode()
+        result = 31 * result + eventCollection.contentHashCode()
+        result = 31 * result + blockId.hashCode()
+        result = 31 * result + totalComputationUsed.hashCode()
+        result = 31 * result + numberOfTransactions
+        result = 31 * result + index.hashCode()
+        result = 31 * result + endState.contentHashCode()
+        result = 31 * result + executionDataId.hashCode()
+        result = 31 * result + stateDeltaCommitment.contentHashCode()
+        return result
+    }
+}
+
+data class FlowServiceEvent(
+    val type: String,
+    val payload: ByteArray,
+) : Serializable {
+    companion object {
+        fun of(grpcExecutionResult: ExecutionResultOuterClass.ServiceEvent) = FlowServiceEvent(
+            type = grpcExecutionResult.type,
+            payload = grpcExecutionResult.payload.toByteArray(),
+        )
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is FlowServiceEvent) return false
+
+        if (type != other.type) return false
+        if (!payload.contentEquals(other.payload)) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = type.hashCode()
+        result = 31 * result + payload.contentHashCode()
+        return result
+    }
+}
+
+data class FlowExecutionResult(
+    val blockId: FlowId,
+    val previousResultId: FlowId,
+    val chunks: List<FlowChunk>,
+    val serviceEvents: List<FlowServiceEvent>,
+) : Serializable {
+    companion object {
+        fun of(grpcExecutionResult: Access.ExecutionResultByIDResponse) = FlowExecutionResult(
+            blockId = FlowId.of(grpcExecutionResult.executionResult.blockId.toByteArray()),
+            previousResultId = FlowId.of(grpcExecutionResult.executionResult.previousResultId.toByteArray()),
+            chunks = grpcExecutionResult.executionResult.chunksList.map { FlowChunk.of(it) },
+            serviceEvents = grpcExecutionResult.executionResult.serviceEventsList.map { FlowServiceEvent.of(it) },
+        )
+    }
+}
+
 data class FlowCollectionGuarantee(
     val id: FlowId,
     val signatures: List<FlowSignature>
