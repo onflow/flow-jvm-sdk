@@ -1,0 +1,1 @@
+pub contract EmptyContract { init() { } }

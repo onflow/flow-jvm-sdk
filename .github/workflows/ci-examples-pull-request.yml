@@ -1,0 +1,69 @@
+name: Build SDK Examples Pull Request
+on: pull_request
+
+jobs:
+  build:
+    name: Build pull request
+    runs-on: ubuntu-latest
+    env:
+      JAVA_OPTS: -Xmx2g -Dorg.gradle.daemon=false
+    #services:
+    #  flow-emulator:
+    #    image: gcr.io/flow-container-registry/emulator
+    #    env:
+    #      FLOW_VERBOSE: true
+    #      FLOW_PORT: 3569
+    #      FLOW_INTERVAL: 5s
+    #      FLOW_PERSIST: false
+    #    ports:
+    #      - 3569:3569
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Java
+        uses: actions/setup-java@v2
+        with:
+          java-version: '21'
+          java-package: jdk
+          distribution: 'adopt'
+
+      - name: Install flow emulator
+        run: sh -ci "$(curl -fsSL https://storage.googleapis.com/flow-cli/install.sh)"
+
+      - name: Make gradle executable
+        run: chmod +x ./gradlew
+
+      - name: Build
+        id: build
+        run: ./gradlew --warning-mode all check build -x test -x integrationTest
+
+      - name: Start emulator
+        id: start_emulator
+        if: ${{ steps.build.outcome == 'success' }}
+        run: |
+          nohup flow emulator start -v --persist > flow-emulator.log 2>&1 &
+
+      - name: Wait for emulator to start
+        id: wait_for_emulator
+        if: ${{ steps.start_emulator.outcome == 'success' }}
+        run: sleep 15
+
+      - name: Run Java Example Unit Tests
+        id: unit_test
+        if: ${{ steps.wait_for_emulator.outcome == 'success' }}
+        run: ./gradlew --no-daemon --max-workers=2 --warning-mode=all :java-example:test -i --continue --stacktrace
+
+      - name: Run Kotlin Example Unit Tests
+        id: unit_test_2
+        if: ${{ steps.wait_for_emulator.outcome == 'success' }}
+        run: ./gradlew --no-daemon --max-workers=2 --warning-mode=all :kotlin-example:test -i --continue --stacktrace
+
+      - name: Publish SDK Examples Unit Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v1.18
+        if: always()
+        with:
+          check_name: "SDK Examples Unit Test Results"
+          files: "**/test-results/test/**/*.xml"
+          seconds_between_github_writes: 5
+          secondary_rate_limit_wait_seconds: 120
