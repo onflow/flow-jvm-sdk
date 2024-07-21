@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     java
     application
+    `java-test-fixtures`
 }
 
 // Helper function to get properties
@@ -34,11 +35,14 @@ repositories {
 }
 
 dependencies {
-    implementation("org.onflow:flow-jvm-sdk:$FLOW_JVM_SDK_VERSION")
+    //implementation("org.onflow:flow-jvm-sdk:$FLOW_JVM_SDK_VERSION")
 
     // Use JUnit Jupiter Engine for testing.
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.0")
     testImplementation("org.junit.jupiter:junit-jupiter-engine:5.7.0")
+
+    implementation(project(":sdk"))
+    testImplementation(testFixtures(project(":sdk")))
 }
 
 application {
