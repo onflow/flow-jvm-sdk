@@ -98,7 +98,6 @@ object FlowTestUtil {
                 arg { string(publicKey) }
                 arg { uint8(signAlgo.index) }
                 arg { uint8(hashAlgo.index) }
-                arg { serviceAccount.signer }
             }
         }.sendAndWaitForSeal()
 
