@@ -1,7 +1,7 @@
-pub struct StorageInfo {
-    pub let capacity: Int
-    pub let used: Int
-    pub let available: Int
+access(all) struct StorageInfo {
+    access(all) let capacity: Int
+    access(all) let used: Int
+    access(all) let available: Int
 
     init(capacity: Int, used: Int, available: Int) {
         self.capacity = capacity
@@ -10,7 +10,7 @@ pub struct StorageInfo {
     }
 }
 
-pub fun main(addr: Address): [StorageInfo] {
+access(all) fun main(addr: Address): [StorageInfo] {
     let acct = getAccount(addr)
     return [StorageInfo(capacity: 1, used: 2, available: 3)]
 }

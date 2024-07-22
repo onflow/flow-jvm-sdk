@@ -2,7 +2,7 @@ import "FlowToken"
 import "FungibleToken"
 
 transaction(startingBalance: UFix64, publicKey: String, signatureAlgorithm: UInt8, hashAlgorithm: UInt8) {
-    prepare(signer: auth(BorrowValue, Storage, Capabilities) &Account) {
+    prepare(signer: auth(BorrowValue) &Account) {
 
         let newAccount = Account(payer: signer)
 

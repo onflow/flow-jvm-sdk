@@ -1,8 +1,8 @@
-pub struct StorageInfo {
-    pub let capacity: UInt64
-    pub let used: UInt64
-    pub let available: UInt64
-    pub let foo: Foo
+access(all) struct StorageInfo {
+    access(all) let capacity: UInt64
+    access(all) let used: UInt64
+    access(all) let available: UInt64
+    access(all) let foo: Foo
 
     init(capacity: UInt64, used: UInt64, available: UInt64, foo: Foo) {
         self.capacity = capacity
@@ -12,7 +12,7 @@ pub struct StorageInfo {
     }
 }
 
-pub struct Foo {
+access(all) struct Foo {
     pub let bar: Int
 
     init(bar: Int) {
@@ -20,7 +20,7 @@ pub struct Foo {
     }
 }
 
-pub fun main(addr: Address): {String: [StorageInfo]} {
+access(all) fun main(addr: Address): {String: [StorageInfo]} {
     let acct = getAccount(addr)
 
     let foo = Foo(bar: 1)
