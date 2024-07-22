@@ -16,9 +16,9 @@ transaction(startingBalance: UFix64, publicKey: String, signatureAlgorithm: UInt
         newAccount.keys.add(
             publicKey: PublicKey(
                 publicKey: publicKey.decodeHex(),
-                signatureAlgorithm: SignatureAlgorithm(rawValue: SignatureAlgorithm.ECDSA_P256)!
+                signatureAlgorithm: SignatureAlgorithm(rawValue: signatureAlgorithm)!
             ),
-            hashAlgorithm: HashAlgorithm(rawValue: HashAlgorithm.SHA3_256)!,
+            hashAlgorithm: HashAlgorithm(rawValue: hashAlgorithm)!,
             weight: UFix64(1000)
         )
     }
