@@ -21,7 +21,7 @@ import java.math.BigDecimal
 @ExtendWith(FlowEmulatorProjectTestExtension::class)
 @API(status = API.Status.STABLE, since = "5.0")
 annotation class FlowEmulatorProjectTest(
-    val executable: String = "flow",
+    val executable: String = "flow-c1",
     val arguments: String = "--log debug --verbose",
     val host: String = "localhost",
     val port: Int = -1,
