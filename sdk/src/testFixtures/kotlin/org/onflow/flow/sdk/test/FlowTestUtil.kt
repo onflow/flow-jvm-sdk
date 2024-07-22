@@ -98,6 +98,7 @@ object FlowTestUtil {
                 arg { string(publicKey) }
                 arg { uint8(signAlgo.index) }
                 arg { uint8(hashAlgo.index) }
+                arg { serviceAccount.signer }
             }
         }.sendAndWaitForSeal()
 
@@ -121,7 +122,7 @@ object FlowTestUtil {
     @JvmStatic
     @JvmOverloads
     fun runFlow(
-        executable: String = "flow",
+        executable: String = "flow-c1",
         arguments: String? = null,
         host: String = "localhost",
         port: Int = 3570,
