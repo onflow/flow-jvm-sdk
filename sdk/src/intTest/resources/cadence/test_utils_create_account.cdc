@@ -1,28 +1,24 @@
-import FlowToken from 0xFLOWTOKEN
-import FungibleToken from 0xFUNGIBLETOKEN
+import "FlowToken"
+import "FungibleToken"
 
 transaction(startingBalance: UFix64, publicKey: String, signatureAlgorithm: UInt8, hashAlgorithm: UInt8) {
-    prepare(signer: AuthAccount) {
+    prepare(signer: auth(BorrowValue, Storage, Capabilities) &Account) {
 
-        let newAccount = AuthAccount(payer: signer)
+        let newAccount = Account(payer: signer)
 
-        let provider = signer.borrow<&FlowToken.Vault>(from: /storage/flowTokenVault)
-            ?? panic("Could not borrow FlowToken.Vault reference")
+        let payerVaultRef = signer.capabilities.borrow<&FlowToken.Vault>(/storage/flowTokenVault)!
 
-        let newVault = newAccount
-            .getCapability(/public/flowTokenReceiver)
-            .borrow<&{FungibleToken.Receiver}>()
-            ?? panic("Could not borrow FungibleToken.Receiver reference")
+        let newAccountVaultRef = newAccount.capabilities.borrow<&{FungibleToken.Receiver}>(/public/flowTokenReceiver)!
 
-        let coin <- provider.withdraw(amount: startingBalance)
-        newVault.deposit(from: <- coin)
+        let tokensWithdrawn <- payerVaultRef.withdraw(amount: startingBalance)
+        newAccountVaultRef.deposit(from: <- tokensWithdrawn)
 
         newAccount.keys.add(
             publicKey: PublicKey(
                 publicKey: publicKey.decodeHex(),
-                signatureAlgorithm: SignatureAlgorithm(rawValue: signatureAlgorithm)!
+                signatureAlgorithm: SignatureAlgorithm(rawValue: SignatureAlgorithm.ECDSA_P256)!
             ),
-            hashAlgorithm: HashAlgorithm(rawValue: hashAlgorithm)!,
+            hashAlgorithm: HashAlgorithm(rawValue: HashAlgorithm.SHA3_256)!,
             weight: UFix64(1000)
         )
     }
