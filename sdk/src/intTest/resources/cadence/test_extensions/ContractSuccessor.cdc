@@ -1,2 +1,2 @@
-import ContractInterface from 0xCONTRACTINTERFACE
-pub contract ContractSuccessor : ContractInterface { init() { } }
+import ContractInterface
+access(all) contract ContractSuccessor : ContractInterface { init() { } }

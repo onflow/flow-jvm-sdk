@@ -1,9 +1,9 @@
-pub enum Color: UInt8 {
-   pub case red
-   pub case green
-   pub case blue
+access(all) enum Color: UInt8 {
+   access(all) case red
+   access(all) case green
+   access(all) case blue
 }
 
-pub fun main() : Color {
+access(all) fun main() : Color {
     return Color.red
 }

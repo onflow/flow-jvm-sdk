@@ -1,1 +1,1 @@
-pub contract interface ContractInterface { }
+access(all) contract interface ContractInterface { }
