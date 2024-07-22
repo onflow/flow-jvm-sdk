@@ -1,6 +1,6 @@
 transaction(publicKey: String) {
-	prepare(signer: AuthAccount) {
-		let account = AuthAccount(payer: signer)
-        account.addPublicKey(publicKey.decodeHex())
+	prepare(signer: &Account) {
+		let newAccount = Account(payer: signer)
+        newAccount.addPublicKey(publicKey.decodeHex())
 	}
 }
