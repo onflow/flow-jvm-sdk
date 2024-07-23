@@ -54,7 +54,7 @@ object FlowTestUtil {
             script {
                 """
                     transaction(names: [String], codes: [String]$contractArgs) {
-                        prepare(signer: AuthAccount) {
+                        prepare(signer: &Account) {
                             $contractAdds
                         }
                     }
@@ -202,7 +202,7 @@ object FlowTestUtil {
                 listOf("${System.getProperty("user.home")}/.local/bin", "/usr/local/bin", "/usr/bin", "/bin")
                     + (System.getenv()["PATH"]?.split(File.pathSeparator) ?: emptyList())
             )
-                .map { File(it, "flow") }
+                .map { File(it, "flow-c1") }
                 .find { it.exists() }
                 ?: throw IOException("flow command not found")
         }
