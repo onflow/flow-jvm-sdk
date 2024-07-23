@@ -1,6 +1,6 @@
 import Crypto
 
-pub fun main(
+access(all) fun main(
   rawPublicKeys: [String],
   weights: [UFix64],
   signatures: [String],
