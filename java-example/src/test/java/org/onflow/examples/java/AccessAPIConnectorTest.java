@@ -13,6 +13,7 @@ import java.math.BigDecimal;
 
 @FlowEmulatorTest
 public class AccessAPIConnectorTest {
+    private String userPrivateKeyHex = "";
     private String userPublicKeyHex = "";
 
     @FlowServiceAccountCredentials
@@ -27,10 +28,9 @@ public class AccessAPIConnectorTest {
     @BeforeEach
     public void setupUser() {
         KeyPair keyPair = Crypto.generateKeyPair();
-        keyPair.getPrivate().getHex();
+        userPrivateKeyHex = keyPair.getPrivate().getHex();
         userPublicKeyHex = keyPair.getPublic().getHex();
     }
-
     @Test
     public void canCreateAnAccount() {
         AccessAPIConnector accessAPIConnector = new AccessAPIConnector(serviceAccount.getPrivateKey(), accessAPI);

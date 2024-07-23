@@ -28,7 +28,7 @@ public final class AccessAPIConnector {
         if (response instanceof FlowAccessApi.AccessApiCallResponse.Success) {
             return ((FlowAccessApi.AccessApiCallResponse.Success<FlowBlockHeader>) response).getData().getId();
         } else {
-            throw new RuntimeException(((FlowAccessApi.AccessApiCallResponse.Error) response).getMessage());
+            throw new RuntimeException(((FlowAccessApi.AccessApiCallResponse.Error) response).getMessage(), ((FlowAccessApi.AccessApiCallResponse.Error) response).getThrowable());
         }
     }
 
@@ -37,7 +37,7 @@ public final class AccessAPIConnector {
         if (response instanceof FlowAccessApi.AccessApiCallResponse.Success) {
             return ((FlowAccessApi.AccessApiCallResponse.Success<FlowAccount>) response).getData();
         } else {
-            throw new RuntimeException(((FlowAccessApi.AccessApiCallResponse.Error) response).getMessage());
+            throw new RuntimeException(((FlowAccessApi.AccessApiCallResponse.Error) response).getMessage(), ((FlowAccessApi.AccessApiCallResponse.Error) response).getThrowable());
         }
     }
 
@@ -60,29 +60,25 @@ public final class AccessAPIConnector {
             }
             return result;
         } else {
-            throw new RuntimeException(((FlowAccessApi.AccessApiCallResponse.Error) response).getMessage());
+            throw new RuntimeException(((FlowAccessApi.AccessApiCallResponse.Error) response).getMessage(), ((FlowAccessApi.AccessApiCallResponse.Error) response).getThrowable());
         }
     }
 
     private FlowTransactionResult waitForSeal(FlowId txID) {
         while (true) {
             FlowTransactionResult txResult = getTransactionResult(txID);
-            if (txResult.getStatus().equals(FlowTransactionStatus.SEALED)) {
+            if (txResult.getStatus() == FlowTransactionStatus.SEALED) {
                 return txResult;
             }
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                throw new RuntimeException(e);
+                e.printStackTrace();
             }
         }
     }
 
     private FlowAddress getAccountCreatedAddress(FlowTransactionResult txResult) {
-        if (!txResult.getStatus().equals(FlowTransactionStatus.SEALED) || !txResult.getErrorMessage().isEmpty()) {
-            throw new RuntimeException("Transaction failed: " + txResult.getErrorMessage());
-        }
         String addressHex = (String) txResult.getEvents().get(0).getEvent().getValue().getFields()[0].getValue().getValue();
         return new FlowAddress(addressHex.substring(2));
     }
@@ -102,18 +98,22 @@ public final class AccessAPIConnector {
         FlowAccountKey payerAccountKey = getAccountKey(payerAddress, 0);
 
         FlowAccountKey newAccountPublicKey = new FlowAccountKey(
-                -1, // id
-                new FlowPublicKey(publicKeyHex), // publicKey
-                SignatureAlgorithm.ECDSA_P256, // signAlgo
-                HashAlgorithm.SHA3_256, // hashAlgo
-                1000, // weight
-                -1, // sequenceNumber
-                false // revoked
+                -1,
+                new FlowPublicKey(publicKeyHex),
+                SignatureAlgorithm.ECDSA_P256,
+                HashAlgorithm.SHA3_256,
+                1000,
+                -1,
+                false
         );
 
+        FlowScript script = new FlowScript(loadScript("cadence/create_account.cdc"));
+
         FlowTransaction tx = new FlowTransaction(
-                new FlowScript(loadScript("create_account.cdc")),
-                List.of(new FlowArgument(new StringField(Hex.toHexString(newAccountPublicKey.getPublicKey().getBytes())))),
+                script,
+                List.of(
+                        new FlowArgument(new StringField(newAccountPublicKey.getPublicKey().getBase16Value()))
+                ),
                 getLatestBlockID(),
                 100L,
                 new FlowTransactionProposalKey(
@@ -122,21 +122,15 @@ public final class AccessAPIConnector {
                         payerAccountKey.getSequenceNumber()
                 ),
                 payerAddress,
-                List.of(payerAddress),
-                Collections.emptyList(), // payloadSignatures
-                Collections.emptyList() // envelopeSignatures
+                Collections.singletonList(payerAddress),
+                Collections.emptyList(),
+                Collections.emptyList()
         );
 
         Signer signer = Crypto.getSigner(privateKey, payerAccountKey.getHashAlgo());
         tx = tx.addEnvelopeSignature(payerAddress, payerAccountKey.getId(), signer);
 
-        FlowAccessApi.AccessApiCallResponse<FlowId> response = accessAPI.sendTransaction(tx);
-        FlowId txID;
-        if (response instanceof FlowAccessApi.AccessApiCallResponse.Success) {
-            txID = ((FlowAccessApi.AccessApiCallResponse.Success<FlowId>) response).getData();
-        } else {
-            throw new RuntimeException(((FlowAccessApi.AccessApiCallResponse.Error) response).getMessage());
-        }
+        FlowId txID = sendTransaction(tx);
 
         FlowTransactionResult txResult = waitForSeal(txID);
         return getAccountCreatedAddress(txResult);
@@ -144,16 +138,21 @@ public final class AccessAPIConnector {
 
     public void transferTokens(FlowAddress senderAddress, FlowAddress recipientAddress, BigDecimal amount) {
         if (amount.scale() != 8) {
-            throw new IllegalArgumentException("FLOW amount must have exactly 8 decimal places of precision (e.g. 10.00000000)");
+            throw new RuntimeException("FLOW amount must have exactly 8 decimal places of precision (e.g. 10.00000000)");
         }
+
         FlowAccountKey senderAccountKey = getAccountKey(senderAddress, 0);
 
+        FlowScript script = new FlowScript(loadScript("cadence/transfer_flow.cdc"));
+
+        List<FlowArgument> arguments = List.of(
+                new FlowArgument(new UFix64NumberField(amount.toPlainString())),
+                new FlowArgument(new AddressField(recipientAddress.getBase16Value()))
+        );
+
         FlowTransaction tx = new FlowTransaction(
-                new FlowScript(loadScript("transfer_flow.cdc")),
-                List.of(
-                        new FlowArgument(new UFix64NumberField(amount.toPlainString())),
-                        new FlowArgument(new AddressField(recipientAddress.getBase16Value()))
-                ),
+                script,
+                arguments,
                 getLatestBlockID(),
                 100L,
                 new FlowTransactionProposalKey(
@@ -162,19 +161,24 @@ public final class AccessAPIConnector {
                         senderAccountKey.getSequenceNumber()
                 ),
                 senderAddress,
-                List.of(senderAddress),
-                Collections.emptyList(), // payloadSignatures
-                Collections.emptyList() // envelopeSignatures
+                Collections.singletonList(senderAddress),
+                Collections.emptyList(),
+                Collections.emptyList()
         );
 
         Signer signer = Crypto.getSigner(privateKey, senderAccountKey.getHashAlgo());
         tx = tx.addEnvelopeSignature(senderAddress, senderAccountKey.getId(), signer);
 
-        FlowAccessApi.AccessApiCallResponse<FlowId> response = accessAPI.sendTransaction(tx);
-        if (response instanceof FlowAccessApi.AccessApiCallResponse.Error) {
-            throw new RuntimeException(((FlowAccessApi.AccessApiCallResponse.Error) response).getMessage());
-        }
+        FlowId txID = sendTransaction(tx);
+        waitForSeal(txID);
+    }
 
-        waitForSeal(((FlowAccessApi.AccessApiCallResponse.Success<FlowId>) response).getData());
+    private FlowId sendTransaction(FlowTransaction tx) {
+        FlowAccessApi.AccessApiCallResponse<FlowId> response = accessAPI.sendTransaction(tx);
+        if (response instanceof FlowAccessApi.AccessApiCallResponse.Success) {
+            return ((FlowAccessApi.AccessApiCallResponse.Success<FlowId>) response).getData();
+        } else {
+            throw new RuntimeException(((FlowAccessApi.AccessApiCallResponse.Error) response).getMessage(), ((FlowAccessApi.AccessApiCallResponse.Error) response).getThrowable());
+        }
     }
 }

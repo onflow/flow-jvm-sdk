@@ -4,7 +4,6 @@ plugins {
     java
     application
     kotlin("jvm") version "1.9.22"
-    "java-test-fixtures"
 }
 
 // Helper function to get properties
