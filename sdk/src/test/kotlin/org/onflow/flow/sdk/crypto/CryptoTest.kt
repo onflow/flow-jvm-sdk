@@ -67,7 +67,7 @@ internal class CryptoTest {
     }
 
     @Test
-    fun `Test normalizeSignature`() {
+    fun `Test formatSignature`() {
         val keyPair = Crypto.generateKeyPair()
 
         val ecdsaSign = Signature.getInstance("SHA3-256withECDSA")
@@ -76,7 +76,7 @@ internal class CryptoTest {
 
         val signature = ecdsaSign.sign()
 
-        val normalizedSignature = Crypto.normalizeSignature(signature, keyPair.private.ecCoupleComponentSize)
+        val normalizedSignature = Crypto.formatSignature(signature, keyPair.private.ecCoupleComponentSize)
 
         val expectedLength = 2 * keyPair.private.ecCoupleComponentSize
         assertEquals(expectedLength, normalizedSignature.size)

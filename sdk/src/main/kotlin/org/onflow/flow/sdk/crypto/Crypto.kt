@@ -19,6 +19,7 @@ import java.security.spec.ECPublicKeySpec
 import kotlin.experimental.and
 import kotlin.math.max
 
+
 data class KeyPair(
     val private: PrivateKey,
     val public: PublicKey
@@ -28,11 +29,15 @@ data class PrivateKey(
     val key: java.security.PrivateKey,
     val ecCoupleComponentSize: Int,
     val hex: String
+
+    // TODO: add public key derivation
 )
 
 data class PublicKey(
     val key: java.security.PublicKey,
     val hex: String
+
+    // TODO: add signature verification function
 )
 
 object Crypto {
@@ -42,6 +47,7 @@ object Crypto {
 
     @JvmStatic
     @JvmOverloads
+    // TODO: remove default `SignatureAlgorithm.ECDSA_P256` and add algoo check
     fun generateKeyPair(algo: SignatureAlgorithm = SignatureAlgorithm.ECDSA_P256): KeyPair {
         val generator = KeyPairGenerator.getInstance("EC", "BC")
         generator.initialize(ECGenParameterSpec(algo.curve), SecureRandom())
@@ -50,13 +56,15 @@ object Crypto {
         val publicKey = keyPair.public
         return KeyPair(
             private = PrivateKey(
-                key = keyPair.private,
+                key = privateKey,
+                // TODO: what is ecCoupleComponentSize?
                 ecCoupleComponentSize = if (privateKey is ECPrivateKey) {
                     privateKey.parameters.n.bitLength() / 8
                 } else {
                     0
                 },
                 hex = if (privateKey is ECPrivateKey) {
+                    // TODO: would be good to add padding
                     privateKey.d.toByteArray().bytesToHex()
                 } else {
                     throw IllegalArgumentException("PrivateKey must be an ECPublicKey")
@@ -65,6 +73,7 @@ object Crypto {
             public = PublicKey(
                 key = publicKey,
                 hex = if (publicKey is ECPublicKey) {
+                    // TODO: padding is missing
                     (publicKey.q.xCoord.encoded + publicKey.q.yCoord.encoded).bytesToHex()
                 } else {
                     throw IllegalArgumentException("PublicKey must be an ECPublicKey")
@@ -75,20 +84,25 @@ object Crypto {
 
     @JvmStatic
     @JvmOverloads
+    // TODO: remove default `SignatureAlgorithm.ECDSA_P256` and add algo check
     fun decodePrivateKey(key: String, algo: SignatureAlgorithm = SignatureAlgorithm.ECDSA_P256): PrivateKey {
+        // TODO: why not ECGenParameterSpec(algo.curve)?
         val ecParameterSpec = ECNamedCurveTable.getParameterSpec(algo.curve)
-        val keyFactory = KeyFactory.getInstance(algo.algorithm, "BC")
+        // TODO: missing check of the integer against the curve order
         val ecPrivateKeySpec = ECPrivateKeySpec(BigInteger(key, 16), ecParameterSpec)
-        val pk = keyFactory.generatePrivate(ecPrivateKeySpec)
+        val keyFactory = KeyFactory.getInstance(algo.algorithm, "BC")
+        val sk = keyFactory.generatePrivate(ecPrivateKeySpec)
         return PrivateKey(
-            key = pk,
-            ecCoupleComponentSize = if (pk is ECPrivateKey) {
-                pk.parameters.n.bitLength() / 8
+            key = sk,
+            ecCoupleComponentSize = if (sk is ECPrivateKey) {
+                sk.parameters.n.bitLength() / 8
             } else {
                 0
             },
-            hex = if (pk is ECPrivateKey) {
-                pk.d.toByteArray().bytesToHex()
+            // TODO: why this test
+            hex = if (sk is ECPrivateKey) {
+                // TODO: padding
+                sk.d.toByteArray().bytesToHex()
             } else {
                 throw IllegalArgumentException("PrivateKey must be an ECPublicKey")
             }
@@ -97,19 +111,24 @@ object Crypto {
 
     @JvmStatic
     @JvmOverloads
+    // TODO: remove default `SignatureAlgorithm.ECDSA_P256` and add algo check
     fun decodePublicKey(key: String, algo: SignatureAlgorithm = SignatureAlgorithm.ECDSA_P256): PublicKey {
+        // TODO: why not ECGenParameterSpec(algo.curve)?
         val ecParameterSpec = ECNamedCurveTable.getParameterSpec(algo.curve)
-        val keyFactory = KeyFactory.getInstance("EC", "BC")
+        // TODO: check if that's necessary
         val params = ECNamedCurveSpec(
             algo.curve,
             ecParameterSpec.curve, ecParameterSpec.g, ecParameterSpec.n
         )
-        val point = ECPointUtil.decodePoint(params.curve, byteArrayOf(0x04) + key.hexToBytes())
-        val pubKeySpec = ECPublicKeySpec(point, params)
-        val publicKey = keyFactory.generatePublic(pubKeySpec)
+        val pointBytes = ECPointUtil.decodePoint(params.curve, byteArrayOf(0x04) + key.hexToBytes())
+        val point = ECPublicKeySpec(pointBytes, params)
+        val keyFactory = KeyFactory.getInstance("EC", "BC")
+        val publicKey = keyFactory.generatePublic(point)
         return PublicKey(
             key = publicKey,
+            // TODO: why this test
             hex = if (publicKey is ECPublicKey) {
+                // TODO: missing padding
                 (publicKey.q.xCoord.encoded + publicKey.q.yCoord.encoded).bytesToHex()
             } else {
                 throw IllegalArgumentException("PublicKey must be an ECPublicKey")
@@ -120,6 +139,8 @@ object Crypto {
     @JvmStatic
     @JvmOverloads
     fun getSigner(privateKey: PrivateKey, hashAlgo: HashAlgorithm = HashAlgorithm.SHA3_256): Signer {
+        // TODO: missing validation of the Private key algo
+        // input hash algo is validates in `SignerImpl`
         return SignerImpl(privateKey, hashAlgo)
     }
 
@@ -130,7 +151,7 @@ object Crypto {
     }
 
     @JvmStatic
-    fun normalizeSignature(signature: ByteArray, ecCoupleComponentSize: Int): ByteArray {
+    fun formatSignature(signature: ByteArray, ecCoupleComponentSize: Int): ByteArray {
         val (r, s) = extractRS(signature)
 
         val paddedSignature = ByteArray(2 * ecCoupleComponentSize)
@@ -231,6 +252,8 @@ internal class SignerImpl(
     override val hasher: Hasher = HasherImpl(hashAlgo)
 ) : Signer {
     override fun sign(bytes: ByteArray): ByteArray {
+        // TODO: add check for private key algo
+
         val signature: ByteArray
 
         val ecdsaSign: Signature = when (hashAlgo) {
@@ -244,10 +267,11 @@ internal class SignerImpl(
         ecdsaSign.update(hash)
         signature = ecdsaSign.sign()
 
+        // TODO: more on ecCoupleComponentSize
         if (privateKey.ecCoupleComponentSize <= 0) {
             return signature
         }
 
-        return Crypto.normalizeSignature(signature, privateKey.ecCoupleComponentSize)
+        return Crypto.formatSignature(signature, privateKey.ecCoupleComponentSize)
     }
 }
