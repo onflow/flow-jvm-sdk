@@ -1,6 +1,6 @@
 package org.onflow.examples.java;
 
-import org.bouncycastle.util.encoders.Hex;
+import com.google.common.io.BaseEncoding;
 import org.onflow.flow.sdk.*;
 import org.onflow.flow.sdk.cadence.AddressField;
 import org.onflow.flow.sdk.cadence.StringField;
@@ -112,7 +112,7 @@ public final class AccessAPIConnector {
         FlowTransaction tx = new FlowTransaction(
                 script,
                 List.of(
-                        new FlowArgument(new StringField(newAccountPublicKey.getPublicKey().getBase16Value()))
+                        new FlowArgument(new StringField(newAccountPublicKey.getPublicKey().getHex()))
                 ),
                 getLatestBlockID(),
                 100L,
