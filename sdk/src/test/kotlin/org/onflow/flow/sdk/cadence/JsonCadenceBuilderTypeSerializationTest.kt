@@ -6,6 +6,8 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
+import org.onflow.flow.sdk.TestUtils
+import java.nio.charset.StandardCharsets
 
 class JsonCadenceBuilderTypeSerializationTest {
     private val objectMapper: ObjectMapper = jacksonObjectMapper()
@@ -309,7 +311,7 @@ class JsonCadenceBuilderTypeSerializationTest {
     // Exception handling
     @Test
     fun `test decode with invalid JSON`() {
-        val invalidJson = "{invalid: json}"
+        val invalidJson = String(TestUtils.loadScript("json/invalid.json"), StandardCharsets.UTF_8)
         assertThrows(Exception::class.java) {
             objectMapper.readValue(invalidJson, CadenceType::class.java)
         }
@@ -317,7 +319,7 @@ class JsonCadenceBuilderTypeSerializationTest {
 
     @Test
     fun `test decode with missing kind field in generic Cadence type`() {
-        val invalidJson = "{\"type\": \"String\"}"
+        val invalidJson = String(TestUtils.loadScript("json/missing_kind.json"), StandardCharsets.UTF_8)
         assertThrows(MismatchedInputException::class.java) {
             objectMapper.readValue(invalidJson, CadenceType::class.java)
         }
@@ -325,7 +327,7 @@ class JsonCadenceBuilderTypeSerializationTest {
 
     @Test
     fun `test decode with missing kind field in simple type`() {
-        val invalidJson = "{\"type\": \"String\"}"
+        val invalidJson = String(TestUtils.loadScript("json/missing_kind.json"), StandardCharsets.UTF_8)
         assertThrows(MismatchedInputException::class.java) {
             objectMapper.readValue(invalidJson, SimpleType::class.java)
         }
@@ -333,103 +335,57 @@ class JsonCadenceBuilderTypeSerializationTest {
 
     @Test
     fun `test decode with missing type field in complex type`() {
-        val invalidJsonOptional = """
-        {
-            "kind": "Optional"
-        }
-        """.trimIndent()
+        val invalidJsonOptional = String(TestUtils.loadScript("json/invalid_optional.json"), StandardCharsets.UTF_8)
 
         assertThrows(MismatchedInputException::class.java) {
             objectMapper.readValue(invalidJsonOptional, OptionalType::class.java)
         }
 
-        val invalidJsonVariableSizedArray = """
-        {
-            "kind": "VariableSizedArray"
-        }
-        """.trimIndent()
+        val invalidJsonVariableSizedArray = String(TestUtils.loadScript("json/invalid_variable_sized_array.json"), StandardCharsets.UTF_8)
 
         assertThrows(MismatchedInputException::class.java) {
             objectMapper.readValue(invalidJsonVariableSizedArray, VariableSizedArrayType::class.java)
         }
 
-        val invalidJsonConstantSizedArray = """
-        {
-            "kind": "ConstantSizedArray"
-        }
-        """.trimIndent()
+        val invalidJsonConstantSizedArray = String(TestUtils.loadScript("json/invalid_constant_sized_array.json"), StandardCharsets.UTF_8)
 
         assertThrows(MismatchedInputException::class.java) {
             objectMapper.readValue(invalidJsonConstantSizedArray, ConstantSizedArrayType::class.java)
         }
 
         // Missing value field
-        val invalidJsonDictionary = """
-        {
-            "kind": "Dictionary",
-            "key": {"kind": "String"}
-        }
-        """.trimIndent()
+        val invalidJsonDictionary = String(TestUtils.loadScript("json/invalid_dictionary.json"), StandardCharsets.UTF_8)
 
         assertThrows(MismatchedInputException::class.java) {
             objectMapper.readValue(invalidJsonDictionary, DictionaryType::class.java)
         }
 
         // Missing typeID field
-        val invalidJsonFunction = """
-        {
-            "kind": "Function",
-            "parameters": [],
-            "`return`": {"kind": "String"}
-        }
-        """.trimIndent()
+        val invalidJsonFunction = String(TestUtils.loadScript("json/invalid_function.json"), StandardCharsets.UTF_8)
 
         assertThrows(MismatchedInputException::class.java) {
             objectMapper.readValue(invalidJsonFunction, FunctionType::class.java)
         }
 
-        val invalidJsonReference = """
-        {
-            "kind": "Reference",
-            "typeID": "id",
-            "authorized": true
-        }
-        """.trimIndent()
+        val invalidJsonReference = String(TestUtils.loadScript("json/invalid_reference.json"), StandardCharsets.UTF_8)
 
         assertThrows(MismatchedInputException::class.java) {
             objectMapper.readValue(invalidJsonReference, ReferenceType::class.java)
         }
 
-        val invalidJsonRestriction = """
-        {
-            "kind": "Restriction",
-            "typeID": "id",
-            "restrictions": []
-        }
-        """.trimIndent()
+        val invalidJsonRestriction = String(TestUtils.loadScript("json/invalid_restriction.json"), StandardCharsets.UTF_8)
 
         assertThrows(MismatchedInputException::class.java) {
             objectMapper.readValue(invalidJsonRestriction, RestrictionType::class.java)
         }
 
-        val invalidJsonCapability = """
-        {
-            "kind": "Capability"
-        }
-        """.trimIndent()
+        val invalidJsonCapability = String(TestUtils.loadScript("json/invalid_capability.json"), StandardCharsets.UTF_8)
 
         assertThrows(MismatchedInputException::class.java) {
             objectMapper.readValue(invalidJsonCapability, CapabilityType::class.java)
         }
 
-        val invalidJsonEnum = """
-        {
-            "kind": "Enum",
-            "typeID": "id",
-            "initializers": [],
-            "fields": []
-        }
-        """.trimIndent()
+        val invalidJsonEnum = String(TestUtils.loadScript("json/invalid_enum.json"), StandardCharsets.UTF_8)
 
         assertThrows(MismatchedInputException::class.java) {
             objectMapper.readValue(invalidJsonEnum, EnumType::class.java)
@@ -438,7 +394,7 @@ class JsonCadenceBuilderTypeSerializationTest {
 
     @Test
     fun `test decode with partial Cadence type and missing type field`() {
-        val invalidJson = "{\"kind\": \"PartialCadenceType\"}"
+        val invalidJson = String(TestUtils.loadScript("json/missing_type.json"), StandardCharsets.UTF_8)
         assertThrows(MismatchedInputException::class.java) {
             objectMapper.readValue(invalidJson, PartialCadenceType::class.java)
         }
@@ -446,14 +402,7 @@ class JsonCadenceBuilderTypeSerializationTest {
 
     @Test
     fun `test decode with missing type field in composite type`() {
-        val invalidJson = """
-        {
-            "kind": "Struct",
-            "typeID": "id",
-            "initializers": [],
-            "fields":[]
-        }
-        """.trimIndent()
+        val invalidJson = String(TestUtils.loadScript("json/missing_type_composite.json"), StandardCharsets.UTF_8)
         assertThrows(MismatchedInputException::class.java) {
             objectMapper.readValue(invalidJson, CompositeType::class.java)
         }
@@ -461,14 +410,7 @@ class JsonCadenceBuilderTypeSerializationTest {
 
     @Test
     fun `test decode with missing typeID field in composite type`() {
-        val invalidJson = """
-        {
-            "kind": "Struct",
-            "type": "Composite",
-            "initializers": [],
-            "fields":[]
-        }
-        """.trimIndent()
+        val invalidJson = String(TestUtils.loadScript("json/missing_type_id_composite.json"), StandardCharsets.UTF_8)
         assertThrows(MismatchedInputException::class.java) {
             objectMapper.readValue(invalidJson, CompositeType::class.java)
         }
@@ -476,12 +418,7 @@ class JsonCadenceBuilderTypeSerializationTest {
 
     @Test
     fun `test decode with unknown CadenceType kind`() {
-        val invalidJson = """
-        {
-            "kind": "UnknownKind",
-            "type": {}
-        }
-        """.trimIndent()
+        val invalidJson = String(TestUtils.loadScript("json/unknown_kind.json"), StandardCharsets.UTF_8)
         assertThrows(MismatchedInputException::class.java) {
             objectMapper.readValue(invalidJson, CadenceType::class.java)
         }
@@ -489,7 +426,7 @@ class JsonCadenceBuilderTypeSerializationTest {
 
     @Test
     fun `test decode with unknown CadenceType kind 2`() {
-        val invalidJson = "{\"kind\": \"UnknownKind\", \"type\": \"\"}"
+        val invalidJson = String(TestUtils.loadScript("json/unknown_kind_2.json"), StandardCharsets.UTF_8)
         assertThrows(MismatchedInputException::class.java) {
             objectMapper.readValue(invalidJson, CadenceType::class.java)
         }
