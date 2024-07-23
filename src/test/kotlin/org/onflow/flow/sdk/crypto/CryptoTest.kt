@@ -82,7 +82,6 @@ internal class CryptoTest {
         assertEquals(expectedLength, normalizedSignature.size)
     }
 
-
     @Test
     fun `Test extractRS`() {
         val keyPair = Crypto.generateKeyPair()
@@ -156,14 +155,14 @@ internal class CryptoTest {
         val input = byteArrayOf(0x00, 0x01, 0x02, 0x03)
         val expected = listOf(
             listOf(
-            hexStringToByteArray("E5780B0D3EA6F7D3A429C5706AA43A00FADBD7D49628839E3187243F456EE14E"),
-            hexStringToByteArray("3B1FBA963CD8B0B59E8C1A6D71888B7143651AF8BA0A7070C0979E2811324AA5")
+                hexStringToByteArray("E5780B0D3EA6F7D3A429C5706AA43A00FADBD7D49628839E3187243F456EE14E"),
+                hexStringToByteArray("3B1FBA963CD8B0B59E8C1A6D71888B7143651AF8BA0A7070C0979E2811324AA5")
             ),
             listOf(
-            hexStringToByteArray("4f5967393bd357c13cf1b0aff13c2abe075dd68edee33d6b8cb06f5b2a4d5232c11b439f3c20b20a4f04b0549d9caa10"),
-            hexStringToByteArray("99d9364ab5d2b748cb843b27f5a4f4fb06ea87306fa141a676cbb4b39c5c5f12d36b7b76aeea81c4f5876e16e6783e72")
+                hexStringToByteArray("4f5967393bd357c13cf1b0aff13c2abe075dd68edee33d6b8cb06f5b2a4d5232c11b439f3c20b20a4f04b0549d9caa10"),
+                hexStringToByteArray("99d9364ab5d2b748cb843b27f5a4f4fb06ea87306fa141a676cbb4b39c5c5f12d36b7b76aeea81c4f5876e16e6783e72")
             )
-            )
+        )
         val key = hexStringToByteArray("404142434445464748494A4B4C4D4E4F505152535455565758595A5B5C5D5E5F")
         val customizers = listOf(
             "".toByteArray(),
