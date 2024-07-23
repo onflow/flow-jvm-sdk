@@ -77,12 +77,12 @@ enum class HashAlgorithm(
     val code: Int,
     val index: Int
 ) {
+
     UNKNOWN("unknown", -1, -1, 0),
     SHA2_256("SHA-256", 256, 1, 1),
     SHA3_256("SHA3-256", 256, 3, 2),
     KMAC128("KMAC128", 256, 5, 3),
     KECCAK256("KECCAK256", 256, 6, 4);
-
 
     companion object {
         @JvmStatic
