@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     java
     application
+    kotlin("jvm") version "1.9.22"
 }
 
 // Helper function to get properties
@@ -11,8 +12,6 @@ fun getProp(name: String, defaultValue: String? = null): String? {
         ?: project.findProperty(name)?.toString()?.trim()?.ifBlank { null }
         ?: defaultValue
 }
-
-val FLOW_JVM_SDK_VERSION = "1.0.1"
 
 tasks.withType<JavaCompile> {
     sourceCompatibility = JavaVersion.VERSION_21.toString()
@@ -34,20 +33,20 @@ repositories {
 }
 
 dependencies {
-    implementation("org.onflow:flow-jvm-sdk:$FLOW_JVM_SDK_VERSION")
+    implementation(project(":sdk"))
+    implementation("org.jetbrains.kotlin:kotlin-stdlib")
 
-    // Use JUnit Jupiter Engine for testing.
+    testImplementation("org.jetbrains.kotlin:kotlin-test")
+    testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.0")
     testImplementation("org.junit.jupiter:junit-jupiter-engine:5.7.0")
 }
 
 application {
-    // Define the main class for the application.
     mainClass.set("org.onflow.examples.java.AccessAPIConnector")
 }
 
 tasks.test {
-    // Use junit platform for unit tests.
     useJUnitPlatform()
 }
 

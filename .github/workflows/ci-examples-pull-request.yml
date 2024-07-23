@@ -38,17 +38,6 @@ jobs:
         id: build
         run: ./gradlew --warning-mode all check build -x test -x integrationTest
 
-      - name: Start emulator
-        id: start_emulator
-        if: ${{ steps.build.outcome == 'success' }}
-        run: |
-          nohup flow emulator start -v --persist > flow-emulator.log 2>&1 &
-
-      - name: Wait for emulator to start
-        id: wait_for_emulator
-        if: ${{ steps.start_emulator.outcome == 'success' }}
-        run: sleep 15
-
       - name: Run Java Example Unit Tests
         id: unit_test
         if: ${{ steps.wait_for_emulator.outcome == 'success' }}

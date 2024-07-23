@@ -13,8 +13,6 @@ fun getProp(name: String, defaultValue: String? = null): String? {
         ?: defaultValue
 }
 
-val FLOW_JVM_SDK_VERSION = "1.0.1"
-
 tasks.withType<JavaCompile> {
     sourceCompatibility = JavaVersion.VERSION_21.toString()
     targetCompatibility = JavaVersion.VERSION_21.toString()
@@ -35,8 +33,6 @@ repositories {
 }
 
 dependencies {
-    //implementation("org.onflow:flow-jvm-sdk:$FLOW_JVM_SDK_VERSION")
-
     // Use JUnit Jupiter Engine for testing.
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.0")
     testImplementation("org.junit.jupiter:junit-jupiter-engine:5.7.0")
