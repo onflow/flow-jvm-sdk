@@ -77,7 +77,6 @@ enum class HashAlgorithm(
     val code: Int,
     val index: Int
 ) {
-
     UNKNOWN("unknown", -1, -1, 0),
     SHA2_256("SHA-256", 256, 1, 1),
     SHA3_256("SHA3-256", 256, 3, 2),
