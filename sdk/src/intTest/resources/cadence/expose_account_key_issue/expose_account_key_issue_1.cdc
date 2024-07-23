@@ -15,11 +15,11 @@ transaction(startingBalance: UFix64, publicKey: String, signatureAlgorithm: UInt
             weight: UFix64(1000)
         )
 
-        let provider = signer.capabilities.borrow<auth(FungibleToken.Withdraw) &FlowToken.Vault>(from: /storage/flowTokenVault)!
+        let signerVault = signer.storage.borrow<auth(FungibleToken.Withdraw) &FlowToken.Vault>(from: /storage/flowTokenVault)!
 
         let newVault = newAccount.capabilities.borrow<&{FungibleToken.Receiver}>(/public/flowTokenReceiver)!
 
-        let tokensWithdrawn <- provider.withdraw(amount: startingBalance)
+        let tokensWithdrawn <- signerVault.withdraw(amount: startingBalance)
         newVault.deposit(from: <- tokensWithdrawn)
     }
 }

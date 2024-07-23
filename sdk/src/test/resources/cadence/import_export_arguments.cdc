@@ -1,4 +1,4 @@
-pub struct TestClass {
+access(all) struct TestClass {
     pub let address: Address
     pub let balance: UFix64
     pub let hashAlgorithm: HashAlgorithm
@@ -12,7 +12,7 @@ pub struct TestClass {
     }
 }
 
-pub fun main(address: Address): TestClass {
+access(all) fun main(address: Address): TestClass {
     return TestClass(
         address: address,
         balance: UFix64(1234),

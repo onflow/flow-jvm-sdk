@@ -1,5 +1,5 @@
 transaction(index: Int) {
-    prepare(signer: AuthAccount) {
+    prepare(signer: &Account) {
         signer.keys.revoke(keyIndex: index) ?? panic("Key not found to revoke")
     }
 }

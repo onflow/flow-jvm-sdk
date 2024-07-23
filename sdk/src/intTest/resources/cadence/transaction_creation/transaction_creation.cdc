@@ -1,5 +1,7 @@
 transaction(publicKey: String) {
     prepare(signer: &Account) {
-        signer.addPublicKey(publicKey.decodeHex())
+        signer.keys.add(
+            publicKey: publicKey.decodeHex()
+        )
     }
 }
