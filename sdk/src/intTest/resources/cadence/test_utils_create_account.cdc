@@ -6,7 +6,7 @@ transaction(startingBalance: UFix64, publicKey: String, signatureAlgorithm: UInt
 
         let newAccount = Account(payer: signer)
 
-        let payerVaultRef = signer.capabilities.borrow<&FlowToken.Vault>(/storage/flowTokenVault)!
+        let payerVaultRef = signer.storage.borrow<auth(FungibleToken.Withdraw) &FlowToken.Vault>(from: /storage/flowTokenVault)!
 
         let newAccountVaultRef = newAccount.capabilities.borrow<&{FungibleToken.Receiver}>(/public/flowTokenReceiver)!
 
