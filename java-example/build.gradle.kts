@@ -4,6 +4,7 @@ plugins {
     java
     application
     kotlin("jvm") version "1.9.22"
+    "java-test-fixtures"
 }
 
 // Helper function to get properties
@@ -34,6 +35,8 @@ repositories {
 
 dependencies {
     implementation(project(":sdk"))
+    testImplementation(testFixtures(project(":sdk")))
+
     implementation("org.jetbrains.kotlin:kotlin-stdlib")
 
     testImplementation("org.jetbrains.kotlin:kotlin-test")
