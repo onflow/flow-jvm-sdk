@@ -15,45 +15,6 @@ internal class HashTest {
     }
 
     @Test
-<<<<<<< HEAD:sdk/src/test/kotlin/org/onflow/flow/sdk/crypto/CryptoTest.kt
-    fun `Test formatSignature`() {
-        val keyPair = Crypto.generateKeyPair()
-
-        val ecdsaSign = Signature.getInstance("SHA3-256withECDSA")
-        ecdsaSign.initSign(keyPair.private.key)
-        ecdsaSign.update("test".toByteArray())
-
-        val signature = ecdsaSign.sign()
-
-        val normalizedSignature = Crypto.formatSignature(signature, keyPair.private.ecCoupleComponentSize)
-
-        val expectedLength = 2 * keyPair.private.ecCoupleComponentSize
-        assertEquals(expectedLength, normalizedSignature.size)
-    }
-
-    @Test
-    fun `Test extractRS`() {
-        val keyPair = Crypto.generateKeyPair()
-
-        val ecdsaSign = Signature.getInstance("SHA3-256withECDSA")
-        ecdsaSign.initSign(keyPair.private.key)
-        ecdsaSign.update("test".toByteArray())
-
-        val signature = ecdsaSign.sign()
-
-        val (r, s) = Crypto.extractRS(signature)
-
-        assertTrue(r > BigInteger.ZERO)
-        assertTrue(s > BigInteger.ZERO)
-    }
-
-    @Test
-    fun `Invalid Hasher input`() {
-        val exception = assertThrows(IllegalArgumentException::class.java) {
-            HasherImpl(HashAlgorithm.UNKNOWN)
-        }
-        assertEquals("Unsupported hash algorithm: unknown", exception.message)
-=======
     fun `Hasher implementation`() {
         val hasher = HasherImpl(HashAlgorithm.SHA3_256)
         val hashedBytes = hasher.hash("test".toByteArray())
@@ -73,7 +34,6 @@ internal class HashTest {
         val hasher = HasherImpl(HashAlgorithm.KMAC128, key)
         val hashedBytes = hasher.hash("test".toByteArray())
         assertNotNull(hashedBytes)
->>>>>>> split long crypto tests into hash and sign tests:src/test/kotlin/org/onflow/flow/sdk/crypto/HashTest.kt
     }
 
     @Test
