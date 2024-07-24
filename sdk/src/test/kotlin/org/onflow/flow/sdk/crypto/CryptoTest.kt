@@ -106,7 +106,6 @@ internal class CryptoTest {
         assertEquals("Unsupported hash algorithm: unknown", exception.message)
     }
 
-
     @Test
     fun `Sanity check SHA3_256`() {
         val input = "test".toByteArray()
