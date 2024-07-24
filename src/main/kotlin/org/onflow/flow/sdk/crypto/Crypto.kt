@@ -162,7 +162,7 @@ internal class HasherImpl(
     private val hashAlgo: HashAlgorithm,
     private val key: ByteArray? = null,
     private val customizer: ByteArray? = null,
-    private val outputSize: Int = 0
+    private val outputSize: Int = 32
 ) : Hasher {
     private var kmac: KMAC? = null
 
@@ -186,7 +186,7 @@ internal class HasherImpl(
             if (customizer != null) {
                 throw IllegalArgumentException("Customizer must be null")
             }
-            if (outputSize != 32) {
+            if (outputSize != (hashAlgo.outputSize/8)) {
                 throw IllegalArgumentException("Output size must be 32 bytes")
             }
         } else {
