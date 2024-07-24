@@ -1,21 +1,17 @@
-import FlowToken from 0xFLOWTOKEN
-import FungibleToken from 0xFUNGIBLETOKEN
+import "FlowToken"
+import "FungibleToken"
 
 transaction(startingBalance: UFix64, publicKey: String, signatureAlgorithm: UInt8, hashAlgorithm: UInt8) {
-    prepare(signer: AuthAccount) {
+    prepare(signer: auth(BorrowValue) &Account) {
 
-        let newAccount = AuthAccount(payer: signer)
+        let newAccount = Account(payer: signer)
 
-        let provider = signer.borrow<&FlowToken.Vault>(from: /storage/flowTokenVault)
-            ?? panic("Could not borrow FlowToken.Vault reference")
+        let payerVaultRef = signer.storage.borrow<auth(FungibleToken.Withdraw) &FlowToken.Vault>(from: /storage/flowTokenVault)!
 
-        let newVault = newAccount
-            .getCapability(/public/flowTokenReceiver)
-            .borrow<&{FungibleToken.Receiver}>()
-            ?? panic("Could not borrow FungibleToken.Receiver reference")
+        let newAccountVaultRef = newAccount.capabilities.borrow<&{FungibleToken.Receiver}>(/public/flowTokenReceiver)!
 
-        let coin <- provider.withdraw(amount: startingBalance)
-        newVault.deposit(from: <- coin)
+        let tokensWithdrawn <- payerVaultRef.withdraw(amount: startingBalance)
+        newAccountVaultRef.deposit(from: <- tokensWithdrawn)
 
         newAccount.keys.add(
             publicKey: PublicKey(
