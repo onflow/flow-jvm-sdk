@@ -10,6 +10,7 @@ import org.bouncycastle.jce.interfaces.ECPrivateKey
 import org.bouncycastle.jce.interfaces.ECPublicKey
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.bouncycastle.jce.spec.ECNamedCurveSpec
+import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec
 import org.bouncycastle.jce.spec.ECPrivateKeySpec
 import org.onflow.flow.sdk.Signer
 import java.math.BigInteger
@@ -19,7 +20,11 @@ import java.security.spec.ECPublicKeySpec
 import kotlin.experimental.and
 import kotlin.math.max
 
-
+// TODO: keyPair is an obsolete class and should be derecated.
+// It is equivalent to the private key since it contains the private key value.
+// The `PrivateKey` class should include a field to the public key value
+// since a public key can be derived from the private key.
+// This isn't implemented for now till the breaking change impact is assessed.
 data class KeyPair(
     val private: PrivateKey,
     val public: PublicKey
@@ -27,7 +32,7 @@ data class KeyPair(
 
 data class PrivateKey(
     val key: java.security.PrivateKey,
-    val ecCoupleComponentSize: Int,
+    val curve: ECNamedCurveParameterSpec,
     val hex: String
 
     // TODO: add public key derivation
@@ -47,26 +52,23 @@ object Crypto {
 
     @JvmStatic
     @JvmOverloads
-    // TODO: remove default `SignatureAlgorithm.ECDSA_P256` and add algoo check
+    // TODO: remove default `SignatureAlgorithm.ECDSA_P256` and add algo check
     fun generateKeyPair(algo: SignatureAlgorithm = SignatureAlgorithm.ECDSA_P256): KeyPair {
         val generator = KeyPairGenerator.getInstance("EC", "BC")
         generator.initialize(ECGenParameterSpec(algo.curve), SecureRandom())
         val keyPair = generator.generateKeyPair()
         val privateKey = keyPair.private
         val publicKey = keyPair.public
+        val curveSpec = ECNamedCurveTable.getParameterSpec(algo.curve)
         return KeyPair(
             private = PrivateKey(
                 key = privateKey,
-                // TODO: what is ecCoupleComponentSize?
-                ecCoupleComponentSize = if (privateKey is ECPrivateKey) {
-                    privateKey.parameters.n.bitLength() / 8
-                } else {
-                    0
-                },
+                curve = curveSpec,
                 hex = if (privateKey is ECPrivateKey) {
                     // TODO: would be good to add padding
                     privateKey.d.toByteArray().bytesToHex()
                 } else {
+                    // TODO: update log
                     throw IllegalArgumentException("PrivateKey must be an ECPublicKey")
                 }
             ),
@@ -87,23 +89,20 @@ object Crypto {
     // TODO: remove default `SignatureAlgorithm.ECDSA_P256` and add algo check
     fun decodePrivateKey(key: String, algo: SignatureAlgorithm = SignatureAlgorithm.ECDSA_P256): PrivateKey {
         // TODO: why not ECGenParameterSpec(algo.curve)?
-        val ecParameterSpec = ECNamedCurveTable.getParameterSpec(algo.curve)
+        val curveSpec = ECNamedCurveTable.getParameterSpec(algo.curve)
         // TODO: missing check of the integer against the curve order
-        val ecPrivateKeySpec = ECPrivateKeySpec(BigInteger(key, 16), ecParameterSpec)
+        val ecPrivateKeySpec = ECPrivateKeySpec(BigInteger(key, 16), curveSpec)
         val keyFactory = KeyFactory.getInstance(algo.algorithm, "BC")
         val sk = keyFactory.generatePrivate(ecPrivateKeySpec)
         return PrivateKey(
             key = sk,
-            ecCoupleComponentSize = if (sk is ECPrivateKey) {
-                sk.parameters.n.bitLength() / 8
-            } else {
-                0
-            },
+            curve = curveSpec,
             // TODO: why this test
             hex = if (sk is ECPrivateKey) {
                 // TODO: padding
                 sk.d.toByteArray().bytesToHex()
             } else {
+                // TODO: update log
                 throw IllegalArgumentException("PrivateKey must be an ECPublicKey")
             }
         )
@@ -151,17 +150,26 @@ object Crypto {
     }
 
     @JvmStatic
-    fun formatSignature(signature: ByteArray, ecCoupleComponentSize: Int): ByteArray {
+    // curve order size in bytes
+    fun getCurveOrderSize(curve: ECNamedCurveParameterSpec): Int {
+        val bitSize = curve.getN().bitLength()
+        val byteSize = (bitSize + 7)/8
+        return byteSize
+    }
+
+    // TODO: merge formatSignature and extractRS by shortcutting the bigInt step
+    @JvmStatic
+    fun formatSignature(signature: ByteArray, curveOrderSize: Int): ByteArray {
         val (r, s) = extractRS(signature)
 
-        val paddedSignature = ByteArray(2 * ecCoupleComponentSize)
+        val paddedSignature = ByteArray(2 * curveOrderSize)
 
         val rBytes = r.toByteArray()
         val sBytes = s.toByteArray()
 
-        // occasionally R/S bytes representation has leading zeroes, so make sure we trim them appropriately
-        rBytes.copyInto(paddedSignature, max(ecCoupleComponentSize - rBytes.size, 0), max(0, rBytes.size - ecCoupleComponentSize))
-        sBytes.copyInto(paddedSignature, max(2 * ecCoupleComponentSize - sBytes.size, ecCoupleComponentSize), max(0, sBytes.size - ecCoupleComponentSize))
+        // occasionally R/S bytes representation has leading zeroes, so make sure to copy them appropriately
+        rBytes.copyInto(paddedSignature, max(curveOrderSize - rBytes.size, 0), max(0, rBytes.size - curveOrderSize))
+        sBytes.copyInto(paddedSignature, max(2 * curveOrderSize - sBytes.size, curveOrderSize), max(0, sBytes.size - curveOrderSize))
 
         return paddedSignature
     }
@@ -246,17 +254,21 @@ internal class HasherImpl(
     }
 }
 
+
+
 internal class SignerImpl(
     private val privateKey: PrivateKey,
     private val hashAlgo: HashAlgorithm,
     override val hasher: Hasher = HasherImpl(hashAlgo)
 ) : Signer {
+
     override fun sign(bytes: ByteArray): ByteArray {
         // TODO: add check for private key algo
-
         val signature: ByteArray
 
         val ecdsaSign: Signature = when (hashAlgo) {
+            // only allow hashes of 256 bits to match the supported curves (order of 256 bits),
+            // although higher hashes could be used in theory
             HashAlgorithm.KECCAK256, HashAlgorithm.SHA2_256, HashAlgorithm.SHA3_256 -> {
                 Signature.getInstance("NONEwithECDSA")
             }
@@ -267,11 +279,7 @@ internal class SignerImpl(
         ecdsaSign.update(hash)
         signature = ecdsaSign.sign()
 
-        // TODO: more on ecCoupleComponentSize
-        if (privateKey.ecCoupleComponentSize <= 0) {
-            return signature
-        }
-
-        return Crypto.formatSignature(signature, privateKey.ecCoupleComponentSize)
+        val curveOrderSize = Crypto.getCurveOrderSize(privateKey.curve)
+        return Crypto.formatSignature(signature, curveOrderSize)
     }
 }

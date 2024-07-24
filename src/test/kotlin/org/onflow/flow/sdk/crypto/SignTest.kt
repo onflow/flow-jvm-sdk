@@ -70,9 +70,10 @@ internal class SignTest {
 
         val signature = ecdsaSign.sign()
 
-        val normalizedSignature = Crypto.formatSignature(signature, keyPair.private.ecCoupleComponentSize)
+        val curveOrderSize = Crypto.getCurveOrderSize(keyPair.private.curve)
+        val normalizedSignature = Crypto.formatSignature(signature, curveOrderSize)
 
-        val expectedLength = 2 * keyPair.private.ecCoupleComponentSize
+        val expectedLength = 2 * curveOrderSize
         assertEquals(expectedLength, normalizedSignature.size)
     }
 
