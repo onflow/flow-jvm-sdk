@@ -193,41 +193,96 @@ internal class CryptoTest {
     }
 
     @Test
-    fun `Test short key length`() {
+    fun `Test invalid keys`() {
+        val exceptionString = "Key must be null"
         val input = byteArrayOf(0x00, 0x01, 0x02, 0x03)
         val key = hexStringToByteArray("404142434445464748494A4B4C4D4E4F505152535455565758595A5B5C5D5E5F")
+        // SHA2-256
+        var exception = assertThrows(IllegalArgumentException::class.java) {
+            HasherImpl(HashAlgorithm.SHA2_256, key, null).hash(input)
+        }
+        assertEquals(exceptionString, exception.message)
+        // SHA3-256
+        exception = assertThrows(IllegalArgumentException::class.java) {
+            HasherImpl(HashAlgorithm.SHA3_256, key, null).hash(input)
+        }
+        assertEquals(exceptionString, exception.message)
+        // KECCAK-256
+        exception = assertThrows(IllegalArgumentException::class.java) {
+            HasherImpl(HashAlgorithm.KECCAK256, key, null).hash(input)
+        }
+        assertEquals(exceptionString, exception.message)
+
+        // KMAC128
         val customizer = "".toByteArray()
         val outputSize = 32
 
-        val exception = assertThrows(IllegalArgumentException::class.java) {
+        exception = assertThrows(IllegalArgumentException::class.java) {
             HasherImpl(HashAlgorithm.KMAC128, key.sliceArray(0..<15), customizer, outputSize).hash(input)
+        }
+        assertEquals("KMAC128 requires a key of at least 16 bytes", exception.message)
+
+        exception = assertThrows(IllegalArgumentException::class.java) {
+            HasherImpl(HashAlgorithm.KMAC128, null, customizer, outputSize).hash(input)
         }
         assertEquals("KMAC128 requires a key of at least 16 bytes", exception.message)
     }
 
     @Test
-    fun `Test nil output size`() {
+    fun `Test invalid customizers`() {
+        val exceptionString = "Customizer must be null"
         val input = byteArrayOf(0x00, 0x01, 0x02, 0x03)
-        val key = hexStringToByteArray("404142434445464748494A4B4C4D4E4F505152535455565758595A5B5C5D5E5F")
-        val customizer = "".toByteArray()
-
-        val exception = assertThrows(IllegalArgumentException::class.java) {
-            HasherImpl(HashAlgorithm.KMAC128, key, customizer, 0).hash(input)
+        val customizer = byteArrayOf(0x00)
+        // SHA2-256
+        var exception = assertThrows(IllegalArgumentException::class.java) {
+            HasherImpl(HashAlgorithm.SHA2_256, null, customizer).hash(input)
         }
-        assertEquals("Output size must be at least 256 bits (32 bytes)", exception.message)
+        assertEquals(exceptionString, exception.message)
+        // SHA3-256
+        exception = assertThrows(IllegalArgumentException::class.java) {
+            HasherImpl(HashAlgorithm.SHA3_256, null, customizer).hash(input)
+        }
+        assertEquals(exceptionString, exception.message)
+        // KECCAK-256
+        exception = assertThrows(IllegalArgumentException::class.java) {
+            HasherImpl(HashAlgorithm.KECCAK256, null, customizer).hash(input)
+        }
+        assertEquals(exceptionString, exception.message)
     }
 
     @Test
-    fun `Test non-nil shorter output size than 32 bytes`() {
+    fun `Test invalid output sizes`() {
+        val exceptionString = "Output size must be 32 bytes"
         val input = byteArrayOf(0x00, 0x01, 0x02, 0x03)
+        // SHA2-256
+        var exception = assertThrows(IllegalArgumentException::class.java) {
+            HasherImpl(HashAlgorithm.SHA2_256, null, null, 40).hash(input)
+        }
+        assertEquals(exceptionString, exception.message)
+        // SHA3-256
+        exception = assertThrows(IllegalArgumentException::class.java) {
+            HasherImpl(HashAlgorithm.SHA3_256, null, null, 40).hash(input)
+        }
+        assertEquals(exceptionString, exception.message)
+        // KECCAK-256
+        exception = assertThrows(IllegalArgumentException::class.java) {
+            HasherImpl(HashAlgorithm.KECCAK256, null, null, 40).hash(input)
+        }
+        assertEquals(exceptionString, exception.message)
+
+        // KMAC128
         val key = hexStringToByteArray("404142434445464748494A4B4C4D4E4F505152535455565758595A5B5C5D5E5F")
         val customizer = "".toByteArray()
-        val outputSize = 16
 
-        val exception = assertThrows(IllegalArgumentException::class.java) {
-            HasherImpl(HashAlgorithm.KMAC128, key, customizer, outputSize).hash(input)
+        exception = assertThrows(IllegalArgumentException::class.java) {
+            HasherImpl(HashAlgorithm.KMAC128, key, customizer, 0).hash(input)
         }
-        assertEquals("Output size must be at least 256 bits (32 bytes)", exception.message)
+        assertEquals("KMAC128 output size must be at least 32 bytes", exception.message)
+
+        exception = assertThrows(IllegalArgumentException::class.java) {
+            HasherImpl(HashAlgorithm.KMAC128, key, customizer, 16).hash(input)
+        }
+        assertEquals("KMAC128 output size must be at least 32 bytes", exception.message)
     }
 
     private fun hexStringToByteArray(hexString: String): ByteArray {
