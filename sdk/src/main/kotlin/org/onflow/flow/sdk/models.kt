@@ -74,7 +74,9 @@ enum class SignatureAlgorithm(
 enum class HashAlgorithm(
     val algorithm: String,
     val outputSize: Int,
+    // code is the access API code defined in https://developers.flow.com/build/basics/accounts#signature-and-hash-algorithms
     val code: Int,
+    // index is the Cadence index defined in https://cadence-lang.org/docs/language/crypto#hashing
     val index: Int
 ) {
     UNKNOWN("unknown", -1, -1, 0),
