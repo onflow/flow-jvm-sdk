@@ -7,7 +7,6 @@ import org.onflow.flow.sdk.crypto.KeyPair
 import org.onflow.flow.sdk.impl.AsyncFlowAccessApiImpl
 import org.onflow.flow.sdk.impl.FlowAccessApiImpl
 import org.apiguardian.api.API
-import org.junit.jupiter.api.extension.AfterEachCallback
 import org.junit.jupiter.api.extension.BeforeEachCallback
 import org.junit.jupiter.api.extension.ExtensionContext
 import org.junit.jupiter.api.extension.TestExecutionExceptionHandler
@@ -148,9 +147,9 @@ abstract class AbstractFlowEmulatorExtension : BeforeEachCallback, TestExecution
         val tests = (
             context.testInstances.map { it.allInstances.toSet() }.orElseGet { emptySet() }
                 + context.testInstance.map { setOf(it) }.orElseGet { emptySet() }
-            )
+        )
 
-        tests.map { it to it.javaClass.declaredFields }  // Use declaredFields to include private fields
+        tests.map { it to it.javaClass.declaredFields }
             .flatMap { it.second.map { f -> it.first to f } }
             .filter { it.second.isAnnotationPresent(clazz) }
             .forEach { block(it.first, it.second, it.second.getAnnotation(clazz)) }
@@ -319,4 +318,3 @@ abstract class AbstractFlowEmulatorExtension : BeforeEachCallback, TestExecution
         return ServerSocket(0, 50, InetAddress.getByName(host)).use { it.localPort }
     }
 }
-
