@@ -1,0 +1,253 @@
+package org.onflow.flow.sdk.crypto
+
+import org.bouncycastle.crypto.macs.KMAC
+import org.bouncycastle.crypto.params.KeyParameter
+import org.bouncycastle.jcajce.provider.digest.Keccak
+import org.onflow.flow.sdk.*
+import org.bouncycastle.jce.ECNamedCurveTable
+import org.bouncycastle.jce.ECPointUtil
+import org.bouncycastle.jce.interfaces.ECPrivateKey
+import org.bouncycastle.jce.interfaces.ECPublicKey
+import org.bouncycastle.jce.provider.BouncyCastleProvider
+import org.bouncycastle.jce.spec.ECNamedCurveSpec
+import org.bouncycastle.jce.spec.ECPrivateKeySpec
+import org.onflow.flow.sdk.Signer
+import java.math.BigInteger
+import java.security.*
+import java.security.spec.ECGenParameterSpec
+import java.security.spec.ECPublicKeySpec
+import kotlin.experimental.and
+import kotlin.math.max
+
+data class KeyPair(
+    val private: PrivateKey,
+    val public: PublicKey
+)
+
+data class PrivateKey(
+    val key: java.security.PrivateKey,
+    val ecCoupleComponentSize: Int,
+    val hex: String
+)
+
+data class PublicKey(
+    val key: java.security.PublicKey,
+    val hex: String
+)
+
+object Crypto {
+    init {
+        Security.addProvider(BouncyCastleProvider())
+    }
+
+    @JvmStatic
+    @JvmOverloads
+    fun generateKeyPair(algo: SignatureAlgorithm = SignatureAlgorithm.ECDSA_P256): KeyPair {
+        val generator = KeyPairGenerator.getInstance("EC", "BC")
+        generator.initialize(ECGenParameterSpec(algo.curve), SecureRandom())
+        val keyPair = generator.generateKeyPair()
+        val privateKey = keyPair.private
+        val publicKey = keyPair.public
+        return KeyPair(
+            private = PrivateKey(
+                key = keyPair.private,
+                ecCoupleComponentSize = if (privateKey is ECPrivateKey) {
+                    privateKey.parameters.n.bitLength() / 8
+                } else {
+                    0
+                },
+                hex = if (privateKey is ECPrivateKey) {
+                    privateKey.d.toByteArray().bytesToHex()
+                } else {
+                    throw IllegalArgumentException("PrivateKey must be an ECPublicKey")
+                }
+            ),
+            public = PublicKey(
+                key = publicKey,
+                hex = if (publicKey is ECPublicKey) {
+                    (publicKey.q.xCoord.encoded + publicKey.q.yCoord.encoded).bytesToHex()
+                } else {
+                    throw IllegalArgumentException("PublicKey must be an ECPublicKey")
+                }
+            )
+        )
+    }
+
+    @JvmStatic
+    @JvmOverloads
+    fun decodePrivateKey(key: String, algo: SignatureAlgorithm = SignatureAlgorithm.ECDSA_P256): PrivateKey {
+        val ecParameterSpec = ECNamedCurveTable.getParameterSpec(algo.curve)
+        val keyFactory = KeyFactory.getInstance(algo.algorithm, "BC")
+        val ecPrivateKeySpec = ECPrivateKeySpec(BigInteger(key, 16), ecParameterSpec)
+        val pk = keyFactory.generatePrivate(ecPrivateKeySpec)
+        return PrivateKey(
+            key = pk,
+            ecCoupleComponentSize = if (pk is ECPrivateKey) {
+                pk.parameters.n.bitLength() / 8
+            } else {
+                0
+            },
+            hex = if (pk is ECPrivateKey) {
+                pk.d.toByteArray().bytesToHex()
+            } else {
+                throw IllegalArgumentException("PrivateKey must be an ECPublicKey")
+            }
+        )
+    }
+
+    @JvmStatic
+    @JvmOverloads
+    fun decodePublicKey(key: String, algo: SignatureAlgorithm = SignatureAlgorithm.ECDSA_P256): PublicKey {
+        val ecParameterSpec = ECNamedCurveTable.getParameterSpec(algo.curve)
+        val keyFactory = KeyFactory.getInstance("EC", "BC")
+        val params = ECNamedCurveSpec(
+            algo.curve,
+            ecParameterSpec.curve, ecParameterSpec.g, ecParameterSpec.n
+        )
+        val point = ECPointUtil.decodePoint(params.curve, byteArrayOf(0x04) + key.hexToBytes())
+        val pubKeySpec = ECPublicKeySpec(point, params)
+        val publicKey = keyFactory.generatePublic(pubKeySpec)
+        return PublicKey(
+            key = publicKey,
+            hex = if (publicKey is ECPublicKey) {
+                (publicKey.q.xCoord.encoded + publicKey.q.yCoord.encoded).bytesToHex()
+            } else {
+                throw IllegalArgumentException("PublicKey must be an ECPublicKey")
+            }
+        )
+    }
+
+    @JvmStatic
+    @JvmOverloads
+    fun getSigner(privateKey: PrivateKey, hashAlgo: HashAlgorithm = HashAlgorithm.SHA3_256): Signer {
+        return SignerImpl(privateKey, hashAlgo)
+    }
+
+    @JvmStatic
+    @JvmOverloads
+    fun getHasher(hashAlgo: HashAlgorithm = HashAlgorithm.SHA3_256): Hasher {
+        return HasherImpl(hashAlgo)
+    }
+
+    @JvmStatic
+    fun normalizeSignature(signature: ByteArray, ecCoupleComponentSize: Int): ByteArray {
+        val (r, s) = extractRS(signature)
+
+        val paddedSignature = ByteArray(2 * ecCoupleComponentSize)
+
+        val rBytes = r.toByteArray()
+        val sBytes = s.toByteArray()
+
+        // occasionally R/S bytes representation has leading zeroes, so make sure we trim them appropriately
+        rBytes.copyInto(paddedSignature, max(ecCoupleComponentSize - rBytes.size, 0), max(0, rBytes.size - ecCoupleComponentSize))
+        sBytes.copyInto(paddedSignature, max(2 * ecCoupleComponentSize - sBytes.size, ecCoupleComponentSize), max(0, sBytes.size - ecCoupleComponentSize))
+
+        return paddedSignature
+    }
+
+    @JvmStatic
+    fun extractRS(signature: ByteArray): Pair<BigInteger, BigInteger> {
+        val startR = if ((signature[1] and 0x80.toByte()) != 0.toByte()) 3 else 2
+        val lengthR = signature[startR + 1].toInt()
+        val startS = startR + 2 + lengthR
+        val lengthS = signature[startS + 1].toInt()
+        return Pair(
+            BigInteger(signature.copyOfRange(startR + 2, startR + 2 + lengthR)),
+            BigInteger(signature.copyOfRange(startS + 2, startS + 2 + lengthS))
+        )
+    }
+}
+
+internal class HasherImpl(
+    private val hashAlgo: HashAlgorithm,
+    private val key: ByteArray? = null,
+    private val customizer: ByteArray? = null,
+    private val outputSize: Int = 32
+) : Hasher {
+    private var kmac: KMAC? = null
+
+    init {
+        if (hashAlgo == HashAlgorithm.KMAC128) {
+            if (outputSize < 32) {
+                throw IllegalArgumentException("KMAC128 output size must be at least 32 bytes")
+            }
+
+            if (key == null || key.size < 16) {
+                throw IllegalArgumentException("KMAC128 requires a key of at least 16 bytes")
+            }
+            kmac = KMAC(128, customizer)
+            kmac!!.init(KeyParameter(key))
+        } else if (hashAlgo == HashAlgorithm.KECCAK256 ||
+            hashAlgo == HashAlgorithm.SHA3_256 ||
+            hashAlgo == HashAlgorithm.SHA2_256
+        ) {
+            if (key != null) {
+                throw IllegalArgumentException("Key must be null")
+            }
+            if (customizer != null) {
+                throw IllegalArgumentException("Customizer must be null")
+            }
+            if (outputSize != (hashAlgo.outputSize / 8)) {
+                throw IllegalArgumentException("Output size must be 32 bytes")
+            }
+        } else {
+            throw IllegalArgumentException("Unsupported hash algorithm: ${hashAlgo.algorithm}")
+        }
+    }
+
+    override fun hash(bytes: ByteArray): ByteArray {
+        return when (hashAlgo) {
+            HashAlgorithm.KECCAK256 -> {
+                val keccakDigest = Keccak.Digest256()
+                keccakDigest.digest(bytes)
+            }
+            HashAlgorithm.KMAC128 -> {
+                val output = ByteArray(outputSize)
+                kmac!!.update(bytes, 0, bytes.size)
+                kmac!!.doFinal(output, 0, outputSize)
+                output
+            }
+            else -> {
+                val digest = MessageDigest.getInstance(hashAlgo.algorithm)
+                digest.digest(bytes)
+            }
+        }
+    }
+
+    fun update(bytes: ByteArray, off: Int, len: Int) {
+        kmac?.update(bytes, off, len)
+    }
+
+    fun doFinal(outputSize: Int): ByteArray {
+        val output = ByteArray(outputSize)
+        kmac?.doFinal(output, 0, outputSize)
+        return output
+    }
+}
+
+internal class SignerImpl(
+    private val privateKey: PrivateKey,
+    private val hashAlgo: HashAlgorithm,
+    override val hasher: Hasher = HasherImpl(hashAlgo)
+) : Signer {
+    override fun sign(bytes: ByteArray): ByteArray {
+        val signature: ByteArray
+
+        val ecdsaSign: Signature = when (hashAlgo) {
+            HashAlgorithm.KECCAK256, HashAlgorithm.SHA2_256, HashAlgorithm.SHA3_256 -> {
+                Signature.getInstance("NONEwithECDSA")
+            }
+            else -> throw IllegalArgumentException("Unsupported hash algorithm: ${hashAlgo.algorithm}")
+        }
+        val hash = hasher.hash(bytes)
+        ecdsaSign.initSign(privateKey.key)
+        ecdsaSign.update(hash)
+        signature = ecdsaSign.sign()
+
+        if (privateKey.ecCoupleComponentSize <= 0) {
+            return signature
+        }
+
+        return Crypto.normalizeSignature(signature, privateKey.ecCoupleComponentSize)
+    }
+}
