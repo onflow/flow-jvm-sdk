@@ -162,22 +162,37 @@ internal class HasherImpl(
     private val hashAlgo: HashAlgorithm,
     private val key: ByteArray? = null,
     private val customizer: ByteArray? = null,
-    private val outputSize: Int = 32
+    private val outputSize: Int = 0
 ) : Hasher {
     private var kmac: KMAC? = null
 
     init {
-        if (outputSize < 32) {
-            throw IllegalArgumentException("Output size must be at least 256 bits (32 bytes)")
-        }
-
         if (hashAlgo == HashAlgorithm.KMAC128) {
+            if (outputSize < 32) {
+                throw IllegalArgumentException("KMAC128 output size must be at least 32 bytes")
+            }
+
             if (key == null || key.size < 16) {
                 throw IllegalArgumentException("KMAC128 requires a key of at least 16 bytes")
             }
             kmac = KMAC(128, customizer)
             kmac!!.init(KeyParameter(key))
+        } else if (hashAlgo == HashAlgorithm.KECCAK256 ||
+            hashAlgo == HashAlgorithm.SHA3_256 ||
+            hashAlgo == HashAlgorithm.SHA2_256) {
+            if (key != null) {
+                throw IllegalArgumentException("Key must be null")
+            }
+            if (customizer != null) {
+                throw IllegalArgumentException("Customizer must be null")
+            }
+            if (outputSize != 32) {
+                throw IllegalArgumentException("Output size must be 32 bytes")
+            }
+        } else {
+            throw IllegalArgumentException("Unsupported hash algorithm: ${hashAlgo.algorithm}")
         }
+
     }
 
     override fun hash(bytes: ByteArray): ByteArray {
