@@ -7,13 +7,22 @@ import org.onflow.flow.sdk.cadence.UFix64NumberField
 import org.onflow.flow.sdk.crypto.Crypto
 import java.math.BigDecimal
 
-internal class AccessAPIConnector(host: String, port: Int, privateKeyHex: String) {
-    private val accessAPI = Flow.newAccessApi(host, port)
+internal class AccessAPIConnector(privateKeyHex: String, accessApiConnection: FlowAccessApi) {
+    private val accessAPI = accessApiConnection
     private val privateKey = Crypto.decodePrivateKey(privateKeyHex)
 
-    private val latestBlockID: FlowId get() = accessAPI.getLatestBlockHeader().id
+    private val latestBlockID: FlowId
+        get() = when (val response = accessAPI.getLatestBlockHeader()) {
+            is FlowAccessApi.AccessApiCallResponse.Success -> response.data.id
+            is FlowAccessApi.AccessApiCallResponse.Error -> throw Exception(response.message, response.throwable)
+        }
 
-    private fun getAccount(address: FlowAddress): FlowAccount = accessAPI.getAccountAtLatestBlock(address)!!
+    private fun getAccount(address: FlowAddress): FlowAccount {
+        return when (val response = accessAPI.getAccountAtLatestBlock(address)) {
+            is FlowAccessApi.AccessApiCallResponse.Success -> response.data
+            is FlowAccessApi.AccessApiCallResponse.Error -> throw Exception(response.message, response.throwable)
+        }
+    }
 
     fun getAccountBalance(address: FlowAddress): BigDecimal {
         val account = getAccount(address)
@@ -26,17 +35,20 @@ internal class AccessAPIConnector(host: String, port: Int, privateKeyHex: String
     }
 
     private fun getTransactionResult(txID: FlowId): FlowTransactionResult {
-        val txResult = accessAPI.getTransactionResultById(txID)!!
-        if (txResult.errorMessage.isNotEmpty()) {
-            throw Exception(txResult.errorMessage)
+        return when (val response = accessAPI.getTransactionResultById(txID)) {
+            is FlowAccessApi.AccessApiCallResponse.Success -> {
+                if (response.data.errorMessage.isNotEmpty()) {
+                    throw Exception(response.data.errorMessage)
+                }
+                response.data
+            }
+            is FlowAccessApi.AccessApiCallResponse.Error -> throw Exception(response.message, response.throwable)
         }
-        return txResult
     }
 
     private fun waitForSeal(txID: FlowId): FlowTransactionResult {
-        var txResult: FlowTransactionResult
         while (true) {
-            txResult = getTransactionResult(txID)
+            val txResult = getTransactionResult(txID)
             if (txResult.status == FlowTransactionStatus.SEALED) {
                 return txResult
             }
@@ -58,10 +70,8 @@ internal class AccessAPIConnector(host: String, port: Int, privateKeyHex: String
     private fun loadScript(name: String): ByteArray = javaClass.classLoader.getResourceAsStream(name)!!.use { it.readAllBytes() }
 
     fun createAccount(payerAddress: FlowAddress, publicKeyHex: String): FlowAddress {
-        // find payer account
         val payerAccountKey = getAccountKey(payerAddress, 0)
 
-        // create a public key for the new account
         val newAccountPublicKey = FlowAccountKey(
             publicKey = FlowPublicKey(publicKeyHex),
             signAlgo = SignatureAlgorithm.ECDSA_P256,
@@ -69,9 +79,8 @@ internal class AccessAPIConnector(host: String, port: Int, privateKeyHex: String
             weight = 1000
         )
 
-        // create transaction
         var tx = FlowTransaction(
-            script = FlowScript(loadScript("create_account.cdc")),
+            script = FlowScript(loadScript("cadence/create_account.cdc")),
             arguments = listOf(
                 FlowArgument(StringField(newAccountPublicKey.encoded.bytesToHex()))
             ),
@@ -83,19 +92,17 @@ internal class AccessAPIConnector(host: String, port: Int, privateKeyHex: String
                 sequenceNumber = payerAccountKey.sequenceNumber.toLong()
             ),
             payerAddress = payerAddress,
-            authorizers = listOf(
-                payerAddress
-            )
+            authorizers = listOf(payerAddress)
         )
 
-        // sign the transaction
         val signer = Crypto.getSigner(privateKey, payerAccountKey.hashAlgo)
         tx = tx.addEnvelopeSignature(payerAddress, payerAccountKey.id, signer)
 
-        // send the transaction
-        val txID = accessAPI.sendTransaction(tx)
+        val txID = when (val response = accessAPI.sendTransaction(tx)) {
+            is FlowAccessApi.AccessApiCallResponse.Success -> response.data
+            is FlowAccessApi.AccessApiCallResponse.Error -> throw Exception(response.message, response.throwable)
+        }
 
-        // wait for transaction to be sealed
         val txResult = waitForSeal(txID)
         return getAccountCreatedAddress(txResult)
     }
@@ -106,9 +113,8 @@ internal class AccessAPIConnector(host: String, port: Int, privateKeyHex: String
         }
         val senderAccountKey = getAccountKey(senderAddress, 0)
 
-        // create transaction
         var tx = FlowTransaction(
-            script = FlowScript(loadScript("transfer_flow.cdc")),
+            script = FlowScript(loadScript("cadence/transfer_flow.cdc")),
             arguments = listOf(
                 FlowArgument(UFix64NumberField(amount.toPlainString())),
                 FlowArgument(AddressField(recipientAddress.base16Value))
@@ -121,19 +127,17 @@ internal class AccessAPIConnector(host: String, port: Int, privateKeyHex: String
                 sequenceNumber = senderAccountKey.sequenceNumber.toLong()
             ),
             payerAddress = senderAddress,
-            authorizers = listOf(
-                senderAddress
-            )
+            authorizers = listOf(senderAddress)
         )
 
-        // sign the transaction
         val signer = Crypto.getSigner(privateKey, senderAccountKey.hashAlgo)
         tx = tx.addEnvelopeSignature(senderAddress, senderAccountKey.id, signer)
 
-        // send the transaction
-        val txID = accessAPI.sendTransaction(tx)
+        val txID = when (val response = accessAPI.sendTransaction(tx)) {
+            is FlowAccessApi.AccessApiCallResponse.Success -> response.data
+            is FlowAccessApi.AccessApiCallResponse.Error -> throw Exception(response.message, response.throwable)
+        }
 
-        // wait for transaction to be sealed
         waitForSeal(txID)
     }
 }
