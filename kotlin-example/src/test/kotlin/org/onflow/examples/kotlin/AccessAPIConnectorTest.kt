@@ -9,8 +9,6 @@ import org.onflow.flow.sdk.crypto.Crypto
 import org.onflow.flow.sdk.test.*
 import java.math.BigDecimal
 
-val testRecipientAddress: FlowAddress = FlowAddress("01cf0e2f2f715450")
-
 @FlowEmulatorTest
 internal class AccessAPIConnectorTest {
     private var userPrivateKeyHex: String = ""

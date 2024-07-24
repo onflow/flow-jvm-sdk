@@ -7,7 +7,6 @@ import org.onflow.flow.sdk.crypto.KeyPair
 import org.onflow.flow.sdk.impl.AsyncFlowAccessApiImpl
 import org.onflow.flow.sdk.impl.FlowAccessApiImpl
 import org.apiguardian.api.API
-import org.junit.jupiter.api.extension.AfterEachCallback
 import org.junit.jupiter.api.extension.BeforeEachCallback
 import org.junit.jupiter.api.extension.ExtensionContext
 import org.junit.jupiter.api.extension.TestExecutionExceptionHandler
@@ -136,7 +135,7 @@ data class Emulator(
     val serviceAccount: TestAccount
 )
 
-abstract class AbstractFlowEmulatorExtension : BeforeEachCallback, AfterEachCallback, TestExecutionExceptionHandler {
+abstract class AbstractFlowEmulatorExtension : BeforeEachCallback, TestExecutionExceptionHandler {
     private var process: Process? = null
     private var pidFile: File? = null
     private var accessApi: FlowAccessApiImpl? = null
@@ -150,10 +149,10 @@ abstract class AbstractFlowEmulatorExtension : BeforeEachCallback, AfterEachCall
                 + context.testInstance.map { setOf(it) }.orElseGet { emptySet() }
         )
 
-        tests.map { it to it.javaClass.fields }
+        tests.map { it to it.javaClass.declaredFields }
             .flatMap { it.second.map { f -> it.first to f } }
             .filter { it.second.isAnnotationPresent(clazz) }
-            .map { block(it.first, it.second, it.second.getAnnotation(clazz)) }
+            .forEach { block(it.first, it.second, it.second.getAnnotation(clazz)) }
     }
 
     override fun beforeEach(context: ExtensionContext) {
@@ -178,40 +177,30 @@ abstract class AbstractFlowEmulatorExtension : BeforeEachCallback, AfterEachCall
         ) as AsyncFlowAccessApiImpl
 
         withAnnotatedTestFields(context, FlowTestClient::class.java) { instance, field, _ ->
+            field.isAccessible = true
             when (field.type) {
-                FlowAccessApi::class.java -> {
-                    field.isAccessible = true
-                    field.set(instance, this.accessApi!!)
-                }
-                AsyncFlowAccessApi::class.java -> {
-                    field.isAccessible = true
-                    field.set(instance, asyncAccessApi)
-                }
-                else -> throw IllegalArgumentException(
-                    "field $field is not of type FlowAccessApi or AsyncFlowAccessAPi"
-                )
+                FlowAccessApi::class.java -> field.set(instance, this.accessApi!!)
+                AsyncFlowAccessApi::class.java -> field.set(instance, asyncAccessApi)
+                else -> throw IllegalArgumentException("field $field is not of type FlowAccessApi or AsyncFlowAccessApi")
             }
         }
 
         withAnnotatedTestFields(context, FlowServiceAccountCredentials::class.java) { instance, field, _ ->
+            field.isAccessible = true
             if (field.type != TestAccount::class.java) {
                 throw IllegalArgumentException("field $field is not of type TestAccount")
             } else if (!emulator.serviceAccount.isValid) {
-                throw IllegalArgumentException(
-                    "FLOW Service account configuration is not valid"
-                )
+                throw IllegalArgumentException("FLOW Service account configuration is not valid")
             }
-            field.isAccessible = true
             field.set(instance, emulator.serviceAccount)
         }
 
         withAnnotatedTestFields(context, FlowTestAccount::class.java) { instance, field, annotation ->
+            field.isAccessible = true
             if (field.type != TestAccount::class.java) {
                 throw IllegalArgumentException("field $field is not of type TestAccount")
             } else if (!emulator.serviceAccount.isValid) {
-                throw IllegalArgumentException(
-                    "FLOW Service account configuration is not valid, cannot create a FlowTestAccount"
-                )
+                throw IllegalArgumentException("FLOW Service account configuration is not valid, cannot create a FlowTestAccount")
             }
 
             val keyPair = if (annotation.privateKey.isEmpty() && annotation.publicKey.isEmpty()) {
@@ -247,7 +236,6 @@ abstract class AbstractFlowEmulatorExtension : BeforeEachCallback, AfterEachCall
                 balance = BigDecimal(annotation.balance)
             )
 
-            field.isAccessible = true
             field.set(instance, testAccount)
 
             // deploy contracts
@@ -285,12 +273,8 @@ abstract class AbstractFlowEmulatorExtension : BeforeEachCallback, AfterEachCall
             }
         }
 
-        Runtime.getRuntime().addShutdownHook(
-            Thread(this::shutdownEmulator)
-        )
+        Runtime.getRuntime().addShutdownHook(Thread(this::shutdownEmulator))
     }
-
-    override fun afterEach(context: ExtensionContext) = shutdownEmulator()
 
     override fun handleTestExecutionException(context: ExtensionContext, throwable: Throwable) {
         try {

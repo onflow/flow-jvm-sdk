@@ -13,8 +13,6 @@ fun getProp(name: String, defaultValue: String? = null): String? {
         ?: defaultValue
 }
 
-val FLOW_JVM_SDK_VERSION = "1.0.1"
-
 tasks.withType<JavaCompile> {
     sourceCompatibility = JavaVersion.VERSION_21.toString()
     targetCompatibility = JavaVersion.VERSION_21.toString()
