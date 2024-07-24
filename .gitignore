@@ -1,4 +1,5 @@
 build
 .gradle
 .idea
-gradle.properties
+sdk/gradle.properties
+flowdb
