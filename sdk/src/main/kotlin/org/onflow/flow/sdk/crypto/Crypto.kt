@@ -38,9 +38,30 @@ data class PrivateKey(
 data class PublicKey(
     val key: java.security.PublicKey,
     val hex: String
+) {
+    fun verify(signature: ByteArray, message: ByteArray, hashAlgo: HashAlgorithm): Boolean {
+        // TODO: convert input signature to ASN1 format
+        val ecdsaSign: Signature = when (hashAlgo) {
+            // only allow hashes of 256 bits to match the supported curves (order of 256 bits),
+            // although higher hashes could be used in theory
+            HashAlgorithm.KECCAK256, HashAlgorithm.SHA2_256, HashAlgorithm.SHA3_256 -> {
+                Signature.getInstance("NONEwithECDSA", "BC")
+            }
+            else -> throw IllegalArgumentException("Unsupported hash algorithm: ${hashAlgo.algorithm}")
+        }
 
-    // TODO: add signature verification function
-)
+        val ecPK = if (key is ECPublicKey) {
+            key
+        } else {
+            throw IllegalArgumentException("key in PublicKey must be an ECPublicKey")
+        }
+        val hasher = HasherImpl(hashAlgo)
+        val hash = hasher.hash(message)
+        ecdsaSign.initVerify(ecPK)
+        ecdsaSign.update(hash)
+        return ecdsaSign.verify(signature)
+    }
+}
 
 object Crypto {
     init {
@@ -209,6 +230,7 @@ object Crypto {
         val lengthR = signature[startR + 1].toInt()
         val startS = startR + 2 + lengthR
         val lengthS = signature[startS + 1].toInt()
+        println("${signature.size}, ${startR}, ${lengthR}, ${startS}, ${lengthS}")
         return Pair(
             BigInteger(signature.copyOfRange(startR + 2, startR + 2 + lengthR)),
             BigInteger(signature.copyOfRange(startS + 2, startS + 2 + lengthS))

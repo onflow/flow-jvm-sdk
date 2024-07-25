@@ -94,16 +94,6 @@ internal class SignTest {
         }
     }
 
-
-    @Test
-    fun `Get signer`() {
-        curves.forEachIndexed { _, curve ->
-            val keyPair = Crypto.generateKeyPair(curve)
-            val signer = Crypto.getSigner(keyPair.private)
-            assertNotNull(signer)
-        }
-    }
-
     @Test
     fun `Test signer compatibility with hash algorithms`() {
         val supportedHashes = listOf(
@@ -120,17 +110,38 @@ internal class SignTest {
         curves.forEachIndexed { _, curve ->
             supportedHashes.forEachIndexed { _, hashAlgo ->
                 val keyPair = Crypto.generateKeyPair(curve)
-                val signer = SignerImpl(keyPair.private, hashAlgo)
+                val signer = Crypto.getSigner(keyPair.private, hashAlgo)
                 val signature = signer.sign("test".toByteArray())
                 assertNotNull(signature)
             }
             nonSupportedHashes.forEachIndexed { _, hashAlgo ->
                 val keyPair = Crypto.generateKeyPair(curve)
-                val signer = SignerImpl(keyPair.private, hashAlgo)
+                val signer = Crypto.getSigner(keyPair.private, hashAlgo)
                 val exception = assertThrows(IllegalArgumentException::class.java) {
                     signer.sign("test".toByteArray())
                 }
                 assertEquals(exception.message, "Unsupported hash algorithm: ${hashAlgo.algorithm}")
+            }
+        }
+    }
+
+    @Test
+    fun `Test signer correctness`() {
+        val supportedHashes = listOf(
+            HashAlgorithm.SHA2_256,
+            HashAlgorithm.SHA3_256,
+            HashAlgorithm.KECCAK256
+        )
+        val message = "test message".toByteArray()
+
+        curves.forEachIndexed { _, curve ->
+            supportedHashes.forEachIndexed { _, hashAlgo ->
+                // signatures must be valid
+                val keyPair = Crypto.generateKeyPair(curve)
+                val signer = Crypto.getSigner(keyPair.private, hashAlgo)
+                val signature = signer.sign(message)
+                val valid = keyPair.public.verify(signature, message, hashAlgo)
+                assertTrue(valid)
             }
         }
     }
