@@ -3,3 +3,4 @@ build
 .idea
 sdk/gradle.properties
 flowdb
+.DS_Store
