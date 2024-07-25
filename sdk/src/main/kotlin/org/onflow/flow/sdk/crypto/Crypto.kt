@@ -19,6 +19,7 @@ import org.bouncycastle.jce.spec.ECPublicKeySpec
 import org.onflow.flow.sdk.*
 import java.security.spec.ECGenParameterSpec
 import org.onflow.flow.sdk.Signer
+import org.onflow.flow.sdk.crypto.Crypto.checkSupportedAlgo
 import java.math.BigInteger
 import java.security.*
 import kotlin.experimental.and
@@ -34,17 +35,26 @@ data class KeyPair(
 )
 
 data class PrivateKey(
+    // only ECDSA is currently supported so PrivateKey could just contain
+    // `bigInteger` D and the `ECDomainParameters` curve domain. However it's better
+    // to keep PrivateKey generic in case more algos are added beyond ECDSA
     val key: java.security.PrivateKey,
+    val algo: SignatureAlgorithm,
     val hex: String,
     val publicKey: PublicKey
 )
 
 data class PublicKey(
+    // only ECDSA is currently supported so PrivateKey could just contain
+    // `ECPoint` Q and the `ECDomainParameters` curve domain. However it's better
+    // to keep PrivateKey generic in case more algos are added beyond ECDSA
     val key: java.security.PublicKey,
+    val algo: SignatureAlgorithm,
     val hex: String
 ) {
     fun verify(signature: ByteArray, message: ByteArray, hashAlgo: HashAlgorithm): Boolean {
-        // TODO: add check for pub key algo
+        checkSupportedAlgo(algo)
+
         // check the input key if of the correct type
         val ecPK = if (key is ECPublicKey) {
             key
@@ -56,7 +66,7 @@ data class PublicKey(
 
         // verify the hash
         val ecdsaObject = ECDSASigner()
-        val domain = ECDomainParameters(ecPK.parameters.curve, ecPK.parameters.g, ecPK.parameters.n, ecPK.parameters.h)
+        val domain = Crypto.ECDomainFromECSpec(ecPK.parameters)
         val cipherParams = ECPublicKeyParameters(ecPK.q, domain)
         ecdsaObject.init(false, cipherParams)
         val curveOrderSize = Crypto.getCurveOrderSize(domain)
@@ -75,9 +85,17 @@ object Crypto {
     }
 
     @JvmStatic
+    fun checkSupportedAlgo(algo: SignatureAlgorithm) {
+        // only ECDSA with 2 curves are currently supported
+        if (algo !in listOf(SignatureAlgorithm.ECDSA_SECP256k1, SignatureAlgorithm.ECDSA_P256)) {
+            throw IllegalArgumentException("algorithm ${algo} is not supported")
+        }
+    }
+
+    @JvmStatic
     @JvmOverloads
-    // TODO: remove default `SignatureAlgorithm.ECDSA_P256` and add algo check
     fun generateKeyPair(algo: SignatureAlgorithm = SignatureAlgorithm.ECDSA_P256): KeyPair {
+        checkSupportedAlgo(algo)
         val generator = KeyPairGenerator.getInstance("EC", "BC")
         generator.initialize(ECGenParameterSpec(algo.curve), SecureRandom())
         val keyPair = generator.generateKeyPair()
@@ -86,10 +104,12 @@ object Crypto {
 
         val publicKey = PublicKey(
             key = pk,
+            algo = algo,
             hex = jsecPublicKeyToHexString(pk)
         )
         val privateKey = PrivateKey(
             key = sk,
+            algo = algo,
             publicKey = publicKey,
             hex = jsecPrivateKeyToHexString(sk)
         )
@@ -101,10 +121,12 @@ object Crypto {
 
     @JvmStatic
     @JvmOverloads
-    // TODO: remove default `SignatureAlgorithm.ECDSA_P256` and add algo check
     fun decodePrivateKey(key: String, algo: SignatureAlgorithm = SignatureAlgorithm.ECDSA_P256): PrivateKey {
-        // TODO: why not ECGenParameterSpec(algo.curve)?
+        checkSupportedAlgo(algo)
+
         val curveSpec = ECNamedCurveTable.getParameterSpec(algo.curve)
+        // TODO: check for hex key
+        // TODO: check string length
         // TODO: missing check of the integer against the curve order
         val ecPrivateKeySpec = ECPrivateKeySpec(BigInteger(key, 16), curveSpec)
         val keyFactory = KeyFactory.getInstance(algo.algorithm, "BC")
@@ -112,13 +134,14 @@ object Crypto {
         val pk = derivePublicKey(sk)
         var publicKey = PublicKey(
             key = pk,
+            algo = algo,
             hex = jsecPublicKeyToHexString(pk)
         )
 
         return PrivateKey(
             key = sk,
+            algo = algo,
             publicKey = publicKey,
-            // TODO: why this test
             hex = if (sk is ECPrivateKey) {
                 // TODO: padding
                 sk.d.toByteArray().bytesToHex()
@@ -131,30 +154,36 @@ object Crypto {
 
     @JvmStatic
     @JvmOverloads
-    // TODO: remove default `SignatureAlgorithm.ECDSA_P256` and add algo check
     fun decodePublicKey(key: String, algo: SignatureAlgorithm = SignatureAlgorithm.ECDSA_P256): PublicKey {
-        // TODO: why not ECGenParameterSpec(algo.curve)?
+        checkSupportedAlgo(algo)
+        // TODO: check for hex key
+        // TODO: check string length
         val ecParameterSpec = ECNamedCurveTable.getParameterSpec(algo.curve)
         // TODO: check if that's necessary
         val params = ECNamedCurveSpec(
             algo.curve,
-            ecParameterSpec.curve, ecParameterSpec.g, ecParameterSpec.n
+            ecParameterSpec.curve,
+            ecParameterSpec.g,
+            ecParameterSpec.n
         )
-        val pointBytes = ECPointUtil.decodePoint(params.curve, byteArrayOf(0x04) + key.hexToBytes())
-        val point = java.security.spec.ECPublicKeySpec(pointBytes, params)
+
+        val point = ECPointUtil.decodePoint(params.curve, byteArrayOf(0x04) + key.hexToBytes())
+        val keySpec = java.security.spec.ECPublicKeySpec(point, params)
         val keyFactory = KeyFactory.getInstance("EC", "BC")
-        val publicKey = keyFactory.generatePublic(point)
+        val publicKey = keyFactory.generatePublic(keySpec)
         return PublicKey(
             key = publicKey,
+            algo = algo,
             hex = key
         )
+
     }
 
     @JvmStatic
     @JvmOverloads
     fun getSigner(privateKey: PrivateKey, hashAlgo: HashAlgorithm = HashAlgorithm.SHA3_256): Signer {
-        // TODO: missing validation of the Private key algo
-        // input hash algo is validates in `SignerImpl`
+        checkSupportedAlgo(privateKey.algo)
+        // input hash algo is validated in `SignerImpl`
         return SignerImpl(privateKey, hashAlgo)
     }
 
@@ -162,6 +191,12 @@ object Crypto {
     @JvmOverloads
     fun getHasher(hashAlgo: HashAlgorithm = HashAlgorithm.SHA3_256): Hasher {
         return HasherImpl(hashAlgo)
+    }
+
+    @JvmStatic
+    fun ECDomainFromECSpec(spec: ECParameterSpec): ECDomainParameters {
+        val domain = ECDomainParameters(spec.curve, spec.g, spec.n, spec.h)
+        return domain
     }
 
     @JvmStatic
@@ -186,6 +221,7 @@ object Crypto {
         return hexString
     }
 
+    // only supported for ECDSA - calling code should make sure this is the case
     @JvmStatic
     fun derivePublicKey(sk: java.security.PrivateKey): java.security.PublicKey{
         val ecSK = if (sk is ECPrivateKey) {
@@ -195,9 +231,9 @@ object Crypto {
         }
         // compute the point
         val curveParams = ecSK.parameters
-        val BCPoint = curveParams.curve.multiplier.multiply(curveParams.g, ecSK.d)
+        val bcPoint = curveParams.curve.multiplier.multiply(curveParams.g, ecSK.d)
         // convert to ECPublicKey
-        var ECPointParams = ECPublicKeySpec(BCPoint, curveParams)
+        var ECPointParams = ECPublicKeySpec(bcPoint, curveParams)
         val keyFactory = KeyFactory.getInstance("EC", "BC")
         val publicKey = keyFactory.generatePublic(ECPointParams)
         return publicKey
@@ -311,7 +347,7 @@ internal class SignerImpl(
 ) : Signer {
 
     override fun sign(bytes: ByteArray): ByteArray {
-        // TODO: add check for private key algo
+        checkSupportedAlgo(privateKey.algo)
 
         // check the private key is of the correct type
         val ecSK = if (privateKey.key is ECPrivateKey) {
@@ -325,7 +361,7 @@ internal class SignerImpl(
 
         // verify the hash
         val ecdsaObject = ECDSASigner()
-        val domain = ECDomainParameters(ecSK.parameters.curve, ecSK.parameters.g, ecSK.parameters.n, ecSK.parameters.h)
+        val domain = Crypto.ECDomainFromECSpec(ecSK.parameters)
         val cipherParams = ECPrivateKeyParameters(ecSK.d, domain)
         ecdsaObject.init(true, cipherParams)
         val RS = ecdsaObject.generateSignature(hash)

@@ -148,6 +148,7 @@ internal class SignTest {
                     assertTrue(valid)
                     // TODO: signatures against a different message must fail
                     // TODO: signatures against a different key must fail
+                    // TODO: getSigner call with invalid algo
                 }
             }
         }
