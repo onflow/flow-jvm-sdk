@@ -1,0 +1,1 @@
+transaction { execute { log("Hello, World!") } }

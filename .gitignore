@@ -1,4 +1,6 @@
 build
 .gradle
 .idea
-gradle.properties
+sdk/gradle.properties
+flowdb
+.DS_Store
