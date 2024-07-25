@@ -7,55 +7,71 @@ import org.onflow.flow.sdk.SignatureAlgorithm
 import org.onflow.flow.sdk.bytesToHex
 import kotlin.random.Random
 
+internal data class SupportedCurve (
+    val curve: SignatureAlgorithm,
+    val privateKeySize: Int,
+    val publicKeySize: Int
+)
 
 internal class SignTest {
     // all supported curves of the lib
-    val curves = listOf(
-        SignatureAlgorithm.ECDSA_SECP256k1,
-        SignatureAlgorithm.ECDSA_P256,
+    val supportedAlgos = listOf(
+        SupportedCurve(SignatureAlgorithm.ECDSA_SECP256k1, 32, 64),
+        SupportedCurve(SignatureAlgorithm.ECDSA_P256,32, 64)
     )
+    val loopCount = 100
 
     @Test
     fun `Test KeyPair generation`() {
-        curves.forEachIndexed { _, curve ->
-            // sanity check of matching public keys
-            val keyPair1 = Crypto.generateKeyPair(curve)
-            assertNotNull(keyPair1.private)
-            assertNotNull(keyPair1.public)
-            assertEquals(keyPair1.private.publicKey, keyPair1.public)
+        supportedAlgos.forEachIndexed { _, algo ->
+            for (i in 0..loopCount) {
+                // sanity check of matching public keys
+                val keyPair1 = Crypto.generateKeyPair(algo.curve)
+                assertNotNull(keyPair1.private)
+                assertNotNull(keyPair1.public)
+                assertEquals(keyPair1.private.publicKey, keyPair1.public)
+                assertEquals(keyPair1.private.hex.length, algo.privateKeySize * 2)
+                assertEquals(keyPair1.public.hex.length, algo.publicKeySize * 2)
 
-            // sanity check of internal randomization
-            val keyPair2 = Crypto.generateKeyPair(curve)
-            assertNotEquals(keyPair1.private, keyPair2.private)
-            assertNotEquals(keyPair1.public, keyPair2.public)
+                // sanity check of internal randomization
+                val keyPair2 = Crypto.generateKeyPair(algo.curve)
+                assertNotEquals(keyPair1.private, keyPair2.private)
+                assertNotEquals(keyPair1.public, keyPair2.public)
+            }
         }
     }
 
 
     @Test
     fun `Can decode keys correctly`() {
-        curves.forEachIndexed { _, curve ->
-            // generate key bytes
-            val keyPair = Crypto.generateKeyPair(curve)
-            val skBytes = keyPair.private.hex
-            val pkBytes = keyPair.public.hex
+        supportedAlgos.forEachIndexed { _, algo ->
+            for (i in 0..loopCount) {
+                // generate key bytes
+                val keyPair = Crypto.generateKeyPair(algo.curve)
+                val skHex = keyPair.private.hex
+                val pkHex = keyPair.public.hex
+                assertEquals(skHex.length, algo.privateKeySize * 2)
+                assertEquals(pkHex.length, algo.publicKeySize * 2)
 
-            // decode private key into the original one
-            val decodedPrivateKey = Crypto.decodePrivateKey(skBytes, curve)
-            assertEquals(keyPair.private, decodedPrivateKey)
-            assertEquals(keyPair.public, decodedPrivateKey.publicKey)
+                // decode private key into the original one
+                val decodedPrivateKey = Crypto.decodePrivateKey(skHex, algo.curve)
+                assertEquals(keyPair.private, decodedPrivateKey)
+                assertEquals(keyPair.public, decodedPrivateKey.publicKey)
+                assertEquals(decodedPrivateKey.hex.length, algo.privateKeySize * 2)
 
-            // decode public key into the original one
-            val decodedPublicKey = Crypto.decodePublicKey(pkBytes, curve)
-            assertEquals(keyPair.public, decodedPublicKey)
+                // decode public key into the original one
+                val decodedPublicKey = Crypto.decodePublicKey(pkHex, algo.curve)
+                assertEquals(keyPair.public, decodedPublicKey)
+                assertEquals(decodedPublicKey.hex.length, algo.publicKeySize * 2)
+            }
         }
     }
 
     @Test
     fun `Private key decoding throws exception when invalid`() {
-        curves.forEachIndexed { index, curve ->
+        supportedAlgos.forEachIndexed { index, algo ->
             assertThrows(IllegalArgumentException::class.java) {
-                Crypto.decodePrivateKey("invalidKey", curve)
+                Crypto.decodePrivateKey("invalidKey", algo.curve)
             }
             // TODO: add tests for:
             // - 0 scalar
@@ -66,9 +82,9 @@ internal class SignTest {
 
     @Test
     fun `Public key decoding throws exception when invalid`() {
-        curves.forEachIndexed { index, curve ->
+        supportedAlgos.forEachIndexed { index, algo ->
             assertThrows(IllegalArgumentException::class.java) {
-                Crypto.decodePublicKey("invalidKey", curve)
+                Crypto.decodePublicKey("invalidKey", algo.curve)
             }
             // TODO: add tests for:
             // - X or Y not in Z_p
@@ -86,9 +102,9 @@ internal class SignTest {
             "78a80dfe190a6068be8ddf05644c32d2540402ffc682442f6a9eeb96125d86813789f92cf4afabf719aaba79ecec54b27e33a188f83158f6dd15ecb231b49808"
         )
 
-        curves.forEachIndexed { index, curve ->
+        supportedAlgos.forEachIndexed { index, algo ->
             // decode the private key
-            val sk = Crypto.decodePrivateKey(SK, curve)
+            val sk = Crypto.decodePrivateKey(SK, algo.curve)
             val k = sk.key
             // get the public key using the internal scalar point multiplication
             val pkHex = sk.publicKey.hex
@@ -109,15 +125,15 @@ internal class SignTest {
             //HashAlgorithm.SHA2_384,
             //HashAlgorithm.SHA3_384,
         )
-        curves.forEachIndexed { _, curve ->
+        supportedAlgos.forEachIndexed { _, algo ->
             supportedHashes.forEachIndexed { _, hashAlgo ->
-                val keyPair = Crypto.generateKeyPair(curve)
+                val keyPair = Crypto.generateKeyPair(algo.curve)
                 val signer = Crypto.getSigner(keyPair.private, hashAlgo)
                 val signature = signer.sign("test".toByteArray())
                 assertNotNull(signature)
             }
             nonSupportedHashes.forEachIndexed { _, hashAlgo ->
-                val keyPair = Crypto.generateKeyPair(curve)
+                val keyPair = Crypto.generateKeyPair(algo.curve)
                 val exception = assertThrows(IllegalArgumentException::class.java) {
                     Crypto.getSigner(keyPair.private, hashAlgo)
                 }
@@ -134,11 +150,10 @@ internal class SignTest {
             HashAlgorithm.KECCAK256
         )
 
-        val loopCount = 100
-        curves.forEachIndexed { _, curve ->
+        supportedAlgos.forEachIndexed { _, algo ->
             supportedHashes.forEachIndexed { _, hashAlgo ->
-                val keyPair = Crypto.generateKeyPair(curve)
-                val otherKeyPair = Crypto.generateKeyPair(curve)
+                val keyPair = Crypto.generateKeyPair(algo.curve)
+                val otherKeyPair = Crypto.generateKeyPair(algo.curve)
                 for (i in 0.. loopCount) {
                     val message =  Random.nextBytes(20)
                     // signatures must be valid
