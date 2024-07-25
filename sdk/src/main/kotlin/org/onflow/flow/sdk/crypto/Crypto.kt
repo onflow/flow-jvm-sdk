@@ -2,6 +2,9 @@ package org.onflow.flow.sdk.crypto
 
 import org.bouncycastle.crypto.macs.KMAC
 import org.bouncycastle.crypto.params.KeyParameter
+import org.bouncycastle.crypto.params.ECPrivateKeyParameters
+import org.bouncycastle.crypto.params.ECDomainParameters
+import org.bouncycastle.crypto.params.ECPublicKeyParameters
 import org.bouncycastle.jcajce.provider.digest.Keccak
 import org.bouncycastle.jce.ECNamedCurveTable
 import org.bouncycastle.jce.ECPointUtil
@@ -9,6 +12,7 @@ import org.bouncycastle.jce.interfaces.ECPrivateKey
 import org.bouncycastle.jce.interfaces.ECPublicKey
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org. bouncycastle. jce. spec. ECParameterSpec
+import org.bouncycastle.crypto.signers.ECDSASigner
 import org.bouncycastle.jce.spec.ECNamedCurveSpec
 import org.bouncycastle.jce.spec.ECPrivateKeySpec
 import org.bouncycastle.jce.spec.ECPublicKeySpec
@@ -40,8 +44,15 @@ data class PublicKey(
     val hex: String
 ) {
     fun verify(signature: ByteArray, message: ByteArray, hashAlgo: HashAlgorithm): Boolean {
-        // TODO: convert input signature to ASN1 format
-        val ecdsaSign: Signature = when (hashAlgo) {
+        // TODO: add check for pub key algo
+        // check the input key if of the correct type
+        val ecPK = if (key is ECPublicKey) {
+            key
+        } else {
+            throw IllegalArgumentException("key in PublicKey must be an ECPublicKey")
+        }
+        // check the hash algo and compute the hash
+        when (hashAlgo) {
             // only allow hashes of 256 bits to match the supported curves (order of 256 bits),
             // although higher hashes could be used in theory
             HashAlgorithm.KECCAK256, HashAlgorithm.SHA2_256, HashAlgorithm.SHA3_256 -> {
@@ -49,17 +60,21 @@ data class PublicKey(
             }
             else -> throw IllegalArgumentException("Unsupported hash algorithm: ${hashAlgo.algorithm}")
         }
-
-        val ecPK = if (key is ECPublicKey) {
-            key
-        } else {
-            throw IllegalArgumentException("key in PublicKey must be an ECPublicKey")
-        }
         val hasher = HasherImpl(hashAlgo)
         val hash = hasher.hash(message)
-        ecdsaSign.initVerify(ecPK)
-        ecdsaSign.update(hash)
-        return ecdsaSign.verify(signature)
+
+        // verify the hash
+        val ecdsaObject = ECDSASigner()
+        val domain = ECDomainParameters(ecPK.parameters.curve, ecPK.parameters.g, ecPK.parameters.n)
+        val cipherParams = ECPublicKeyParameters(ecPK.q, domain)
+        ecdsaObject.init(false, cipherParams)
+        val curveOrderSize = Crypto.getCurveOrderSize(domain)
+        if (signature.size != 2 * curveOrderSize) {
+            return false
+        }
+        val r = BigInteger(1, signature.copyOfRange(0, signature.size/2))
+        val s = BigInteger(1, signature.copyOfRange(signature.size/2, signature.size))
+        return ecdsaObject.verifySignature(hash, r, s)
     }
 }
 
@@ -201,40 +216,22 @@ object Crypto {
 
     @JvmStatic
     // curve order size in bytes
-    fun getCurveOrderSize(curve: ECParameterSpec): Int {
+    fun getCurveOrderSize(curve: ECDomainParameters): Int {
         val bitSize = curve.getN().bitLength()
         val byteSize = (bitSize + 7)/8
         return byteSize
     }
 
-    // TODO: merge formatSignature and extractRS by shortcutting the bigInt step
     @JvmStatic
-    fun formatSignature(signature: ByteArray, curveOrderSize: Int): ByteArray {
-        val (r, s) = extractRS(signature)
-
+    fun formatSignature(r: BigInteger, s: BigInteger, curveOrderSize: Int): ByteArray {
         val paddedSignature = ByteArray(2 * curveOrderSize)
-
         val rBytes = r.toByteArray()
         val sBytes = s.toByteArray()
 
         // occasionally R/S bytes representation has leading zeroes, so make sure to copy them appropriately
         rBytes.copyInto(paddedSignature, max(curveOrderSize - rBytes.size, 0), max(0, rBytes.size - curveOrderSize))
         sBytes.copyInto(paddedSignature, max(2 * curveOrderSize - sBytes.size, curveOrderSize), max(0, sBytes.size - curveOrderSize))
-
         return paddedSignature
-    }
-
-    @JvmStatic
-    fun extractRS(signature: ByteArray): Pair<BigInteger, BigInteger> {
-        val startR = if ((signature[1] and 0x80.toByte()) != 0.toByte()) 3 else 2
-        val lengthR = signature[startR + 1].toInt()
-        val startS = startR + 2 + lengthR
-        val lengthS = signature[startS + 1].toInt()
-        println("${signature.size}, ${startR}, ${lengthR}, ${startS}, ${lengthS}")
-        return Pair(
-            BigInteger(signature.copyOfRange(startR + 2, startR + 2 + lengthR)),
-            BigInteger(signature.copyOfRange(startS + 2, startS + 2 + lengthS))
-        )
     }
 }
 
@@ -313,9 +310,16 @@ internal class SignerImpl(
 
     override fun sign(bytes: ByteArray): ByteArray {
         // TODO: add check for private key algo
-        val signature: ByteArray
 
-        val ecdsaSign: Signature = when (hashAlgo) {
+        // check the private key is of the correct type
+        val ecSK = if (privateKey.key is ECPrivateKey) {
+            privateKey.key
+        } else {
+            throw IllegalArgumentException("Private key must be an ECPrivateKey")
+        }
+
+        // check the hash algo and compute the hash
+        when (hashAlgo) {
             // only allow hashes of 256 bits to match the supported curves (order of 256 bits),
             // although higher hashes could be used in theory
             HashAlgorithm.KECCAK256, HashAlgorithm.SHA2_256, HashAlgorithm.SHA3_256 -> {
@@ -323,19 +327,16 @@ internal class SignerImpl(
             }
             else -> throw IllegalArgumentException("Unsupported hash algorithm: ${hashAlgo.algorithm}")
         }
-
-        val ecSK = if (privateKey.key is ECPrivateKey) {
-            privateKey.key
-        } else {
-            throw IllegalArgumentException("Private key must be an ECPrivateKey")
-        }
         val hasher = HasherImpl(hashAlgo)
         val hash = hasher.hash(bytes)
-        ecdsaSign.initSign(ecSK)
-        ecdsaSign.update(hash)
-        signature = ecdsaSign.sign()
 
-        val curveOrderSize = Crypto.getCurveOrderSize(ecSK.parameters)
-        return Crypto.formatSignature(signature, curveOrderSize)
+        // verify the hash
+        val ecdsaObject = ECDSASigner()
+        val domain = ECDomainParameters(ecSK.parameters.curve, ecSK.parameters.g, ecSK.parameters.n)
+        val cipherParams = ECPrivateKeyParameters(ecSK.d, domain)
+        ecdsaObject.init(true, cipherParams)
+        val RS = ecdsaObject.generateSignature(hash)
+        val curveOrderSize = Crypto.getCurveOrderSize(domain)
+        return Crypto.formatSignature(RS[0], RS[1], curveOrderSize)
     }
 }
