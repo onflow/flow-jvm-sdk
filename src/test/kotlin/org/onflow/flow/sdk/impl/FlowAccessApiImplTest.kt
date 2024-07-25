@@ -1,9 +1,12 @@
 package org.onflow.flow.sdk.impl
 
 import com.google.protobuf.ByteString
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.TestCoroutineDispatcher
+import kotlinx.coroutines.test.TestCoroutineScope
+import kotlinx.coroutines.test.runBlockingTest
 import org.onflow.flow.sdk.*
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -25,6 +28,7 @@ import java.io.PrintStream
 import java.math.BigDecimal
 import java.time.LocalDateTime
 
+@ExperimentalCoroutinesApi
 class FlowAccessApiImplTest {
     private lateinit var flowAccessApiImpl: FlowAccessApiImpl
     private lateinit var mockApi: AccessAPIGrpc.AccessAPIBlockingStub
@@ -34,13 +38,14 @@ class FlowAccessApiImplTest {
 
     private val api = mock(AccessAPIGrpc.AccessAPIBlockingStub::class.java)
     private val executionDataApi = mock(ExecutionDataAPIGrpc.ExecutionDataAPIBlockingStub::class.java)
-    private val flowAccessApi = FlowAccessApiImpl(api, executionDataApi)
+    private val testDispatcher = TestCoroutineDispatcher()
+    private val testScope = TestCoroutineScope(testDispatcher)
 
     @BeforeEach
     fun setUp() {
         mockApi = mock(AccessAPIGrpc.AccessAPIBlockingStub::class.java)
         mockExecutionDataApi = mock(ExecutionDataAPIGrpc.ExecutionDataAPIBlockingStub::class.java)
-        flowAccessApiImpl = FlowAccessApiImpl(mockApi, mockExecutionDataApi)
+        flowAccessApiImpl = FlowAccessApiImpl(mockApi, mockExecutionDataApi, testScope)
         outputStreamCaptor = ByteArrayOutputStream()
         originalOut = System.out
         System.setOut(PrintStream(outputStreamCaptor))
@@ -412,7 +417,7 @@ class FlowAccessApiImplTest {
     }
 
     @Test
-    fun `Test subscribeExecutionDataByBlockHeight success case`(): Unit = runBlocking {
+    fun `Test subscribeExecutionDataByBlockHeight success case`() = testScope.runBlockingTest {
         val blockHeight = 100L
         val expectedExecutionDataProto = BlockExecutionDataOuterClass.BlockExecutionData.getDefaultInstance()
         val expectedExecutionData = FlowBlockExecutionData.of(expectedExecutionDataProto)
@@ -443,25 +448,38 @@ class FlowAccessApiImplTest {
     }
 
     @Test
-    fun `Test subscribeExecutionDataByBlockHeight error case`() = runBlocking {
+    fun `Test subscribeExecutionDataByBlockHeight error case`() = testScope.runBlockingTest {
         val blockHeight = 100L
         val exception = RuntimeException("Test exception")
 
-        `when`(mockExecutionDataApi.subscribeExecutionDataFromStartBlockHeight(any())).thenThrow(exception)
+        `when`(mockExecutionDataApi.subscribeExecutionDataFromStartBlockHeight(any()))
+            .thenAnswer { throw exception }
 
         when (val result = flowAccessApiImpl.subscribeExecutionDataByBlockHeight(blockHeight)) {
             is FlowAccessApi.AccessApiCallResponse.Success -> {
-                fail("Expected error but got success")
+                val (_, errorChannel) = result.data
+
+                // Check for errors in the errorChannel
+                var receivedException: Throwable? = null
+                val job = launch {
+                    receivedException = errorChannel.receiveCatching().getOrNull()
+                }
+                job.join()
+
+                if (receivedException != null) {
+                    assertEquals(exception.message, receivedException!!.message)
+                } else {
+                    fail("Expected error but got success")
+                }
             }
             is FlowAccessApi.AccessApiCallResponse.Error -> {
-                assertEquals("Failed to subscribe execution data by block height", result.message)
-                assertEquals(exception, result.throwable)
+                fail("Expected success but got error: ${result.message}")
             }
         }
     }
 
     @Test
-    fun `Test subscribeEventsByBlockId success case`(): Unit = runBlocking {
+    fun `Test subscribeEventsByBlockId success case`() = testScope.runBlockingTest {
         val blockId = FlowId("01")
         val expectedEventsProto = EventOuterClass.Event.getDefaultInstance()
         val expectedEvents = listOf(FlowEvent.of(expectedEventsProto))
@@ -492,7 +510,7 @@ class FlowAccessApiImplTest {
     }
 
     @Test
-    fun `Test subscribeEventsByBlockId error case`() = runBlocking {
+    fun `Test subscribeEventsByBlockId error case`() = testScope.runBlockingTest {
         val blockId = FlowId("01")
         val exception = RuntimeException("Test exception")
 
@@ -500,7 +518,20 @@ class FlowAccessApiImplTest {
 
         when (val result = flowAccessApiImpl.subscribeEventsByBlockId(blockId)) {
             is FlowAccessApi.AccessApiCallResponse.Success -> {
-                fail("Expected error but got success")
+                val (_, errorChannel) = result.data
+
+                // Check for errors in the errorChannel
+                var receivedException: Throwable? = null
+                val job = launch {
+                    receivedException = errorChannel.receiveCatching().getOrNull()
+                }
+                job.join()
+
+                if (receivedException != null) {
+                    assertEquals(exception.message, receivedException!!.message)
+                } else {
+                    fail("Expected error but got success")
+                }
             }
             is FlowAccessApi.AccessApiCallResponse.Error -> {
                 assertEquals("Failed to subscribe events by block ID", result.message)
@@ -510,7 +541,7 @@ class FlowAccessApiImplTest {
     }
 
     @Test
-    fun `Test subscribeEventsByBlockHeight success case`(): Unit = runBlocking {
+    fun `Test subscribeEventsByBlockHeight success case`() = testScope.runBlockingTest {
         val blockHeight = 100L
         val expectedEventsProto = EventOuterClass.Event.getDefaultInstance()
         val expectedEvents = listOf(FlowEvent.of(expectedEventsProto))
@@ -541,7 +572,7 @@ class FlowAccessApiImplTest {
     }
 
     @Test
-    fun `Test subscribeEventsByBlockHeight error case`() = runBlocking {
+    fun `Test subscribeEventsByBlockHeight error case`() = testScope.runBlockingTest {
         val blockHeight = 100L
         val exception = RuntimeException("Test exception")
 
@@ -549,7 +580,20 @@ class FlowAccessApiImplTest {
 
         when (val result = flowAccessApiImpl.subscribeEventsByBlockHeight(blockHeight)) {
             is FlowAccessApi.AccessApiCallResponse.Success -> {
-                fail("Expected error but got success")
+                val (_, errorChannel) = result.data
+
+                // Check for errors in the errorChannel
+                var receivedException: Throwable? = null
+                val job = launch {
+                    receivedException = errorChannel.receiveCatching().getOrNull()
+                }
+                job.join()
+
+                if (receivedException != null) {
+                    assertEquals(exception.message, receivedException!!.message)
+                } else {
+                    fail("Expected error but got success")
+                }
             }
             is FlowAccessApi.AccessApiCallResponse.Error -> {
                 assertEquals("Failed to subscribe events by block height", result.message)
@@ -559,7 +603,7 @@ class FlowAccessApiImplTest {
     }
 
     @Test
-    fun `Test subscribeExecutionDataByBlockId success case`(): Unit = runBlocking {
+    fun `Test subscribeExecutionDataByBlockId success case`() = testScope.runBlockingTest {
         val blockId = FlowId("01")
         val expectedExecutionDataProto = BlockExecutionDataOuterClass.BlockExecutionData.getDefaultInstance()
         val expectedExecutionData = FlowBlockExecutionData.of(expectedExecutionDataProto)
@@ -590,7 +634,7 @@ class FlowAccessApiImplTest {
     }
 
     @Test
-    fun `Test subscribeExecutionDataByBlockId error case`() = runBlocking {
+    fun `Test subscribeExecutionDataByBlockId error case`() = testScope.runBlockingTest {
         val blockId = FlowId("01")
         val exception = RuntimeException("Test exception")
 
@@ -598,7 +642,20 @@ class FlowAccessApiImplTest {
 
         when (val result = flowAccessApiImpl.subscribeExecutionDataByBlockId(blockId)) {
             is FlowAccessApi.AccessApiCallResponse.Success -> {
-                fail("Expected error but got success")
+                val (_, errorChannel) = result.data
+
+                // Check for errors in the errorChannel
+                var receivedException: Throwable? = null
+                val job = launch {
+                    receivedException = errorChannel.receiveCatching().getOrNull()
+                }
+                job.join()
+
+                if (receivedException != null) {
+                    assertEquals(exception.message, receivedException!!.message)
+                } else {
+                    fail("Expected error but got success")
+                }
             }
             is FlowAccessApi.AccessApiCallResponse.Error -> {
                 assertEquals("Failed to subscribe execution data by block ID", result.message)
@@ -606,7 +663,6 @@ class FlowAccessApiImplTest {
             }
         }
     }
-
     private fun createMockTransaction(flowId: FlowId = FlowId("01")) = FlowTransaction(FlowScript("script"), emptyList(), flowId, 123L, FlowTransactionProposalKey(FlowAddress("02"), 1, 123L), FlowAddress("02"), emptyList())
 
     private fun createMockAccount(flowAddress: FlowAddress) = FlowAccount(flowAddress, BigDecimal.ONE, FlowCode("code".toByteArray()), emptyList(), emptyMap())

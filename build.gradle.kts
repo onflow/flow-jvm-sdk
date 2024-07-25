@@ -63,6 +63,7 @@ dependencies {
 
     testApi("org.junit.jupiter:junit-jupiter:5.10.1")
     testApi("org.assertj:assertj-core:3.25.1")
+    testApi("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.5.0")
 
     testFixturesImplementation("org.junit.jupiter:junit-jupiter:5.10.1")
     testFixturesImplementation("org.mockito:mockito-core:3.12.4")
