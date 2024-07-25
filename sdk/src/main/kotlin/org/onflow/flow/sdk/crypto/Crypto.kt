@@ -19,10 +19,8 @@ import org.bouncycastle.jce.spec.ECPublicKeySpec
 import org.onflow.flow.sdk.*
 import java.security.spec.ECGenParameterSpec
 import org.onflow.flow.sdk.Signer
-import org.onflow.flow.sdk.crypto.Crypto.checkSupportedAlgo
 import java.math.BigInteger
 import java.security.*
-import kotlin.experimental.and
 import kotlin.math.max
 
 
@@ -53,7 +51,9 @@ data class PublicKey(
     val hex: String
 ) {
     fun verify(signature: ByteArray, message: ByteArray, hashAlgo: HashAlgorithm): Boolean {
-        checkSupportedAlgo(algo)
+        // check for supported algos
+        Crypto.checkSupportedSignAlgo(algo)
+        Crypto.checkHashAlgoForSigning(hashAlgo)
 
         // check the input key if of the correct type
         val ecPK = if (key is ECPublicKey) {
@@ -62,7 +62,7 @@ data class PublicKey(
             throw IllegalArgumentException("key in PublicKey must be an ECPublicKey")
         }
         // check the hash algo and compute the hash
-        val hash = Crypto.preSignComputeHash(hashAlgo, message)
+        val hash = HasherImpl(hashAlgo).hash(message)
 
         // verify the hash
         val ecdsaObject = ECDSASigner()
@@ -85,7 +85,7 @@ object Crypto {
     }
 
     @JvmStatic
-    fun checkSupportedAlgo(algo: SignatureAlgorithm) {
+    fun checkSupportedSignAlgo(algo: SignatureAlgorithm) {
         // only ECDSA with 2 curves are currently supported
         if (algo !in listOf(SignatureAlgorithm.ECDSA_SECP256k1, SignatureAlgorithm.ECDSA_P256)) {
             throw IllegalArgumentException("algorithm ${algo} is not supported")
@@ -95,7 +95,7 @@ object Crypto {
     @JvmStatic
     @JvmOverloads
     fun generateKeyPair(algo: SignatureAlgorithm = SignatureAlgorithm.ECDSA_P256): KeyPair {
-        checkSupportedAlgo(algo)
+        checkSupportedSignAlgo(algo)
         val generator = KeyPairGenerator.getInstance("EC", "BC")
         generator.initialize(ECGenParameterSpec(algo.curve), SecureRandom())
         val keyPair = generator.generateKeyPair()
@@ -122,7 +122,7 @@ object Crypto {
     @JvmStatic
     @JvmOverloads
     fun decodePrivateKey(key: String, algo: SignatureAlgorithm = SignatureAlgorithm.ECDSA_P256): PrivateKey {
-        checkSupportedAlgo(algo)
+        checkSupportedSignAlgo(algo)
 
         val curveSpec = ECNamedCurveTable.getParameterSpec(algo.curve)
         // TODO: check for hex key
@@ -155,7 +155,7 @@ object Crypto {
     @JvmStatic
     @JvmOverloads
     fun decodePublicKey(key: String, algo: SignatureAlgorithm = SignatureAlgorithm.ECDSA_P256): PublicKey {
-        checkSupportedAlgo(algo)
+        checkSupportedSignAlgo(algo)
         // TODO: check for hex key
         // TODO: check string length
         val ecParameterSpec = ECNamedCurveTable.getParameterSpec(algo.curve)
@@ -182,8 +182,6 @@ object Crypto {
     @JvmStatic
     @JvmOverloads
     fun getSigner(privateKey: PrivateKey, hashAlgo: HashAlgorithm = HashAlgorithm.SHA3_256): Signer {
-        checkSupportedAlgo(privateKey.algo)
-        // input hash algo is validated in `SignerImpl`
         return SignerImpl(privateKey, hashAlgo)
     }
 
@@ -240,17 +238,15 @@ object Crypto {
     }
 
     @JvmStatic
-    fun preSignComputeHash(hashAlgo: HashAlgorithm, message: ByteArray): ByteArray {
+    fun checkHashAlgoForSigning(hashAlgo: HashAlgorithm) {
         // check the hash algo and compute the hash
         if (hashAlgo !in listOf(HashAlgorithm.KECCAK256, HashAlgorithm.SHA2_256, HashAlgorithm.SHA3_256)) {
             // only allow hashes of 256 bits to match the supported curves (order of 256 bits),
             // although higher hashes could be used in theory
             throw IllegalArgumentException("Unsupported hash algorithm: ${hashAlgo.algorithm}")
         }
-        val hasher = HasherImpl(hashAlgo)
-        val hash = hasher.hash(message)
-        return hash
     }
+
 
     @JvmStatic
     // curve order size in bytes
@@ -345,10 +341,12 @@ internal class SignerImpl(
     private val privateKey: PrivateKey,
     private val hashAlgo: HashAlgorithm
 ) : Signer {
+    init{
+        Crypto.checkSupportedSignAlgo(privateKey.algo)
+        Crypto.checkHashAlgoForSigning(hashAlgo)
+    }
 
     override fun sign(bytes: ByteArray): ByteArray {
-        checkSupportedAlgo(privateKey.algo)
-
         // check the private key is of the correct type
         val ecSK = if (privateKey.key is ECPrivateKey) {
             privateKey.key
@@ -356,8 +354,8 @@ internal class SignerImpl(
             throw IllegalArgumentException("Private key must be an ECPrivateKey")
         }
 
-        // check the hash algo and compute the hash
-        val hash = Crypto.preSignComputeHash(hashAlgo, bytes)
+        // compute the hash
+        val hash = HasherImpl(hashAlgo).hash(bytes)
 
         // verify the hash
         val ecdsaObject = ECDSASigner()

@@ -118,9 +118,8 @@ internal class SignTest {
             }
             nonSupportedHashes.forEachIndexed { _, hashAlgo ->
                 val keyPair = Crypto.generateKeyPair(curve)
-                val signer = Crypto.getSigner(keyPair.private, hashAlgo)
                 val exception = assertThrows(IllegalArgumentException::class.java) {
-                    signer.sign("test".toByteArray())
+                    Crypto.getSigner(keyPair.private, hashAlgo)
                 }
                 assertEquals(exception.message, "Unsupported hash algorithm: ${hashAlgo.algorithm}")
             }
@@ -139,18 +138,48 @@ internal class SignTest {
         curves.forEachIndexed { _, curve ->
             supportedHashes.forEachIndexed { _, hashAlgo ->
                 val keyPair = Crypto.generateKeyPair(curve)
+                val otherKeyPair = Crypto.generateKeyPair(curve)
                 for (i in 0.. loopCount) {
-                    val message =  Random.nextBytes(10)
+                    val message =  Random.nextBytes(20)
                     // signatures must be valid
                     val signer = Crypto.getSigner(keyPair.private, hashAlgo)
                     val signature = signer.sign(message)
-                    val valid = keyPair.public.verify(signature, message, hashAlgo)
-                    assertTrue(valid)
-                    // TODO: signatures against a different message must fail
-                    // TODO: signatures against a different key must fail
-                    // TODO: getSigner call with invalid algo
+                    assertTrue(keyPair.public.verify(signature, message, hashAlgo))
+                    // signatures against a different message must fail
+                    val otherMessage =  Random.nextBytes(16)
+                    assertFalse(keyPair.public.verify(signature, otherMessage, hashAlgo))
+                    // signatures against a different key must fail
+                    assertFalse(otherKeyPair.public.verify(signature, message, hashAlgo))
+                    }
                 }
             }
         }
+
+    @Test
+    fun `Test signer with invalid algo keys`() {
+        val keyPair = Crypto.generateKeyPair(SignatureAlgorithm.ECDSA_P256)
+
+        // get signer with invalid-algo key
+        val invalidSK = PrivateKey(
+            key = keyPair.private.key,
+            algo = SignatureAlgorithm.UNKNOWN,
+            hex = "",
+            publicKey = keyPair.public
+        )
+        var exception = assertThrows(IllegalArgumentException::class.java) {
+            Crypto.getSigner(invalidSK, HashAlgorithm.SHA2_256)
+        }
+        assertEquals(exception.message, "algorithm ${SignatureAlgorithm.UNKNOWN} is not supported")
+
+        // verify with invalid-algo key
+        val invalidPK = PublicKey(
+            key = keyPair.public.key,
+            algo = SignatureAlgorithm.UNKNOWN,
+            hex = ""
+        )
+        exception = assertThrows(IllegalArgumentException::class.java) {
+            invalidPK.verify("".toByteArray(), "".toByteArray(), HashAlgorithm.SHA2_256)
+        }
+        assertEquals(exception.message, "algorithm ${SignatureAlgorithm.UNKNOWN} is not supported")
     }
 }
