@@ -2,29 +2,30 @@ package org.onflow.flow.sdk.crypto
 
 import org.bouncycastle.crypto.macs.KMAC
 import org.bouncycastle.crypto.params.KeyParameter
+import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPublicKey
 import org.bouncycastle.jcajce.provider.digest.Keccak
-import org.onflow.flow.sdk.*
 import org.bouncycastle.jce.ECNamedCurveTable
 import org.bouncycastle.jce.ECPointUtil
 import org.bouncycastle.jce.interfaces.ECPrivateKey
 import org.bouncycastle.jce.interfaces.ECPublicKey
 import org.bouncycastle.jce.provider.BouncyCastleProvider
-import org.bouncycastle.jce.spec.ECNamedCurveSpec
 import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec
+import org.bouncycastle.jce.spec.ECNamedCurveSpec
 import org.bouncycastle.jce.spec.ECPrivateKeySpec
+import org.bouncycastle.jce.spec.ECPublicKeySpec
+import org.onflow.flow.sdk.*
+import java.security.spec.ECGenParameterSpec
 import org.onflow.flow.sdk.Signer
 import java.math.BigInteger
 import java.security.*
-import java.security.spec.ECGenParameterSpec
-import java.security.spec.ECPublicKeySpec
+import java.security.spec.ECPoint
 import kotlin.experimental.and
 import kotlin.math.max
 
-// TODO: keyPair is an obsolete class and should be derecated.
+
+// TODO: keyPair is an obsolete class and should be deprecated.
 // It is equivalent to the private key since it contains the private key value.
-// The `PrivateKey` class should include a field to the public key value
-// since a public key can be derived from the private key.
-// This isn't implemented for now till the breaking change impact is assessed.
+// This isn't deprecated for now till the breaking change impact is assessed.
 data class KeyPair(
     val private: PrivateKey,
     val public: PublicKey
@@ -33,9 +34,8 @@ data class KeyPair(
 data class PrivateKey(
     val key: java.security.PrivateKey,
     val curve: ECNamedCurveParameterSpec,
-    val hex: String
-
-    // TODO: add public key derivation
+    val hex: String,
+    val publicKey: PublicKey
 )
 
 data class PublicKey(
@@ -57,30 +57,23 @@ object Crypto {
         val generator = KeyPairGenerator.getInstance("EC", "BC")
         generator.initialize(ECGenParameterSpec(algo.curve), SecureRandom())
         val keyPair = generator.generateKeyPair()
-        val privateKey = keyPair.private
-        val publicKey = keyPair.public
+        val sk = keyPair.private
+        val pk = keyPair.public
         val curveSpec = ECNamedCurveTable.getParameterSpec(algo.curve)
+
+        val publicKey = PublicKey(
+            key = pk,
+            hex = jsecPublicKeyToHexString(pk)
+        )
+        val privateKey = PrivateKey(
+            key = sk,
+            curve = curveSpec,
+            publicKey = publicKey,
+            hex = jsecPrivateKeyToHexString(sk)
+        )
         return KeyPair(
-            private = PrivateKey(
-                key = privateKey,
-                curve = curveSpec,
-                hex = if (privateKey is ECPrivateKey) {
-                    // TODO: would be good to add padding
-                    privateKey.d.toByteArray().bytesToHex()
-                } else {
-                    // TODO: update log
-                    throw IllegalArgumentException("PrivateKey must be an ECPublicKey")
-                }
-            ),
-            public = PublicKey(
-                key = publicKey,
-                hex = if (publicKey is ECPublicKey) {
-                    // TODO: padding is missing
-                    (publicKey.q.xCoord.encoded + publicKey.q.yCoord.encoded).bytesToHex()
-                } else {
-                    throw IllegalArgumentException("PublicKey must be an ECPublicKey")
-                }
-            )
+            private = privateKey,
+            public = publicKey
         )
     }
 
@@ -94,9 +87,16 @@ object Crypto {
         val ecPrivateKeySpec = ECPrivateKeySpec(BigInteger(key, 16), curveSpec)
         val keyFactory = KeyFactory.getInstance(algo.algorithm, "BC")
         val sk = keyFactory.generatePrivate(ecPrivateKeySpec)
+        val pk = derivePublicKey(sk)
+        var publicKey = PublicKey(
+            key = pk,
+            hex = jsecPublicKeyToHexString(pk)
+        )
+
         return PrivateKey(
             key = sk,
             curve = curveSpec,
+            publicKey = publicKey,
             // TODO: why this test
             hex = if (sk is ECPrivateKey) {
                 // TODO: padding
@@ -120,18 +120,12 @@ object Crypto {
             ecParameterSpec.curve, ecParameterSpec.g, ecParameterSpec.n
         )
         val pointBytes = ECPointUtil.decodePoint(params.curve, byteArrayOf(0x04) + key.hexToBytes())
-        val point = ECPublicKeySpec(pointBytes, params)
+        val point = java.security.spec.ECPublicKeySpec(pointBytes, params)
         val keyFactory = KeyFactory.getInstance("EC", "BC")
         val publicKey = keyFactory.generatePublic(point)
         return PublicKey(
             key = publicKey,
-            // TODO: why this test
-            hex = if (publicKey is ECPublicKey) {
-                // TODO: missing padding
-                (publicKey.q.xCoord.encoded + publicKey.q.yCoord.encoded).bytesToHex()
-            } else {
-                throw IllegalArgumentException("PublicKey must be an ECPublicKey")
-            }
+            hex = key
         )
     }
 
@@ -147,6 +141,47 @@ object Crypto {
     @JvmOverloads
     fun getHasher(hashAlgo: HashAlgorithm = HashAlgorithm.SHA3_256): Hasher {
         return HasherImpl(hashAlgo)
+    }
+
+    @JvmStatic
+    fun jsecPrivateKeyToHexString(sk: java.security.PrivateKey): String {
+        val hexString = if (sk is ECPrivateKey) {
+            // TODO: would be good to add padding
+            sk.d.toByteArray().bytesToHex()
+        } else {
+            throw IllegalArgumentException("PrivateKey must be an ECPublicKey")
+        }
+
+        return hexString
+    }
+
+    @JvmStatic
+    fun jsecPublicKeyToHexString(pk: java.security.PublicKey): String {
+        val hexString = if (pk is ECPublicKey) {
+            // TODO: padding is missing
+            (pk.q.xCoord.encoded + pk.q.yCoord.encoded).bytesToHex()
+        } else {
+            throw IllegalArgumentException("PublicKey must be an ECPublicKey")
+        }
+        return hexString
+    }
+
+
+    @JvmStatic
+    fun derivePublicKey(sk: java.security.PrivateKey): java.security.PublicKey{
+        val bcSK = if (sk is ECPrivateKey) {
+            sk
+        } else {
+            throw IllegalArgumentException("Private key must be an ECPrivateKey")
+        }
+        // compute the point
+        val curveParams = bcSK.parameters
+        val BCPoint = curveParams.curve.multiplier.multiply(curveParams.g, bcSK.d)
+        // convert to ECPublicKey
+        var ECPointParams = ECPublicKeySpec(BCPoint, curveParams)
+        val keyFactory = KeyFactory.getInstance("EC", "BC")
+        val publicKey = keyFactory.generatePublic(ECPointParams)
+        return publicKey
     }
 
     @JvmStatic
