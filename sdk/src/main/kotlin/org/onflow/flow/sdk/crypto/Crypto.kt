@@ -2,14 +2,13 @@ package org.onflow.flow.sdk.crypto
 
 import org.bouncycastle.crypto.macs.KMAC
 import org.bouncycastle.crypto.params.KeyParameter
-import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPublicKey
 import org.bouncycastle.jcajce.provider.digest.Keccak
 import org.bouncycastle.jce.ECNamedCurveTable
 import org.bouncycastle.jce.ECPointUtil
 import org.bouncycastle.jce.interfaces.ECPrivateKey
 import org.bouncycastle.jce.interfaces.ECPublicKey
 import org.bouncycastle.jce.provider.BouncyCastleProvider
-import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec
+import org. bouncycastle. jce. spec. ECParameterSpec
 import org.bouncycastle.jce.spec.ECNamedCurveSpec
 import org.bouncycastle.jce.spec.ECPrivateKeySpec
 import org.bouncycastle.jce.spec.ECPublicKeySpec
@@ -18,7 +17,6 @@ import java.security.spec.ECGenParameterSpec
 import org.onflow.flow.sdk.Signer
 import java.math.BigInteger
 import java.security.*
-import java.security.spec.ECPoint
 import kotlin.experimental.and
 import kotlin.math.max
 
@@ -33,7 +31,6 @@ data class KeyPair(
 
 data class PrivateKey(
     val key: java.security.PrivateKey,
-    val curve: ECNamedCurveParameterSpec,
     val hex: String,
     val publicKey: PublicKey
 )
@@ -59,7 +56,6 @@ object Crypto {
         val keyPair = generator.generateKeyPair()
         val sk = keyPair.private
         val pk = keyPair.public
-        val curveSpec = ECNamedCurveTable.getParameterSpec(algo.curve)
 
         val publicKey = PublicKey(
             key = pk,
@@ -67,7 +63,6 @@ object Crypto {
         )
         val privateKey = PrivateKey(
             key = sk,
-            curve = curveSpec,
             publicKey = publicKey,
             hex = jsecPrivateKeyToHexString(sk)
         )
@@ -95,7 +90,6 @@ object Crypto {
 
         return PrivateKey(
             key = sk,
-            curve = curveSpec,
             publicKey = publicKey,
             // TODO: why this test
             hex = if (sk is ECPrivateKey) {
@@ -169,14 +163,14 @@ object Crypto {
 
     @JvmStatic
     fun derivePublicKey(sk: java.security.PrivateKey): java.security.PublicKey{
-        val bcSK = if (sk is ECPrivateKey) {
+        val ecSK = if (sk is ECPrivateKey) {
             sk
         } else {
             throw IllegalArgumentException("Private key must be an ECPrivateKey")
         }
         // compute the point
-        val curveParams = bcSK.parameters
-        val BCPoint = curveParams.curve.multiplier.multiply(curveParams.g, bcSK.d)
+        val curveParams = ecSK.parameters
+        val BCPoint = curveParams.curve.multiplier.multiply(curveParams.g, ecSK.d)
         // convert to ECPublicKey
         var ECPointParams = ECPublicKeySpec(BCPoint, curveParams)
         val keyFactory = KeyFactory.getInstance("EC", "BC")
@@ -186,7 +180,7 @@ object Crypto {
 
     @JvmStatic
     // curve order size in bytes
-    fun getCurveOrderSize(curve: ECNamedCurveParameterSpec): Int {
+    fun getCurveOrderSize(curve: ECParameterSpec): Int {
         val bitSize = curve.getN().bitLength()
         val byteSize = (bitSize + 7)/8
         return byteSize
@@ -309,12 +303,18 @@ internal class SignerImpl(
             }
             else -> throw IllegalArgumentException("Unsupported hash algorithm: ${hashAlgo.algorithm}")
         }
+
+        val ecSK = if (privateKey.key is ECPrivateKey) {
+            privateKey.key
+        } else {
+            throw IllegalArgumentException("Private key must be an ECPrivateKey")
+        }
         val hash = hasher.hash(bytes)
-        ecdsaSign.initSign(privateKey.key)
+        ecdsaSign.initSign(ecSK)
         ecdsaSign.update(hash)
         signature = ecdsaSign.sign()
 
-        val curveOrderSize = Crypto.getCurveOrderSize(privateKey.curve)
+        val curveOrderSize = Crypto.getCurveOrderSize(ecSK.parameters)
         return Crypto.formatSignature(signature, curveOrderSize)
     }
 }

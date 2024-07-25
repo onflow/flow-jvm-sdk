@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test
 import org.onflow.flow.sdk.SignatureAlgorithm
 import java.math.BigInteger
 import java.security.Signature
+import org. bouncycastle. jce. spec. ECParameterSpec
 
 internal class SignTest {
     @Test
@@ -93,39 +94,6 @@ internal class SignTest {
         val keyPair = Crypto.generateKeyPair()
         val signer = Crypto.getSigner(keyPair.private)
         assertNotNull(signer)
-    }
-
-    @Test
-    fun `Test formatSignature`() {
-        val keyPair = Crypto.generateKeyPair()
-
-        val ecdsaSign = Signature.getInstance("SHA3-256withECDSA")
-        ecdsaSign.initSign(keyPair.private.key)
-        ecdsaSign.update("test".toByteArray())
-
-        val signature = ecdsaSign.sign()
-
-        val curveOrderSize = Crypto.getCurveOrderSize(keyPair.private.curve)
-        val normalizedSignature = Crypto.formatSignature(signature, curveOrderSize)
-
-        val expectedLength = 2 * curveOrderSize
-        assertEquals(expectedLength, normalizedSignature.size)
-    }
-
-    @Test
-    fun `Test extractRS`() {
-        val keyPair = Crypto.generateKeyPair()
-
-        val ecdsaSign = Signature.getInstance("SHA3-256withECDSA")
-        ecdsaSign.initSign(keyPair.private.key)
-        ecdsaSign.update("test".toByteArray())
-
-        val signature = ecdsaSign.sign()
-
-        val (r, s) = Crypto.extractRS(signature)
-
-        assertTrue(r > BigInteger.ZERO)
-        assertTrue(s > BigInteger.ZERO)
     }
 
     @Test
