@@ -72,8 +72,8 @@ data class PublicKey(
         if (signature.size != 2 * curveOrderSize) {
             return false
         }
-        val r = BigInteger(1, signature.copyOfRange(0, signature.size/2))
-        val s = BigInteger(1, signature.copyOfRange(signature.size/2, signature.size))
+        val r = BigInteger(1, signature.copyOfRange(0, curveOrderSize))
+        val s = BigInteger(1, signature.copyOfRange(curveOrderSize, signature.size))
         return ecdsaObject.verifySignature(hash, r, s)
     }
 }

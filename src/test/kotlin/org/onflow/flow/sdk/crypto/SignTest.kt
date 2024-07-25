@@ -4,6 +4,8 @@ import org.onflow.flow.sdk.HashAlgorithm
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.onflow.flow.sdk.SignatureAlgorithm
+import org.onflow.flow.sdk.bytesToHex
+import kotlin.random.Random
 
 
 internal class SignTest {
@@ -132,16 +134,21 @@ internal class SignTest {
             HashAlgorithm.SHA3_256,
             HashAlgorithm.KECCAK256
         )
-        val message = "test message".toByteArray()
 
+        val loopCount = 100
         curves.forEachIndexed { _, curve ->
             supportedHashes.forEachIndexed { _, hashAlgo ->
-                // signatures must be valid
                 val keyPair = Crypto.generateKeyPair(curve)
-                val signer = Crypto.getSigner(keyPair.private, hashAlgo)
-                val signature = signer.sign(message)
-                val valid = keyPair.public.verify(signature, message, hashAlgo)
-                assertTrue(valid)
+                for (i in 0.. loopCount) {
+                    val message =  Random.nextBytes(10)
+                    // signatures must be valid
+                    val signer = Crypto.getSigner(keyPair.private, hashAlgo)
+                    val signature = signer.sign(message)
+                    val valid = keyPair.public.verify(signature, message, hashAlgo)
+                    assertTrue(valid)
+                    // TODO: signatures against a different message must fail
+                    // TODO: signatures against a different key must fail
+                }
             }
         }
     }
