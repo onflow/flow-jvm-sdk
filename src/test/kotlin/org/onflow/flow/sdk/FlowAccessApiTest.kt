@@ -350,15 +350,15 @@ class FlowAccessApiTest {
 
         when (result) {
             is FlowAccessApi.AccessApiCallResponse.Success -> {
-                val (responseChannell, errorChannell) = result.data
+                val (responseChannel, errorChannel) = result.data
                 launch {
-                    responseChannell.consumeEach { executionData ->
+                    responseChannel.consumeEach { executionData ->
                         assertEquals(expectedExecutionData, executionData)
                     }
                 }
 
                 launch {
-                    errorChannell.consumeEach { error ->
+                    errorChannel.consumeEach { error ->
                         throw error
                     }
                 }
@@ -392,15 +392,15 @@ class FlowAccessApiTest {
 
         when (result) {
             is FlowAccessApi.AccessApiCallResponse.Success -> {
-                val (responseChannell, errorChannell) = result.data
+                val (responseChannel, errorChannel) = result.data
                 launch {
-                    responseChannell.consumeEach { executionData ->
+                    responseChannel.consumeEach { executionData ->
                         assertEquals(expectedExecutionData, executionData)
                     }
                 }
 
                 launch {
-                    errorChannell.consumeEach { error ->
+                    errorChannel.consumeEach { error ->
                         throw error
                     }
                 }
@@ -434,15 +434,15 @@ class FlowAccessApiTest {
 
         when (result) {
             is FlowAccessApi.AccessApiCallResponse.Success -> {
-                val (responseChannell, errorChannell) = result.data
+                val (responseChannel, errorChannel) = result.data
                 launch {
-                    responseChannell.consumeEach { events ->
+                    responseChannel.consumeEach { events ->
                         assertEquals(expectedEvents, events)
                     }
                 }
 
                 launch {
-                    errorChannell.consumeEach { error ->
+                    errorChannel.consumeEach { error ->
                         throw error
                     }
                 }
@@ -476,15 +476,15 @@ class FlowAccessApiTest {
 
         when (result) {
             is FlowAccessApi.AccessApiCallResponse.Success -> {
-                val (responseChannell, errorChannell) = result.data
+                val (responseChannel, errorChannel) = result.data
                 launch {
-                    responseChannell.consumeEach { events ->
+                    responseChannel.consumeEach { events ->
                         assertEquals(expectedEvents, events)
                     }
                 }
 
                 launch {
-                    errorChannell.consumeEach { error ->
+                    errorChannel.consumeEach { error ->
                         throw error
                     }
                 }

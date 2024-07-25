@@ -829,12 +829,12 @@ data class FlowTrieUpdate(
 }
 
 data class FlowPayload(
-    val keyPart: List<FlowKeyPart>,
+    val keyParts: List<FlowKeyPart>,
     val value: ByteArray,
 ) : Serializable {
     companion object {
         fun of(grpcExecutionResult: BlockExecutionDataOuterClass.Payload) = FlowPayload(
-            keyPart = grpcExecutionResult.keyPartList.map { FlowKeyPart.of(it) },
+            keyParts = grpcExecutionResult.keyPartList.map { FlowKeyPart.of(it) },
             value = grpcExecutionResult.value.toByteArray()
         )
     }
@@ -843,14 +843,14 @@ data class FlowPayload(
         if (this === other) return true
         if (other !is FlowPayload) return false
 
-        if (keyPart != other.keyPart) return false
+        if (keyParts != other.keyParts) return false
         if (!value.contentEquals(other.value)) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        var result = keyPart.hashCode()
+        var result = keyParts.hashCode()
         result = 31 * result + value.contentHashCode()
         return result
     }
