@@ -99,7 +99,6 @@ enum class HashAlgorithm(
 }
 
 interface Signer {
-    val hasher: Hasher
 
     fun sign(bytes: ByteArray): ByteArray
 

@@ -284,11 +284,9 @@ internal class HasherImpl(
 }
 
 
-
 internal class SignerImpl(
     private val privateKey: PrivateKey,
-    private val hashAlgo: HashAlgorithm,
-    override val hasher: Hasher = HasherImpl(hashAlgo)
+    private val hashAlgo: HashAlgorithm
 ) : Signer {
 
     override fun sign(bytes: ByteArray): ByteArray {
@@ -299,7 +297,7 @@ internal class SignerImpl(
             // only allow hashes of 256 bits to match the supported curves (order of 256 bits),
             // although higher hashes could be used in theory
             HashAlgorithm.KECCAK256, HashAlgorithm.SHA2_256, HashAlgorithm.SHA3_256 -> {
-                Signature.getInstance("NONEwithECDSA")
+                Signature.getInstance("NONEwithECDSA", "BC")
             }
             else -> throw IllegalArgumentException("Unsupported hash algorithm: ${hashAlgo.algorithm}")
         }
@@ -309,6 +307,7 @@ internal class SignerImpl(
         } else {
             throw IllegalArgumentException("Private key must be an ECPrivateKey")
         }
+        val hasher = HasherImpl(hashAlgo)
         val hash = hasher.hash(bytes)
         ecdsaSign.initSign(ecSK)
         ecdsaSign.update(hash)
