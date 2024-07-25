@@ -1,5 +1,8 @@
 package org.onflow.flow.sdk.crypto
 
+import org.bouncycastle.crypto.macs.KMAC
+import org.bouncycastle.crypto.params.KeyParameter
+import org.bouncycastle.jcajce.provider.digest.Keccak
 import org.onflow.flow.sdk.*
 import org.bouncycastle.jce.ECNamedCurveTable
 import org.bouncycastle.jce.ECPointUtil
@@ -156,11 +159,69 @@ object Crypto {
 }
 
 internal class HasherImpl(
-    private val hashAlgo: HashAlgorithm
+    private val hashAlgo: HashAlgorithm,
+    private val key: ByteArray? = null,
+    private val customizer: ByteArray? = null,
+    private val outputSize: Int = 32
 ) : Hasher {
+    private var kmac: KMAC? = null
+
+    init {
+        if (hashAlgo == HashAlgorithm.KMAC128) {
+            if (outputSize < 32) {
+                throw IllegalArgumentException("KMAC128 output size must be at least 32 bytes")
+            }
+
+            if (key == null || key.size < 16) {
+                throw IllegalArgumentException("KMAC128 requires a key of at least 16 bytes")
+            }
+            kmac = KMAC(128, customizer)
+            kmac!!.init(KeyParameter(key))
+        } else if (hashAlgo == HashAlgorithm.KECCAK256 ||
+            hashAlgo == HashAlgorithm.SHA3_256 ||
+            hashAlgo == HashAlgorithm.SHA2_256
+        ) {
+            if (key != null) {
+                throw IllegalArgumentException("Key must be null")
+            }
+            if (customizer != null) {
+                throw IllegalArgumentException("Customizer must be null")
+            }
+            if (outputSize != (hashAlgo.outputSize / 8)) {
+                throw IllegalArgumentException("Output size must be 32 bytes")
+            }
+        } else {
+            throw IllegalArgumentException("Unsupported hash algorithm: ${hashAlgo.algorithm}")
+        }
+    }
+
     override fun hash(bytes: ByteArray): ByteArray {
-        val digest = MessageDigest.getInstance(hashAlgo.algorithm)
-        return digest.digest(bytes)
+        return when (hashAlgo) {
+            HashAlgorithm.KECCAK256 -> {
+                val keccakDigest = Keccak.Digest256()
+                keccakDigest.digest(bytes)
+            }
+            HashAlgorithm.KMAC128 -> {
+                val output = ByteArray(outputSize)
+                kmac!!.update(bytes, 0, bytes.size)
+                kmac!!.doFinal(output, 0, outputSize)
+                output
+            }
+            else -> {
+                val digest = MessageDigest.getInstance(hashAlgo.algorithm)
+                digest.digest(bytes)
+            }
+        }
+    }
+
+    fun update(bytes: ByteArray, off: Int, len: Int) {
+        kmac?.update(bytes, off, len)
+    }
+
+    fun doFinal(outputSize: Int): ByteArray {
+        val output = ByteArray(outputSize)
+        kmac?.doFinal(output, 0, outputSize)
+        return output
     }
 }
 
@@ -170,11 +231,19 @@ internal class SignerImpl(
     override val hasher: Hasher = HasherImpl(hashAlgo)
 ) : Signer {
     override fun sign(bytes: ByteArray): ByteArray {
-        val ecdsaSign = Signature.getInstance(hashAlgo.id)
-        ecdsaSign.initSign(privateKey.key)
-        ecdsaSign.update(bytes)
+        val signature: ByteArray
 
-        val signature = ecdsaSign.sign()
+        val ecdsaSign: Signature = when (hashAlgo) {
+            HashAlgorithm.KECCAK256, HashAlgorithm.SHA2_256, HashAlgorithm.SHA3_256 -> {
+                Signature.getInstance("NONEwithECDSA")
+            }
+            else -> throw IllegalArgumentException("Unsupported hash algorithm: ${hashAlgo.algorithm}")
+        }
+        val hash = hasher.hash(bytes)
+        ecdsaSign.initSign(privateKey.key)
+        ecdsaSign.update(hash)
+        signature = ecdsaSign.sign()
+
         if (privateKey.ecCoupleComponentSize <= 0) {
             return signature
         }
