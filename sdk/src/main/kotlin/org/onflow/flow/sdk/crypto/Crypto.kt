@@ -52,20 +52,11 @@ data class PublicKey(
             throw IllegalArgumentException("key in PublicKey must be an ECPublicKey")
         }
         // check the hash algo and compute the hash
-        when (hashAlgo) {
-            // only allow hashes of 256 bits to match the supported curves (order of 256 bits),
-            // although higher hashes could be used in theory
-            HashAlgorithm.KECCAK256, HashAlgorithm.SHA2_256, HashAlgorithm.SHA3_256 -> {
-                Signature.getInstance("NONEwithECDSA", "BC")
-            }
-            else -> throw IllegalArgumentException("Unsupported hash algorithm: ${hashAlgo.algorithm}")
-        }
-        val hasher = HasherImpl(hashAlgo)
-        val hash = hasher.hash(message)
+        val hash = Crypto.preSignComputeHash(hashAlgo, message)
 
         // verify the hash
         val ecdsaObject = ECDSASigner()
-        val domain = ECDomainParameters(ecPK.parameters.curve, ecPK.parameters.g, ecPK.parameters.n)
+        val domain = ECDomainParameters(ecPK.parameters.curve, ecPK.parameters.g, ecPK.parameters.n, ecPK.parameters.h)
         val cipherParams = ECPublicKeyParameters(ecPK.q, domain)
         ecdsaObject.init(false, cipherParams)
         val curveOrderSize = Crypto.getCurveOrderSize(domain)
@@ -181,7 +172,6 @@ object Crypto {
         } else {
             throw IllegalArgumentException("PrivateKey must be an ECPublicKey")
         }
-
         return hexString
     }
 
@@ -195,7 +185,6 @@ object Crypto {
         }
         return hexString
     }
-
 
     @JvmStatic
     fun derivePublicKey(sk: java.security.PrivateKey): java.security.PublicKey{
@@ -212,6 +201,19 @@ object Crypto {
         val keyFactory = KeyFactory.getInstance("EC", "BC")
         val publicKey = keyFactory.generatePublic(ECPointParams)
         return publicKey
+    }
+
+    @JvmStatic
+    fun preSignComputeHash(hashAlgo: HashAlgorithm, message: ByteArray): ByteArray {
+        // check the hash algo and compute the hash
+        if (hashAlgo !in listOf(HashAlgorithm.KECCAK256, HashAlgorithm.SHA2_256, HashAlgorithm.SHA3_256)) {
+            // only allow hashes of 256 bits to match the supported curves (order of 256 bits),
+            // although higher hashes could be used in theory
+            throw IllegalArgumentException("Unsupported hash algorithm: ${hashAlgo.algorithm}")
+        }
+        val hasher = HasherImpl(hashAlgo)
+        val hash = hasher.hash(message)
+        return hash
     }
 
     @JvmStatic
@@ -319,20 +321,11 @@ internal class SignerImpl(
         }
 
         // check the hash algo and compute the hash
-        when (hashAlgo) {
-            // only allow hashes of 256 bits to match the supported curves (order of 256 bits),
-            // although higher hashes could be used in theory
-            HashAlgorithm.KECCAK256, HashAlgorithm.SHA2_256, HashAlgorithm.SHA3_256 -> {
-                Signature.getInstance("NONEwithECDSA", "BC")
-            }
-            else -> throw IllegalArgumentException("Unsupported hash algorithm: ${hashAlgo.algorithm}")
-        }
-        val hasher = HasherImpl(hashAlgo)
-        val hash = hasher.hash(bytes)
+        val hash = Crypto.preSignComputeHash(hashAlgo, bytes)
 
         // verify the hash
         val ecdsaObject = ECDSASigner()
-        val domain = ECDomainParameters(ecSK.parameters.curve, ecSK.parameters.g, ecSK.parameters.n)
+        val domain = ECDomainParameters(ecSK.parameters.curve, ecSK.parameters.g, ecSK.parameters.n, ecSK.parameters.h)
         val cipherParams = ECPrivateKeyParameters(ecSK.d, domain)
         ecdsaObject.init(true, cipherParams)
         val RS = ecdsaObject.generateSignature(hash)
