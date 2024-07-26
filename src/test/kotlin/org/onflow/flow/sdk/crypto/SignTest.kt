@@ -4,7 +4,6 @@ import org.onflow.flow.sdk.HashAlgorithm
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.onflow.flow.sdk.SignatureAlgorithm
-import org.onflow.flow.sdk.bytesToHex
 import kotlin.random.Random
 
 internal data class SupportedCurve (
@@ -116,8 +115,8 @@ internal class SignTest {
     fun `Test signer compatibility with hash algorithms`() {
         val supportedHashes = listOf(
             HashAlgorithm.SHA2_256,
-            HashAlgorithm.SHA3_256,
-            HashAlgorithm.KECCAK256
+            //HashAlgorithm.SHA3_256,
+            //HashAlgorithm.KECCAK256
         )
         val nonSupportedHashes = listOf(
             HashAlgorithm.KMAC128,

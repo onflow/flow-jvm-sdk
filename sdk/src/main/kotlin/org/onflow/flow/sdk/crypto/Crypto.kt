@@ -102,16 +102,20 @@ object Crypto {
         val sk = keyPair.private
         val pk = keyPair.public
 
+        val curveSpec = ECNamedCurveTable.getParameterSpec(algo.curve)
+        val curveOrderSize = getCurveOrderSize(Crypto.ECDomainFromECSpec(curveSpec))
+        val curveFieldSize = getCurveFieldSize(Crypto.ECDomainFromECSpec(curveSpec))
+
         val publicKey = PublicKey(
             key = pk,
             algo = algo,
-            hex = jsecPublicKeyToHexString(pk)
+            hex = jsecPublicKeyToHexString(pk, curveFieldSize)
         )
         val privateKey = PrivateKey(
             key = sk,
             algo = algo,
             publicKey = publicKey,
-            hex = jsecPrivateKeyToHexString(sk)
+            hex = jsecPrivateKeyToHexString(sk, curveOrderSize)
         )
         return KeyPair(
             private = privateKey,
@@ -132,23 +136,21 @@ object Crypto {
         val keyFactory = KeyFactory.getInstance(algo.algorithm, "BC")
         val sk = keyFactory.generatePrivate(ecPrivateKeySpec)
         val pk = derivePublicKey(sk)
+
+        val curveOrderSize = getCurveOrderSize(Crypto.ECDomainFromECSpec(curveSpec))
+        val curveFieldSize = getCurveFieldSize(Crypto.ECDomainFromECSpec(curveSpec))
+
         var publicKey = PublicKey(
             key = pk,
             algo = algo,
-            hex = jsecPublicKeyToHexString(pk)
+            hex = jsecPublicKeyToHexString(pk, curveFieldSize)
         )
 
         return PrivateKey(
             key = sk,
             algo = algo,
             publicKey = publicKey,
-            hex = if (sk is ECPrivateKey) {
-                // TODO: padding
-                sk.d.toByteArray().bytesToHex()
-            } else {
-                // TODO: update log
-                throw IllegalArgumentException("PrivateKey must be an ECPublicKey")
-            }
+            hex = jsecPrivateKeyToHexString(sk, curveOrderSize)
         )
     }
 
@@ -198,10 +200,13 @@ object Crypto {
     }
 
     @JvmStatic
-    fun jsecPrivateKeyToHexString(sk: java.security.PrivateKey): String {
+    fun jsecPrivateKeyToHexString(sk: java.security.PrivateKey, curveOrderSize: Int): String {
         val hexString = if (sk is ECPrivateKey) {
-            // TODO: would be good to add padding
-            sk.d.toByteArray().bytesToHex()
+            val paddedSKBytes = ByteArray(curveOrderSize)
+            val skBytes = sk.d.toByteArray()
+            // sk byte size must be guaranteed to be less than curveOrderSize at this point
+            skBytes.copyInto(paddedSKBytes, max(curveOrderSize - skBytes.size, 0), max(skBytes.size - curveOrderSize, 0))
+            paddedSKBytes.bytesToHex()
         } else {
             throw IllegalArgumentException("PrivateKey must be an ECPublicKey")
         }
@@ -209,10 +214,15 @@ object Crypto {
     }
 
     @JvmStatic
-    fun jsecPublicKeyToHexString(pk: java.security.PublicKey): String {
+    fun jsecPublicKeyToHexString(pk: java.security.PublicKey, curveFieldSize: Int): String {
         val hexString = if (pk is ECPublicKey) {
-            // TODO: padding is missing
-            (pk.q.xCoord.encoded + pk.q.yCoord.encoded).bytesToHex()
+            val paddedPKBytes = ByteArray(2 * curveFieldSize)
+            val xBytes = pk.q.xCoord.encoded
+            val yBytes = pk.q.yCoord.encoded
+            // x and y must be guaranteed to be less than curveFieldSize each at this point
+            xBytes.copyInto(paddedPKBytes, max(curveFieldSize - xBytes.size, 0), max(xBytes.size - curveFieldSize, 0))
+            yBytes.copyInto(paddedPKBytes, curveFieldSize + max(curveFieldSize - yBytes.size, 0), max(yBytes.size - curveFieldSize, 0))
+            (xBytes + yBytes).bytesToHex()
         } else {
             throw IllegalArgumentException("PublicKey must be an ECPublicKey")
         }
@@ -257,14 +267,22 @@ object Crypto {
     }
 
     @JvmStatic
+    // curve prime field size in bytes
+    fun getCurveFieldSize(curve: ECDomainParameters): Int {
+        val bitSize = curve.curve.fieldSize
+        val byteSize = (bitSize + 7)/8
+        return byteSize
+    }
+
+    @JvmStatic
     fun formatSignature(r: BigInteger, s: BigInteger, curveOrderSize: Int): ByteArray {
         val paddedSignature = ByteArray(2 * curveOrderSize)
         val rBytes = r.toByteArray()
         val sBytes = s.toByteArray()
 
         // occasionally R/S bytes representation has leading zeroes, so make sure to copy them appropriately
-        rBytes.copyInto(paddedSignature, max(curveOrderSize - rBytes.size, 0), max(0, rBytes.size - curveOrderSize))
-        sBytes.copyInto(paddedSignature, max(2 * curveOrderSize - sBytes.size, curveOrderSize), max(0, sBytes.size - curveOrderSize))
+        rBytes.copyInto(paddedSignature, max(curveOrderSize - rBytes.size, 0),max(rBytes.size - curveOrderSize, 0))
+        sBytes.copyInto(paddedSignature, curveOrderSize + max(curveOrderSize - sBytes.size, 0),max(sBytes.size - curveOrderSize, 0))
         return paddedSignature
     }
 }
