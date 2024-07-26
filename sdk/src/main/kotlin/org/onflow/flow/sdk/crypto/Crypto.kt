@@ -123,22 +123,28 @@ object Crypto {
         )
     }
 
+    // Length of input hex string must be exactly the curve order in bytes.
+    // For instance if the curve order is 256 bits, the input string must be 64-hex characters.
     @JvmStatic
     @JvmOverloads
     fun decodePrivateKey(key: String, algo: SignatureAlgorithm = SignatureAlgorithm.ECDSA_P256): PrivateKey {
         checkSupportedSignAlgo(algo)
 
         val curveSpec = ECNamedCurveTable.getParameterSpec(algo.curve)
-        // TODO: check for hex key
-        // TODO: check string length
-        // TODO: missing check of the integer against the curve order
+        val curveOrderSize = getCurveOrderSize(Crypto.ECDomainFromECSpec(curveSpec))
+        val curveFieldSize = getCurveFieldSize(Crypto.ECDomainFromECSpec(curveSpec))
+
+        // check input string has the correct length
+        if (key.length != 2 * curveOrderSize) {
+            throw IllegalArgumentException("string length must be ${2* curveOrderSize}, got ${key.length}")
+        }
+
+        // ECPrivateKeySpec checks the input scalar is in [1..N-1] so there is no need to check it
+        // This also enforced by tests in the `SignTest` class
         val ecPrivateKeySpec = ECPrivateKeySpec(BigInteger(key, 16), curveSpec)
         val keyFactory = KeyFactory.getInstance(algo.algorithm, "BC")
         val sk = keyFactory.generatePrivate(ecPrivateKeySpec)
         val pk = derivePublicKey(sk)
-
-        val curveOrderSize = getCurveOrderSize(Crypto.ECDomainFromECSpec(curveSpec))
-        val curveFieldSize = getCurveFieldSize(Crypto.ECDomainFromECSpec(curveSpec))
 
         var publicKey = PublicKey(
             key = pk,
@@ -150,18 +156,24 @@ object Crypto {
             key = sk,
             algo = algo,
             publicKey = publicKey,
-            hex = jsecPrivateKeyToHexString(sk, curveOrderSize)
+            hex = key
         )
     }
 
+    // Length of input hex string must be exactly twice the curve prime field in bytes.
+    // For instance if the prime field is 256 bits, the input string must be 128-hex characters.
     @JvmStatic
     @JvmOverloads
     fun decodePublicKey(key: String, algo: SignatureAlgorithm = SignatureAlgorithm.ECDSA_P256): PublicKey {
         checkSupportedSignAlgo(algo)
-        // TODO: check for hex key
-        // TODO: check string length
         val ecParameterSpec = ECNamedCurveTable.getParameterSpec(algo.curve)
-        // TODO: check if that's necessary
+        val curveFieldSize = getCurveFieldSize(Crypto.ECDomainFromECSpec(ecParameterSpec))
+
+        // check input string has the correct length
+        if (key.length != 4 * curveFieldSize) {
+            throw IllegalArgumentException("string length must be ${2* curveFieldSize}, got ${key.length}")
+        }
+
         val params = ECNamedCurveSpec(
             algo.curve,
             ecParameterSpec.curve,
@@ -169,6 +181,8 @@ object Crypto {
             ecParameterSpec.n
         )
 
+        // ECPublicKeySpec checks the input point is on curve
+        // This also enforced by tests in the `SignTest` class
         val point = ECPointUtil.decodePoint(params.curve, byteArrayOf(0x04) + key.hexToBytes())
         val keySpec = java.security.spec.ECPublicKeySpec(point, params)
         val keyFactory = KeyFactory.getInstance("EC", "BC")
@@ -178,7 +192,6 @@ object Crypto {
             algo = algo,
             hex = key
         )
-
     }
 
     @JvmStatic

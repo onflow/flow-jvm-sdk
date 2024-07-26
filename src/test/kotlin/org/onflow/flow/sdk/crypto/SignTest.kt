@@ -4,19 +4,23 @@ import org.onflow.flow.sdk.HashAlgorithm
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.onflow.flow.sdk.SignatureAlgorithm
+import org.onflow.flow.sdk.bytesToHex
 import kotlin.random.Random
 
 internal data class SupportedCurve (
     val curve: SignatureAlgorithm,
     val privateKeySize: Int,
-    val publicKeySize: Int
+    val publicKeySize: Int,
+    val curveOrder: String
 )
 
 internal class SignTest {
     // all supported curves of the lib
     val supportedAlgos = listOf(
-        SupportedCurve(SignatureAlgorithm.ECDSA_SECP256k1, 32, 64),
-        SupportedCurve(SignatureAlgorithm.ECDSA_P256,32, 64)
+        SupportedCurve(SignatureAlgorithm.ECDSA_SECP256k1, 32, 64,
+            "fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141"),
+        SupportedCurve(SignatureAlgorithm.ECDSA_P256,32, 64,
+            "ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551")
     )
     val loopCount = 100
 
@@ -68,27 +72,63 @@ internal class SignTest {
 
     @Test
     fun `Private key decoding throws exception when invalid`() {
-        supportedAlgos.forEachIndexed { index, algo ->
+        supportedAlgos.forEachIndexed { _, algo ->
+            // non-hex key string of correct length
+            val nonHexKey = "GG" + ByteArray(algo.privateKeySize-1).bytesToHex()
             assertThrows(IllegalArgumentException::class.java) {
-                Crypto.decodePrivateKey("invalidKey", algo.curve)
+                Crypto.decodePrivateKey(nonHexKey, algo.curve)
             }
-            // TODO: add tests for:
-            // - 0 scalar
-            // - scalar >= N
+            // zero scalar
+            val zeroKey = ByteArray(algo.privateKeySize).bytesToHex()
+            assertThrows(IllegalArgumentException::class.java) {
+                Crypto.decodePrivateKey(zeroKey, algo.curve)
+            }
+            // scalar equal to N
+            assertThrows(IllegalArgumentException::class.java) {
+                Crypto.decodePrivateKey(algo.curveOrder, algo.curve)
+            }
+            // incorrect length
+            val longKey = Random.nextBytes(algo.privateKeySize + 1).bytesToHex()
+            assertThrows(IllegalArgumentException::class.java) {
+                Crypto.decodePrivateKey(longKey, algo.curve)
+            }
+            val shortKey = Random.nextBytes(algo.privateKeySize - 1).bytesToHex()
+            assertThrows(IllegalArgumentException::class.java) {
+                Crypto.decodePrivateKey(shortKey, algo.curve)
+            }
         }
     }
 
 
     @Test
     fun `Public key decoding throws exception when invalid`() {
-        supportedAlgos.forEachIndexed { index, algo ->
+        supportedAlgos.forEachIndexed { _, algo ->
+            val nonHexKey = "GG" + ByteArray(algo.publicKeySize-1).bytesToHex()
+            // non-hex key string of correct length
             assertThrows(IllegalArgumentException::class.java) {
-                Crypto.decodePublicKey("invalidKey", algo.curve)
+                Crypto.decodePublicKey(nonHexKey, algo.curve)
             }
-            // TODO: add tests for:
-            // - X or Y not in Z_p
-            // - X and Y in Z_p but point not on curve
-            // - infinity point
+            // zero key (this isn't necessary the infinity point)
+            val zeroKey = ByteArray(algo.publicKeySize).bytesToHex()
+            assertThrows(IllegalArgumentException::class.java) {
+                Crypto.decodePublicKey(zeroKey, algo.curve)
+            }
+            // incorrect length
+            val longKey = Random.nextBytes(algo.publicKeySize + 1).bytesToHex()
+            assertThrows(IllegalArgumentException::class.java) {
+                Crypto.decodePublicKey(longKey, algo.curve)
+            }
+            val shortKey = Random.nextBytes(algo.publicKeySize - 1).bytesToHex()
+            assertThrows(IllegalArgumentException::class.java) {
+                Crypto.decodePublicKey(shortKey, algo.curve)
+            }
+            // point is not on curve (x and y are in Z_p_
+            var invalidPoint = ByteArray(algo.publicKeySize)
+            invalidPoint[0] = 6 // x = 6
+            invalidPoint[algo.publicKeySize/2] = 4 // y = 4
+            assertThrows(IllegalArgumentException::class.java) {
+                Crypto.decodePublicKey(invalidPoint.bytesToHex(), algo.curve)
+            }
         }
     }
 
@@ -104,7 +144,6 @@ internal class SignTest {
         supportedAlgos.forEachIndexed { index, algo ->
             // decode the private key
             val sk = Crypto.decodePrivateKey(SK, algo.curve)
-            val k = sk.key
             // get the public key using the internal scalar point multiplication
             val pkHex = sk.publicKey.hex
             assertEquals(expectedPKs[index], pkHex)
@@ -115,8 +154,8 @@ internal class SignTest {
     fun `Test signer compatibility with hash algorithms`() {
         val supportedHashes = listOf(
             HashAlgorithm.SHA2_256,
-            //HashAlgorithm.SHA3_256,
-            //HashAlgorithm.KECCAK256
+            HashAlgorithm.SHA3_256,
+            HashAlgorithm.KECCAK256
         )
         val nonSupportedHashes = listOf(
             HashAlgorithm.KMAC128,
