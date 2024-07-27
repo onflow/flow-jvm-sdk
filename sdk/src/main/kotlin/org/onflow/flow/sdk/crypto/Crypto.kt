@@ -11,7 +11,7 @@ import org.bouncycastle.jce.ECPointUtil
 import org.bouncycastle.jce.interfaces.ECPrivateKey
 import org.bouncycastle.jce.interfaces.ECPublicKey
 import org.bouncycastle.jce.provider.BouncyCastleProvider
-import org. bouncycastle.jce.spec.ECParameterSpec
+import org.bouncycastle.jce.spec.ECParameterSpec
 import org.bouncycastle.crypto.signers.ECDSASigner
 import org.bouncycastle.jce.spec.ECNamedCurveSpec
 import org.bouncycastle.jce.spec.ECPrivateKeySpec
