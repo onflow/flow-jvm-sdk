@@ -102,8 +102,8 @@ object Crypto {
         val pk = keyPair.public
 
         val curveSpec = ECNamedCurveTable.getParameterSpec(algo.curve)
-        val curveOrderSize = getCurveOrderSize(Crypto.ecDomainFromECSpec(curveSpec))
-        val curveFieldSize = getCurveFieldSize(Crypto.ecDomainFromECSpec(curveSpec))
+        val curveOrderSize = getCurveOrderSize(ecDomainFromECSpec(curveSpec))
+        val curveFieldSize = getCurveFieldSize(ecDomainFromECSpec(curveSpec))
 
         val publicKey = PublicKey(
             key = pk,
@@ -130,8 +130,8 @@ object Crypto {
         checkSupportedSignAlgo(algo)
 
         val curveSpec = ECNamedCurveTable.getParameterSpec(algo.curve)
-        val curveOrderSize = getCurveOrderSize(Crypto.ecDomainFromECSpec(curveSpec))
-        val curveFieldSize = getCurveFieldSize(Crypto.ecDomainFromECSpec(curveSpec))
+        val curveOrderSize = getCurveOrderSize(ecDomainFromECSpec(curveSpec))
+        val curveFieldSize = getCurveFieldSize(ecDomainFromECSpec(curveSpec))
 
         // check input string has the correct length
         if (key.length != 2 * curveOrderSize) {
@@ -166,7 +166,7 @@ object Crypto {
     fun decodePublicKey(key: String, algo: SignatureAlgorithm = SignatureAlgorithm.ECDSA_P256): PublicKey {
         checkSupportedSignAlgo(algo)
         val ecParameterSpec = ECNamedCurveTable.getParameterSpec(algo.curve)
-        val curveFieldSize = getCurveFieldSize(Crypto.ECDomainFromECSpec(ecParameterSpec))
+        val curveFieldSize = getCurveFieldSize(ecDomainFromECSpec(ecParameterSpec))
 
         // check input string has the correct length
         if (key.length != 4 * curveFieldSize) {
@@ -268,7 +268,7 @@ object Crypto {
     @JvmStatic
     // curve order size in bytes
     fun getCurveOrderSize(curve: ECDomainParameters): Int {
-        val bitSize = curve.getN().bitLength()
+        val bitSize = curve.n.bitLength()
         val byteSize = (bitSize + 7) / 8
         return byteSize
     }

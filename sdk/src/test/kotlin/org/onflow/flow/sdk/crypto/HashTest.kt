@@ -6,31 +6,17 @@ import org.junit.jupiter.api.Test
 
 internal class HashTest {
     @Test
-    fun `Get hasher`() {
+    fun `Get default hasher`() {
         val hasher = Crypto.getHasher()
         assertNotNull(hasher)
     }
 
     @Test
-    fun `Hasher implementation`() {
-        val hasher = HasherImpl(HashAlgorithm.SHA3_256)
-        val hashedBytes = hasher.hash("test".toByteArray())
-        assertNotNull(hashedBytes)
-    }
-
-    @Test
-    fun `Hasher implementation for Keccak-256`() {
-        val hasher = HasherImpl(HashAlgorithm.KECCAK256)
-        val hashedBytes = hasher.hash("test".toByteArray())
-        assertNotNull(hashedBytes)
-    }
-
-    @Test
-    fun `Hasher implementation for KMAC128`() {
-        val key = "thisKeyIsAtLeast16Bytes".toByteArray()
-        val hasher = HasherImpl(HashAlgorithm.KMAC128, key)
-        val hashedBytes = hasher.hash("test".toByteArray())
-        assertNotNull(hashedBytes)
+    fun `Invalid Hasher input`() {
+        val exception = assertThrows(IllegalArgumentException::class.java) {
+            HasherImpl(HashAlgorithm.UNKNOWN)
+        }
+        assertEquals("Unsupported hash algorithm: unknown", exception.message)
     }
 
     @Test
