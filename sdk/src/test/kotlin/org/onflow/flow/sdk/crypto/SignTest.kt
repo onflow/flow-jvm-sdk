@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test
 import java.math.BigInteger
 import java.security.Signature
 
-internal class CryptoTest {
+internal class SignTest {
     @Test
     fun `Can generate KeyPair`() {
         val keyPair = Crypto.generateKeyPair()
