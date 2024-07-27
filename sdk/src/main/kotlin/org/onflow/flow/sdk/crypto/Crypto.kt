@@ -195,15 +195,11 @@ object Crypto {
 
     @JvmStatic
     @JvmOverloads
-    fun getSigner(privateKey: PrivateKey, hashAlgo: HashAlgorithm = HashAlgorithm.SHA3_256): Signer {
-        return SignerImpl(privateKey, hashAlgo)
-    }
+    fun getSigner(privateKey: PrivateKey, hashAlgo: HashAlgorithm = HashAlgorithm.SHA3_256): Signer = SignerImpl(privateKey, hashAlgo)
 
     @JvmStatic
     @JvmOverloads
-    fun getHasher(hashAlgo: HashAlgorithm = HashAlgorithm.SHA3_256): Hasher {
-        return HasherImpl(hashAlgo)
-    }
+    fun getHasher(hashAlgo: HashAlgorithm = HashAlgorithm.SHA3_256): Hasher = HasherImpl(hashAlgo)
 
     @JvmStatic
     fun ecDomainFromECSpec(spec: ECParameterSpec): ECDomainParameters {
@@ -335,22 +331,20 @@ internal class HasherImpl(
         }
     }
 
-    override fun hash(bytes: ByteArray): ByteArray {
-        return when (hashAlgo) {
-            HashAlgorithm.KECCAK256 -> {
-                val keccakDigest = Keccak.Digest256()
-                keccakDigest.digest(bytes)
-            }
-            HashAlgorithm.KMAC128 -> {
-                val output = ByteArray(outputSize)
-                kmac!!.update(bytes, 0, bytes.size)
-                kmac!!.doFinal(output, 0, outputSize)
-                output
-            }
-            else -> {
-                val digest = MessageDigest.getInstance(hashAlgo.algorithm)
-                digest.digest(bytes)
-            }
+    override fun hash(bytes: ByteArray): ByteArray = when (hashAlgo) {
+        HashAlgorithm.KECCAK256 -> {
+            val keccakDigest = Keccak.Digest256()
+            keccakDigest.digest(bytes)
+        }
+        HashAlgorithm.KMAC128 -> {
+            val output = ByteArray(outputSize)
+            kmac!!.update(bytes, 0, bytes.size)
+            kmac!!.doFinal(output, 0, outputSize)
+            output
+        }
+        else -> {
+            val digest = MessageDigest.getInstance(hashAlgo.algorithm)
+            digest.digest(bytes)
         }
     }
 

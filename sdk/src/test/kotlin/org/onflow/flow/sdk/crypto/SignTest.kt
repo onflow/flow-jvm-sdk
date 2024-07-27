@@ -7,7 +7,7 @@ import org.onflow.flow.sdk.SignatureAlgorithm
 import org.onflow.flow.sdk.bytesToHex
 import kotlin.random.Random
 
-internal data class SupportedCurve (
+internal data class SupportedCurve(
     val curve: SignatureAlgorithm,
     val privateKeySize: Int,
     val publicKeySize: Int,
@@ -17,10 +17,14 @@ internal data class SupportedCurve (
 internal class SignTest {
     // all supported curves of the lib
     val supportedAlgos = listOf(
-        SupportedCurve(SignatureAlgorithm.ECDSA_SECP256k1, 32, 64,
-            "fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141"),
-        SupportedCurve(SignatureAlgorithm.ECDSA_P256,32, 64,
-            "ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551")
+        SupportedCurve(
+            SignatureAlgorithm.ECDSA_SECP256k1, 32, 64,
+            "fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141"
+        ),
+        SupportedCurve(
+            SignatureAlgorithm.ECDSA_P256, 32, 64,
+            "ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551"
+        )
     )
     val loopCount = 100
 
@@ -43,7 +47,6 @@ internal class SignTest {
             }
         }
     }
-
 
     @Test
     fun `Can decode keys correctly`() {
@@ -74,7 +77,7 @@ internal class SignTest {
     fun `Private key decoding throws exception when invalid`() {
         supportedAlgos.forEachIndexed { _, algo ->
             // non-hex key string of correct length
-            val nonHexKey = "GG" + ByteArray(algo.privateKeySize-1).bytesToHex()
+            val nonHexKey = "GG" + ByteArray(algo.privateKeySize - 1).bytesToHex()
             assertThrows(IllegalArgumentException::class.java) {
                 Crypto.decodePrivateKey(nonHexKey, algo.curve)
             }
@@ -99,11 +102,10 @@ internal class SignTest {
         }
     }
 
-
     @Test
     fun `Public key decoding throws exception when invalid`() {
         supportedAlgos.forEachIndexed { _, algo ->
-            val nonHexKey = "GG" + ByteArray(algo.publicKeySize-1).bytesToHex()
+            val nonHexKey = "GG" + ByteArray(algo.publicKeySize - 1).bytesToHex()
             // non-hex key string of correct length
             assertThrows(IllegalArgumentException::class.java) {
                 Crypto.decodePublicKey(nonHexKey, algo.curve)
@@ -125,7 +127,7 @@ internal class SignTest {
             // point is not on curve (x and y are in Z_p_
             var invalidPoint = ByteArray(algo.publicKeySize)
             invalidPoint[0] = 6 // x = 6
-            invalidPoint[algo.publicKeySize/2] = 4 // y = 4
+            invalidPoint[algo.publicKeySize / 2] = 4 // y = 4
             assertThrows(IllegalArgumentException::class.java) {
                 Crypto.decodePublicKey(invalidPoint.bytesToHex(), algo.curve)
             }
@@ -174,7 +176,7 @@ internal class SignTest {
                 val exception = assertThrows(IllegalArgumentException::class.java) {
                     Crypto.getSigner(keyPair.private, hashAlgo)
                 }
-                assertEquals( "Unsupported hash algorithm: ${hashAlgo.algorithm}", exception.message)
+                assertEquals("Unsupported hash algorithm: ${hashAlgo.algorithm}", exception.message)
             }
         }
     }
@@ -191,21 +193,21 @@ internal class SignTest {
             supportedHashes.forEachIndexed { _, hashAlgo ->
                 val keyPair = Crypto.generateKeyPair(algo.curve)
                 val otherKeyPair = Crypto.generateKeyPair(algo.curve)
-                for (i in 0.. loopCount) {
-                    val message =  Random.nextBytes(20)
+                for (i in 0..loopCount) {
+                    val message = Random.nextBytes(20)
                     // signatures must be valid
                     val signer = Crypto.getSigner(keyPair.private, hashAlgo)
                     val signature = signer.sign(message)
                     assertTrue(keyPair.public.verify(signature, message, hashAlgo))
                     // signatures against a different message must fail
-                    val otherMessage =  Random.nextBytes(16)
+                    val otherMessage = Random.nextBytes(16)
                     assertFalse(keyPair.public.verify(signature, otherMessage, hashAlgo))
                     // signatures against a different key must fail
                     assertFalse(otherKeyPair.public.verify(signature, message, hashAlgo))
-                    }
                 }
             }
         }
+    }
 
     @Test
     fun `Test signer with invalid algo keys`() {
