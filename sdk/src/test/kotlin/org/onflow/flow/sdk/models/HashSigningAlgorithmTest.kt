@@ -1,9 +1,9 @@
 package org.onflow.flow.sdk.models
 
 import org.onflow.flow.sdk.HashAlgorithm
+import org.onflow.flow.sdk.SignatureAlgorithm
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import org.onflow.flow.sdk.SignatureAlgorithm
 
 class SignatureAndHashingModelTest {
     @Test
