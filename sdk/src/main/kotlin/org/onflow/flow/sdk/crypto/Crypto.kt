@@ -11,7 +11,7 @@ import org.bouncycastle.jce.ECPointUtil
 import org.bouncycastle.jce.interfaces.ECPrivateKey
 import org.bouncycastle.jce.interfaces.ECPublicKey
 import org.bouncycastle.jce.provider.BouncyCastleProvider
-import org. bouncycastle. jce. spec. ECParameterSpec
+import org. bouncycastle.jce.spec.ECParameterSpec
 import org.bouncycastle.crypto.signers.ECDSASigner
 import org.bouncycastle.jce.spec.ECNamedCurveSpec
 import org.bouncycastle.jce.spec.ECPrivateKeySpec
@@ -22,7 +22,6 @@ import org.onflow.flow.sdk.Signer
 import java.math.BigInteger
 import java.security.*
 import kotlin.math.max
-
 
 // TODO: keyPair is an obsolete class and should be deprecated.
 // It is equivalent to the private key since it contains the private key value.
@@ -66,7 +65,7 @@ data class PublicKey(
 
         // verify the hash
         val ecdsaObject = ECDSASigner()
-        val domain = Crypto.ECDomainFromECSpec(ecPK.parameters)
+        val domain = Crypto.ecDomainFromECSpec(ecPK.parameters)
         val cipherParams = ECPublicKeyParameters(ecPK.q, domain)
         ecdsaObject.init(false, cipherParams)
         val curveOrderSize = Crypto.getCurveOrderSize(domain)
@@ -88,7 +87,7 @@ object Crypto {
     fun checkSupportedSignAlgo(algo: SignatureAlgorithm) {
         // only ECDSA with 2 curves are currently supported
         if (algo !in listOf(SignatureAlgorithm.ECDSA_SECP256k1, SignatureAlgorithm.ECDSA_P256)) {
-            throw IllegalArgumentException("algorithm ${algo} is not supported")
+            throw IllegalArgumentException("algorithm $algo is not supported")
         }
     }
 
@@ -103,8 +102,8 @@ object Crypto {
         val pk = keyPair.public
 
         val curveSpec = ECNamedCurveTable.getParameterSpec(algo.curve)
-        val curveOrderSize = getCurveOrderSize(Crypto.ECDomainFromECSpec(curveSpec))
-        val curveFieldSize = getCurveFieldSize(Crypto.ECDomainFromECSpec(curveSpec))
+        val curveOrderSize = getCurveOrderSize(Crypto.ecDomainFromECSpec(curveSpec))
+        val curveFieldSize = getCurveFieldSize(Crypto.ecDomainFromECSpec(curveSpec))
 
         val publicKey = PublicKey(
             key = pk,
@@ -131,12 +130,12 @@ object Crypto {
         checkSupportedSignAlgo(algo)
 
         val curveSpec = ECNamedCurveTable.getParameterSpec(algo.curve)
-        val curveOrderSize = getCurveOrderSize(Crypto.ECDomainFromECSpec(curveSpec))
-        val curveFieldSize = getCurveFieldSize(Crypto.ECDomainFromECSpec(curveSpec))
+        val curveOrderSize = getCurveOrderSize(Crypto.ecDomainFromECSpec(curveSpec))
+        val curveFieldSize = getCurveFieldSize(Crypto.ecDomainFromECSpec(curveSpec))
 
         // check input string has the correct length
         if (key.length != 2 * curveOrderSize) {
-            throw IllegalArgumentException("string length must be ${2* curveOrderSize}, got ${key.length}")
+            throw IllegalArgumentException("string length must be ${2 * curveOrderSize}, got ${key.length}")
         }
 
         // ECPrivateKeySpec checks the input scalar is in [1..N-1] so there is no need to check it
@@ -171,7 +170,7 @@ object Crypto {
 
         // check input string has the correct length
         if (key.length != 4 * curveFieldSize) {
-            throw IllegalArgumentException("string length must be ${2* curveFieldSize}, got ${key.length}")
+            throw IllegalArgumentException("string length must be ${2 * curveFieldSize}, got ${key.length}")
         }
 
         val params = ECNamedCurveSpec(
@@ -207,7 +206,7 @@ object Crypto {
     }
 
     @JvmStatic
-    fun ECDomainFromECSpec(spec: ECParameterSpec): ECDomainParameters {
+    fun ecDomainFromECSpec(spec: ECParameterSpec): ECDomainParameters {
         val domain = ECDomainParameters(spec.curve, spec.g, spec.n, spec.h)
         return domain
     }
@@ -244,7 +243,7 @@ object Crypto {
 
     // only supported for ECDSA - calling code should make sure this is the case
     @JvmStatic
-    fun derivePublicKey(sk: java.security.PrivateKey): java.security.PublicKey{
+    fun derivePublicKey(sk: java.security.PrivateKey): java.security.PublicKey {
         val ecSK = if (sk is ECPrivateKey) {
             sk
         } else {
@@ -270,12 +269,11 @@ object Crypto {
         }
     }
 
-
     @JvmStatic
     // curve order size in bytes
     fun getCurveOrderSize(curve: ECDomainParameters): Int {
         val bitSize = curve.getN().bitLength()
-        val byteSize = (bitSize + 7)/8
+        val byteSize = (bitSize + 7) / 8
         return byteSize
     }
 
@@ -283,7 +281,7 @@ object Crypto {
     // curve prime field size in bytes
     fun getCurveFieldSize(curve: ECDomainParameters): Int {
         val bitSize = curve.curve.fieldSize
-        val byteSize = (bitSize + 7)/8
+        val byteSize = (bitSize + 7) / 8
         return byteSize
     }
 
@@ -294,8 +292,8 @@ object Crypto {
         val sBytes = s.toByteArray()
 
         // occasionally R/S bytes representation has leading zeroes, so make sure to copy them appropriately
-        rBytes.copyInto(paddedSignature, max(curveOrderSize - rBytes.size, 0),max(rBytes.size - curveOrderSize, 0))
-        sBytes.copyInto(paddedSignature, curveOrderSize + max(curveOrderSize - sBytes.size, 0),max(sBytes.size - curveOrderSize, 0))
+        rBytes.copyInto(paddedSignature, max(curveOrderSize - rBytes.size, 0), max(rBytes.size - curveOrderSize, 0))
+        sBytes.copyInto(paddedSignature, curveOrderSize + max(curveOrderSize - sBytes.size, 0), max(sBytes.size - curveOrderSize, 0))
         return paddedSignature
     }
 }
@@ -367,12 +365,11 @@ internal class HasherImpl(
     }
 }
 
-
 internal class SignerImpl(
     private val privateKey: PrivateKey,
     private val hashAlgo: HashAlgorithm
 ) : Signer {
-    init{
+    init {
         Crypto.checkSupportedSignAlgo(privateKey.algo)
         Crypto.checkHashAlgoForSigning(hashAlgo)
     }
@@ -390,7 +387,7 @@ internal class SignerImpl(
 
         // verify the hash
         val ecdsaObject = ECDSASigner()
-        val domain = Crypto.ECDomainFromECSpec(ecSK.parameters)
+        val domain = Crypto.ecDomainFromECSpec(ecSK.parameters)
         val cipherParams = ECPrivateKeyParameters(ecSK.d, domain)
         ecdsaObject.init(true, cipherParams)
         val RS = ecdsaObject.generateSignature(hash)
