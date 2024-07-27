@@ -159,9 +159,8 @@ internal class SignTest {
         )
         val nonSupportedHashes = listOf(
             HashAlgorithm.KMAC128,
-            // TODO: uncomment after merging master
-            //HashAlgorithm.SHA2_384,
-            //HashAlgorithm.SHA3_384,
+            HashAlgorithm.SHA2_384,
+            HashAlgorithm.SHA3_384,
         )
         supportedAlgos.forEachIndexed { _, algo ->
             supportedHashes.forEachIndexed { _, hashAlgo ->
@@ -175,7 +174,7 @@ internal class SignTest {
                 val exception = assertThrows(IllegalArgumentException::class.java) {
                     Crypto.getSigner(keyPair.private, hashAlgo)
                 }
-                assertEquals(exception.message, "Unsupported hash algorithm: ${hashAlgo.algorithm}")
+                assertEquals( "Unsupported hash algorithm: ${hashAlgo.algorithm}", exception.message)
             }
         }
     }
