@@ -3,9 +3,6 @@ package org.onflow.flow.sdk
 import org.onflow.flow.sdk.cadence.AddressField
 
 object IntegrationTestUtils {
-    fun loadScript(name: String): ByteArray =
-        javaClass.classLoader.getResourceAsStream(name)?.use { it.readAllBytes() }
-            ?: throw IllegalArgumentException("Script not found: $name")
     fun newMainnetAccessApi(): FlowAccessApi = Flow.newAccessApi(MAINNET_HOSTNAME)
 
     fun newTestnetAccessApi(): FlowAccessApi = Flow.newAccessApi(TESTNET_HOSTNAME)

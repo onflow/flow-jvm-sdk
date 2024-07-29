@@ -4,10 +4,10 @@ import org.onflow.flow.sdk.cadence.*
 import org.onflow.flow.sdk.crypto.Crypto
 import org.onflow.flow.sdk.test.FlowEmulatorProjectTest
 import org.onflow.flow.sdk.test.FlowTestClient
+import org.onflow.flow.sdk.test.FlowTestUtil
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import org.onflow.flow.sdk.TestUtils.loadScript
 import java.math.BigDecimal
 import java.nio.charset.StandardCharsets
 
@@ -52,7 +52,7 @@ class ScriptTest {
 
     @Test
     fun `Can execute a script`() {
-        val loadedScript = String(loadScript("cadence/hello_world.cdc"), StandardCharsets.UTF_8)
+        val loadedScript = String(FlowTestUtil.loadScript("cadence/hello_world.cdc"), StandardCharsets.UTF_8)
         val result = accessAPI.simpleFlowScript {
             script {
                 loadedScript
@@ -75,7 +75,7 @@ class ScriptTest {
     @Test
     fun `Can input and export arguments`() {
         val address = "e467b9dd11fa00df"
-        val loadedScript = String(loadScript("cadence/import_export_arguments.cdc"), StandardCharsets.UTF_8)
+        val loadedScript = String(FlowTestUtil.loadScript("cadence/import_export_arguments.cdc"), StandardCharsets.UTF_8)
 
         val result = accessAPI.simpleFlowScript {
             script {
@@ -136,7 +136,7 @@ class ScriptTest {
                 )
             }
         }
-        val loadedScript = String(loadScript("cadence/domain_tags.cdc"), StandardCharsets.UTF_8)
+        val loadedScript = String(FlowTestUtil.loadScript("cadence/domain_tags.cdc"), StandardCharsets.UTF_8)
 
         val result = accessAPI.simpleFlowScript {
             script {

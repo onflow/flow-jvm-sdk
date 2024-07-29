@@ -4,10 +4,9 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 val defaultGroupId = "org.onflow"
 val defaultVersion = "1.0.1"
 
-// Helper function to get properties
 fun getProp(name: String, defaultValue: String? = null): String? {
-    return project.findProperty("flow.$name")?.toString()?.trim()?.ifBlank { null }
-        ?: project.findProperty(name)?.toString()?.trim()?.ifBlank { null }
+    return findProperty("flow.$name")?.toString()?.trim()?.ifBlank { null }
+        ?: findProperty(name)?.toString()?.trim()?.ifBlank { null }
         ?: defaultValue
 }
 
