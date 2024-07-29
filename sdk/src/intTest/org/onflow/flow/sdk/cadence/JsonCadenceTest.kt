@@ -6,6 +6,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.onflow.flow.sdk.*
 import java.nio.charset.StandardCharsets
+import org.onflow.flow.common.test.FlowTestUtil
 
 class JsonCadenceTest {
     @Serializable
@@ -47,7 +48,7 @@ class JsonCadenceTest {
     }
 
     private fun loadScriptContent(path: String): String {
-        return String(IntegrationTestUtils.loadScript(path), StandardCharsets.UTF_8)
+        return String(FlowTestUtil.loadScript(path), StandardCharsets.UTF_8)
     }
 
     private fun executeScript(scriptPath: String): FlowAccessApi.AccessApiCallResponse<FlowScriptResponse> {
