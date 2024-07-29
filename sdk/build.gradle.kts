@@ -11,8 +11,8 @@ plugins {
 }
 
 fun getProp(name: String, defaultValue: String? = null): String? {
-    return findProperty("flow.$name")?.toString()?.trim()?.ifBlank { null }
-        ?: findProperty(name)?.toString()?.trim()?.ifBlank { null }
+    return project.findProperty("flow.$name")?.toString()?.trim()?.ifBlank { null }
+        ?: project.findProperty(name)?.toString()?.trim()?.ifBlank { null }
         ?: defaultValue
 }
 

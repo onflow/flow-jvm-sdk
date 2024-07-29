@@ -38,6 +38,7 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-engine:5.7.0")
 
     implementation(project(":sdk"))
+    implementation(project(":common"))
     testImplementation(testFixtures(project(":common")))
 }
 

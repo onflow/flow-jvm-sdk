@@ -5,8 +5,8 @@ val defaultGroupId = "org.onflow"
 val defaultVersion = "1.0.1"
 
 fun getProp(name: String, defaultValue: String? = null): String? {
-    return findProperty("flow.$name")?.toString()?.trim()?.ifBlank { null }
-        ?: findProperty(name)?.toString()?.trim()?.ifBlank { null }
+    return project.findProperty("flow.$name")?.toString()?.trim()?.ifBlank { null }
+        ?: project.findProperty(name)?.toString()?.trim()?.ifBlank { null }
         ?: defaultValue
 }
 
