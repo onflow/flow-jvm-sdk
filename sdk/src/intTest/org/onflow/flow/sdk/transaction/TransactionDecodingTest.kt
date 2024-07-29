@@ -2,9 +2,9 @@ package org.onflow.flow.sdk.transaction
 
 import org.onflow.flow.sdk.*
 import org.assertj.core.api.Assertions.assertThat
-import org.onflow.flow.sdk.test.FlowEmulatorTest
+import org.onflow.flow.common.test.FlowEmulatorTest
 import org.junit.jupiter.api.Test
-import org.onflow.flow.sdk.test.FlowTestUtil
+import org.onflow.flow.common.test.FlowTestUtil
 import java.nio.charset.StandardCharsets
 
 @FlowEmulatorTest

@@ -3,6 +3,7 @@ package org.onflow.examples.kotlin
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.onflow.flow.common.test.*
 import org.onflow.flow.sdk.FlowAccessApi
 import org.onflow.flow.sdk.FlowAddress
 import org.onflow.flow.sdk.crypto.Crypto

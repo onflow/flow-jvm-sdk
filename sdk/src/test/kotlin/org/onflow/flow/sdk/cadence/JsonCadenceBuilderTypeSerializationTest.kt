@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
 import java.nio.charset.StandardCharsets
-import org.onflow.flow.sdk.test.FlowTestUtil
+import org.onflow.flow.common.test.FlowTestUtil
 
 class JsonCadenceBuilderTypeSerializationTest {
     private val objectMapper: ObjectMapper = jacksonObjectMapper()

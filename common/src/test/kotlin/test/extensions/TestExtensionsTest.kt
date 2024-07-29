@@ -7,6 +7,7 @@ import org.onflow.flow.sdk.test.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import org.onflow.flow.common.test.*
 
 @FlowEmulatorTest
 class TestExtensionsTest {

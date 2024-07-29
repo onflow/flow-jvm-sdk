@@ -4,10 +4,10 @@ import org.onflow.flow.sdk.AsyncFlowAccessApi
 import org.onflow.flow.sdk.FlowAccessApi
 import org.onflow.flow.sdk.HashAlgorithm
 import org.onflow.flow.sdk.SignatureAlgorithm
-import org.onflow.flow.sdk.test.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import org.onflow.flow.common.test.*
 
 @FlowEmulatorProjectTest(
     flowJsonLocation = "flow/flow.json",

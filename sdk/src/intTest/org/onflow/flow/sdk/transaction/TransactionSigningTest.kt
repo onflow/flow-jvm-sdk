@@ -1,11 +1,11 @@
 package org.onflow.flow.sdk.transaction
 
 import org.onflow.flow.sdk.crypto.Crypto
-import org.onflow.flow.sdk.test.FlowEmulatorTest
-import org.onflow.flow.sdk.test.FlowServiceAccountCredentials
-import org.onflow.flow.sdk.test.FlowTestClient
-import org.onflow.flow.sdk.test.FlowTestUtil
-import org.onflow.flow.sdk.test.TestAccount
+import org.onflow.flow.common.test.FlowEmulatorTest
+import org.onflow.flow.common.test.FlowServiceAccountCredentials
+import org.onflow.flow.common.test.FlowTestClient
+import org.onflow.flow.common.test.FlowTestUtil
+import org.onflow.flow.common.test.TestAccount
 import org.junit.jupiter.api.Test
 import org.onflow.flow.sdk.*
 import org.onflow.flow.sdk.IntegrationTestUtils.transaction
