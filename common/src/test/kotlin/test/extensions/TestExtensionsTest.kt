@@ -3,7 +3,6 @@ package org.onflow.flow.sdk.extensions
 import org.onflow.flow.sdk.AsyncFlowAccessApi
 import org.onflow.flow.sdk.FlowAccessApi
 import org.onflow.flow.sdk.SignatureAlgorithm
-import org.onflow.flow.sdk.test.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
