@@ -4,12 +4,12 @@ import org.onflow.flow.sdk.crypto.Crypto
 import org.onflow.flow.sdk.test.FlowEmulatorTest
 import org.onflow.flow.sdk.test.FlowServiceAccountCredentials
 import org.onflow.flow.sdk.test.FlowTestClient
+import org.onflow.flow.sdk.test.FlowTestUtil
 import org.onflow.flow.sdk.test.TestAccount
 import org.junit.jupiter.api.Assertions.*
 import org.onflow.flow.sdk.IntegrationTestUtils.getAccount
 import org.onflow.flow.sdk.IntegrationTestUtils.getAccountAddressFromResult
 import org.onflow.flow.sdk.IntegrationTestUtils.handleResult
-import org.onflow.flow.sdk.IntegrationTestUtils.loadScript
 import java.math.BigDecimal
 import java.nio.charset.StandardCharsets
 
@@ -42,7 +42,7 @@ class ExposeAccountKeyIssueTest {
         val pair1 = Crypto.generateKeyPair(signatureAlgorithm1)
         val signer1 = Crypto.getSigner(pair1.private, hashAlgorithm1)
 
-        val loadedScript1 = String(loadScript("cadence/expose_account_key_issue/expose_account_key_issue_1.cdc"), StandardCharsets.UTF_8)
+        val loadedScript1 = String(FlowTestUtil.loadScript("cadence/expose_account_key_issue/expose_account_key_issue_1.cdc"), StandardCharsets.UTF_8)
         val createAccountResult = flow.simpleFlowTransaction(
             serviceAccount.flowAddress,
             serviceAccount.signer
@@ -73,7 +73,7 @@ class ExposeAccountKeyIssueTest {
         val pair2 = Crypto.generateKeyPair(signatureAlgorithm2)
         val signer2 = Crypto.getSigner(pair2.private, hashAlgorithm2)
 
-        val loadedScript2 = String(loadScript("cadence/expose_account_key_issue/expose_account_key_issue_2.cdc"), StandardCharsets.UTF_8)
+        val loadedScript2 = String(FlowTestUtil.loadScript("cadence/expose_account_key_issue/expose_account_key_issue_2.cdc"), StandardCharsets.UTF_8)
         val addKeyResult = flow.simpleFlowTransaction(newAccountAddress, signer1) {
             script {
                 loadedScript2
@@ -96,7 +96,7 @@ class ExposeAccountKeyIssueTest {
         assertFalse(updatedAccount.keys[0].revoked)
         assertFalse(updatedAccount.keys[1].revoked)
 
-        val loadedScript3 = String(loadScript("cadence/expose_account_key_issue/expose_account_key_issue_3.cdc"), StandardCharsets.UTF_8)
+        val loadedScript3 = String(FlowTestUtil.loadScript("cadence/expose_account_key_issue/expose_account_key_issue_3.cdc"), StandardCharsets.UTF_8)
         // Remove the second key
         val removeKeyResult = flow.simpleFlowTransaction(newAccountAddress, signer1) {
             script {
