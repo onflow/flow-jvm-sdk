@@ -22,6 +22,7 @@ import org.onflow.flow.sdk.Signer
 import java.math.BigInteger
 import java.security.*
 import kotlin.math.max
+import kotlin.random.Random
 
 // TODO: keyPair is an obsolete class and should be deprecated.
 // It is equivalent to the private key since it contains the private key value.
@@ -143,6 +144,8 @@ object Crypto {
         val ecPrivateKeySpec = ECPrivateKeySpec(BigInteger(key, 16), curveSpec)
         val keyFactory = KeyFactory.getInstance(algo.algorithm, "BC")
         val sk = keyFactory.generatePrivate(ecPrivateKeySpec)
+        // ideally `ecPrivateKeySpec.d` should be randomized or destroyed but
+        // BigIntegers seem to be immutable types
         val pk = derivePublicKey(sk)
 
         var publicKey = PublicKey(
@@ -209,12 +212,15 @@ object Crypto {
 
     @JvmStatic
     fun jsecPrivateKeyToHexString(sk: java.security.PrivateKey, curveOrderSize: Int): String {
-        val hexString = if (sk is ECPrivateKey) {
+        var hexString = ""
+        if (sk is ECPrivateKey) {
             val paddedSKBytes = ByteArray(curveOrderSize)
             val skBytes = sk.d.toByteArray()
             // sk byte size must be guaranteed to be less than curveOrderSize at this point
             skBytes.copyInto(paddedSKBytes, max(curveOrderSize - skBytes.size, 0), max(skBytes.size - curveOrderSize, 0))
-            paddedSKBytes.bytesToHex()
+            hexString = paddedSKBytes.bytesToHex()
+            Random.nextBytes(skBytes)
+            Random.nextBytes(paddedSKBytes)
         } else {
             throw IllegalArgumentException("PrivateKey must be an ECPublicKey")
         }
