@@ -124,7 +124,7 @@ internal class SignTest {
             assertThrows(IllegalArgumentException::class.java) {
                 Crypto.decodePublicKey(shortKey, algo.curve)
             }
-            // point is not on curve (x and y are in Z_p_
+            // point is not on curve (x and y are in Z_p)
             var invalidPoint = ByteArray(algo.publicKeySize)
             invalidPoint[0] = 6 // x = 6
             invalidPoint[algo.publicKeySize / 2] = 4 // y = 4
@@ -213,7 +213,7 @@ internal class SignTest {
     fun `Test signer with invalid algo keys`() {
         val keyPair = Crypto.generateKeyPair(SignatureAlgorithm.ECDSA_P256)
 
-        // get signer with invalid-algo key
+        // get signer with an invalid-algo key
         val invalidSK = PrivateKey(
             key = keyPair.private.key,
             algo = SignatureAlgorithm.UNKNOWN,
@@ -225,7 +225,7 @@ internal class SignTest {
         }
         assertEquals(exception.message, "algorithm ${SignatureAlgorithm.UNKNOWN} is not supported")
 
-        // verify with invalid-algo key
+        // verify with an invalid-algo key
         val invalidPK = PublicKey(
             key = keyPair.public.key,
             algo = SignatureAlgorithm.UNKNOWN,

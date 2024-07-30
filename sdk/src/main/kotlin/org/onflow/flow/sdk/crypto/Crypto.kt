@@ -25,8 +25,9 @@ import kotlin.math.max
 import kotlin.random.Random
 
 // TODO: keyPair is an obsolete class and should be deprecated.
-// It is equivalent to the private key since it contains the private key value.
-// This isn't deprecated for now till the breaking change impact is assessed.
+// It is equivalent to the private key since it contains the private key value
+// (the public part is derivable from the private part). This isn't deprecated
+// for now till the breaking change impact is assessed.
 data class KeyPair(
     val private: PrivateKey,
     val public: PublicKey
@@ -55,13 +56,13 @@ data class PublicKey(
         Crypto.checkSupportedSignAlgo(algo)
         Crypto.checkHashAlgoForSigning(hashAlgo)
 
-        // check the input key if of the correct type
+        // check the input key is of the correct type
         val ecPK = if (key is ECPublicKey) {
             key
         } else {
             throw IllegalArgumentException("key in PublicKey must be an ECPublicKey")
         }
-        // check the hash algo and compute the hash
+        // compute the hash
         val hash = HasherImpl(hashAlgo).hash(message)
 
         // verify the hash
@@ -86,7 +87,7 @@ object Crypto {
 
     @JvmStatic
     fun checkSupportedSignAlgo(algo: SignatureAlgorithm) {
-        // only ECDSA with 2 curves are currently supported
+        // only ECDSA with 2 curves is currently supported
         if (algo !in listOf(SignatureAlgorithm.ECDSA_SECP256k1, SignatureAlgorithm.ECDSA_P256)) {
             throw IllegalArgumentException("algorithm $algo is not supported")
         }
@@ -139,13 +140,14 @@ object Crypto {
             throw IllegalArgumentException("string length must be ${2 * curveOrderSize}, got ${key.length}")
         }
 
-        // ECPrivateKeySpec checks the input scalar is in [1..N-1] so there is no need to check it
+        // ECPrivateKeySpec checks the input scalar is in [1..N-1] so there
+        // is no need to check it again.
         // This also enforced by tests in the `SignTest` class
         val ecPrivateKeySpec = ECPrivateKeySpec(BigInteger(key, 16), curveSpec)
         val keyFactory = KeyFactory.getInstance(algo.algorithm, "BC")
         val sk = keyFactory.generatePrivate(ecPrivateKeySpec)
         // ideally `ecPrivateKeySpec.d` should be randomized or destroyed but
-        // BigIntegers seem to be immutable types
+        // BigInteger seems to be an immutable type.
         val pk = derivePublicKey(sk)
 
         var publicKey = PublicKey(
@@ -183,7 +185,8 @@ object Crypto {
             ecParameterSpec.n
         )
 
-        // ECPublicKeySpec checks the input point is on curve
+        // ECPublicKeySpec checks the input point is on curve so there is no need to
+        // check it again.
         // This also enforced by tests in the `SignTest` class
         val point = ECPointUtil.decodePoint(params.curve, byteArrayOf(0x04) + key.hexToBytes())
         val keySpec = java.security.spec.ECPublicKeySpec(point, params)
@@ -263,10 +266,9 @@ object Crypto {
 
     @JvmStatic
     fun checkHashAlgoForSigning(hashAlgo: HashAlgorithm) {
-        // check the hash algo and compute the hash
         if (hashAlgo !in listOf(HashAlgorithm.KECCAK256, HashAlgorithm.SHA2_256, HashAlgorithm.SHA3_256)) {
-            // only allow hashes of 256 bits to match the supported curves (order of 256 bits),
-            // although higher hashes could be used in theory
+            // only allow hashes of 256 bits, to match the supported curves (order of 256 bits),
+            // although higher hashes could be used in theory (FIPS 186-4)
             throw IllegalArgumentException("Unsupported hash algorithm: ${hashAlgo.algorithm}")
         }
     }
@@ -385,7 +387,7 @@ internal class SignerImpl(
         // compute the hash
         val hash = HasherImpl(hashAlgo).hash(bytes)
 
-        // verify the hash
+        // sign the hash
         val ecdsaObject = ECDSASigner()
         val domain = Crypto.ecDomainFromECSpec(ecSK.parameters)
         val cipherParams = ECPrivateKeyParameters(ecSK.d, domain)
