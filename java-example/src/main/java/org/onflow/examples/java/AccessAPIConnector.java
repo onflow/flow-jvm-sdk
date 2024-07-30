@@ -1,6 +1,5 @@
 package org.onflow.examples.java;
 
-import com.google.common.io.BaseEncoding;
 import org.bouncycastle.util.encoders.Hex;
 import org.onflow.flow.sdk.*;
 import org.onflow.flow.sdk.cadence.AddressField;
