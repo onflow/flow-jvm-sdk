@@ -2,13 +2,19 @@ package org.onflow.flow.sdk.cadence
 
 import kotlinx.serialization.Serializable
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.onflow.flow.common.test.FlowEmulatorTest
+import org.onflow.flow.common.test.FlowTestClient
 import org.onflow.flow.sdk.*
 import java.nio.charset.StandardCharsets
 import org.onflow.flow.common.test.FlowTestUtil
 
+@FlowEmulatorTest
 class JsonCadenceTest {
+
+    @FlowTestClient
+    lateinit var flow: FlowAccessApi
+
     @Serializable
     data class StorageInfo(
         val capacity: Int,
@@ -39,13 +45,6 @@ class JsonCadenceTest {
     data class SomeEnum(
         val rawValue: Int
     )
-
-    private lateinit var flow: FlowAccessApi
-
-    @BeforeEach
-    fun setup() {
-        flow = IntegrationTestUtils.newMainnetAccessApi()
-    }
 
     private fun loadScriptContent(path: String): String {
         return String(FlowTestUtil.loadScript(path), StandardCharsets.UTF_8)

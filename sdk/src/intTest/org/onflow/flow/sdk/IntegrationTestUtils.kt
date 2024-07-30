@@ -3,12 +3,6 @@ package org.onflow.flow.sdk
 import org.onflow.flow.sdk.cadence.AddressField
 
 object IntegrationTestUtils {
-    fun newMainnetAccessApi(): FlowAccessApi = Flow.newAccessApi(MAINNET_HOSTNAME)
-
-    fun newTestnetAccessApi(): FlowAccessApi = Flow.newAccessApi(TESTNET_HOSTNAME)
-
-    private const val MAINNET_HOSTNAME = "access.mainnet.nodes.onflow.org"
-    private const val TESTNET_HOSTNAME = "access.devnet.nodes.onflow.org"
 
     var transaction = FlowTransaction(
         script = FlowScript("import 0xsomething \n {}"),
