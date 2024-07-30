@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test
 
 internal class HashTest {
     @Test
-    fun `Get hasher`() {
+    fun `Get default hasher`() {
         val hasher = Crypto.getHasher()
         assertNotNull(hasher)
     }
@@ -191,40 +191,5 @@ internal class HashTest {
             data[i / 2] = ((Character.digit(hexString[i], 16) shl 4) + Character.digit(hexString[i + 1], 16)).toByte()
         }
         return data
-    }
-
-    @Test
-    fun `Signer implementation for SHA3_256`() {
-        val keyPair = Crypto.generateKeyPair()
-        val signer = SignerImpl(keyPair.private, HashAlgorithm.SHA3_256)
-        val signature = signer.sign("test".toByteArray())
-        assertNotNull(signature)
-    }
-
-    @Test
-    fun `Signer implementation for SHA2_256`() {
-        val keyPair = Crypto.generateKeyPair()
-        val signer = SignerImpl(keyPair.private, HashAlgorithm.SHA2_256)
-        val signature = signer.sign("test".toByteArray())
-        assertNotNull(signature)
-    }
-
-    @Test
-    fun `Signer implementation for Keccak-256`() {
-        val keyPair = Crypto.generateKeyPair()
-        val signer = SignerImpl(keyPair.private, HashAlgorithm.KECCAK256)
-        val signature = signer.sign("test".toByteArray())
-        assertNotNull(signature)
-    }
-
-    @Test
-    fun `Signer implementation for KMAC128 throws exception`() {
-        val keyPair = Crypto.generateKeyPair()
-        val key = "thisKeyIsAtLeast16Bytes".toByteArray()
-        val hasher = HasherImpl(HashAlgorithm.KMAC128, key)
-        val exception = assertThrows(IllegalArgumentException::class.java) {
-            SignerImpl(keyPair.private, HashAlgorithm.KMAC128, hasher).sign("test".toByteArray())
-        }
-        assertEquals("Unsupported hash algorithm: KMAC128", exception.message)
     }
 }

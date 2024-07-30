@@ -1,11 +1,11 @@
 package org.onflow.flow.sdk.models
 
+import org.onflow.flow.sdk.HashAlgorithm
 import org.onflow.flow.sdk.SignatureAlgorithm
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import org.onflow.flow.sdk.HashAlgorithm
 
-class SignatureAlgorithmTest {
+class SignatureAndHashingModelTest {
     @Test
     fun `Test hashing algo fromCode`() {
         // based on https://developers.flow.com/build/basics/accounts#signature-and-hash-algorithms
@@ -28,25 +28,27 @@ class SignatureAlgorithmTest {
 
     @Test
     fun `Test signature algo fromCode`() {
+        // based on https://developers.flow.com/build/basics/accounts#signature-and-hash-algorithms
         assertEquals(SignatureAlgorithm.ECDSA_P256, SignatureAlgorithm.fromCode(2))
         assertEquals(SignatureAlgorithm.ECDSA_SECP256k1, SignatureAlgorithm.fromCode(3))
         assertEquals(SignatureAlgorithm.UNKNOWN, SignatureAlgorithm.fromCode(-1))
     }
 
     @Test
-    fun `Test signature algo fromCadenceIndex`() {
+    fun `Test signature fromCadenceIndex`() {
+        // https://cadence-lang.org/docs/language/crypto#signing-algorithms
         assertEquals(SignatureAlgorithm.ECDSA_P256, SignatureAlgorithm.fromCadenceIndex(1))
         assertEquals(SignatureAlgorithm.ECDSA_SECP256k1, SignatureAlgorithm.fromCadenceIndex(2))
         assertEquals(SignatureAlgorithm.UNKNOWN, SignatureAlgorithm.fromCadenceIndex(-1))
     }
 
     @Test
-    fun `Test signature algo fromCode with invalid code`() {
+    fun `Test signature fromCode with invalid code`() {
         assertEquals(SignatureAlgorithm.UNKNOWN, SignatureAlgorithm.fromCode(0))
     }
 
     @Test
-    fun `Test signature algo fromCadenceIndex with invalid index`() {
+    fun `Test signature fromCadenceIndex with invalid index`() {
         assertEquals(SignatureAlgorithm.UNKNOWN, SignatureAlgorithm.fromCadenceIndex(4))
     }
 }
