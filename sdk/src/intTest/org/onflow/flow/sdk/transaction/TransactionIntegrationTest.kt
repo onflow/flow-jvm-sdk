@@ -5,35 +5,31 @@ import org.onflow.flow.common.test.FlowEmulatorTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.fail
+import org.onflow.flow.common.test.FlowTestAccount
+import org.onflow.flow.common.test.FlowTestClient
+import org.onflow.flow.common.test.TestAccount
 import org.onflow.flow.sdk.IntegrationTestUtils.handleResult
 import org.onflow.flow.sdk.IntegrationTestUtils.newMainnetAccessApi
 import org.onflow.flow.sdk.IntegrationTestUtils.newTestnetAccessApi
 
 @FlowEmulatorTest
 class TransactionIntegrationTest {
-    @Test
-    fun wut() {
-        val account = try {
-            handleResult(
-                newTestnetAccessApi().getAccountAtLatestBlock(FlowAddress("0x6bd3869f2631beb3")),
-                "Failed to get account"
-            )
-        } catch (e: Exception) {
-            fail("Failed to retrieve account: ${e.message}")
-        }
-        assertThat(account.keys).isNotEmpty()
-    }
+
+    @FlowTestClient
+    lateinit var accessAPI: FlowAccessApi
+
+    @FlowTestAccount
+    lateinit var testAccount: TestAccount
 
     @Test
-    fun `Can connect to mainnet`() {
-        val accessAPI = newMainnetAccessApi()
+    fun `Can connect to emulator and ping access API`() {
         try {
             handleResult(accessAPI.ping(), "Failed to ping")
         } catch (e: Exception) {
             fail("Failed to ping mainnet: ${e.message}")
         }
 
-        val address = FlowAddress("e467b9dd11fa00df")
+        val address = testAccount.flowAddress
         val account = try {
             handleResult(
                 accessAPI.getAccountAtLatestBlock(address),
@@ -44,13 +40,11 @@ class TransactionIntegrationTest {
         }
 
         assertThat(account).isNotNull
-        println(account)
         assertThat(account.keys).isNotEmpty()
     }
 
     @Test
     fun `Can get network parameters`() {
-        val accessAPI = newMainnetAccessApi()
         val networkParams = try {
             handleResult(
                 accessAPI.getNetworkParameters(),
@@ -60,12 +54,11 @@ class TransactionIntegrationTest {
             fail("Failed to retrieve network parameters: ${e.message}")
         }
 
-        assertThat(networkParams).isEqualTo(FlowChainId.MAINNET)
+        assertThat(networkParams).isEqualTo(FlowChainId.EMULATOR)
     }
 
     @Test
     fun `Can get latest protocol state snapshot`() {
-        val accessAPI = newMainnetAccessApi()
         val snapshot = try {
             handleResult(
                 accessAPI.getLatestProtocolStateSnapshot(),
@@ -122,8 +115,6 @@ class TransactionIntegrationTest {
 
     @Test
     fun `Can get block header by id`() {
-        val accessAPI = newMainnetAccessApi()
-
         val latestBlock = try {
             handleResult(
                 accessAPI.getLatestBlock(true),
@@ -177,8 +168,6 @@ class TransactionIntegrationTest {
 
     @Test
     fun `Can get latest block`() {
-        val accessAPI = newMainnetAccessApi()
-
         val latestBlock = try {
             handleResult(
                 accessAPI.getLatestBlock(true),
@@ -193,8 +182,6 @@ class TransactionIntegrationTest {
 
     @Test
     fun `Can get block by id`() {
-        val accessAPI = newMainnetAccessApi()
-
         val latestBlock = try {
             handleResult(
                 accessAPI.getLatestBlock(true),
@@ -221,8 +208,6 @@ class TransactionIntegrationTest {
 
     @Test
     fun `Can get block by height`() {
-        val accessAPI = newMainnetAccessApi()
-
         val latestBlock = try {
             handleResult(
                 accessAPI.getLatestBlock(true),
@@ -249,9 +234,7 @@ class TransactionIntegrationTest {
 
     @Test
     fun `Can get account by address`() {
-        val accessAPI = newMainnetAccessApi()
-
-        val address = FlowAddress("18eb4ee6b3c026d2")
+        val address = testAccount.flowAddress
         val account = try {
             handleResult(
                 accessAPI.getAccountByAddress(address),
@@ -267,9 +250,7 @@ class TransactionIntegrationTest {
 
     @Test
     fun `Can get account by address at latest block`() {
-        val accessAPI = newMainnetAccessApi()
-
-        val address = FlowAddress("18eb4ee6b3c026d2")
+        val address = testAccount.flowAddress
         val account = try {
             handleResult(
                 accessAPI.getAccountAtLatestBlock(address),
@@ -285,8 +266,6 @@ class TransactionIntegrationTest {
 
     @Test
     fun `Can get account by block height`() {
-        val accessAPI = newMainnetAccessApi()
-
         val latestBlock = try {
             handleResult(
                 accessAPI.getLatestBlock(true),
@@ -305,7 +284,7 @@ class TransactionIntegrationTest {
             fail("Failed to retrieve block header by height: ${e.message}")
         }
 
-        val address = FlowAddress("18eb4ee6b3c026d2")
+        val address = testAccount.flowAddress
         val account = try {
             handleResult(
                 accessAPI.getAccountByBlockHeight(address, blockHeader.height),
