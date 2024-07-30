@@ -33,9 +33,6 @@ repositories {
 }
 
 dependencies {
-    // Use JUnit Jupiter Engine for testing.
-//    testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.0")
-//    testImplementation("org.junit.jupiter:junit-jupiter-engine:5.7.0")
     implementation(project(":sdk"))
     testFixturesImplementation("org.junit.jupiter:junit-jupiter:5.10.1")
     testFixturesImplementation("org.mockito:mockito-core:3.12.4")
@@ -45,6 +42,42 @@ dependencies {
 tasks.test {
     // Use junit platform for unit tests.
     useJUnitPlatform()
+}
+
+sourceSets {
+    create("intTest") {
+        compileClasspath += sourceSets.main.get().output
+        runtimeClasspath += sourceSets.main.get().output
+        kotlin.srcDirs("src/intTest", "src/testFixtures")
+    }
+}
+
+val intTestImplementation by configurations.getting {
+    extendsFrom(configurations.implementation.get())
+}
+val intTestRuntimeOnly by configurations.getting
+
+configurations["intTestRuntimeOnly"].extendsFrom(configurations.runtimeOnly.get())
+
+dependencies {
+    intTestImplementation("org.junit.jupiter:junit-jupiter:5.10.1")
+    intTestImplementation("org.assertj:assertj-core:3.25.1")
+    intTestRuntimeOnly("org.junit.platform:junit-platform-launcher")
+}
+
+val integrationTest = task<Test>("integrationTest") {
+    description = "Runs integration tests."
+    group = "verification"
+
+    testClassesDirs = sourceSets["intTest"].output.classesDirs
+    classpath = sourceSets["intTest"].runtimeClasspath
+    shouldRunAfter("test")
+
+    useJUnitPlatform()
+
+    testLogging {
+        events("passed")
+    }
 }
 
 tasks.withType<Copy> {

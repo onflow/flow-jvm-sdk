@@ -1,4 +1,4 @@
-package org.onflow.flow.sdk.extensions
+package org.onflow.flow.common.extensions
 
 import org.onflow.flow.sdk.AsyncFlowAccessApi
 import org.onflow.flow.sdk.FlowAccessApi
@@ -60,7 +60,7 @@ class ProjectTestExtensionsTest {
         contracts = [
             FlowTestContractDeployment(
                 name = "EmptyContract",
-                codeClasspathLocation = "/cadence/test_extensions/EmptyContract.cdc",
+                code = "pub contract EmptyContract { init() { } }"
             )
         ]
     )
@@ -82,7 +82,7 @@ class ProjectTestExtensionsTest {
             ),
             FlowTestContractDeployment(
                 name = "EmptyContract",
-                codeClasspathLocation = "/cadence/test_extensions/EmptyContract.cdc",
+                code = "pub contract EmptyContract { init() { } }"
             )
         ]
     )
