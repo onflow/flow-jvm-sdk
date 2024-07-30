@@ -8,8 +8,8 @@ transaction(amount: UFix64, to: Address) {
 
     prepare(signer: auth(BorrowValue) &Account) {
         // Get a reference to the signer's stored vault
-let vaultRef = signer.storage.borrow<auth(FungibleToken.Withdraw) &FlowToken.Vault>(from: /storage/flowTokenVault)
-    ?? panic("The signer does not have a FlowToken Vault in their account storage!")
+        let vaultRef = signer.storage.borrow<auth(FungibleToken.Withdraw) &FlowToken.Vault>(from: /storage/flowTokenVault)
+            ?? panic("The signer does not have a FlowToken Vault in their account storage!")
 
         // Withdraw tokens from the signer's stored vault
         self.sentVault <- vaultRef.withdraw(amount: amount)
