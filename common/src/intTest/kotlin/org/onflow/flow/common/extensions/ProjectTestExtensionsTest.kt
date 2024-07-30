@@ -60,7 +60,7 @@ class ProjectTestExtensionsTest {
         contracts = [
             FlowTestContractDeployment(
                 name = "EmptyContract",
-                code = "pub contract EmptyContract { init() { } }"
+                codeClasspathLocation = "/cadence/test_extensions/EmptyContract.cdc",
             )
         ]
     )
@@ -82,7 +82,7 @@ class ProjectTestExtensionsTest {
             ),
             FlowTestContractDeployment(
                 name = "EmptyContract",
-                code = "pub contract EmptyContract { init() { } }"
+                codeClasspathLocation = "/cadence/test_extensions/EmptyContract.cdc",
             )
         ]
     )
