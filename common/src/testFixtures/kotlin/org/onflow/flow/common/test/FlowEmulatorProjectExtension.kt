@@ -1,4 +1,4 @@
-package org.onflow.flow.sdk.test
+package org.onflow.flow.common.test
 
 import org.onflow.flow.sdk.HashAlgorithm
 import org.onflow.flow.sdk.SignatureAlgorithm

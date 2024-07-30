@@ -4,7 +4,6 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 val defaultGroupId = "org.onflow"
 val defaultVersion = "1.0.1"
 
-// Helper function to get properties
 fun getProp(name: String, defaultValue: String? = null): String? {
     return project.findProperty("flow.$name")?.toString()?.trim()?.ifBlank { null }
         ?: project.findProperty(name)?.toString()?.trim()?.ifBlank { null }
@@ -54,7 +53,7 @@ subprojects {
 
     tasks.withType<KotlinCompile> {
         kotlinOptions {
-            jvmTarget = JavaVersion.VERSION_20.toString()
+            jvmTarget = JavaVersion.VERSION_21.toString()
             freeCompilerArgs = listOf("-Xjsr305=strict", "-opt-in=kotlin.RequiresOptIn")
         }
     }
@@ -66,7 +65,7 @@ subprojects {
 
     tasks.named<KotlinCompile>("compileTestKotlin") {
         kotlinOptions {
-            jvmTarget = JavaVersion.VERSION_20.toString()
+            jvmTarget = JavaVersion.VERSION_21.toString()
             freeCompilerArgs = listOf("-Xjvm-default=all", "-opt-in=com.squareup.kotlinpoet.metadata.KotlinPoetMetadataPreview")
             allWarningsAsErrors = false
         }

@@ -1,15 +1,24 @@
-package org.onflow.flow.sdk.extensions
+package org.onflow.flow.common.extensions
 
 import org.onflow.flow.sdk.AsyncFlowAccessApi
 import org.onflow.flow.sdk.FlowAccessApi
+import org.onflow.flow.sdk.HashAlgorithm
 import org.onflow.flow.sdk.SignatureAlgorithm
-import org.onflow.flow.sdk.test.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import org.onflow.flow.common.test.*
 
-@FlowEmulatorTest
-class TestExtensionsTest {
+@FlowEmulatorProjectTest(
+    flowJsonLocation = "flow/flow.json",
+    serviceAccountAddress = "f8d6e0586b0a20c7",
+    serviceAccountPublicKey = "828edaffa000bc6bcf1ed75bfc87a13129d69ff36b3c21143075f10f951692980d2c55bdfe82319a55a2a295b75f7224462d92107d8e3abc341079ba307e502c",
+    serviceAccountPrivateKey = "ac1af8be8d0028ad50f0656b53a6342a7d12186a3b212a993344d6e70f857d6b",
+    serviceAccountSignAlgo = SignatureAlgorithm.ECDSA_P256,
+    serviceAccountHashAlgo = HashAlgorithm.SHA3_256,
+    serviceAccountKeyIndex = 0
+)
+class ProjectTestExtensionsTest {
     @FlowTestClient
     lateinit var accessAPI: FlowAccessApi
 
@@ -82,22 +91,6 @@ class TestExtensionsTest {
     @FlowTestAccount
     lateinit var account4: TestAccount
 
-    @FlowTestAccount(
-        signAlgo = SignatureAlgorithm.ECDSA_SECP256k1,
-        balance = 420.0,
-        contracts = [
-            FlowTestContractDeployment(
-                name = "ContractInterface",
-                codeClasspathLocation = "/cadence/test_extensions/ContractInterface.cdc",
-            ),
-            FlowTestContractDeployment(
-                name = "ContractSuccessor",
-                codeClasspathLocation = "/cadence/test_extensions/ContractSuccessor.cdc",
-            ),
-        ]
-    )
-    lateinit var account5: TestAccount
-
     @Test
     fun `Test extensions work`() {
         accessAPI.ping()
@@ -108,16 +101,14 @@ class TestExtensionsTest {
         assertTrue(account2.isValid)
         assertTrue(account3.isValid)
         assertTrue(account4.isValid)
-        assertTrue(account5.isValid)
 
         val addresses = setOf(
             account0.flowAddress,
             account1.flowAddress,
             account2.flowAddress,
             account3.flowAddress,
-            account4.flowAddress,
-            account5.flowAddress,
+            account4.flowAddress
         )
-        assertEquals(6, addresses.size)
+        assertEquals(5, addresses.size)
     }
 }

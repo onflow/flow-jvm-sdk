@@ -34,7 +34,8 @@ repositories {
 
 dependencies {
     implementation(project(":sdk"))
-    testImplementation(testFixtures(project(":sdk")))
+    implementation(project(":common"))
+    testImplementation(testFixtures(project(":common")))
 
     implementation("org.jetbrains.kotlin:kotlin-stdlib")
 
