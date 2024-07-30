@@ -18,7 +18,7 @@ transaction(amount: UFix64, to: Address) {
     execute {
 
         // Get a reference to the recipient's Receiver
-    let receiverRef = getAccount(to).capabilities.borrow<&FungibleToken.Receiver>(/public/flowTokenReceiver)
+        let receiverRef = getAccount(to).capabilities.borrow<&FungibleToken.Receiver>(/public/flowTokenReceiver)
             ?? panic("The recipient does not have a FlowToken Receiver set up in their account!")
 
         // Deposit the withdrawn tokens in the recipient's receiver
