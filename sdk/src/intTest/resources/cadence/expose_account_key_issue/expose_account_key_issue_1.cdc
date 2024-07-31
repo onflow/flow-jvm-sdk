@@ -15,8 +15,8 @@ transaction(startingBalance: UFix64, publicKey: String, signatureAlgorithm: UInt
             weight: UFix64(1000)
         )
 
-let vaultRef = signer.storage.borrow<auth(FungibleToken.Withdraw) &FlowToken.Vault>(from: /storage/flowTokenVault)
-    ?? panic("The signer does not have a FlowToken Vault in their account storage!")
+        let vaultRef = signer.storage.borrow<auth(FungibleToken.Withdraw) &FlowToken.Vault>(from: /storage/flowTokenVault)
+            ?? panic("The signer does not have a FlowToken Vault in their account storage!")
 
         let newVault = newAccount.capabilities.borrow<&{FungibleToken.Receiver}>(/public/flowTokenReceiver)!
 
