@@ -409,13 +409,6 @@ class FlowAccessApiImplTest {
         }
     }
 
-    private fun <T> assertResultSuccess(result: FlowAccessApi.AccessApiCallResponse<T>, assertions: (T) -> Unit) {
-        when (result) {
-            is FlowAccessApi.AccessApiCallResponse.Success -> assertions(result.data)
-            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Request failed: ${result.message}", result.throwable)
-        }
-    }
-
     @Test
     fun `Test subscribeExecutionDataByBlockHeight success case`() = testScope.runBlockingTest {
         val blockHeight = 100L
@@ -432,17 +425,10 @@ class FlowAccessApiImplTest {
 
         `when`(mockExecutionDataApi.subscribeExecutionDataFromStartBlockHeight(any())).thenReturn(responseIterator)
 
-        when (val result = flowAccessApiImpl.subscribeExecutionDataByBlockHeight(testScope, blockHeight)) {
-            is FlowAccessApi.AccessApiCallResponse.Success -> {
-                val (responseChannel, _) = result.data
-                launch {
-                    responseChannel.consumeEach { executionData ->
-                        assertEquals(expectedExecutionData, executionData)
-                    }
-                }
-            }
-            is FlowAccessApi.AccessApiCallResponse.Error -> {
-                fail("Expected success but got error: ${result.message}")
+        val (responseChannel, _) = flowAccessApiImpl.subscribeExecutionDataByBlockHeight(testScope, blockHeight)
+        launch {
+            responseChannel.consumeEach { executionData ->
+                assertEquals(expectedExecutionData, executionData)
             }
         }
     }
@@ -455,26 +441,18 @@ class FlowAccessApiImplTest {
         `when`(mockExecutionDataApi.subscribeExecutionDataFromStartBlockHeight(any()))
             .thenAnswer { throw exception }
 
-        when (val result = flowAccessApiImpl.subscribeExecutionDataByBlockHeight(testScope, blockHeight)) {
-            is FlowAccessApi.AccessApiCallResponse.Success -> {
-                val (_, errorChannel) = result.data
+        val (_, errorChannel) = flowAccessApiImpl.subscribeExecutionDataByBlockHeight(testScope, blockHeight)
 
-                // Check for errors in the errorChannel
-                var receivedException: Throwable? = null
-                val job = launch {
-                    receivedException = errorChannel.receiveCatching().getOrNull()
-                }
-                job.join()
+        var receivedException: Throwable? = null
+        val job = launch {
+            receivedException = errorChannel.receiveCatching().getOrNull()
+        }
+        job.join()
 
-                if (receivedException != null) {
-                    assertEquals(exception.message, receivedException!!.message)
-                } else {
-                    fail("Expected error but got success")
-                }
-            }
-            is FlowAccessApi.AccessApiCallResponse.Error -> {
-                fail("Expected success but got error: ${result.message}")
-            }
+        if (receivedException != null) {
+            assertEquals(exception.message, receivedException!!.message)
+        } else {
+            fail("Expected error but got success")
         }
     }
 
@@ -494,17 +472,10 @@ class FlowAccessApiImplTest {
 
         `when`(mockExecutionDataApi.subscribeEventsFromStartBlockID(any())).thenReturn(responseIterator)
 
-        when (val result = flowAccessApiImpl.subscribeEventsByBlockId(testScope, blockId)) {
-            is FlowAccessApi.AccessApiCallResponse.Success -> {
-                val (responseChannel, _) = result.data
-                launch {
-                    responseChannel.consumeEach { events ->
-                        assertEquals(expectedEvents, events)
-                    }
-                }
-            }
-            is FlowAccessApi.AccessApiCallResponse.Error -> {
-                fail("Expected success but got error: ${result.message}")
+        val (responseChannel, _) = flowAccessApiImpl.subscribeEventsByBlockId(testScope, blockId)
+        launch {
+            responseChannel.consumeEach { events ->
+                assertEquals(expectedEvents, events)
             }
         }
     }
@@ -516,27 +487,18 @@ class FlowAccessApiImplTest {
 
         `when`(mockExecutionDataApi.subscribeEventsFromStartBlockID(any())).thenThrow(exception)
 
-        when (val result = flowAccessApiImpl.subscribeEventsByBlockId(testScope, blockId)) {
-            is FlowAccessApi.AccessApiCallResponse.Success -> {
-                val (_, errorChannel) = result.data
+        val (_, errorChannel) = flowAccessApiImpl.subscribeEventsByBlockId(testScope, blockId)
 
-                // Check for errors in the errorChannel
-                var receivedException: Throwable? = null
-                val job = launch {
-                    receivedException = errorChannel.receiveCatching().getOrNull()
-                }
-                job.join()
+        var receivedException: Throwable? = null
+        val job = launch {
+            receivedException = errorChannel.receiveCatching().getOrNull()
+        }
+        job.join()
 
-                if (receivedException != null) {
-                    assertEquals(exception.message, receivedException!!.message)
-                } else {
-                    fail("Expected error but got success")
-                }
-            }
-            is FlowAccessApi.AccessApiCallResponse.Error -> {
-                assertEquals("Failed to subscribe events by block ID", result.message)
-                assertEquals(exception, result.throwable)
-            }
+        if (receivedException != null) {
+            assertEquals(exception.message, receivedException!!.message)
+        } else {
+            fail("Expected error but got success")
         }
     }
 
@@ -556,17 +518,10 @@ class FlowAccessApiImplTest {
 
         `when`(mockExecutionDataApi.subscribeEventsFromStartHeight(any())).thenReturn(responseIterator)
 
-        when (val result = flowAccessApiImpl.subscribeEventsByBlockHeight(testScope, blockHeight)) {
-            is FlowAccessApi.AccessApiCallResponse.Success -> {
-                val (responseChannel, _) = result.data
-                launch {
-                    responseChannel.consumeEach { events ->
-                        assertEquals(expectedEvents, events)
-                    }
-                }
-            }
-            is FlowAccessApi.AccessApiCallResponse.Error -> {
-                fail("Expected success but got error: ${result.message}")
+        val (responseChannel, _) = flowAccessApiImpl.subscribeEventsByBlockHeight(testScope, blockHeight)
+        launch {
+            responseChannel.consumeEach { events ->
+                assertEquals(expectedEvents, events)
             }
         }
     }
@@ -578,27 +533,18 @@ class FlowAccessApiImplTest {
 
         `when`(mockExecutionDataApi.subscribeEventsFromStartHeight(any())).thenThrow(exception)
 
-        when (val result = flowAccessApiImpl.subscribeEventsByBlockHeight(testScope, blockHeight)) {
-            is FlowAccessApi.AccessApiCallResponse.Success -> {
-                val (_, errorChannel) = result.data
+        val (_, errorChannel) = flowAccessApiImpl.subscribeEventsByBlockHeight(testScope, blockHeight)
 
-                // Check for errors in the errorChannel
-                var receivedException: Throwable? = null
-                val job = launch {
-                    receivedException = errorChannel.receiveCatching().getOrNull()
-                }
-                job.join()
+        var receivedException: Throwable? = null
+        val job = launch {
+            receivedException = errorChannel.receiveCatching().getOrNull()
+        }
+        job.join()
 
-                if (receivedException != null) {
-                    assertEquals(exception.message, receivedException!!.message)
-                } else {
-                    fail("Expected error but got success")
-                }
-            }
-            is FlowAccessApi.AccessApiCallResponse.Error -> {
-                assertEquals("Failed to subscribe events by block height", result.message)
-                assertEquals(exception, result.throwable)
-            }
+        if (receivedException != null) {
+            assertEquals(exception.message, receivedException!!.message)
+        } else {
+            fail("Expected error but got success")
         }
     }
 
@@ -618,17 +564,10 @@ class FlowAccessApiImplTest {
 
         `when`(mockExecutionDataApi.subscribeExecutionDataFromStartBlockID(any())).thenReturn(responseIterator)
 
-        when (val result = flowAccessApiImpl.subscribeExecutionDataByBlockId(testScope, blockId)) {
-            is FlowAccessApi.AccessApiCallResponse.Success -> {
-                val (responseChannel, _) = result.data
-                launch {
-                    responseChannel.consumeEach { executionData ->
-                        assertEquals(expectedExecutionData, executionData)
-                    }
-                }
-            }
-            is FlowAccessApi.AccessApiCallResponse.Error -> {
-                fail("Expected success but got error: ${result.message}")
+        val (responseChannel, _) = flowAccessApiImpl.subscribeExecutionDataByBlockId(testScope, blockId)
+        launch {
+            responseChannel.consumeEach { executionData ->
+                assertEquals(expectedExecutionData, executionData)
             }
         }
     }
@@ -640,27 +579,25 @@ class FlowAccessApiImplTest {
 
         `when`(mockExecutionDataApi.subscribeExecutionDataFromStartBlockID(any())).thenThrow(exception)
 
-        when (val result = flowAccessApiImpl.subscribeExecutionDataByBlockId(testScope, blockId)) {
-            is FlowAccessApi.AccessApiCallResponse.Success -> {
-                val (_, errorChannel) = result.data
+        val (_, errorChannel) = flowAccessApiImpl.subscribeExecutionDataByBlockId(testScope, blockId)
 
-                // Check for errors in the errorChannel
-                var receivedException: Throwable? = null
-                val job = launch {
-                    receivedException = errorChannel.receiveCatching().getOrNull()
-                }
-                job.join()
+        var receivedException: Throwable? = null
+        val job = launch {
+            receivedException = errorChannel.receiveCatching().getOrNull()
+        }
+        job.join()
 
-                if (receivedException != null) {
-                    assertEquals(exception.message, receivedException!!.message)
-                } else {
-                    fail("Expected error but got success")
-                }
-            }
-            is FlowAccessApi.AccessApiCallResponse.Error -> {
-                assertEquals("Failed to subscribe execution data by block ID", result.message)
-                assertEquals(exception, result.throwable)
-            }
+        if (receivedException != null) {
+            assertEquals(exception.message, receivedException!!.message)
+        } else {
+            fail("Expected error but got success")
+        }
+    }
+
+    private fun <T> assertResultSuccess(result: FlowAccessApi.AccessApiCallResponse<T>, assertions: (T) -> Unit) {
+        when (result) {
+            is FlowAccessApi.AccessApiCallResponse.Success -> assertions(result.data)
+            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Request failed: ${result.message}", result.throwable)
         }
     }
 

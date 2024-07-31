@@ -337,9 +337,7 @@ class FlowAccessApiTest {
         val responseChannel = Channel<FlowBlockExecutionData>(Channel.UNLIMITED)
         val errorChannel = Channel<Throwable>(Channel.UNLIMITED)
 
-        `when`(flowAccessApi.subscribeExecutionDataByBlockId(scope, blockId)).thenReturn(
-            FlowAccessApi.AccessApiCallResponse.Success(responseChannel to errorChannel)
-        )
+        `when`(flowAccessApi.subscribeExecutionDataByBlockId(scope, blockId)).thenReturn(responseChannel to errorChannel)
 
         val result = flowAccessApi.subscribeExecutionDataByBlockId(scope, blockId)
         val expectedExecutionData = FlowBlockExecutionData.of(BlockExecutionDataOuterClass.BlockExecutionData.getDefaultInstance())
@@ -349,23 +347,48 @@ class FlowAccessApiTest {
 
         verify(flowAccessApi).subscribeExecutionDataByBlockId(scope, blockId)
 
-        when (result) {
-            is FlowAccessApi.AccessApiCallResponse.Success -> {
-                val (responseChannel, errorChannel) = result.data
-                launch {
-                    responseChannel.consumeEach { executionData ->
-                        assertEquals(expectedExecutionData, executionData)
-                    }
-                }
-
-                launch {
-                    errorChannel.consumeEach { error ->
-                        throw error
-                    }
-                }
+        launch {
+            result.first.consumeEach { executionData ->
+                assertEquals(expectedExecutionData, executionData)
             }
-            is FlowAccessApi.AccessApiCallResponse.Error -> {
-                throw result.throwable!!
+        }
+
+        launch {
+            result.second.consumeEach { error ->
+                throw error
+            }
+        }
+
+        errorChannel.close()
+    }
+
+    @Test
+    fun `Test subscribeExecutionDataByBlockHeight`(): Unit = runBlocking {
+        val flowAccessApi = mock(FlowAccessApi::class.java)
+        val blockHeight = 100L
+        val scope = this
+        val responseChannel = Channel<FlowBlockExecutionData>(Channel.UNLIMITED)
+        val errorChannel = Channel<Throwable>(Channel.UNLIMITED)
+
+        `when`(flowAccessApi.subscribeExecutionDataByBlockHeight(scope, blockHeight)).thenReturn(responseChannel to errorChannel)
+
+        val result = flowAccessApi.subscribeExecutionDataByBlockHeight(scope, blockHeight)
+        val expectedExecutionData = FlowBlockExecutionData.of(BlockExecutionDataOuterClass.BlockExecutionData.getDefaultInstance())
+
+        responseChannel.send(expectedExecutionData)
+        responseChannel.close()
+
+        verify(flowAccessApi).subscribeExecutionDataByBlockHeight(scope, blockHeight)
+
+        launch {
+            result.first.consumeEach { executionData ->
+                assertEquals(expectedExecutionData, executionData)
+            }
+        }
+
+        launch {
+            result.second.consumeEach { error ->
+                throw error
             }
         }
 
@@ -380,9 +403,7 @@ class FlowAccessApiTest {
         val responseChannel = Channel<List<FlowEvent>>(Channel.UNLIMITED)
         val errorChannel = Channel<Throwable>(Channel.UNLIMITED)
 
-        `when`(flowAccessApi.subscribeEventsByBlockId(scope, blockId)).thenReturn(
-            FlowAccessApi.AccessApiCallResponse.Success(responseChannel to errorChannel)
-        )
+        `when`(flowAccessApi.subscribeEventsByBlockId(scope, blockId)).thenReturn(responseChannel to errorChannel)
 
         val result = flowAccessApi.subscribeEventsByBlockId(scope, blockId)
         val expectedEvents = listOf(FlowEvent.of(EventOuterClass.Event.getDefaultInstance()))
@@ -392,23 +413,15 @@ class FlowAccessApiTest {
 
         verify(flowAccessApi).subscribeEventsByBlockId(scope, blockId)
 
-        when (result) {
-            is FlowAccessApi.AccessApiCallResponse.Success -> {
-                val (responseChannel, errorChannel) = result.data
-                launch {
-                    responseChannel.consumeEach { events ->
-                        assertEquals(expectedEvents, events)
-                    }
-                }
-
-                launch {
-                    errorChannel.consumeEach { error ->
-                        throw error
-                    }
-                }
+        launch {
+            result.first.consumeEach { events ->
+                assertEquals(expectedEvents, events)
             }
-            is FlowAccessApi.AccessApiCallResponse.Error -> {
-                throw result.throwable!!
+        }
+
+        launch {
+            result.second.consumeEach { error ->
+                throw error
             }
         }
 
@@ -423,9 +436,7 @@ class FlowAccessApiTest {
         val responseChannel = Channel<List<FlowEvent>>(Channel.UNLIMITED)
         val errorChannel = Channel<Throwable>(Channel.UNLIMITED)
 
-        `when`(flowAccessApi.subscribeEventsByBlockHeight(scope, blockHeight)).thenReturn(
-            FlowAccessApi.AccessApiCallResponse.Success(responseChannel to errorChannel)
-        )
+        `when`(flowAccessApi.subscribeEventsByBlockHeight(scope, blockHeight)).thenReturn(responseChannel to errorChannel)
 
         val result = flowAccessApi.subscribeEventsByBlockHeight(scope, blockHeight)
         val expectedEvents = listOf(FlowEvent.of(EventOuterClass.Event.getDefaultInstance()))
@@ -435,23 +446,15 @@ class FlowAccessApiTest {
 
         verify(flowAccessApi).subscribeEventsByBlockHeight(scope, blockHeight)
 
-        when (result) {
-            is FlowAccessApi.AccessApiCallResponse.Success -> {
-                val (responseChannel, errorChannel) = result.data
-                launch {
-                    responseChannel.consumeEach { events ->
-                        assertEquals(expectedEvents, events)
-                    }
-                }
-
-                launch {
-                    errorChannel.consumeEach { error ->
-                        throw error
-                    }
-                }
+        launch {
+            result.first.consumeEach { events ->
+                assertEquals(expectedEvents, events)
             }
-            is FlowAccessApi.AccessApiCallResponse.Error -> {
-                throw result.throwable!!
+        }
+
+        launch {
+            result.second.consumeEach { error ->
+                throw error
             }
         }
 
