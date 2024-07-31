@@ -227,6 +227,8 @@ data class FlowEventResult(
         .addAllEvents(events.map { it.builder().build() })
 }
 
+
+// https://github.com/onflow/flow-go-sdk/blob/878e5e586e0f060b88c6036cf4b0f6a7ab66d198/client/client.go#L515
 data class FlowEvent(
     val type: String,
     val transactionId: FlowId,
@@ -295,13 +297,9 @@ data class FlowTransactionResult(
 
     @JvmOverloads
     fun getEventsOfType(type: String, exact: Boolean = false, expectedCount: Int? = null): List<EventField> {
-        val ret = this.events.filter {
-            if (exact) {
-                it.type == type
-            } else {
-                it.type.endsWith(type)
-            }
-        }.map { it.event }
+        val ret = this.events
+            .filter { if (exact) { it.type == type } else { it.type.endsWith(type) } }
+            .map { it.event }
         check(expectedCount == null || ret.size == expectedCount) { "Expected $expectedCount events of type $type but there were ${ret.size}" }
         return ret
     }
