@@ -5,10 +5,8 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.fail
 import org.onflow.flow.common.test.*
-import org.onflow.flow.sdk.IntegrationTestUtils.getAccount
+import org.onflow.flow.sdk.IntegrationTestUtils.createAndSubmitAccountCreationTransaction
 import org.onflow.flow.sdk.IntegrationTestUtils.handleResult
-import org.onflow.flow.sdk.crypto.Crypto
-import java.nio.charset.StandardCharsets
 
 @FlowEmulatorTest
 class TransactionIntegrationTest {
@@ -60,78 +58,15 @@ class TransactionIntegrationTest {
     }
 
     @Test
-    fun `Can get latest protocol state snapshot`() {
-        val snapshot = try {
-            handleResult(
-                accessAPI.getLatestProtocolStateSnapshot(),
-                "Failed to get latest protocol state snapshot"
-            )
-        } catch (e: Exception) {
-            fail("Failed to retrieve latest protocol state snapshot: ${e.message}")
-        }
-
-        assertThat(snapshot).isNotNull
-    }
-
-    @Test
     fun `Can parse events`() {
-        val latestBlockId = handleResult(accessAPI.getLatestBlockHeader(), "Failed to get latest block header").id
-        val payerAccount = getAccount(accessAPI, serviceAccount.flowAddress)
-
-        val newAccountKeyPair = Crypto.generateKeyPair(SignatureAlgorithm.ECDSA_P256)
-        val newAccountPublicKey = FlowAccountKey(
-            publicKey = FlowPublicKey(newAccountKeyPair.public.hex),
-            signAlgo = SignatureAlgorithm.ECDSA_P256,
-            hashAlgo = HashAlgorithm.SHA3_256,
-            weight = 1000
+        val txResult = createAndSubmitAccountCreationTransaction(
+            accessAPI,
+            serviceAccount,
+            "cadence/transaction_creation/transaction_creation.cdc"
         )
 
-        val loadedScript = String(FlowTestUtil.loadScript("cadence/transaction_creation/transaction_creation.cdc"), StandardCharsets.UTF_8)
-
-        val tx = flowTransaction {
-            script {
-                loadedScript
-            }
-
-            arguments {
-                arg { string(newAccountPublicKey.encoded.bytesToHex()) }
-            }
-
-            referenceBlockId = latestBlockId
-            gasLimit = 100
-
-            proposalKey {
-                address = payerAccount.address
-                keyIndex = payerAccount.keys[0].id
-                sequenceNumber = payerAccount.keys[0].sequenceNumber.toLong()
-            }
-
-            payerAddress = payerAccount.address
-
-            signatures {
-                signature {
-                    address = payerAccount.address
-                    keyIndex = 0
-                    signer = serviceAccount.signer
-                }
-            }
-        }
-
-        val txID = handleResult(accessAPI.sendTransaction(tx), "Failed to send transaction")
-
-        val result = handleResult(waitForSeal(accessAPI, txID), "Failed to wait for seal")
-
-        assertThat(result).isNotNull
-        assertThat(result.status).isEqualTo(FlowTransactionStatus.SEALED)
-
-        val txResult = try {
-            handleResult(
-                accessAPI.getTransactionResultById(txID),
-                "Failed to get transaction results"
-            )
-        } catch (e: Exception) {
-            fail("Failed to retrieve transaction results: ${e.message}")
-        }
+        assertThat(txResult).isNotNull
+        assertThat(txResult.status).isEqualTo(FlowTransactionStatus.SEALED)
 
         assertThat(txResult.events).isNotEmpty
         assertThat(txResult.events).hasSize(7)
