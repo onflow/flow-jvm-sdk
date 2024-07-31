@@ -227,7 +227,6 @@ data class FlowEventResult(
         .addAllEvents(events.map { it.builder().build() })
 }
 
-
 // https://github.com/onflow/flow-go-sdk/blob/878e5e586e0f060b88c6036cf4b0f6a7ab66d198/client/client.go#L515
 data class FlowEvent(
     val type: String,
