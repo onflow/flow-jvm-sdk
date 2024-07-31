@@ -389,7 +389,7 @@ class FlowAccessApiImpl(
     override fun subscribeExecutionDataByBlockId(
         scope: CoroutineScope,
         blockId: FlowId
-    ): FlowAccessApi.AccessApiCallResponse<Pair<ReceiveChannel<FlowBlockExecutionData>, ReceiveChannel<Throwable>>> {
+    ): Pair<ReceiveChannel<FlowBlockExecutionData>, ReceiveChannel<Throwable>> {
         val responseChannel = Channel<FlowBlockExecutionData>(Channel.UNLIMITED)
         val errorChannel = Channel<Throwable>(Channel.UNLIMITED)
 
@@ -411,13 +411,13 @@ class FlowAccessApiImpl(
                 errorChannel.close()
             }
         }
-        return FlowAccessApi.AccessApiCallResponse.Success(responseChannel to errorChannel)
+        return responseChannel to errorChannel
     }
 
     override fun subscribeExecutionDataByBlockHeight(
         scope: CoroutineScope,
         height: Long
-    ): FlowAccessApi.AccessApiCallResponse<Pair<ReceiveChannel<FlowBlockExecutionData>, ReceiveChannel<Throwable>>> {
+    ): Pair<ReceiveChannel<FlowBlockExecutionData>, ReceiveChannel<Throwable>> {
         val responseChannel = Channel<FlowBlockExecutionData>(Channel.UNLIMITED)
         val errorChannel = Channel<Throwable>(Channel.UNLIMITED)
 
@@ -439,14 +439,13 @@ class FlowAccessApiImpl(
                 errorChannel.close()
             }
         }
-
-        return FlowAccessApi.AccessApiCallResponse.Success(responseChannel to errorChannel)
+        return responseChannel to errorChannel
     }
 
     override fun subscribeEventsByBlockId(
         scope: CoroutineScope,
         blockId: FlowId
-    ): FlowAccessApi.AccessApiCallResponse<Pair<ReceiveChannel<List<FlowEvent>>, ReceiveChannel<Throwable>>> {
+    ): Pair<ReceiveChannel<List<FlowEvent>>, ReceiveChannel<Throwable>> {
         val responseChannel = Channel<List<FlowEvent>>(Channel.UNLIMITED)
         val errorChannel = Channel<Throwable>(Channel.UNLIMITED)
 
@@ -468,13 +467,13 @@ class FlowAccessApiImpl(
                 errorChannel.close()
             }
         }
-        return FlowAccessApi.AccessApiCallResponse.Success(responseChannel to errorChannel)
+        return responseChannel to errorChannel
     }
 
     override fun subscribeEventsByBlockHeight(
         scope: CoroutineScope,
         height: Long
-    ): FlowAccessApi.AccessApiCallResponse<Pair<ReceiveChannel<List<FlowEvent>>, ReceiveChannel<Throwable>>> {
+    ): Pair<ReceiveChannel<List<FlowEvent>>, ReceiveChannel<Throwable>> {
         val responseChannel = Channel<List<FlowEvent>>(Channel.UNLIMITED)
         val errorChannel = Channel<Throwable>(Channel.UNLIMITED)
 
@@ -496,6 +495,6 @@ class FlowAccessApiImpl(
                 errorChannel.close()
             }
         }
-        return FlowAccessApi.AccessApiCallResponse.Success(responseChannel to errorChannel)
+        return responseChannel to errorChannel
     }
 }
