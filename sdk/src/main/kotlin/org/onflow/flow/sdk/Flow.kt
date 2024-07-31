@@ -5,9 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.grpc.ManagedChannel
 import io.grpc.ManagedChannelBuilder
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import org.onflow.protobuf.access.AccessAPIGrpc
 import org.onflow.flow.sdk.cadence.CadenceNamespace
 import org.onflow.flow.sdk.cadence.Field
@@ -48,8 +45,7 @@ object Flow {
     @JvmOverloads
     fun newAccessApi(host: String, port: Int = 9000, secure: Boolean = false, userAgent: String = DEFAULT_USER_AGENT, maxMessageSize: Int = DEFAULT_MAX_MESSAGE_SIZE): FlowAccessApi {
         val channel = openChannel(host, port, secure, userAgent, maxMessageSize)
-        val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-        return FlowAccessApiImpl(AccessAPIGrpc.newBlockingStub(channel), ExecutionDataAPIGrpc.newBlockingStub(channel), coroutineScope)
+        return FlowAccessApiImpl(AccessAPIGrpc.newBlockingStub(channel), ExecutionDataAPIGrpc.newBlockingStub(channel))
     }
 
     @JvmStatic

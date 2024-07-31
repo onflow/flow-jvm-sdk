@@ -16,7 +16,6 @@ import java.io.Closeable
 class FlowAccessApiImpl(
     private val api: AccessAPIGrpc.AccessAPIBlockingStub,
     private val executionDataApi: ExecutionDataAPIGrpc.ExecutionDataAPIBlockingStub,
-    private val coroutineScope: CoroutineScope
 ) : FlowAccessApi, Closeable {
     override fun close() {
         val chan = api.channel
@@ -388,12 +387,13 @@ class FlowAccessApiImpl(
     }
 
     override fun subscribeExecutionDataByBlockId(
+        scope: CoroutineScope,
         blockId: FlowId
     ): FlowAccessApi.AccessApiCallResponse<Pair<ReceiveChannel<FlowBlockExecutionData>, ReceiveChannel<Throwable>>> {
         val responseChannel = Channel<FlowBlockExecutionData>(Channel.UNLIMITED)
         val errorChannel = Channel<Throwable>(Channel.UNLIMITED)
 
-        coroutineScope.launch {
+        scope.launch {
             try {
                 val request = Executiondata.SubscribeExecutionDataFromStartBlockIDRequest.newBuilder()
                     .setStartBlockId(blockId.byteStringValue)
@@ -415,12 +415,13 @@ class FlowAccessApiImpl(
     }
 
     override fun subscribeExecutionDataByBlockHeight(
+        scope: CoroutineScope,
         height: Long
     ): FlowAccessApi.AccessApiCallResponse<Pair<ReceiveChannel<FlowBlockExecutionData>, ReceiveChannel<Throwable>>> {
         val responseChannel = Channel<FlowBlockExecutionData>(Channel.UNLIMITED)
         val errorChannel = Channel<Throwable>(Channel.UNLIMITED)
 
-        coroutineScope.launch {
+        scope.launch {
             try {
                 val request = Executiondata.SubscribeExecutionDataFromStartBlockHeightRequest.newBuilder()
                     .setStartBlockHeight(height)
@@ -443,12 +444,13 @@ class FlowAccessApiImpl(
     }
 
     override fun subscribeEventsByBlockId(
+        scope: CoroutineScope,
         blockId: FlowId
     ): FlowAccessApi.AccessApiCallResponse<Pair<ReceiveChannel<List<FlowEvent>>, ReceiveChannel<Throwable>>> {
         val responseChannel = Channel<List<FlowEvent>>(Channel.UNLIMITED)
         val errorChannel = Channel<Throwable>(Channel.UNLIMITED)
 
-        coroutineScope.launch {
+        scope.launch {
             try {
                 val request = Executiondata.SubscribeEventsFromStartBlockIDRequest.newBuilder()
                     .setStartBlockId(blockId.byteStringValue)
@@ -470,12 +472,13 @@ class FlowAccessApiImpl(
     }
 
     override fun subscribeEventsByBlockHeight(
+        scope: CoroutineScope,
         height: Long
     ): FlowAccessApi.AccessApiCallResponse<Pair<ReceiveChannel<List<FlowEvent>>, ReceiveChannel<Throwable>>> {
         val responseChannel = Channel<List<FlowEvent>>(Channel.UNLIMITED)
         val errorChannel = Channel<Throwable>(Channel.UNLIMITED)
 
-        coroutineScope.launch {
+        scope.launch {
             try {
                 val request = Executiondata.SubscribeEventsFromStartHeightRequest.newBuilder()
                     .setStartBlockHeight(height)

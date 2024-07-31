@@ -333,62 +333,21 @@ class FlowAccessApiTest {
     fun `Test subscribeExecutionDataByBlockId`(): Unit = runBlocking {
         val flowAccessApi = mock(FlowAccessApi::class.java)
         val blockId = FlowId("01")
+        val scope = this
         val responseChannel = Channel<FlowBlockExecutionData>(Channel.UNLIMITED)
         val errorChannel = Channel<Throwable>(Channel.UNLIMITED)
 
-        `when`(flowAccessApi.subscribeExecutionDataByBlockId(blockId)).thenReturn(
+        `when`(flowAccessApi.subscribeExecutionDataByBlockId(scope, blockId)).thenReturn(
             FlowAccessApi.AccessApiCallResponse.Success(responseChannel to errorChannel)
         )
 
-        val result = flowAccessApi.subscribeExecutionDataByBlockId(blockId)
+        val result = flowAccessApi.subscribeExecutionDataByBlockId(scope, blockId)
         val expectedExecutionData = FlowBlockExecutionData.of(BlockExecutionDataOuterClass.BlockExecutionData.getDefaultInstance())
 
         responseChannel.send(expectedExecutionData)
         responseChannel.close()
 
-        verify(flowAccessApi).subscribeExecutionDataByBlockId(blockId)
-
-        when (result) {
-            is FlowAccessApi.AccessApiCallResponse.Success -> {
-                val (responseChannel, errorChannel) = result.data
-                launch {
-                    responseChannel.consumeEach { executionData ->
-                        assertEquals(expectedExecutionData, executionData)
-                    }
-                }
-
-                launch {
-                    errorChannel.consumeEach { error ->
-                        throw error
-                    }
-                }
-            }
-            is FlowAccessApi.AccessApiCallResponse.Error -> {
-                throw result.throwable!!
-            }
-        }
-
-        errorChannel.close()
-    }
-
-    @Test
-    fun `Test subscribeExecutionDataByBlockHeight`(): Unit = runBlocking {
-        val flowAccessApi = mock(FlowAccessApi::class.java)
-        val blockHeight = 100L
-        val responseChannel = Channel<FlowBlockExecutionData>(Channel.UNLIMITED)
-        val errorChannel = Channel<Throwable>(Channel.UNLIMITED)
-
-        `when`(flowAccessApi.subscribeExecutionDataByBlockHeight(blockHeight)).thenReturn(
-            FlowAccessApi.AccessApiCallResponse.Success(responseChannel to errorChannel)
-        )
-
-        val result = flowAccessApi.subscribeExecutionDataByBlockHeight(blockHeight)
-        val expectedExecutionData = FlowBlockExecutionData.of(BlockExecutionDataOuterClass.BlockExecutionData.getDefaultInstance())
-
-        responseChannel.send(expectedExecutionData)
-        responseChannel.close()
-
-        verify(flowAccessApi).subscribeExecutionDataByBlockHeight(blockHeight)
+        verify(flowAccessApi).subscribeExecutionDataByBlockId(scope, blockId)
 
         when (result) {
             is FlowAccessApi.AccessApiCallResponse.Success -> {
@@ -417,20 +376,21 @@ class FlowAccessApiTest {
     fun `Test subscribeEventsByBlockId`(): Unit = runBlocking {
         val flowAccessApi = mock(FlowAccessApi::class.java)
         val blockId = FlowId("01")
+        val scope = this
         val responseChannel = Channel<List<FlowEvent>>(Channel.UNLIMITED)
         val errorChannel = Channel<Throwable>(Channel.UNLIMITED)
 
-        `when`(flowAccessApi.subscribeEventsByBlockId(blockId)).thenReturn(
+        `when`(flowAccessApi.subscribeEventsByBlockId(scope, blockId)).thenReturn(
             FlowAccessApi.AccessApiCallResponse.Success(responseChannel to errorChannel)
         )
 
-        val result = flowAccessApi.subscribeEventsByBlockId(blockId)
+        val result = flowAccessApi.subscribeEventsByBlockId(scope, blockId)
         val expectedEvents = listOf(FlowEvent.of(EventOuterClass.Event.getDefaultInstance()))
 
         responseChannel.send(expectedEvents)
         responseChannel.close()
 
-        verify(flowAccessApi).subscribeEventsByBlockId(blockId)
+        verify(flowAccessApi).subscribeEventsByBlockId(scope, blockId)
 
         when (result) {
             is FlowAccessApi.AccessApiCallResponse.Success -> {
@@ -459,20 +419,21 @@ class FlowAccessApiTest {
     fun `Test subscribeEventsByBlockHeight`(): Unit = runBlocking {
         val flowAccessApi = mock(FlowAccessApi::class.java)
         val blockHeight = 100L
+        val scope = this
         val responseChannel = Channel<List<FlowEvent>>(Channel.UNLIMITED)
         val errorChannel = Channel<Throwable>(Channel.UNLIMITED)
 
-        `when`(flowAccessApi.subscribeEventsByBlockHeight(blockHeight)).thenReturn(
+        `when`(flowAccessApi.subscribeEventsByBlockHeight(scope, blockHeight)).thenReturn(
             FlowAccessApi.AccessApiCallResponse.Success(responseChannel to errorChannel)
         )
 
-        val result = flowAccessApi.subscribeEventsByBlockHeight(blockHeight)
+        val result = flowAccessApi.subscribeEventsByBlockHeight(scope, blockHeight)
         val expectedEvents = listOf(FlowEvent.of(EventOuterClass.Event.getDefaultInstance()))
 
         responseChannel.send(expectedEvents)
         responseChannel.close()
 
-        verify(flowAccessApi).subscribeEventsByBlockHeight(blockHeight)
+        verify(flowAccessApi).subscribeEventsByBlockHeight(scope, blockHeight)
 
         when (result) {
             is FlowAccessApi.AccessApiCallResponse.Success -> {

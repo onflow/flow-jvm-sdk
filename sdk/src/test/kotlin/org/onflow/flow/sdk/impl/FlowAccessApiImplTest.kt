@@ -45,7 +45,7 @@ class FlowAccessApiImplTest {
     fun setUp() {
         mockApi = mock(AccessAPIGrpc.AccessAPIBlockingStub::class.java)
         mockExecutionDataApi = mock(ExecutionDataAPIGrpc.ExecutionDataAPIBlockingStub::class.java)
-        flowAccessApiImpl = FlowAccessApiImpl(mockApi, mockExecutionDataApi, testScope)
+        flowAccessApiImpl = FlowAccessApiImpl(mockApi, mockExecutionDataApi)
         outputStreamCaptor = ByteArrayOutputStream()
         originalOut = System.out
         System.setOut(PrintStream(outputStreamCaptor))
@@ -432,7 +432,7 @@ class FlowAccessApiImplTest {
 
         `when`(mockExecutionDataApi.subscribeExecutionDataFromStartBlockHeight(any())).thenReturn(responseIterator)
 
-        when (val result = flowAccessApiImpl.subscribeExecutionDataByBlockHeight(blockHeight)) {
+        when (val result = flowAccessApiImpl.subscribeExecutionDataByBlockHeight(testScope, blockHeight)) {
             is FlowAccessApi.AccessApiCallResponse.Success -> {
                 val (responseChannel, _) = result.data
                 launch {
@@ -455,7 +455,7 @@ class FlowAccessApiImplTest {
         `when`(mockExecutionDataApi.subscribeExecutionDataFromStartBlockHeight(any()))
             .thenAnswer { throw exception }
 
-        when (val result = flowAccessApiImpl.subscribeExecutionDataByBlockHeight(blockHeight)) {
+        when (val result = flowAccessApiImpl.subscribeExecutionDataByBlockHeight(testScope, blockHeight)) {
             is FlowAccessApi.AccessApiCallResponse.Success -> {
                 val (_, errorChannel) = result.data
 
@@ -494,7 +494,7 @@ class FlowAccessApiImplTest {
 
         `when`(mockExecutionDataApi.subscribeEventsFromStartBlockID(any())).thenReturn(responseIterator)
 
-        when (val result = flowAccessApiImpl.subscribeEventsByBlockId(blockId)) {
+        when (val result = flowAccessApiImpl.subscribeEventsByBlockId(testScope, blockId)) {
             is FlowAccessApi.AccessApiCallResponse.Success -> {
                 val (responseChannel, _) = result.data
                 launch {
@@ -516,7 +516,7 @@ class FlowAccessApiImplTest {
 
         `when`(mockExecutionDataApi.subscribeEventsFromStartBlockID(any())).thenThrow(exception)
 
-        when (val result = flowAccessApiImpl.subscribeEventsByBlockId(blockId)) {
+        when (val result = flowAccessApiImpl.subscribeEventsByBlockId(testScope, blockId)) {
             is FlowAccessApi.AccessApiCallResponse.Success -> {
                 val (_, errorChannel) = result.data
 
@@ -556,7 +556,7 @@ class FlowAccessApiImplTest {
 
         `when`(mockExecutionDataApi.subscribeEventsFromStartHeight(any())).thenReturn(responseIterator)
 
-        when (val result = flowAccessApiImpl.subscribeEventsByBlockHeight(blockHeight)) {
+        when (val result = flowAccessApiImpl.subscribeEventsByBlockHeight(testScope, blockHeight)) {
             is FlowAccessApi.AccessApiCallResponse.Success -> {
                 val (responseChannel, _) = result.data
                 launch {
@@ -578,7 +578,7 @@ class FlowAccessApiImplTest {
 
         `when`(mockExecutionDataApi.subscribeEventsFromStartHeight(any())).thenThrow(exception)
 
-        when (val result = flowAccessApiImpl.subscribeEventsByBlockHeight(blockHeight)) {
+        when (val result = flowAccessApiImpl.subscribeEventsByBlockHeight(testScope, blockHeight)) {
             is FlowAccessApi.AccessApiCallResponse.Success -> {
                 val (_, errorChannel) = result.data
 
@@ -618,7 +618,7 @@ class FlowAccessApiImplTest {
 
         `when`(mockExecutionDataApi.subscribeExecutionDataFromStartBlockID(any())).thenReturn(responseIterator)
 
-        when (val result = flowAccessApiImpl.subscribeExecutionDataByBlockId(blockId)) {
+        when (val result = flowAccessApiImpl.subscribeExecutionDataByBlockId(testScope, blockId)) {
             is FlowAccessApi.AccessApiCallResponse.Success -> {
                 val (responseChannel, _) = result.data
                 launch {
@@ -640,7 +640,7 @@ class FlowAccessApiImplTest {
 
         `when`(mockExecutionDataApi.subscribeExecutionDataFromStartBlockID(any())).thenThrow(exception)
 
-        when (val result = flowAccessApiImpl.subscribeExecutionDataByBlockId(blockId)) {
+        when (val result = flowAccessApiImpl.subscribeExecutionDataByBlockId(testScope, blockId)) {
             is FlowAccessApi.AccessApiCallResponse.Success -> {
                 val (_, errorChannel) = result.data
 
@@ -663,6 +663,7 @@ class FlowAccessApiImplTest {
             }
         }
     }
+
     private fun createMockTransaction(flowId: FlowId = FlowId("01")) = FlowTransaction(FlowScript("script"), emptyList(), flowId, 123L, FlowTransactionProposalKey(FlowAddress("02"), 1, 123L), FlowAddress("02"), emptyList())
 
     private fun createMockAccount(flowAddress: FlowAddress) = FlowAccount(flowAddress, BigDecimal.ONE, FlowCode("code".toByteArray()), emptyList(), emptyMap())
