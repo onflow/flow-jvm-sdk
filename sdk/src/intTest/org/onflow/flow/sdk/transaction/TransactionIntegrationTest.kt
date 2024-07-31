@@ -10,7 +10,6 @@ import org.onflow.flow.sdk.IntegrationTestUtils.handleResult
 
 @FlowEmulatorTest
 class TransactionIntegrationTest {
-
     @FlowTestClient
     lateinit var accessAPI: FlowAccessApi
 
@@ -19,7 +18,6 @@ class TransactionIntegrationTest {
 
     @FlowServiceAccountCredentials
     lateinit var serviceAccount: TestAccount
-
 
     @Test
     fun `Can connect to emulator and ping access API`() {

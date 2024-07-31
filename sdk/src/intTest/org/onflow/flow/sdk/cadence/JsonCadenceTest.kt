@@ -10,7 +10,6 @@ import java.nio.charset.StandardCharsets
 
 @FlowEmulatorTest
 class JsonCadenceTest {
-
     @FlowTestClient
     lateinit var flow: FlowAccessApi
 

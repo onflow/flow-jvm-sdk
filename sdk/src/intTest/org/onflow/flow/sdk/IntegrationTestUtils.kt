@@ -7,7 +7,6 @@ import org.onflow.flow.sdk.crypto.Crypto
 import java.nio.charset.StandardCharsets
 
 object IntegrationTestUtils {
-
     var transaction = FlowTransaction(
         script = FlowScript("import 0xsomething \n {}"),
         arguments = listOf(FlowArgument(byteArrayOf(2, 2, 3)), FlowArgument(byteArrayOf(3, 3, 3))),
