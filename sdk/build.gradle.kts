@@ -10,7 +10,6 @@ plugins {
     `maven-publish`
 }
 
-// Helper function to get properties
 fun getProp(name: String, defaultValue: String? = null): String? {
     return project.findProperty("flow.$name")?.toString()?.trim()?.ifBlank { null }
         ?: project.findProperty(name)?.toString()?.trim()?.ifBlank { null }
@@ -41,15 +40,17 @@ dependencies {
     testFixturesImplementation("org.mockito:mockito-core:3.12.4")
     testFixturesImplementation("org.mockito:mockito-inline:3.11.2")
 
-    testFixturesApi("org.junit.jupiter:junit-jupiter-api:5.7.0")
-    testFixturesApi("org.junit.jupiter:junit-jupiter-engine:5.7.0")
+    testImplementation(testFixtures(project(":common")))
+    testImplementation(project(":common"))
+    implementation("org.slf4j:slf4j-api:1.7.30")
+    implementation("ch.qos.logback:logback-classic:1.4.12")
 }
 
 sourceSets {
     create("intTest") {
         compileClasspath += sourceSets.main.get().output
         runtimeClasspath += sourceSets.main.get().output
-        kotlin.srcDirs("src/intTest", "src/testFixtures")
+        kotlin.srcDirs("src/intTest")
     }
 }
 
@@ -61,6 +62,7 @@ val intTestRuntimeOnly by configurations.getting
 configurations["intTestRuntimeOnly"].extendsFrom(configurations.runtimeOnly.get())
 
 dependencies {
+    intTestImplementation(testFixtures(project(":common")))
     intTestImplementation("org.junit.jupiter:junit-jupiter:5.10.1")
     intTestImplementation("org.assertj:assertj-core:3.25.1")
     intTestRuntimeOnly("org.junit.platform:junit-platform-launcher")
@@ -84,11 +86,16 @@ val integrationTest = task<Test>("integrationTest") {
 tasks.check { dependsOn(integrationTest) }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_20
-    targetCompatibility = JavaVersion.VERSION_20
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
 }
 
 tasks {
+    withType<KotlinCompile> {
+        kotlinOptions {
+            jvmTarget = "21"
+        }
+    }
     test {
         useJUnitPlatform()
         testLogging {

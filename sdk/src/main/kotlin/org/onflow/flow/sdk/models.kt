@@ -16,7 +16,9 @@ import java.time.LocalDateTime
 private const val FLOW_ID_SIZE_BYTES = 32
 private const val FLOW_ADDRESS_SIZE_BYTES = 8
 
-enum class FlowTransactionStatus(val num: Int) {
+enum class FlowTransactionStatus(
+    val num: Int
+) {
     UNKNOWN(0),
     PENDING(1),
     FINALIZED(2),
@@ -53,7 +55,9 @@ enum class SignatureAlgorithm(
     val algorithm: String,
     val curve: String,
     val id: String,
+    // code is the access API code defined in https://developers.flow.com/build/basics/accounts#signature-and-hash-algorithms
     val code: Int,
+    // index is the Cadence index defined in https://cadence-lang.org/docs/language/crypto#signing-algorithms
     val index: Int
 ) {
     UNKNOWN("unknown", "unknown", "unknown", -1, 0),
@@ -74,30 +78,29 @@ enum class SignatureAlgorithm(
 enum class HashAlgorithm(
     val algorithm: String,
     val outputSize: Int,
-    val id: String,
+    // code is the access API code defined in https://developers.flow.com/build/basics/accounts#signature-and-hash-algorithms
     val code: Int,
+    // index is the Cadence index defined in https://cadence-lang.org/docs/language/crypto#hashing
     val index: Int
 ) {
-    UNKNOWN("unknown", -1, "unknown", -1, 0),
-    SHA2_256("SHA-256", 256, "SHA256withECDSA", 1, 1),
-    SHA2_384("SHA-384", 384, "SHA384withECDSA", 1, 2),
-    SHA3_256("SHA3-256", 256, "SHA3-256withECDSA", 3, 3),
-    SHA3_384("SHA3-384", 384, "SHA3-384withECDSA", 3, 4);
+    UNKNOWN("unknown", -1, -1, 0),
+    SHA2_256("SHA-256", 256, 1, 1),
+    SHA2_384("SHA-384", 384, -1, 2),
+    SHA3_256("SHA3-256", 256, 3, 3),
+    SHA3_384("SHA3-384", 384, -1, 4),
+    KMAC128("KMAC128", 256, -1, 5),
+    KECCAK256("KECCAK256", 256, -1, 6);
 
     companion object {
         @JvmStatic
-        fun fromCode(code: Int): HashAlgorithm = entries
-            .find { it.code == code } ?: UNKNOWN
+        fun fromCode(code: Int): HashAlgorithm = entries.find { it.code == code } ?: UNKNOWN
 
         @JvmStatic
-        fun fromCadenceIndex(index: Int): HashAlgorithm = entries
-            .find { it.index == index } ?: UNKNOWN
+        fun fromCadenceIndex(index: Int): HashAlgorithm = entries.find { it.index == index } ?: UNKNOWN
     }
 }
 
 interface Signer {
-    val hasher: Hasher
-
     fun sign(bytes: ByteArray): ByteArray
 
     fun signWithDomain(bytes: ByteArray, domain: ByteArray): ByteArray = sign(domain + bytes)
@@ -136,28 +139,26 @@ data class FlowAccount(
 
     @JvmOverloads
     @Suppress("DEPRECATION")
-    fun builder(builder: AccountOuterClass.Account.Builder = AccountOuterClass.Account.newBuilder()): AccountOuterClass.Account.Builder {
-        return builder
-            .setAddress(address.byteStringValue)
-            .setBalance(balance.movePointRight(8).toLong())
-            .setCode(code.byteStringValue)
-            .addAllKeys(keys.map { it.builder().build() })
-            .putAllContracts(contracts.mapValues { it.value.byteStringValue })
-    }
+    fun builder(builder: AccountOuterClass.Account.Builder = AccountOuterClass.Account.newBuilder()): AccountOuterClass.Account.Builder = builder
+        .setAddress(address.byteStringValue)
+        .setBalance(balance.movePointRight(8).toLong())
+        .setCode(code.byteStringValue)
+        .addAllKeys(keys.map { it.builder().build() })
+        .putAllContracts(contracts.mapValues { it.value.byteStringValue })
 
     /**
      * Returns the index of the public key on the account, or -1 if not found.
      */
-    fun getKeyIndex(publicKey: String): Int {
-        return this.keys
-            .filter { !it.revoked }
-            .find {
-                it.publicKey.base16Value.lowercase().endsWith(publicKey.lowercase())
-                    || publicKey.lowercase().endsWith(it.publicKey.base16Value.lowercase())
-            }
-            ?.id
-            ?: -1
-    }
+    fun getKeyIndex(publicKey: String): Int = this.keys
+        .filter { !it.revoked }
+        .find {
+            it.publicKey.base16Value
+                .lowercase()
+                .endsWith(publicKey.lowercase())
+                ||
+                publicKey.lowercase().endsWith(it.publicKey.base16Value.lowercase())
+        }?.id
+        ?: -1
 }
 
 data class FlowAccountKey(
@@ -183,16 +184,14 @@ data class FlowAccountKey(
     }
 
     @JvmOverloads
-    fun builder(builder: AccountOuterClass.AccountKey.Builder = AccountOuterClass.AccountKey.newBuilder()): AccountOuterClass.AccountKey.Builder {
-        return builder
-            .setIndex(id)
-            .setPublicKey(publicKey.byteStringValue)
-            .setSignAlgo(signAlgo.code)
-            .setHashAlgo(hashAlgo.code)
-            .setWeight(weight)
-            .setSequenceNumber(sequenceNumber)
-            .setRevoked(revoked)
-    }
+    fun builder(builder: AccountOuterClass.AccountKey.Builder = AccountOuterClass.AccountKey.newBuilder()): AccountOuterClass.AccountKey.Builder = builder
+        .setIndex(id)
+        .setPublicKey(publicKey.byteStringValue)
+        .setSignAlgo(signAlgo.code)
+        .setHashAlgo(hashAlgo.code)
+        .setWeight(weight)
+        .setSequenceNumber(sequenceNumber)
+        .setRevoked(revoked)
 
     val encoded: ByteArray get() = RLPCodec.encode(
         arrayOf(
@@ -221,13 +220,11 @@ data class FlowEventResult(
     }
 
     @JvmOverloads
-    fun builder(builder: Access.EventsResponse.Result.Builder = Access.EventsResponse.Result.newBuilder()): Access.EventsResponse.Result.Builder {
-        return builder
-            .setBlockId(blockId.byteStringValue)
-            .setBlockHeight(blockHeight)
-            .setBlockTimestamp(blockTimestamp.asTimestamp())
-            .addAllEvents(events.map { it.builder().build() })
-    }
+    fun builder(builder: Access.EventsResponse.Result.Builder = Access.EventsResponse.Result.newBuilder()): Access.EventsResponse.Result.Builder = builder
+        .setBlockId(blockId.byteStringValue)
+        .setBlockHeight(blockHeight)
+        .setBlockTimestamp(blockTimestamp.asTimestamp())
+        .addAllEvents(events.map { it.builder().build() })
 }
 
 // https://github.com/onflow/flow-go-sdk/blob/878e5e586e0f060b88c6036cf4b0f6a7ab66d198/client/client.go#L515
@@ -259,14 +256,12 @@ data class FlowEvent(
     operator fun contains(name: String): Boolean = name in event
 
     @JvmOverloads
-    fun builder(builder: EventOuterClass.Event.Builder = EventOuterClass.Event.newBuilder()): EventOuterClass.Event.Builder {
-        return builder
-            .setType(type)
-            .setTransactionId(transactionId.byteStringValue)
-            .setTransactionIndex(transactionIndex)
-            .setEventIndex(eventIndex)
-            .setPayload(payload.byteStringValue)
-    }
+    fun builder(builder: EventOuterClass.Event.Builder = EventOuterClass.Event.newBuilder()): EventOuterClass.Event.Builder = builder
+        .setType(type)
+        .setTransactionId(transactionId.byteStringValue)
+        .setTransactionIndex(transactionIndex)
+        .setEventIndex(eventIndex)
+        .setPayload(payload.byteStringValue)
 }
 
 data class FlowTransactionResult(
@@ -286,13 +281,11 @@ data class FlowTransactionResult(
     }
 
     @JvmOverloads
-    fun builder(builder: Access.TransactionResultResponse.Builder = Access.TransactionResultResponse.newBuilder()): Access.TransactionResultResponse.Builder {
-        return builder
-            .setStatus(TransactionOuterClass.TransactionStatus.valueOf(status.name))
-            .setStatusCode(statusCode)
-            .setErrorMessage(errorMessage)
-            .addAllEvents(events.map { it.builder().build() })
-    }
+    fun builder(builder: Access.TransactionResultResponse.Builder = Access.TransactionResultResponse.newBuilder()): Access.TransactionResultResponse.Builder = builder
+        .setStatus(TransactionOuterClass.TransactionStatus.valueOf(status.name))
+        .setStatusCode(statusCode)
+        .setErrorMessage(errorMessage)
+        .addAllEvents(events.map { it.builder().build() })
 
     @JvmOverloads
     fun throwOnError(validStatusCodes: Set<Int> = setOf(0)): FlowTransactionResult {
@@ -442,7 +435,8 @@ data class FlowTransaction(
     }
 
     val signerMap: Map<FlowAddress, Int> get() {
-        return signerList.withIndex()
+        return signerList
+            .withIndex()
             .map { it.value to it.index }
             .toMap()
     }
@@ -489,22 +483,18 @@ data class FlowTransaction(
     }
 
     @JvmOverloads
-    fun builder(builder: TransactionOuterClass.Transaction.Builder = TransactionOuterClass.Transaction.newBuilder()): TransactionOuterClass.Transaction.Builder {
-        return builder
-            .setScript(script.byteStringValue)
-            .addAllArguments(arguments.map { it.byteStringValue })
-            .setReferenceBlockId(referenceBlockId.byteStringValue)
-            .setGasLimit(gasLimit)
-            .setProposalKey(proposalKey.builder().build())
-            .setPayer(payerAddress.byteStringValue)
-            .addAllAuthorizers(authorizers.map { it.byteStringValue })
-            .addAllPayloadSignatures(payloadSignatures.map { it.builder().build() })
-            .addAllEnvelopeSignatures(envelopeSignatures.map { it.builder().build() })
-    }
+    fun builder(builder: TransactionOuterClass.Transaction.Builder = TransactionOuterClass.Transaction.newBuilder()): TransactionOuterClass.Transaction.Builder = builder
+        .setScript(script.byteStringValue)
+        .addAllArguments(arguments.map { it.byteStringValue })
+        .setReferenceBlockId(referenceBlockId.byteStringValue)
+        .setGasLimit(gasLimit)
+        .setProposalKey(proposalKey.builder().build())
+        .setPayer(payerAddress.byteStringValue)
+        .addAllAuthorizers(authorizers.map { it.byteStringValue })
+        .addAllPayloadSignatures(payloadSignatures.map { it.builder().build() })
+        .addAllEnvelopeSignatures(envelopeSignatures.map { it.builder().build() })
 
-    fun addPayloadSignature(address: FlowAddress, keyIndex: Int, signer: Signer): FlowTransaction {
-        return addPayloadSignature(address, keyIndex, FlowSignature(signer.signAsTransaction(canonicalPayload)))
-    }
+    fun addPayloadSignature(address: FlowAddress, keyIndex: Int, signer: Signer): FlowTransaction = addPayloadSignature(address, keyIndex, FlowSignature(signer.signAsTransaction(canonicalPayload)))
 
     fun addPayloadSignature(address: FlowAddress, keyIndex: Int, signature: FlowSignature): FlowTransaction {
         val payloadSignatures = this.payloadSignatures.toMutableList()
@@ -516,14 +506,13 @@ data class FlowTransaction(
                 signature = signature
             )
         )
-        return this.copy(
-            payloadSignatures = payloadSignatures.sortedWith(compareBy<FlowTransactionSignature> { it.signerIndex }.thenBy { it.keyIndex })
-        ).updateSignerIndices()
+        return this
+            .copy(
+                payloadSignatures = payloadSignatures.sortedWith(compareBy<FlowTransactionSignature> { it.signerIndex }.thenBy { it.keyIndex })
+            ).updateSignerIndices()
     }
 
-    fun addEnvelopeSignature(address: FlowAddress, keyIndex: Int, signer: Signer): FlowTransaction {
-        return addEnvelopeSignature(address, keyIndex, FlowSignature(signer.signAsTransaction(canonicalAuthorizationEnvelope)))
-    }
+    fun addEnvelopeSignature(address: FlowAddress, keyIndex: Int, signer: Signer): FlowTransaction = addEnvelopeSignature(address, keyIndex, FlowSignature(signer.signAsTransaction(canonicalAuthorizationEnvelope)))
 
     fun addEnvelopeSignature(address: FlowAddress, keyIndex: Int, signature: FlowSignature): FlowTransaction {
         val envelopeSignatures = this.envelopeSignatures.toMutableList()
@@ -535,9 +524,10 @@ data class FlowTransaction(
                 signature = signature
             )
         )
-        return this.copy(
-            envelopeSignatures = envelopeSignatures.sortedWith(compareBy<FlowTransactionSignature> { it.signerIndex }.thenBy { it.keyIndex })
-        ).updateSignerIndices()
+        return this
+            .copy(
+                envelopeSignatures = envelopeSignatures.sortedWith(compareBy<FlowTransactionSignature> { it.signerIndex }.thenBy { it.keyIndex })
+            ).updateSignerIndices()
     }
 
     fun updateSignerIndices(): FlowTransaction {
@@ -583,12 +573,10 @@ data class FlowTransactionProposalKey(
     }
 
     @JvmOverloads
-    fun builder(builder: TransactionOuterClass.Transaction.ProposalKey.Builder = TransactionOuterClass.Transaction.ProposalKey.newBuilder()): TransactionOuterClass.Transaction.ProposalKey.Builder {
-        return builder
-            .setAddress(address.byteStringValue)
-            .setKeyId(keyIndex)
-            .setSequenceNumber(sequenceNumber)
-    }
+    fun builder(builder: TransactionOuterClass.Transaction.ProposalKey.Builder = TransactionOuterClass.Transaction.ProposalKey.newBuilder()): TransactionOuterClass.Transaction.ProposalKey.Builder = builder
+        .setAddress(address.byteStringValue)
+        .setKeyId(keyIndex)
+        .setSequenceNumber(sequenceNumber)
 }
 
 data class FlowTransactionSignature(
@@ -609,12 +597,10 @@ data class FlowTransactionSignature(
     }
 
     @JvmOverloads
-    fun builder(builder: TransactionOuterClass.Transaction.Signature.Builder = TransactionOuterClass.Transaction.Signature.newBuilder()): TransactionOuterClass.Transaction.Signature.Builder {
-        return builder
-            .setAddress(address.byteStringValue)
-            .setKeyId(keyIndex)
-            .setSignature(signature.byteStringValue)
-    }
+    fun builder(builder: TransactionOuterClass.Transaction.Signature.Builder = TransactionOuterClass.Transaction.Signature.newBuilder()): TransactionOuterClass.Transaction.Signature.Builder = builder
+        .setAddress(address.byteStringValue)
+        .setKeyId(keyIndex)
+        .setSignature(signature.byteStringValue)
 }
 
 data class FlowBlockHeader(
@@ -632,12 +618,10 @@ data class FlowBlockHeader(
     }
 
     @JvmOverloads
-    fun builder(builder: BlockHeaderOuterClass.BlockHeader.Builder = BlockHeaderOuterClass.BlockHeader.newBuilder()): BlockHeaderOuterClass.BlockHeader.Builder {
-        return builder
-            .setId(id.byteStringValue)
-            .setParentId(parentId.byteStringValue)
-            .setHeight(height)
-    }
+    fun builder(builder: BlockHeaderOuterClass.BlockHeader.Builder = BlockHeaderOuterClass.BlockHeader.newBuilder()): BlockHeaderOuterClass.BlockHeader.Builder = builder
+        .setId(id.byteStringValue)
+        .setParentId(parentId.byteStringValue)
+        .setHeight(height)
 }
 
 data class FlowBlock(
@@ -663,16 +647,14 @@ data class FlowBlock(
     }
 
     @JvmOverloads
-    fun builder(builder: BlockOuterClass.Block.Builder = BlockOuterClass.Block.newBuilder()): BlockOuterClass.Block.Builder {
-        return builder
-            .setId(id.byteStringValue)
-            .setParentId(parentId.byteStringValue)
-            .setHeight(height)
-            .setTimestamp(timestamp.asTimestamp())
-            .addAllCollectionGuarantees(collectionGuarantees.map { it.builder().build() })
-            .addAllBlockSeals(blockSeals.map { it.builder().build() })
-            .addAllSignatures(signatures.map { it.byteStringValue })
-    }
+    fun builder(builder: BlockOuterClass.Block.Builder = BlockOuterClass.Block.newBuilder()): BlockOuterClass.Block.Builder = builder
+        .setId(id.byteStringValue)
+        .setParentId(parentId.byteStringValue)
+        .setHeight(height)
+        .setTimestamp(timestamp.asTimestamp())
+        .addAllCollectionGuarantees(collectionGuarantees.map { it.builder().build() })
+        .addAllBlockSeals(blockSeals.map { it.builder().build() })
+        .addAllSignatures(signatures.map { it.byteStringValue })
 }
 
 data class FlowChunk(
@@ -792,11 +774,9 @@ data class FlowCollectionGuarantee(
     }
 
     @JvmOverloads
-    fun builder(builder: CollectionOuterClass.CollectionGuarantee.Builder = CollectionOuterClass.CollectionGuarantee.newBuilder()): CollectionOuterClass.CollectionGuarantee.Builder {
-        return builder
-            .setCollectionId(id.byteStringValue)
-            .addAllSignatures(signatures.map { it.byteStringValue })
-    }
+    fun builder(builder: CollectionOuterClass.CollectionGuarantee.Builder = CollectionOuterClass.CollectionGuarantee.newBuilder()): CollectionOuterClass.CollectionGuarantee.Builder = builder
+        .setCollectionId(id.byteStringValue)
+        .addAllSignatures(signatures.map { it.byteStringValue })
 }
 
 data class FlowBlockSeal(
@@ -816,13 +796,11 @@ data class FlowBlockSeal(
     }
 
     @JvmOverloads
-    fun builder(builder: BlockSealOuterClass.BlockSeal.Builder = BlockSealOuterClass.BlockSeal.newBuilder()): BlockSealOuterClass.BlockSeal.Builder {
-        return builder
-            .setBlockId(id.byteStringValue)
-            .setExecutionReceiptId(executionReceiptId.byteStringValue)
-            .addAllExecutionReceiptSignatures(executionReceiptSignatures.map { it.byteStringValue })
-            .addAllResultApprovalSignatures(resultApprovalSignatures.map { it.byteStringValue })
-    }
+    fun builder(builder: BlockSealOuterClass.BlockSeal.Builder = BlockSealOuterClass.BlockSeal.newBuilder()): BlockSealOuterClass.BlockSeal.Builder = builder
+        .setBlockId(id.byteStringValue)
+        .setExecutionReceiptId(executionReceiptId.byteStringValue)
+        .addAllExecutionReceiptSignatures(executionReceiptSignatures.map { it.byteStringValue })
+        .addAllResultApprovalSignatures(resultApprovalSignatures.map { it.byteStringValue })
 }
 
 data class FlowCollection(
@@ -838,11 +816,9 @@ data class FlowCollection(
     }
 
     @JvmOverloads
-    fun builder(builder: CollectionOuterClass.Collection.Builder = CollectionOuterClass.Collection.newBuilder()): CollectionOuterClass.Collection.Builder {
-        return builder
-            .setId(id.byteStringValue)
-            .addAllTransactionIds(transactionIds.map { it.byteStringValue })
-    }
+    fun builder(builder: CollectionOuterClass.Collection.Builder = CollectionOuterClass.Collection.newBuilder()): CollectionOuterClass.Collection.Builder = builder
+        .setId(id.byteStringValue)
+        .addAllTransactionIds(transactionIds.map { it.byteStringValue })
 }
 
 interface BytesHolder {
@@ -853,7 +829,10 @@ interface BytesHolder {
     val integerValue: BigInteger get() = BigInteger(base16Value, 16)
 }
 
-data class FlowAddress private constructor(override val bytes: ByteArray) : Serializable, BytesHolder {
+data class FlowAddress private constructor(
+    override val bytes: ByteArray
+) : Serializable,
+    BytesHolder {
     companion object {
         @JvmStatic
         fun of(bytes: ByteArray): FlowAddress = FlowAddress(fixedSize(bytes, FLOW_ADDRESS_SIZE_BYTES))
@@ -868,12 +847,13 @@ data class FlowAddress private constructor(override val bytes: ByteArray) : Seri
 
     val formatted: String = "0x$base16Value"
 
-    override fun hashCode(): Int {
-        return bytes.contentHashCode()
-    }
+    override fun hashCode(): Int = bytes.contentHashCode()
 }
 
-data class FlowArgument(override val bytes: ByteArray) : Serializable, BytesHolder {
+data class FlowArgument(
+    override val bytes: ByteArray
+) : Serializable,
+    BytesHolder {
     constructor(jsonCadence: Field<*>) : this(Flow.encodeJsonCadence(jsonCadence))
 
     private var _jsonCadence: Field<*>? = null
@@ -892,12 +872,13 @@ data class FlowArgument(override val bytes: ByteArray) : Serializable, BytesHold
         return bytes.contentEquals(other.bytes)
     }
 
-    override fun hashCode(): Int {
-        return bytes.contentHashCode()
-    }
+    override fun hashCode(): Int = bytes.contentHashCode()
 }
 
-data class FlowScript(override val bytes: ByteArray) : Serializable, BytesHolder {
+data class FlowScript(
+    override val bytes: ByteArray
+) : Serializable,
+    BytesHolder {
     constructor(script: String) : this(script.encodeToByteArray())
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -906,12 +887,13 @@ data class FlowScript(override val bytes: ByteArray) : Serializable, BytesHolder
         return bytes.contentEquals(other.bytes)
     }
 
-    override fun hashCode(): Int {
-        return bytes.contentHashCode()
-    }
+    override fun hashCode(): Int = bytes.contentHashCode()
 }
 
-data class FlowScriptResponse(override val bytes: ByteArray) : Serializable, BytesHolder {
+data class FlowScriptResponse(
+    override val bytes: ByteArray
+) : Serializable,
+    BytesHolder {
     constructor(jsonCadence: Field<*>) : this(Flow.encodeJsonCadence(jsonCadence))
 
     private var _jsonCadence: Field<*>? = null
@@ -930,9 +912,7 @@ data class FlowScriptResponse(override val bytes: ByteArray) : Serializable, Byt
         return bytes.contentEquals(other.bytes)
     }
 
-    override fun hashCode(): Int {
-        return bytes.contentHashCode()
-    }
+    override fun hashCode(): Int = bytes.contentHashCode()
 }
 
 @kotlin.jvm.Throws
@@ -941,7 +921,10 @@ fun FlowScriptResponse.decodeToAny() { jsonCadence.decodeToAny() }
 @kotlin.jvm.Throws
 inline fun <reified T> FlowScriptResponse.decode(): T = jsonCadence.decode()
 
-data class FlowSignature(override val bytes: ByteArray) : Serializable, BytesHolder {
+data class FlowSignature(
+    override val bytes: ByteArray
+) : Serializable,
+    BytesHolder {
     constructor(hex: String) : this(hex.hexToBytes())
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -950,12 +933,13 @@ data class FlowSignature(override val bytes: ByteArray) : Serializable, BytesHol
         return bytes.contentEquals(other.bytes)
     }
 
-    override fun hashCode(): Int {
-        return bytes.contentHashCode()
-    }
+    override fun hashCode(): Int = bytes.contentHashCode()
 }
 
-data class FlowId private constructor(override val bytes: ByteArray) : Serializable, BytesHolder {
+data class FlowId private constructor(
+    override val bytes: ByteArray
+) : Serializable,
+    BytesHolder {
     companion object {
         @JvmStatic
         fun of(bytes: ByteArray): FlowId = FlowId(fixedSize(bytes, FLOW_ID_SIZE_BYTES))
@@ -968,12 +952,13 @@ data class FlowId private constructor(override val bytes: ByteArray) : Serializa
         return bytes.contentEquals(other.bytes)
     }
 
-    override fun hashCode(): Int {
-        return bytes.contentHashCode()
-    }
+    override fun hashCode(): Int = bytes.contentHashCode()
 }
 
-data class FlowCode(override val bytes: ByteArray) : Serializable, BytesHolder {
+data class FlowCode(
+    override val bytes: ByteArray
+) : Serializable,
+    BytesHolder {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -981,12 +966,13 @@ data class FlowCode(override val bytes: ByteArray) : Serializable, BytesHolder {
         return bytes.contentEquals(other.bytes)
     }
 
-    override fun hashCode(): Int {
-        return bytes.contentHashCode()
-    }
+    override fun hashCode(): Int = bytes.contentHashCode()
 }
 
-data class FlowPublicKey(override val bytes: ByteArray) : Serializable, BytesHolder {
+data class FlowPublicKey(
+    override val bytes: ByteArray
+) : Serializable,
+    BytesHolder {
     constructor(hex: String) : this(hex.hexToBytes())
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -995,12 +981,13 @@ data class FlowPublicKey(override val bytes: ByteArray) : Serializable, BytesHol
         return bytes.contentEquals(other.bytes)
     }
 
-    override fun hashCode(): Int {
-        return bytes.contentHashCode()
-    }
+    override fun hashCode(): Int = bytes.contentHashCode()
 }
 
-data class FlowSnapshot(override val bytes: ByteArray) : Serializable, BytesHolder {
+data class FlowSnapshot(
+    override val bytes: ByteArray
+) : Serializable,
+    BytesHolder {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -1008,12 +995,13 @@ data class FlowSnapshot(override val bytes: ByteArray) : Serializable, BytesHold
         return bytes.contentEquals(other.bytes)
     }
 
-    override fun hashCode(): Int {
-        return bytes.contentHashCode()
-    }
+    override fun hashCode(): Int = bytes.contentHashCode()
 }
 
-data class FlowEventPayload(override val bytes: ByteArray) : Serializable, BytesHolder {
+data class FlowEventPayload(
+    override val bytes: ByteArray
+) : Serializable,
+    BytesHolder {
     constructor(jasonCadence: Field<*>) : this(Flow.encodeJsonCadence(jasonCadence))
 
     private var _jsonCadence: Field<*>? = null
@@ -1032,9 +1020,7 @@ data class FlowEventPayload(override val bytes: ByteArray) : Serializable, Bytes
         return bytes.contentEquals(other.bytes)
     }
 
-    override fun hashCode(): Int {
-        return bytes.contentHashCode()
-    }
+    override fun hashCode(): Int = bytes.contentHashCode()
 }
 
 @kotlin.jvm.Throws

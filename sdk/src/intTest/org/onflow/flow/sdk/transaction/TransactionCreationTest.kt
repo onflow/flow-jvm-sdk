@@ -3,14 +3,14 @@ package org.onflow.flow.sdk.transaction
 import org.onflow.flow.sdk.*
 import org.onflow.flow.sdk.crypto.Crypto
 import org.assertj.core.api.Assertions.assertThat
-import org.onflow.flow.sdk.test.FlowEmulatorTest
-import org.onflow.flow.sdk.test.FlowServiceAccountCredentials
-import org.onflow.flow.sdk.test.FlowTestClient
-import org.onflow.flow.sdk.test.TestAccount
+import org.onflow.flow.common.test.FlowEmulatorTest
+import org.onflow.flow.common.test.FlowServiceAccountCredentials
+import org.onflow.flow.common.test.FlowTestClient
+import org.onflow.flow.common.test.TestAccount
 import org.junit.jupiter.api.Test
+import org.onflow.flow.common.test.FlowTestUtil
 import org.onflow.flow.sdk.IntegrationTestUtils.getAccount
 import org.onflow.flow.sdk.IntegrationTestUtils.handleResult
-import org.onflow.flow.sdk.IntegrationTestUtils.loadScript
 import org.onflow.flow.sdk.IntegrationTestUtils.transaction
 import java.nio.charset.StandardCharsets
 
@@ -61,7 +61,7 @@ class TransactionCreationTest {
             weight = 1000
         )
 
-        val loadedScript = String(loadScript("cadence/transaction_creation/transaction_creation.cdc"), StandardCharsets.UTF_8)
+        val loadedScript = String(FlowTestUtil.loadScript("cadence/transaction_creation/transaction_creation.cdc"), StandardCharsets.UTF_8)
 
         val tx = flowTransaction {
             script {
@@ -110,7 +110,7 @@ class TransactionCreationTest {
             weight = 1000
         )
 
-        val loadedScript = String(loadScript("cadence/transaction_creation/transaction_creation_simple_transaction.cdc"), StandardCharsets.UTF_8)
+        val loadedScript = String(FlowTestUtil.loadScript("cadence/transaction_creation/transaction_creation_simple_transaction.cdc"), StandardCharsets.UTF_8)
 
         val transactionResult = accessAPI.simpleFlowTransaction(serviceAccount.flowAddress, serviceAccount.signer) {
             script {
