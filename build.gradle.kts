@@ -70,4 +70,19 @@ subprojects {
             allWarningsAsErrors = false
         }
     }
+
+    tasks.withType<Test> {
+        useJUnitPlatform()
+        testLogging {
+            exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+            showExceptions = true
+            showStackTraces = true
+            showCauses = true
+        }
+
+        systemProperty("logback.configurationFile", rootProject.file("./logback.xml").absolutePath)
+        systemProperty("org.slf4j.simpleLogger.defaultLogLevel", "info")
+        systemProperty("io.netty.logger.type", "slf4j")
+        systemProperty("io.netty.leakDetection.level", "DISABLED")
+    }
 }

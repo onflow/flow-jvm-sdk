@@ -7,6 +7,7 @@
     </appender>
 
     <logger name="io.netty" level="info"/>
+    <logger name="io.grpc.netty.shaded.io.netty" level="info"/>
 
     <root level="info">
         <appender-ref ref="STDOUT"/>
