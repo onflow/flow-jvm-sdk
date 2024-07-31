@@ -1,4 +1,4 @@
-package org.onflow.flow.sdk.test
+package org.onflow.flow.common.test
 
 import org.onflow.flow.sdk.*
 import org.onflow.flow.sdk.cadence.AddressField
@@ -11,7 +11,7 @@ import java.nio.charset.StandardCharsets
 import kotlin.io.path.createTempDirectory
 
 object FlowTestUtil {
-    private fun loadScript(name: String): ByteArray {
+    fun loadScript(name: String): ByteArray {
         val resource = javaClass.classLoader.getResourceAsStream(name)
             ?: throw IllegalArgumentException("Script file $name not found")
         return resource.use { it.readAllBytes() }

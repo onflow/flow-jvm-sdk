@@ -54,3 +54,18 @@ jobs:
           files: "**/test-results/test/**/*.xml"
           seconds_between_github_writes: 5
           secondary_rate_limit_wait_seconds: 120
+
+      - name: Run Common Integration Tests
+        if: ${{ steps.unit_test.outcome == 'success' }}
+        run: |
+          export PATH="$HOME/.local/bin:$PATH"
+          ./gradlew --no-daemon --max-workers=2 --warning-mode=all :common:integrationTest --continue --stacktrace
+
+      - name: Publish Common Integration Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v1.18
+        if: always()
+        with:
+          check_name: "Integration Test Results"
+          files: "**/test-results/integrationTest/**/*.xml"
+          seconds_between_github_writes: 5
+          secondary_rate_limit_wait_seconds: 120

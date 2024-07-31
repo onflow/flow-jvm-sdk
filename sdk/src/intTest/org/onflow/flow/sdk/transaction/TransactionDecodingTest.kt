@@ -2,9 +2,9 @@ package org.onflow.flow.sdk.transaction
 
 import org.onflow.flow.sdk.*
 import org.assertj.core.api.Assertions.assertThat
-import org.onflow.flow.sdk.test.FlowEmulatorTest
+import org.onflow.flow.common.test.FlowEmulatorTest
 import org.junit.jupiter.api.Test
-import org.onflow.flow.sdk.IntegrationTestUtils.loadScript
+import org.onflow.flow.common.test.FlowTestUtil
 import java.nio.charset.StandardCharsets
 
 @FlowEmulatorTest
@@ -54,7 +54,7 @@ class TransactionDecodingTest {
         val proposerAddress = "f8d6e0586b0a20c7"
         val payerAddress = "ee82856bf20e2aa6"
 
-        val loadedScript = String(loadScript("cadence/transaction_decoding/transaction_decoding_precompute_txid.cdc"), StandardCharsets.UTF_8)
+        val loadedScript = String(FlowTestUtil.loadScript("cadence/transaction_decoding/transaction_decoding_precompute_txid.cdc"), StandardCharsets.UTF_8)
 
         var testTx = FlowTransaction(
             script = FlowScript(loadedScript),

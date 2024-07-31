@@ -15,9 +15,6 @@ class SignerTest {
     @BeforeEach
     fun setUp() {
         signer = object : Signer {
-            override val hasher: Hasher
-                get() = this@SignerTest.hasher
-
             override fun sign(bytes: ByteArray): ByteArray {
                 // Mock sign function to return bytes * 2
                 return bytes + bytes
