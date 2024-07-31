@@ -1,14 +1,14 @@
 package org.onflow.flow.sdk.transaction
 
 import org.onflow.flow.sdk.*
-import org.onflow.flow.common.test.FlowEmulatorTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.fail
-import org.onflow.flow.common.test.FlowTestAccount
-import org.onflow.flow.common.test.FlowTestClient
-import org.onflow.flow.common.test.TestAccount
+import org.onflow.flow.common.test.*
+import org.onflow.flow.sdk.IntegrationTestUtils.getAccount
 import org.onflow.flow.sdk.IntegrationTestUtils.handleResult
+import org.onflow.flow.sdk.crypto.Crypto
+import java.nio.charset.StandardCharsets
 
 @FlowEmulatorTest
 class TransactionIntegrationTest {
@@ -18,6 +18,10 @@ class TransactionIntegrationTest {
 
     @FlowTestAccount
     lateinit var testAccount: TestAccount
+
+    @FlowServiceAccountCredentials
+    lateinit var serviceAccount: TestAccount
+
 
     @Test
     fun `Can connect to emulator and ping access API`() {
@@ -71,42 +75,81 @@ class TransactionIntegrationTest {
 
     @Test
     fun `Can parse events`() {
-        // https://flowscan.org/transaction/8c2e9d37a063240f236aa181e1454eb62991b42302534d4d6dd3839c2df0ef14
-        val tx = try {
-            handleResult(
-                accessAPI.getTransactionById(FlowId("8c2e9d37a063240f236aa181e1454eb62991b42302534d4d6dd3839c2df0ef14")),
-                "Failed to get transaction"
-            )
-        } catch (e: Exception) {
-            fail("Failed to retrieve transaction: ${e.message}")
+        val latestBlockId = handleResult(accessAPI.getLatestBlockHeader(), "Failed to get latest block header").id
+        val payerAccount = getAccount(accessAPI, serviceAccount.flowAddress)
+
+        val newAccountKeyPair = Crypto.generateKeyPair(SignatureAlgorithm.ECDSA_P256)
+        val newAccountPublicKey = FlowAccountKey(
+            publicKey = FlowPublicKey(newAccountKeyPair.public.hex),
+            signAlgo = SignatureAlgorithm.ECDSA_P256,
+            hashAlgo = HashAlgorithm.SHA3_256,
+            weight = 1000
+        )
+
+        val loadedScript = String(FlowTestUtil.loadScript("cadence/transaction_creation/transaction_creation.cdc"), StandardCharsets.UTF_8)
+
+        val tx = flowTransaction {
+            script {
+                loadedScript
+            }
+
+            arguments {
+                arg { string(newAccountPublicKey.encoded.bytesToHex()) }
+            }
+
+            referenceBlockId = latestBlockId
+            gasLimit = 100
+
+            proposalKey {
+                address = payerAccount.address
+                keyIndex = payerAccount.keys[0].id
+                sequenceNumber = payerAccount.keys[0].sequenceNumber.toLong()
+            }
+
+            payerAddress = payerAccount.address
+
+            signatures {
+                signature {
+                    address = payerAccount.address
+                    keyIndex = 0
+                    signer = serviceAccount.signer
+                }
+            }
         }
 
-        assertThat(tx).isNotNull
+        val txID = handleResult(accessAPI.sendTransaction(tx), "Failed to send transaction")
 
-        val results = try {
+        val result = handleResult(waitForSeal(accessAPI, txID), "Failed to wait for seal")
+
+        assertThat(result).isNotNull
+        assertThat(result.status).isEqualTo(FlowTransactionStatus.SEALED)
+
+        val txResult = try {
             handleResult(
-                accessAPI.getTransactionResultById(FlowId("8c2e9d37a063240f236aa181e1454eb62991b42302534d4d6dd3839c2df0ef14")),
+                accessAPI.getTransactionResultById(txID),
                 "Failed to get transaction results"
             )
         } catch (e: Exception) {
             fail("Failed to retrieve transaction results: ${e.message}")
         }
 
-        assertThat(results.events).hasSize(12)
-        assertThat(results.events[0].event.id).isEqualTo("A.0b2a3299cc857e29.TopShot.Withdraw")
-        assertThat(results.events[1].event.id).isEqualTo("A.0b2a3299cc857e29.TopShot.Deposit")
-        assertThat(results.events[2].event.id).isEqualTo("A.ead892083b3e2c6c.DapperUtilityCoin.TokensWithdrawn")
+        assertThat(txResult.events).isNotEmpty
+        assertThat(txResult.events).hasSize(7)
+        assertThat(txResult.events[0].event.id).contains("TokensWithdrawn")
 
-        assertThat("from" in results.events[2].event).isTrue
-        assertThat("amount" in results.events[2].event).isTrue
+        assertThat("from" in txResult.events[0].event).isTrue
+        assertThat("amount" in txResult.events[0].event).isTrue
 
-        assertThat(results.events[8].event.id).isEqualTo("A.b8ea91944fd51c43.OffersV2.OfferCompleted")
-        assertThat("nftId" in results.events[8].event).isTrue
-        assertThat("nftType" in results.events[8].event).isTrue
-        assertThat("offerId" in results.events[8].event).isTrue
-        assertThat("offerType" in results.events[8].event.value!!).isTrue
-        assertThat("royalties" in results.events[8].event.value!!).isTrue
-        assertThat("offerAddress" in results.events[8].event.value!!).isTrue
+        assertThat(txResult.events[1].event.id).contains("TokensWithdrawn")
+
+        assertThat("from" in txResult.events[1].event).isTrue
+        assertThat("amount" in txResult.events[1].event).isTrue
+
+        assertThat(txResult.events[2].event.id).contains("TokensDeposited")
+        assertThat(txResult.events[3].event.id).contains("TokensDeposited")
+        assertThat(txResult.events[4].event.id).contains("TokensDeposited")
+        assertThat(txResult.events[5].event.id).contains("AccountCreated")
+        assertThat(txResult.events[6].event.id).contains("AccountKeyAdded")
     }
 
     @Test
