@@ -2,7 +2,6 @@ package org.onflow.flow.sdk.transaction
 
 import org.onflow.flow.sdk.*
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.fail
 import org.onflow.flow.common.test.*
