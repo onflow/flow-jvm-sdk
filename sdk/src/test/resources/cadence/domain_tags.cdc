@@ -36,5 +36,6 @@ access(all) fun main(
   return keyList.verify(
     signatureSet: signatureSet,
     signedData: message.decodeHex(),
+    domainSeparationTag: "FLOW-V0.0-user"
   )
 }
