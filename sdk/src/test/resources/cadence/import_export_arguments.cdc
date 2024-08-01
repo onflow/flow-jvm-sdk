@@ -1,8 +1,8 @@
 access(all) struct TestClass {
-    pub let address: Address
-    pub let balance: UFix64
-    pub let hashAlgorithm: HashAlgorithm
-    pub let isValid: Bool
+    access(all) let address: Address
+    access(all) let balance: UFix64
+    access(all) let hashAlgorithm: HashAlgorithm
+    access(all) let isValid: Bool
 
     init(address: Address, balance: UFix64, hashAlgorithm: HashAlgorithm, isValid: Bool) {
         self.address = address
