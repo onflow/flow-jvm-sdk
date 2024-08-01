@@ -8,7 +8,6 @@ import java.io.File
 import java.io.IOException
 import java.math.BigDecimal
 import java.nio.charset.StandardCharsets
-import kotlin.io.path.createTempDirectory
 
 object FlowTestUtil {
     fun loadScript(name: String): ByteArray {
@@ -132,7 +131,6 @@ object FlowTestUtil {
         classLoader: ClassLoader = AbstractFlowEmulatorExtension::class.java.classLoader,
         pidFilename: String = "flow-emulator.pid"
     ): Pair<Process, File> {
-
         val pidFile = File(System.getProperty("java.io.tmpdir"), pidFilename)
         if (pidFile.exists()) {
             // TODO: maybe a better way of doing this?
