@@ -5,6 +5,7 @@ import org.onflow.flow.sdk.SignatureAlgorithm
 import org.apiguardian.api.API
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.api.extension.ExtensionContext
+import org.onflow.flow.sdk.crypto.Crypto
 import java.lang.annotation.Inherited
 import java.math.BigDecimal
 
@@ -52,6 +53,24 @@ class FlowEmulatorProjectTestExtension : AbstractFlowEmulatorExtension() {
         val restPort = config.restPort.takeUnless { it < 0 } ?: findFreePort("localhost")
         val adminPort = config.adminPort.takeUnless { it < 0 } ?: findFreePort("localhost")
 
+        val serviceKeyPair = Crypto.generateKeyPair(SignatureAlgorithm.ECDSA_P256)
+        val serviceAccount = TestAccount(
+            address = "0xf8d6e0586b0a20c7", // TODO: is this a safe assumption?
+            privateKey = serviceKeyPair.private.hex,
+            publicKey = serviceKeyPair.public.hex,
+            signAlgo = SignatureAlgorithm.ECDSA_P256,
+            hashAlgo = HashAlgorithm.SHA3_256,
+            keyIndex = 0,
+            balance = BigDecimal(-1)
+        )
+
+        println("Service Account Address: ${serviceAccount.address}")
+        println("Service Account Private Key: ${serviceAccount.privateKey}")
+        println("Service Account Public Key: ${serviceAccount.publicKey}")
+        println("Service Account Sign Algo: ${serviceAccount.signAlgo}")
+        println("Service Account Hash Algo: ${serviceAccount.hashAlgo}")
+        println("Service Account Key Index: ${serviceAccount.keyIndex}")
+
         val ret = FlowTestUtil.runFlow(
             executable = config.executable,
             arguments = config.arguments.trim().takeIf { it.isNotEmpty() },
@@ -70,15 +89,7 @@ class FlowEmulatorProjectTestExtension : AbstractFlowEmulatorExtension() {
             port = port,
             restPort = restPort,
             adminPort = adminPort,
-            serviceAccount = TestAccount(
-                address = config.serviceAccountAddress,
-                privateKey = config.serviceAccountPrivateKey,
-                publicKey = config.serviceAccountPublicKey,
-                signAlgo = config.serviceAccountSignAlgo,
-                hashAlgo = config.serviceAccountHashAlgo,
-                keyIndex = config.serviceAccountKeyIndex,
-                balance = BigDecimal(-1)
-            )
+            serviceAccount = serviceAccount
         )
     }
 }

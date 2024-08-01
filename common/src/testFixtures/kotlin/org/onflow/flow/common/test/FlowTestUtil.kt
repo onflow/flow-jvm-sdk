@@ -161,8 +161,6 @@ object FlowTestUtil {
         if (fileLocation != null && fileLocation.exists() && fileLocation.isFile) {
             flowJson = fileLocation.absolutePath
             println("Flow JSON found as file: $flowJson")
-        } else {
-            println("Flow JSON not found as file.")
         }
 
         // Check if flowJsonLocation is a classpath resource
@@ -176,8 +174,6 @@ object FlowTestUtil {
                     tmp.absolutePath
                 }
                 println("Flow JSON found as classpath resource: $flowJson")
-            } else {
-                println("Flow JSON not found as classpath resource.")
             }
         }
 
@@ -188,12 +184,8 @@ object FlowTestUtil {
             if (flowJsonFile != null && flowJsonFile.exists()) {
                 flowJson = flowJsonFile.absolutePath
                 println("Flow JSON found in directory: $flowJson")
-            } else {
-                println("Flow JSON not found in directory.")
             }
         }
-
-        println("Final flowJson: $flowJson")
 
         var workingDirectory: File? = null
 

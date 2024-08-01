@@ -176,6 +176,14 @@ abstract class AbstractFlowEmulatorExtension : BeforeEachCallback, TestExecution
             port = emulator.port
         ) as AsyncFlowAccessApiImpl
 
+        println("Service Account Address: ${emulator.serviceAccount.address}")
+        println("Service Account Private Key: ${emulator.serviceAccount.privateKey}")
+        println("Service Account Public Key: ${emulator.serviceAccount.publicKey}")
+        println("Service Account Sign Algo: ${emulator.serviceAccount.signAlgo}")
+        println("Service Account Hash Algo: ${emulator.serviceAccount.hashAlgo}")
+        println("Service Account Key Index: ${emulator.serviceAccount.keyIndex}")
+        println("Service Account Balance: ${emulator.serviceAccount.balance}")
+
         withAnnotatedTestFields(context, FlowTestClient::class.java) { instance, field, _ ->
             field.isAccessible = true
             when (field.type) {
