@@ -51,6 +51,7 @@ class FlowEmulatorProjectTestExtension : AbstractFlowEmulatorExtension() {
         val port = config.port.takeUnless { it < 0 } ?: findFreePort("localhost")
         val restPort = config.restPort.takeUnless { it < 0 } ?: findFreePort("localhost")
         val adminPort = config.adminPort.takeUnless { it < 0 } ?: findFreePort("localhost")
+
         val ret = FlowTestUtil.runFlow(
             executable = config.executable,
             arguments = config.arguments.trim().takeIf { it.isNotEmpty() },

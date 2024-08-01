@@ -45,7 +45,7 @@ class TestClassConverterJson : JsonCadenceConverter<TestClass> {
     }
 }
 
-@FlowEmulatorProjectTest(flowJsonLocation = "flow/flow.json")
+@FlowEmulatorProjectTest(flowJsonLocation = "../flow/flow.json")
 class ScriptTest {
     @FlowTestClient
     lateinit var accessAPI: FlowAccessApi

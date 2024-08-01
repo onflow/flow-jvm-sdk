@@ -132,7 +132,6 @@ object FlowTestUtil {
         classLoader: ClassLoader = AbstractFlowEmulatorExtension::class.java.classLoader,
         pidFilename: String = "flow-emulator.pid"
     ): Pair<Process, File> {
-        var flowJson: String?
 
         val pidFile = File(System.getProperty("java.io.tmpdir"), pidFilename)
         if (pidFile.exists()) {
@@ -157,42 +156,54 @@ object FlowTestUtil {
         }
         pidFile.delete()
 
-        // is it a file?
-        flowJson = flowJsonLocation?.let(::File)
-            ?.takeIf { it.exists() }
-            ?.takeIf { it.isFile }
-            ?.absolutePath
+        var flowJson: String? = null
 
-        // is it in the classpath?
+        // Check if flowJsonLocation is a file
+        val fileLocation = flowJsonLocation?.let(::File)
+        if (fileLocation != null && fileLocation.exists() && fileLocation.isFile) {
+            flowJson = fileLocation.absolutePath
+            println("Flow JSON found as file: $flowJson")
+        } else {
+            println("Flow JSON not found as file.")
+        }
+
+        // Check if flowJsonLocation is a classpath resource
         if (flowJson == null) {
-            flowJson = flowJsonLocation?.let(classLoader::getResource)
-                ?.openStream()
-                ?.use { input ->
+            val classpathResource = flowJsonLocation?.let(classLoader::getResource)
+            if (classpathResource != null) {
+                flowJson = classpathResource.openStream()?.use { input ->
                     val tmp = File.createTempFile("flow", ".json")
                     tmp.deleteOnExit()
                     tmp.outputStream().use { output -> input.copyTo(output) }
-                    tmp
+                    tmp.absolutePath
                 }
-                ?.absolutePath
+                println("Flow JSON found as classpath resource: $flowJson")
+            } else {
+                println("Flow JSON not found as classpath resource.")
+            }
         }
 
-        // is it a directory with a flow.json file
+        // Check if flowJsonLocation is a directory containing flow.json
         if (flowJson == null) {
-            flowJson = flowJsonLocation?.let(::File)
-                ?.takeIf { it.exists() }
-                ?.takeIf { it.isDirectory }
-                ?.let { File(it, "flow.json") }
-                ?.takeIf { it.exists() }
-                ?.absolutePath
+            val directory = fileLocation?.takeIf { it.isDirectory }
+            val flowJsonFile = directory?.let { File(it, "flow.json") }
+            if (flowJsonFile != null && flowJsonFile.exists()) {
+                flowJson = flowJsonFile.absolutePath
+                println("Flow JSON found in directory: $flowJson")
+            } else {
+                println("Flow JSON not found in directory.")
+            }
         }
+
+        println("Final flowJson: $flowJson")
 
         var workingDirectory: File? = null
 
         val configFile = if (flowJson != null) {
             "--config-path $flowJson"
         } else {
-            workingDirectory = createTempDirectory("flow-emulator").toFile()
-            "--init"
+//            workingDirectory = createTempDirectory("flow-emulator").toFile()
+//            "--init"
         }
 
         val cmd = if (File(executable).exists() && File(executable).isFile && File(executable).canExecute()) {
@@ -208,7 +219,7 @@ object FlowTestUtil {
         }
 
         val emulatorCommand = "$cmd emulator $arguments --port $port --rest-port $restPort --admin-port $adminPort $configFile"
-
+        println(emulatorCommand)
         val start = System.currentTimeMillis()
         var proc = ProcessBuilder()
             .command(emulatorCommand.split(" "))
