@@ -11,7 +11,7 @@ import org.onflow.flow.sdk.crypto.KeyPair;
 
 import java.math.BigDecimal;
 
-@FlowEmulatorTest
+@FlowEmulatorProjectTest(flowJsonLocation = "../flow/flow.json")
 public class AccessAPIConnectorTest {
     private String userPrivateKeyHex = "";
     private String userPublicKeyHex = "";

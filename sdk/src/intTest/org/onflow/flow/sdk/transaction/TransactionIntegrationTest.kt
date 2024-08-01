@@ -5,11 +5,12 @@ import org.onflow.flow.common.test.FlowEmulatorTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.fail
+import org.onflow.flow.common.test.FlowEmulatorProjectTest
 import org.onflow.flow.sdk.IntegrationTestUtils.handleResult
 import org.onflow.flow.sdk.IntegrationTestUtils.newMainnetAccessApi
 import org.onflow.flow.sdk.IntegrationTestUtils.newTestnetAccessApi
 
-@FlowEmulatorTest
+@FlowEmulatorProjectTest(flowJsonLocation = "../flow/flow.json")
 class TransactionIntegrationTest {
     @Test
     fun wut() {

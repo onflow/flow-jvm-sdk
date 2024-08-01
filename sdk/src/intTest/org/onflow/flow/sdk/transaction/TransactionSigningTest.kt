@@ -1,18 +1,14 @@
 package org.onflow.flow.sdk.transaction
 
 import org.onflow.flow.sdk.crypto.Crypto
-import org.onflow.flow.common.test.FlowEmulatorTest
-import org.onflow.flow.common.test.FlowServiceAccountCredentials
-import org.onflow.flow.common.test.FlowTestClient
-import org.onflow.flow.common.test.FlowTestUtil
-import org.onflow.flow.common.test.TestAccount
 import org.junit.jupiter.api.Test
+import org.onflow.flow.common.test.*
 import org.onflow.flow.sdk.*
 import org.onflow.flow.sdk.IntegrationTestUtils.transaction
 import java.nio.charset.StandardCharsets
 import kotlin.random.Random
 
-@FlowEmulatorTest
+@FlowEmulatorProjectTest(flowJsonLocation = "../flow/flow.json")
 class TransactionSigningTest {
     @FlowTestClient
     lateinit var accessAPI: FlowAccessApi
