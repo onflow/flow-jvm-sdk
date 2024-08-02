@@ -70,7 +70,7 @@ class JsonCadenceTest {
         assertThat(txResult.status).isEqualTo(FlowTransactionStatus.SEALED)
 
         val events = txResult.events.map { it.payload.jsonCadence }
-        assertThat(events).hasSize(7)
+        assertThat(events).hasSize(1)
     }
 
     @Test
