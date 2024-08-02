@@ -53,10 +53,14 @@ class FlowEmulatorProjectTestExtension : AbstractFlowEmulatorExtension() {
         val restPort = config.restPort.takeUnless { it < 0 } ?: findFreePort("localhost")
         val adminPort = config.adminPort.takeUnless { it < 0 } ?: findFreePort("localhost")
 
-        val serviceAccount = if (config.serviceAccountAddress.isNotEmpty() &&
+        val serviceAccount: TestAccount
+        val args: String
+
+        if (config.serviceAccountAddress.isNotEmpty() &&
             config.serviceAccountPublicKey.isNotEmpty() &&
-            config.serviceAccountPrivateKey.isNotEmpty()) {
-            TestAccount(
+            config.serviceAccountPrivateKey.isNotEmpty()
+        ) {
+            serviceAccount = TestAccount(
                 address = config.serviceAccountAddress,
                 privateKey = config.serviceAccountPrivateKey,
                 publicKey = config.serviceAccountPublicKey,
@@ -65,10 +69,11 @@ class FlowEmulatorProjectTestExtension : AbstractFlowEmulatorExtension() {
                 keyIndex = config.serviceAccountKeyIndex,
                 balance = BigDecimal(-1)
             )
+            args = config.arguments
         } else {
             val serviceKeyPair = Crypto.generateKeyPair(SignatureAlgorithm.ECDSA_P256)
-            TestAccount(
-                address = "0xf8d6e0586b0a20c7", // TODO: Ensure this is a valid address for your setup
+            serviceAccount = TestAccount(
+                address = "0xf8d6e0586b0a20c7",
                 privateKey = serviceKeyPair.private.hex,
                 publicKey = serviceKeyPair.public.hex,
                 signAlgo = SignatureAlgorithm.ECDSA_P256,
@@ -76,11 +81,18 @@ class FlowEmulatorProjectTestExtension : AbstractFlowEmulatorExtension() {
                 keyIndex = 0,
                 balance = BigDecimal(-1)
             )
+
+            args = """
+                --verbose --grpc-debug 
+                --service-priv-key=${serviceKeyPair.private.hex.replace(Regex("^(00)+"), "")}
+                --service-sig-algo=${SignatureAlgorithm.ECDSA_P256.name.uppercase()}
+                --service-hash-algo=${HashAlgorithm.SHA3_256.name.uppercase()}
+            """.trimIndent().replace("\n", " ")
         }
 
         val ret = FlowTestUtil.runFlow(
             executable = config.executable,
-            arguments = config.arguments.trim().takeIf { it.isNotEmpty() },
+            arguments = args.trim().takeIf { it.isNotEmpty() },
             host = config.host,
             port = port,
             restPort = restPort,
@@ -89,6 +101,7 @@ class FlowEmulatorProjectTestExtension : AbstractFlowEmulatorExtension() {
             flowJsonLocation = config.flowJsonLocation.trim().takeIf { it.isNotEmpty() },
             pidFilename = config.pidFilename
         )
+
         return Emulator(
             process = ret.first,
             pidFile = ret.second,

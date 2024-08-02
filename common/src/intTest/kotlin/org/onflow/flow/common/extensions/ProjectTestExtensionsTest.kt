@@ -2,7 +2,6 @@ package org.onflow.flow.common.extensions
 
 import org.onflow.flow.sdk.AsyncFlowAccessApi
 import org.onflow.flow.sdk.FlowAccessApi
-import org.onflow.flow.sdk.HashAlgorithm
 import org.onflow.flow.sdk.SignatureAlgorithm
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
