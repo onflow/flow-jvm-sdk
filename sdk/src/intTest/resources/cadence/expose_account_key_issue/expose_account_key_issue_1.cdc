@@ -1,5 +1,5 @@
-import "FlowToken"
-import "FungibleToken"
+import FlowToken from 0x0ae53cb6e3f42a79
+import FungibleToken from 0xee82856bf20e2aa6
 
 transaction(startingBalance: UFix64, publicKey: String, signatureAlgorithm: UInt8, hashAlgorithm: UInt8) {
     prepare(signer: auth(BorrowValue) &Account) {
