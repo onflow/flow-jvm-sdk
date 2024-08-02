@@ -63,9 +63,9 @@ class JsonCadenceTest {
         val txResult = createAndSubmitAccountCreationTransaction(
             flow,
             serviceAccount,
-            "cadence/transaction_creation/transaction_creation.cdc"
+            "cadence/transaction_creation/transaction_creation_simple_transaction.cdc"
         )
-
+        println(txResult)
         assertThat(txResult).isNotNull
         assertThat(txResult.status).isEqualTo(FlowTransactionStatus.SEALED)
 

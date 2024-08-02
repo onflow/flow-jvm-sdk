@@ -13,7 +13,7 @@ access(all) struct StorageInfo {
 }
 
 access(all) struct Foo {
-    pub let bar: Int
+    access(all) let bar: Int
 
     init(bar: Int) {
         self.bar = bar
@@ -24,8 +24,8 @@ access(all) fun main(addr: Address): {String: [StorageInfo]} {
     let acct = getAccount(addr)
 
     let foo = Foo(bar: 1)
-    return {"test": [StorageInfo(capacity: acct.storageCapacity,
-                      used: acct.storageUsed,
-                      available: acct.storageCapacity - acct.storageUsed,
+    return {"test": [StorageInfo(capacity: acct.storage.capacity,
+                      used: acct.storage.used,
+                      available: acct.storage.capacity - acct.storage.used,
                       foo: foo)]}
 }
