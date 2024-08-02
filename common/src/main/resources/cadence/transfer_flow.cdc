@@ -1,5 +1,5 @@
-import "FungibleToken"
-import "FlowToken"
+import FlowToken from 0x0ae53cb6e3f42a79
+import FungibleToken from 0xee82856bf20e2aa6
 
 transaction(amount: UFix64, to: Address) {
 
@@ -18,7 +18,7 @@ transaction(amount: UFix64, to: Address) {
     execute {
 
         // Get a reference to the recipient's Receiver
-        let receiverRef = getAccount(to).capabilities.borrow<&FungibleToken.Receiver>(/public/flowTokenReceiver)
+        let receiverRef = getAccount(to).capabilities.borrow<&{FungibleToken.Receiver}>(/public/flowTokenReceiver)
             ?? panic("The recipient does not have a FlowToken Receiver set up in their account!")
 
         // Deposit the withdrawn tokens in the recipient's receiver
