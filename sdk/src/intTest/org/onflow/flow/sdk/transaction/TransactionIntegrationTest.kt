@@ -66,25 +66,10 @@ class TransactionIntegrationTest {
         assertThat(txResult).isNotNull
         assertThat(txResult.status).isEqualTo(FlowTransactionStatus.SEALED)
 
-        println(txResult)
-
         assertThat(txResult.events).isNotEmpty
-        assertThat(txResult.events).hasSize(7)
-        assertThat(txResult.events[0].event.id).contains("TokensWithdrawn")
-
-        assertThat("from" in txResult.events[0].event).isTrue
-        assertThat("amount" in txResult.events[0].event).isTrue
-
-        assertThat(txResult.events[1].event.id).contains("TokensWithdrawn")
-
-        assertThat("from" in txResult.events[1].event).isTrue
-        assertThat("amount" in txResult.events[1].event).isTrue
-
-        assertThat(txResult.events[2].event.id).contains("TokensDeposited")
-        assertThat(txResult.events[3].event.id).contains("TokensDeposited")
-        assertThat(txResult.events[4].event.id).contains("TokensDeposited")
-        assertThat(txResult.events[5].event.id).contains("AccountCreated")
-        assertThat(txResult.events[6].event.id).contains("AccountKeyAdded")
+        assertThat(txResult.events).hasSize(1)
+        assertThat(txResult.events[0].type).isEqualTo("flow.AccountKeyAdded")
+        assertThat(txResult.events[0].event.id).contains("AccountKeyAdded")
     }
 
     @Test

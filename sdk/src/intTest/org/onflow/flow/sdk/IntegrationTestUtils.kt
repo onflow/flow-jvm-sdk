@@ -49,13 +49,6 @@ object IntegrationTestUtils {
 
         val newAccountKeyPair = Crypto.generateKeyPair(SignatureAlgorithm.ECDSA_P256)
 
-//        val newAccountPublicKey = FlowAccountKey(
-//            publicKey = FlowPublicKey(newAccountKeyPair.public.hex),
-//            signAlgo = SignatureAlgorithm.ECDSA_P256,
-//            hashAlgo = HashAlgorithm.SHA3_256,
-//            weight = 1000
-//        )
-
         val loadedScript = String(FlowTestUtil.loadScript(scriptPath), StandardCharsets.UTF_8)
 
         val tx = flowTransaction {

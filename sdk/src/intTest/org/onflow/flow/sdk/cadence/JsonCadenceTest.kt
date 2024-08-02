@@ -8,7 +8,7 @@ import org.onflow.flow.sdk.*
 import org.onflow.flow.sdk.IntegrationTestUtils.createAndSubmitAccountCreationTransaction
 import java.nio.charset.StandardCharsets
 
-@FlowEmulatorTest
+@FlowEmulatorProjectTest(flowJsonLocation = "../flow/flow.json")
 class JsonCadenceTest {
     @FlowTestClient
     lateinit var flow: FlowAccessApi
