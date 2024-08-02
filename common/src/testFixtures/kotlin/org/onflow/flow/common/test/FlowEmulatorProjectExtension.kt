@@ -5,6 +5,7 @@ import org.onflow.flow.sdk.SignatureAlgorithm
 import org.apiguardian.api.API
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.api.extension.ExtensionContext
+import org.onflow.flow.sdk.crypto.Crypto
 import java.lang.annotation.Inherited
 import java.math.BigDecimal
 
@@ -62,6 +63,8 @@ class FlowEmulatorProjectTestExtension : AbstractFlowEmulatorExtension() {
             flowJsonLocation = config.flowJsonLocation.trim().takeIf { it.isNotEmpty() },
             pidFilename = config.pidFilename
         )
+        val sk = Crypto.decodePrivateKey(config.serviceAccountPrivateKey, config.serviceAccountSignAlgo)
+        val pk = Crypto.decodePublicKey(config.serviceAccountPublicKey, config.serviceAccountSignAlgo)
         return Emulator(
             process = ret.first,
             pidFile = ret.second,
@@ -71,9 +74,8 @@ class FlowEmulatorProjectTestExtension : AbstractFlowEmulatorExtension() {
             adminPort = adminPort,
             serviceAccount = TestAccount(
                 address = config.serviceAccountAddress,
-                privateKey = config.serviceAccountPrivateKey,
-                publicKey = config.serviceAccountPublicKey,
-                signAlgo = config.serviceAccountSignAlgo,
+                privateKey = sk,
+                publicKey = pk,
                 hashAlgo = config.serviceAccountHashAlgo,
                 keyIndex = config.serviceAccountKeyIndex,
                 balance = BigDecimal(-1)

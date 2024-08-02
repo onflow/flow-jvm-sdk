@@ -43,9 +43,8 @@ class FlowEmulatorTestExtension : AbstractFlowEmulatorExtension() {
         val serviceKeyPair = Crypto.generateKeyPair(config.signAlgo)
         val serviceAccount = TestAccount(
             address = "0xf8d6e0586b0a20c7", // TODO: is this a safe assumption?
-            privateKey = serviceKeyPair.private.hex,
-            publicKey = serviceKeyPair.public.hex,
-            signAlgo = config.signAlgo,
+            privateKey = serviceKeyPair.private,
+            publicKey = serviceKeyPair.public,
             hashAlgo = config.hashAlgo,
             keyIndex = 0,
             balance = BigDecimal(-1)

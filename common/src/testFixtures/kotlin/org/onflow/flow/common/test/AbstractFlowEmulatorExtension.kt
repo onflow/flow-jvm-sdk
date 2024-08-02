@@ -10,6 +10,8 @@ import org.apiguardian.api.API
 import org.junit.jupiter.api.extension.BeforeEachCallback
 import org.junit.jupiter.api.extension.ExtensionContext
 import org.junit.jupiter.api.extension.TestExecutionExceptionHandler
+import org.onflow.flow.sdk.crypto.PrivateKey
+import org.onflow.flow.sdk.crypto.PublicKey
 import java.io.ByteArrayInputStream
 import java.io.File
 import java.io.InputStream
@@ -56,7 +58,7 @@ annotation class FlowTestAccount(
     val hashAlgo: HashAlgorithm = HashAlgorithm.SHA3_256,
     val publicKey: String = "",
     val privateKey: String = "",
-    val balance: Double = 0.01,
+    val balance: Double = 1000.01,
     val contracts: Array<FlowTestContractDeployment> = []
 )
 
@@ -90,39 +92,41 @@ data class TestContractDeployment(
     val args: Map<String, org.onflow.flow.sdk.cadence.Field<*>>
 ) {
     companion object {
-        fun from(name: String, code: () -> InputStream, args: Map<String, org.onflow.flow.sdk.cadence.Field<*>> = mapOf()): TestContractDeployment {
-            return TestContractDeployment(
-                name = name,
-                code = code().use { String(it.readAllBytes()) },
-                args = args
-            )
-        }
+        fun from(name: String, code: () -> InputStream, args: Map<String, org.onflow.flow.sdk.cadence.Field<*>> = mapOf()): TestContractDeployment = TestContractDeployment(
+            name = name,
+            code = code().use { String(it.readAllBytes()) },
+            args = args
+        )
     }
 }
 
 data class TestAccount(
     val address: String,
-    val privateKey: String,
-    val publicKey: String,
-    val signAlgo: SignatureAlgorithm,
+    val privateKey: PrivateKey,
+    val publicKey: PublicKey,
     val hashAlgo: HashAlgorithm,
     val keyIndex: Int,
     val balance: BigDecimal
 ) {
     val signer: Signer
         get() = Crypto.getSigner(
-            privateKey = Crypto.decodePrivateKey(privateKey, signAlgo),
+            privateKey = privateKey,
             hashAlgo = hashAlgo
         )
 
     val flowAddress: FlowAddress get() = FlowAddress(address)
 
     val isValid: Boolean get() = address.isNotEmpty()
-        && privateKey.isNotEmpty()
-        && publicKey.isNotEmpty()
-        && signAlgo != SignatureAlgorithm.UNKNOWN
-        && hashAlgo != HashAlgorithm.UNKNOWN
-        && keyIndex >= 0
+        &&
+        privateKey.hex.isNotEmpty()
+        &&
+        publicKey.hex.isNotEmpty()
+        &&
+        privateKey.algo != SignatureAlgorithm.UNKNOWN
+        &&
+        hashAlgo != HashAlgorithm.UNKNOWN
+        &&
+        keyIndex >= 0
 }
 
 data class Emulator(
@@ -135,7 +139,9 @@ data class Emulator(
     val serviceAccount: TestAccount
 )
 
-abstract class AbstractFlowEmulatorExtension : BeforeEachCallback, TestExecutionExceptionHandler {
+abstract class AbstractFlowEmulatorExtension :
+    BeforeEachCallback,
+    TestExecutionExceptionHandler {
     private var process: Process? = null
     private var pidFile: File? = null
     private var accessApi: FlowAccessApiImpl? = null
@@ -149,7 +155,8 @@ abstract class AbstractFlowEmulatorExtension : BeforeEachCallback, TestExecution
                 + context.testInstance.map { setOf(it) }.orElseGet { emptySet() }
         )
 
-        tests.map { it to it.javaClass.declaredFields }
+        tests
+            .map { it to it.javaClass.declaredFields }
             .flatMap { it.second.map { f -> it.first to f } }
             .filter { it.second.isAnnotationPresent(clazz) }
             .forEach { block(it.first, it.second, it.second.getAnnotation(clazz)) }
@@ -228,9 +235,8 @@ abstract class AbstractFlowEmulatorExtension : BeforeEachCallback, TestExecution
 
             val testAccount = TestAccount(
                 address = address.formatted,
-                privateKey = keyPair.private.hex,
-                publicKey = keyPair.public.hex,
-                signAlgo = annotation.signAlgo,
+                privateKey = keyPair.private,
+                publicKey = keyPair.public,
                 hashAlgo = annotation.hashAlgo,
                 keyIndex = 0,
                 balance = BigDecimal(annotation.balance)
@@ -240,22 +246,23 @@ abstract class AbstractFlowEmulatorExtension : BeforeEachCallback, TestExecution
 
             // deploy contracts
             for (deployable in annotation.contracts) {
-                val deployResult = FlowTestUtil.deployContracts(
-                    api = this.accessApi!!,
-                    account = testAccount,
-                    gasLimit = deployable.gasLimit,
-                    TestContractDeployment.from(
-                        name = deployable.name,
-                        code = {
-                            when {
-                                deployable.codeFileLocation.isNotEmpty() -> File(deployable.codeFileLocation).inputStream()
-                                deployable.codeClasspathLocation.isNotEmpty() -> instance.javaClass.getResourceAsStream(deployable.codeClasspathLocation)!!
-                                else -> ByteArrayInputStream(deployable.code.toByteArray())
-                            }
-                        },
-                        args = deployable.arguments.associate { it.name to StringField(it.value) }
-                    )
-                ).sendAndWaitForSeal()
+                val deployResult = FlowTestUtil
+                    .deployContracts(
+                        api = this.accessApi!!,
+                        account = testAccount,
+                        gasLimit = deployable.gasLimit,
+                        TestContractDeployment.from(
+                            name = deployable.name,
+                            code = {
+                                when {
+                                    deployable.codeFileLocation.isNotEmpty() -> File(deployable.codeFileLocation).inputStream()
+                                    deployable.codeClasspathLocation.isNotEmpty() -> instance.javaClass.getResourceAsStream(deployable.codeClasspathLocation)!!
+                                    else -> ByteArrayInputStream(deployable.code.toByteArray())
+                                }
+                            },
+                            args = deployable.arguments.associate { it.name to StringField(it.value) }
+                        )
+                    ).sendAndWaitForSeal()
 
                 when (deployResult) {
                     is FlowAccessApi.AccessApiCallResponse.Success -> {
@@ -314,7 +321,5 @@ abstract class AbstractFlowEmulatorExtension : BeforeEachCallback, TestExecution
         process = null
     }
 
-    protected fun findFreePort(host: String): Int {
-        return ServerSocket(0, 50, InetAddress.getByName(host)).use { it.localPort }
-    }
+    protected fun findFreePort(host: String): Int = ServerSocket(0, 50, InetAddress.getByName(host)).use { it.localPort }
 }
