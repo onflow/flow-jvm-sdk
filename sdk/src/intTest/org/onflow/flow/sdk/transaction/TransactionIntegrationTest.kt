@@ -13,9 +13,6 @@ class TransactionIntegrationTest {
     @FlowTestClient
     lateinit var accessAPI: FlowAccessApi
 
-    @FlowTestAccount
-    lateinit var testAccount: TestAccount
-
     @FlowServiceAccountCredentials
     lateinit var serviceAccount: TestAccount
 
@@ -27,7 +24,7 @@ class TransactionIntegrationTest {
             fail("Failed to ping mainnet: ${e.message}")
         }
 
-        val address = testAccount.flowAddress
+        val address = serviceAccount.flowAddress
         val account = try {
             handleResult(
                 accessAPI.getAccountAtLatestBlock(address),
@@ -204,7 +201,7 @@ class TransactionIntegrationTest {
 
     @Test
     fun `Can get account by address`() {
-        val address = testAccount.flowAddress
+        val address = serviceAccount.flowAddress
         val account = try {
             handleResult(
                 accessAPI.getAccountByAddress(address),
@@ -220,7 +217,7 @@ class TransactionIntegrationTest {
 
     @Test
     fun `Can get account by address at latest block`() {
-        val address = testAccount.flowAddress
+        val address = serviceAccount.flowAddress
         val account = try {
             handleResult(
                 accessAPI.getAccountAtLatestBlock(address),
@@ -254,7 +251,7 @@ class TransactionIntegrationTest {
             fail("Failed to retrieve block header by height: ${e.message}")
         }
 
-        val address = testAccount.flowAddress
+        val address = serviceAccount.flowAddress
         val account = try {
             handleResult(
                 accessAPI.getAccountByBlockHeight(address, blockHeader.height),

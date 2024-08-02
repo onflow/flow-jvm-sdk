@@ -53,23 +53,30 @@ class FlowEmulatorProjectTestExtension : AbstractFlowEmulatorExtension() {
         val restPort = config.restPort.takeUnless { it < 0 } ?: findFreePort("localhost")
         val adminPort = config.adminPort.takeUnless { it < 0 } ?: findFreePort("localhost")
 
-        val serviceKeyPair = Crypto.generateKeyPair(SignatureAlgorithm.ECDSA_P256)
-        val serviceAccount = TestAccount(
-            address = "0xf8d6e0586b0a20c7", // TODO: is this a safe assumption?
-            privateKey = serviceKeyPair.private.hex,
-            publicKey = serviceKeyPair.public.hex,
-            signAlgo = SignatureAlgorithm.ECDSA_P256,
-            hashAlgo = HashAlgorithm.SHA3_256,
-            keyIndex = 0,
-            balance = BigDecimal(-1)
-        )
-
-        println("Service Account Address: ${serviceAccount.address}")
-        println("Service Account Private Key: ${serviceAccount.privateKey}")
-        println("Service Account Public Key: ${serviceAccount.publicKey}")
-        println("Service Account Sign Algo: ${serviceAccount.signAlgo}")
-        println("Service Account Hash Algo: ${serviceAccount.hashAlgo}")
-        println("Service Account Key Index: ${serviceAccount.keyIndex}")
+        val serviceAccount = if (config.serviceAccountAddress.isNotEmpty() &&
+            config.serviceAccountPublicKey.isNotEmpty() &&
+            config.serviceAccountPrivateKey.isNotEmpty()) {
+            TestAccount(
+                address = config.serviceAccountAddress,
+                privateKey = config.serviceAccountPrivateKey,
+                publicKey = config.serviceAccountPublicKey,
+                signAlgo = config.serviceAccountSignAlgo,
+                hashAlgo = config.serviceAccountHashAlgo,
+                keyIndex = config.serviceAccountKeyIndex,
+                balance = BigDecimal(-1)
+            )
+        } else {
+            val serviceKeyPair = Crypto.generateKeyPair(SignatureAlgorithm.ECDSA_P256)
+            TestAccount(
+                address = "0xf8d6e0586b0a20c7", // TODO: Ensure this is a valid address for your setup
+                privateKey = serviceKeyPair.private.hex,
+                publicKey = serviceKeyPair.public.hex,
+                signAlgo = SignatureAlgorithm.ECDSA_P256,
+                hashAlgo = HashAlgorithm.SHA3_256,
+                keyIndex = 0,
+                balance = BigDecimal(-1)
+            )
+        }
 
         val ret = FlowTestUtil.runFlow(
             executable = config.executable,

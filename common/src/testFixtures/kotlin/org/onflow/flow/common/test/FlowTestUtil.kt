@@ -8,6 +8,7 @@ import java.io.File
 import java.io.IOException
 import java.math.BigDecimal
 import java.nio.charset.StandardCharsets
+import kotlin.io.path.createTempDirectory
 
 object FlowTestUtil {
     fun loadScript(name: String): ByteArray {
@@ -100,6 +101,7 @@ object FlowTestUtil {
             }
         }.sendAndWaitForSeal()
 
+        println(transactionResult)
         return when (transactionResult) {
             is FlowAccessApi.AccessApiCallResponse.Success -> {
                 val result = transactionResult.data
@@ -192,8 +194,8 @@ object FlowTestUtil {
         val configFile = if (flowJson != null) {
             "--config-path $flowJson"
         } else {
-//            workingDirectory = createTempDirectory("flow-emulator").toFile()
-//            "--init"
+            workingDirectory = createTempDirectory("flow-emulator").toFile()
+            "--init"
         }
 
         val cmd = if (File(executable).exists() && File(executable).isFile && File(executable).canExecute()) {
