@@ -211,7 +211,6 @@ object FlowTestUtil {
         }
 
         val emulatorCommand = "$cmd emulator $arguments --port $port --rest-port $restPort --admin-port $adminPort $configFile"
-        println(emulatorCommand)
         val start = System.currentTimeMillis()
         var proc = ProcessBuilder()
             .command(emulatorCommand.split(" "))

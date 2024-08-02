@@ -23,8 +23,8 @@ public class AccessAPIConnectorTest {
     @FlowTestClient
     private FlowAccessApi accessAPI;
 
-//    @FlowTestAccount(signAlgo = SignatureAlgorithm.ECDSA_P256)
-//    private TestAccount recipientAccount;
+    @FlowTestAccount(signAlgo = SignatureAlgorithm.ECDSA_P256)
+    private TestAccount recipientAccount;
 
     @BeforeEach
     public void setupUser() {
@@ -39,16 +39,16 @@ public class AccessAPIConnectorTest {
         Assertions.assertNotNull(account);
     }
 
-//    @Test
-//    public void canTransferTokens() {
-//        AccessAPIConnector accessAPIConnector = new AccessAPIConnector(serviceAccount.getPrivateKey(), accessAPI);
-//        FlowAddress recipient = recipientAccount.getFlowAddress();
-//        BigDecimal amount = new BigDecimal("10.00000001");
-//        BigDecimal balance1 = accessAPIConnector.getAccountBalance(recipient);
-//        accessAPIConnector.transferTokens(serviceAccount.getFlowAddress(), recipient, amount);
-//        BigDecimal balance2 = accessAPIConnector.getAccountBalance(recipient);
-//        Assertions.assertEquals(balance1.add(amount), balance2);
-//    }
+    @Test
+    public void canTransferTokens() {
+        AccessAPIConnector accessAPIConnector = new AccessAPIConnector(serviceAccount.getPrivateKey(), accessAPI);
+        FlowAddress recipient = recipientAccount.getFlowAddress();
+        BigDecimal amount = new BigDecimal("10.00000001");
+        BigDecimal balance1 = accessAPIConnector.getAccountBalance(recipient);
+        accessAPIConnector.transferTokens(serviceAccount.getFlowAddress(), recipient, amount);
+        BigDecimal balance2 = accessAPIConnector.getAccountBalance(recipient);
+        Assertions.assertEquals(balance1.add(amount), balance2);
+    }
 
     @Test
     public void canGetAnAccountBalance() {
