@@ -33,6 +33,10 @@ dependencies {
     api("com.fasterxml.jackson.core:jackson-core")
     api("com.fasterxml.jackson.module:jackson-module-kotlin")
 
+    api("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
+    api("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.5.2")
+    api("org.jetbrains.kotlinx:kotlinx-coroutines-guava:1.5.2")
+
     testApi("org.junit.jupiter:junit-jupiter:5.10.1")
     testApi("org.assertj:assertj-core:3.25.1")
 
@@ -44,6 +48,7 @@ dependencies {
     testImplementation(project(":common"))
     implementation("org.slf4j:slf4j-api:1.7.30")
     implementation("ch.qos.logback:logback-classic:1.4.12")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.5.2")
 }
 
 sourceSets {

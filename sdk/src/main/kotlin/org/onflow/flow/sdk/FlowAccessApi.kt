@@ -1,6 +1,8 @@
 package org.onflow.flow.sdk
 
 import com.google.protobuf.ByteString
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.channels.ReceiveChannel
 
 interface FlowAccessApi {
     sealed class AccessApiCallResponse<out T> {
@@ -59,4 +61,24 @@ interface FlowAccessApi {
     fun getTransactionResultsByBlockId(id: FlowId): AccessApiCallResponse<List<FlowTransactionResult>>
 
     fun getExecutionResultByBlockId(id: FlowId): AccessApiCallResponse<FlowExecutionResult>
+
+    fun subscribeExecutionDataByBlockId(
+        scope: CoroutineScope,
+        blockId: FlowId
+    ): Pair<ReceiveChannel<FlowBlockExecutionData>, ReceiveChannel<Throwable>>
+
+    fun subscribeExecutionDataByBlockHeight(
+        scope: CoroutineScope,
+        height: Long
+    ): Pair<ReceiveChannel<FlowBlockExecutionData>, ReceiveChannel<Throwable>>
+
+    fun subscribeEventsByBlockId(
+        scope: CoroutineScope,
+        blockId: FlowId
+    ): Pair<ReceiveChannel<List<FlowEvent>>, ReceiveChannel<Throwable>>
+
+    fun subscribeEventsByBlockHeight(
+        scope: CoroutineScope,
+        height: Long
+    ): Pair<ReceiveChannel<List<FlowEvent>>, ReceiveChannel<Throwable>>
 }

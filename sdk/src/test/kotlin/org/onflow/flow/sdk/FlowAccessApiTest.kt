@@ -1,14 +1,19 @@
 package org.onflow.flow.sdk
 
 import com.google.protobuf.ByteString
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.consumeEach
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.`when`
+import org.mockito.Mockito.*
 import org.onflow.protobuf.access.Access
 import org.onflow.protobuf.entities.AccountOuterClass
+import org.onflow.protobuf.entities.BlockExecutionDataOuterClass
 import org.onflow.protobuf.entities.BlockHeaderOuterClass
 import org.onflow.protobuf.entities.BlockOuterClass
+import org.onflow.protobuf.entities.EventOuterClass
 import org.onflow.protobuf.entities.TransactionOuterClass
 
 class FlowAccessApiTest {
@@ -322,5 +327,137 @@ class FlowAccessApiTest {
         val result = flowAccessApi.getExecutionResultByBlockId(blockId)
 
         assertEquals(FlowAccessApi.AccessApiCallResponse.Success(executionResult), result)
+    }
+
+    @Test
+    fun `Test subscribeExecutionDataByBlockId`(): Unit = runBlocking {
+        val flowAccessApi = mock(FlowAccessApi::class.java)
+        val blockId = FlowId("01")
+        val scope = this
+        val responseChannel = Channel<FlowBlockExecutionData>(Channel.UNLIMITED)
+        val errorChannel = Channel<Throwable>(Channel.UNLIMITED)
+
+        `when`(flowAccessApi.subscribeExecutionDataByBlockId(scope, blockId)).thenReturn(responseChannel to errorChannel)
+
+        val result = flowAccessApi.subscribeExecutionDataByBlockId(scope, blockId)
+        val expectedExecutionData = FlowBlockExecutionData.of(BlockExecutionDataOuterClass.BlockExecutionData.getDefaultInstance())
+
+        responseChannel.send(expectedExecutionData)
+        responseChannel.close()
+
+        verify(flowAccessApi).subscribeExecutionDataByBlockId(scope, blockId)
+
+        launch {
+            result.first.consumeEach { executionData ->
+                assertEquals(expectedExecutionData, executionData)
+            }
+        }
+
+        launch {
+            result.second.consumeEach { error ->
+                throw error
+            }
+        }
+
+        errorChannel.close()
+    }
+
+    @Test
+    fun `Test subscribeExecutionDataByBlockHeight`(): Unit = runBlocking {
+        val flowAccessApi = mock(FlowAccessApi::class.java)
+        val blockHeight = 100L
+        val scope = this
+        val responseChannel = Channel<FlowBlockExecutionData>(Channel.UNLIMITED)
+        val errorChannel = Channel<Throwable>(Channel.UNLIMITED)
+
+        `when`(flowAccessApi.subscribeExecutionDataByBlockHeight(scope, blockHeight)).thenReturn(responseChannel to errorChannel)
+
+        val result = flowAccessApi.subscribeExecutionDataByBlockHeight(scope, blockHeight)
+        val expectedExecutionData = FlowBlockExecutionData.of(BlockExecutionDataOuterClass.BlockExecutionData.getDefaultInstance())
+
+        responseChannel.send(expectedExecutionData)
+        responseChannel.close()
+
+        verify(flowAccessApi).subscribeExecutionDataByBlockHeight(scope, blockHeight)
+
+        launch {
+            result.first.consumeEach { executionData ->
+                assertEquals(expectedExecutionData, executionData)
+            }
+        }
+
+        launch {
+            result.second.consumeEach { error ->
+                throw error
+            }
+        }
+
+        errorChannel.close()
+    }
+
+    @Test
+    fun `Test subscribeEventsByBlockId`(): Unit = runBlocking {
+        val flowAccessApi = mock(FlowAccessApi::class.java)
+        val blockId = FlowId("01")
+        val scope = this
+        val responseChannel = Channel<List<FlowEvent>>(Channel.UNLIMITED)
+        val errorChannel = Channel<Throwable>(Channel.UNLIMITED)
+
+        `when`(flowAccessApi.subscribeEventsByBlockId(scope, blockId)).thenReturn(responseChannel to errorChannel)
+
+        val result = flowAccessApi.subscribeEventsByBlockId(scope, blockId)
+        val expectedEvents = listOf(FlowEvent.of(EventOuterClass.Event.getDefaultInstance()))
+
+        responseChannel.send(expectedEvents)
+        responseChannel.close()
+
+        verify(flowAccessApi).subscribeEventsByBlockId(scope, blockId)
+
+        launch {
+            result.first.consumeEach { events ->
+                assertEquals(expectedEvents, events)
+            }
+        }
+
+        launch {
+            result.second.consumeEach { error ->
+                throw error
+            }
+        }
+
+        errorChannel.close()
+    }
+
+    @Test
+    fun `Test subscribeEventsByBlockHeight`(): Unit = runBlocking {
+        val flowAccessApi = mock(FlowAccessApi::class.java)
+        val blockHeight = 100L
+        val scope = this
+        val responseChannel = Channel<List<FlowEvent>>(Channel.UNLIMITED)
+        val errorChannel = Channel<Throwable>(Channel.UNLIMITED)
+
+        `when`(flowAccessApi.subscribeEventsByBlockHeight(scope, blockHeight)).thenReturn(responseChannel to errorChannel)
+
+        val result = flowAccessApi.subscribeEventsByBlockHeight(scope, blockHeight)
+        val expectedEvents = listOf(FlowEvent.of(EventOuterClass.Event.getDefaultInstance()))
+
+        responseChannel.send(expectedEvents)
+        responseChannel.close()
+
+        verify(flowAccessApi).subscribeEventsByBlockHeight(scope, blockHeight)
+
+        launch {
+            result.first.consumeEach { events ->
+                assertEquals(expectedEvents, events)
+            }
+        }
+
+        launch {
+            result.second.consumeEach { error ->
+                throw error
+            }
+        }
+
+        errorChannel.close()
     }
 }

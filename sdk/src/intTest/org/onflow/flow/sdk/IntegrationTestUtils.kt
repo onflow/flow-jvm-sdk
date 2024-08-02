@@ -1,15 +1,12 @@
 package org.onflow.flow.sdk
 
+import org.onflow.flow.common.test.FlowTestUtil
+import org.onflow.flow.common.test.TestAccount
 import org.onflow.flow.sdk.cadence.AddressField
+import org.onflow.flow.sdk.crypto.Crypto
+import java.nio.charset.StandardCharsets
 
 object IntegrationTestUtils {
-    fun newMainnetAccessApi(): FlowAccessApi = Flow.newAccessApi(MAINNET_HOSTNAME)
-
-    fun newTestnetAccessApi(): FlowAccessApi = Flow.newAccessApi(TESTNET_HOSTNAME)
-
-    private const val MAINNET_HOSTNAME = "access.mainnet.nodes.onflow.org"
-    private const val TESTNET_HOSTNAME = "access.devnet.nodes.onflow.org"
-
     var transaction = FlowTransaction(
         script = FlowScript("import 0xsomething \n {}"),
         arguments = listOf(FlowArgument(byteArrayOf(2, 2, 3)), FlowArgument(byteArrayOf(3, 3, 3))),
@@ -40,5 +37,62 @@ object IntegrationTestUtils {
     fun getAccount(api: FlowAccessApi, address: FlowAddress): FlowAccount {
         val result = api.getAccountAtLatestBlock(address)
         return handleResult(result, "Failed to get account at latest block")
+    }
+
+    fun createAndSubmitAccountCreationTransaction(
+        accessAPI: FlowAccessApi,
+        serviceAccount: TestAccount,
+        scriptPath: String
+    ): FlowTransactionResult {
+        val latestBlockId = getLatestBlockId(accessAPI)
+        val payerAccount = getAccount(accessAPI, serviceAccount.flowAddress)
+
+        val newAccountKeyPair = Crypto.generateKeyPair(SignatureAlgorithm.ECDSA_P256)
+        val newAccountPublicKey = FlowAccountKey(
+            publicKey = FlowPublicKey(newAccountKeyPair.public.hex),
+            signAlgo = SignatureAlgorithm.ECDSA_P256,
+            hashAlgo = HashAlgorithm.SHA3_256,
+            weight = 1000
+        )
+
+        val loadedScript = String(FlowTestUtil.loadScript(scriptPath), StandardCharsets.UTF_8)
+
+        val tx = flowTransaction {
+            script {
+                loadedScript
+            }
+
+            arguments {
+                arg { string(newAccountPublicKey.encoded.bytesToHex()) }
+            }
+
+            referenceBlockId = latestBlockId
+            gasLimit = 100
+
+            proposalKey {
+                address = payerAccount.address
+                keyIndex = payerAccount.keys[0].id
+                sequenceNumber = payerAccount.keys[0].sequenceNumber.toLong()
+            }
+
+            payerAddress = payerAccount.address
+
+            signatures {
+                signature {
+                    address = payerAccount.address
+                    keyIndex = 0
+                    signer = serviceAccount.signer
+                }
+            }
+        }
+
+        val txID = handleResult(accessAPI.sendTransaction(tx), "Failed to send transaction")
+
+        return handleResult(waitForSeal(accessAPI, txID), "Failed to wait for seal")
+    }
+
+    private fun getLatestBlockId(api: FlowAccessApi): FlowId {
+        val result = api.getLatestBlockHeader()
+        return handleResult(result, "Failed to get latest block header").id
     }
 }

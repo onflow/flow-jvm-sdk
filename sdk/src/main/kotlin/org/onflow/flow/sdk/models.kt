@@ -228,7 +228,6 @@ data class FlowEventResult(
 }
 
 // https://github.com/onflow/flow-go-sdk/blob/878e5e586e0f060b88c6036cf4b0f6a7ab66d198/client/client.go#L515
-
 data class FlowEvent(
     val type: String,
     val transactionId: FlowId,
@@ -418,21 +417,22 @@ data class FlowTransaction(
     val canonicalTransaction: ByteArray get() = RLPCodec.encode(transaction)
     val id: FlowId get() = FlowId.of(canonicalTransaction.sha3256Hash())
 
-    val signerList: List<FlowAddress> get() {
-        val ret = mutableListOf<FlowAddress>()
-        val seen = mutableSetOf<FlowAddress>()
-        val addSigner = fun(address: FlowAddress) {
-            if (address in seen) {
-                return
+    val signerList: List<FlowAddress>
+        get() {
+            val ret = mutableListOf<FlowAddress>()
+            val seen = mutableSetOf<FlowAddress>()
+            val addSigner = fun(address: FlowAddress) {
+                if (address in seen) {
+                    return
+                }
+                ret.add(address)
+                seen.add(address)
             }
-            ret.add(address)
-            seen.add(address)
+            addSigner(proposalKey.address)
+            addSigner(payerAddress)
+            authorizers.forEach(addSigner)
+            return ret
         }
-        addSigner(proposalKey.address)
-        addSigner(payerAddress)
-        authorizers.forEach(addSigner)
-        return ret
-    }
 
     val signerMap: Map<FlowAddress, Int> get() {
         return signerList
@@ -454,7 +454,6 @@ data class FlowTransaction(
             payloadSignatures = value.payloadSignaturesList.map { FlowTransactionSignature.of(it) },
             envelopeSignatures = value.envelopeSignaturesList.map { FlowTransactionSignature.of(it) }
         )
-
         @JvmStatic
         fun of(bytes: ByteArray): FlowTransaction {
             val txEnvelope: TransactionEnvelope = RLPCodec.decode(bytes, TransactionEnvelope::class.java)
@@ -471,7 +470,6 @@ data class FlowTransaction(
                 payerAddress = FlowAddress.of(txEnvelope.payload.payer),
                 authorizers = txEnvelope.payload.authorizers.map { FlowAddress.of(it) }
             )
-
             txEnvelope.payloadSignatures.map {
                 tx = tx.addPayloadSignature(tx.signerList[it.signerIndex], it.keyIndex, FlowSignature(it.signature))
             }
@@ -595,7 +593,6 @@ data class FlowTransactionSignature(
                 signature = FlowSignature(value.signature.toByteArray())
             )
     }
-
     @JvmOverloads
     fun builder(builder: TransactionOuterClass.Transaction.Signature.Builder = TransactionOuterClass.Transaction.Signature.newBuilder()): TransactionOuterClass.Transaction.Signature.Builder = builder
         .setAddress(address.byteStringValue)
@@ -761,6 +758,149 @@ data class FlowExecutionResult(
     }
 }
 
+data class FlowChunkExecutionData(
+    val collection: FlowExecutionDataCollection,
+    val events: List<FlowEvent>,
+    val trieUpdate: FlowTrieUpdate,
+    val transactionResults: List<FlowExecutionDataTransactionResult>
+) : Serializable {
+    companion object {
+        fun of(grpcExecutionResult: BlockExecutionDataOuterClass.ChunkExecutionData) = FlowChunkExecutionData(
+            collection = FlowExecutionDataCollection.of(grpcExecutionResult.collection),
+            events = grpcExecutionResult.eventsList.map { FlowEvent.of(it) },
+            trieUpdate = FlowTrieUpdate.of(grpcExecutionResult.trieUpdate),
+            transactionResults = grpcExecutionResult.transactionResultsList.map { FlowExecutionDataTransactionResult.of(it) },
+        )
+    }
+}
+
+data class FlowTrieUpdate(
+    val rootHash: ByteArray,
+    val paths: List<ByteArray>,
+    val payloads: List<FlowPayload>
+) : Serializable {
+    companion object {
+        fun of(grpcExecutionResult: BlockExecutionDataOuterClass.TrieUpdate) = FlowTrieUpdate(
+            rootHash = grpcExecutionResult.rootHash.toByteArray(),
+            paths = grpcExecutionResult.pathsList.map { it.toByteArray() },
+            payloads = grpcExecutionResult.payloadsList.map { FlowPayload.of(it) },
+        )
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is FlowTrieUpdate) return false
+
+        if (!rootHash.contentEquals(other.rootHash)) return false
+        if (paths != other.paths) return false
+        if (payloads != other.payloads) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = rootHash.contentHashCode()
+        result = 31 * result + paths.hashCode()
+        result = 31 * result + payloads.hashCode()
+        return result
+    }
+}
+
+data class FlowPayload(
+    val keyParts: List<FlowKeyPart>,
+    val value: ByteArray,
+) : Serializable {
+    companion object {
+        fun of(grpcExecutionResult: BlockExecutionDataOuterClass.Payload) = FlowPayload(
+            keyParts = grpcExecutionResult.keyPartList.map { FlowKeyPart.of(it) },
+            value = grpcExecutionResult.value.toByteArray()
+        )
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is FlowPayload) return false
+
+        if (keyParts != other.keyParts) return false
+        if (!value.contentEquals(other.value)) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = keyParts.hashCode()
+        result = 31 * result + value.contentHashCode()
+        return result
+    }
+}
+
+data class FlowKeyPart(
+    val type: Int,
+    val value: ByteArray,
+) : Serializable {
+    companion object {
+        fun of(grpcExecutionResult: BlockExecutionDataOuterClass.KeyPart) = FlowKeyPart(
+            type = grpcExecutionResult.type,
+            value = grpcExecutionResult.value.toByteArray()
+        )
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is FlowKeyPart) return false
+
+        if (type != other.type) return false
+        if (!value.contentEquals(other.value)) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = type
+        result = 31 * result + value.contentHashCode()
+        return result
+    }
+}
+
+data class FlowExecutionDataTransactionResult(
+    val transactionId: FlowId,
+    val failed: Boolean,
+    val computationUsed: Long,
+) : Serializable {
+    companion object {
+        fun of(grpcExecutionResult: BlockExecutionDataOuterClass.ExecutionDataTransactionResult) =
+            FlowExecutionDataTransactionResult(
+                transactionId = FlowId.of(grpcExecutionResult.transactionId.toByteArray()),
+                failed = grpcExecutionResult.failed,
+                computationUsed = grpcExecutionResult.computationUsed
+            )
+    }
+}
+
+data class FlowExecutionDataCollection(
+    val transactions: List<FlowTransaction>,
+) : Serializable {
+    companion object {
+        fun of(grpcExecutionResult: BlockExecutionDataOuterClass.ExecutionDataCollection) = FlowExecutionDataCollection(
+            transactions = grpcExecutionResult.transactionsList.map { FlowTransaction.of(it) }
+        )
+    }
+}
+
+data class FlowBlockExecutionData(
+    val blockId: FlowId,
+    val chunkExecutionData: List<FlowChunkExecutionData>,
+) : Serializable {
+    companion object {
+        fun of(grpcExecutionResult: BlockExecutionDataOuterClass.BlockExecutionData) = FlowBlockExecutionData(
+            blockId = FlowId.of(grpcExecutionResult.blockId.toByteArray()),
+            chunkExecutionData = grpcExecutionResult.chunkExecutionDataList.map { chunkExecutionData ->
+                FlowChunkExecutionData(collection = FlowExecutionDataCollection.of(chunkExecutionData.collection), events = chunkExecutionData.eventsList.map { FlowEvent.of(it) }, trieUpdate = FlowTrieUpdate.of(chunkExecutionData.trieUpdate), transactionResults = chunkExecutionData.transactionResultsList.map { FlowExecutionDataTransactionResult.of(it) })
+            }
+        )
+    }
+}
+
 data class FlowCollectionGuarantee(
     val id: FlowId,
     val signatures: List<FlowSignature>
@@ -837,7 +977,9 @@ data class FlowAddress private constructor(
         @JvmStatic
         fun of(bytes: ByteArray): FlowAddress = FlowAddress(fixedSize(bytes, FLOW_ADDRESS_SIZE_BYTES))
     }
+
     constructor(hex: String) : this(fixedSize(hex.hexToBytes(), FLOW_ADDRESS_SIZE_BYTES))
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -880,6 +1022,7 @@ data class FlowScript(
 ) : Serializable,
     BytesHolder {
     constructor(script: String) : this(script.encodeToByteArray())
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -916,7 +1059,9 @@ data class FlowScriptResponse(
 }
 
 @kotlin.jvm.Throws
-fun FlowScriptResponse.decodeToAny() { jsonCadence.decodeToAny() }
+fun FlowScriptResponse.decodeToAny() {
+    jsonCadence.decodeToAny()
+}
 
 @kotlin.jvm.Throws
 inline fun <reified T> FlowScriptResponse.decode(): T = jsonCadence.decode()
@@ -926,6 +1071,7 @@ data class FlowSignature(
 ) : Serializable,
     BytesHolder {
     constructor(hex: String) : this(hex.hexToBytes())
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -944,7 +1090,9 @@ data class FlowId private constructor(
         @JvmStatic
         fun of(bytes: ByteArray): FlowId = FlowId(fixedSize(bytes, FLOW_ID_SIZE_BYTES))
     }
+
     constructor(hex: String) : this(fixedSize(hex.hexToBytes(), FLOW_ID_SIZE_BYTES))
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -974,6 +1122,7 @@ data class FlowPublicKey(
 ) : Serializable,
     BytesHolder {
     constructor(hex: String) : this(hex.hexToBytes())
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -1024,7 +1173,9 @@ data class FlowEventPayload(
 }
 
 @kotlin.jvm.Throws
-fun FlowEventPayload.decodeToAny() { jsonCadence.decodeToAny() }
+fun FlowEventPayload.decodeToAny() {
+    jsonCadence.decodeToAny()
+}
 
 @kotlin.jvm.Throws
 inline fun <reified T> FlowEventPayload.decode(): T = jsonCadence.decode()
