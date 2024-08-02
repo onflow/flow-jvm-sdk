@@ -60,11 +60,13 @@ class TransactionIntegrationTest {
         val txResult = createAndSubmitAccountCreationTransaction(
             accessAPI,
             serviceAccount,
-            "cadence/transaction_creation/transaction_creation.cdc"
+            "cadence/transaction_creation/transaction_creation_simple_transaction.cdc"
         )
 
         assertThat(txResult).isNotNull
         assertThat(txResult.status).isEqualTo(FlowTransactionStatus.SEALED)
+
+        println(txResult)
 
         assertThat(txResult.events).isNotEmpty
         assertThat(txResult.events).hasSize(7)
