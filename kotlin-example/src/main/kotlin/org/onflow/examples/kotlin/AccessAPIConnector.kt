@@ -72,17 +72,17 @@ internal class AccessAPIConnector(privateKeyHex: String, accessApiConnection: Fl
     fun createAccount(payerAddress: FlowAddress, publicKeyHex: String): FlowAddress {
         val payerAccountKey = getAccountKey(payerAddress, 0)
 
-        val newAccountPublicKey = FlowAccountKey(
-            publicKey = FlowPublicKey(publicKeyHex),
-            signAlgo = SignatureAlgorithm.ECDSA_P256,
-            hashAlgo = HashAlgorithm.SHA3_256,
-            weight = 1000
-        )
+//        val newAccountPublicKey = FlowAccountKey(
+//            publicKey = FlowPublicKey(publicKeyHex),
+//            signAlgo = SignatureAlgorithm.ECDSA_P256,
+//            hashAlgo = HashAlgorithm.SHA3_256,
+//            weight = 1000
+//        )
 
         var tx = FlowTransaction(
             script = FlowScript(loadScript("cadence/create_account.cdc")),
             arguments = listOf(
-                FlowArgument(StringField(newAccountPublicKey.encoded.bytesToHex()))
+                FlowArgument(StringField(publicKeyHex))
             ),
             referenceBlockId = latestBlockID,
             gasLimit = 100,

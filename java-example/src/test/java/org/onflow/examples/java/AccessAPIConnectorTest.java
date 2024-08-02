@@ -23,12 +23,12 @@ public class AccessAPIConnectorTest {
     @FlowTestClient
     private FlowAccessApi accessAPI;
 
-    @FlowTestAccount(signAlgo = SignatureAlgorithm.ECDSA_P256)
+    @FlowTestAccount
     private TestAccount recipientAccount;
 
     @BeforeEach
     public void setupUser() {
-        KeyPair keyPair = Crypto.generateKeyPair();
+        KeyPair keyPair = Crypto.generateKeyPair(SignatureAlgorithm.ECDSA_P256);
         userPrivateKeyHex = keyPair.getPrivate().getHex();
         userPublicKeyHex = keyPair.getPublic().getHex();
     }

@@ -95,6 +95,13 @@ public final class AccessAPIConnector {
     }
 
     public FlowAddress createAccount(FlowAddress payerAddress, String publicKeyHex) {
+
+        if (publicKeyHex.length() != 128) {
+            throw new IllegalArgumentException("Invalid ECDSA_P256 public key size: " + publicKeyHex.length() + " hex characters");
+        }
+
+        System.out.println("Public Key: " + publicKeyHex);
+
         FlowAccountKey payerAccountKey = getAccountKey(payerAddress, 0);
 
         FlowAccountKey newAccountPublicKey = new FlowAccountKey(
@@ -111,7 +118,7 @@ public final class AccessAPIConnector {
 
         FlowTransaction tx = new FlowTransaction(
                 script,
-                List.of(new FlowArgument(new StringField(Hex.toHexString(newAccountPublicKey.getEncoded())))),
+                List.of(new FlowArgument(new StringField(publicKeyHex))),
                 getLatestBlockID(),
                 100L,
                 new FlowTransactionProposalKey(

@@ -233,7 +233,6 @@ abstract class AbstractFlowEmulatorExtension : BeforeEachCallback, TestExecution
 
             // Validate key size
             val publicKey = keyPair.public.hex
-            println(annotation.signAlgo)
             if (annotation.signAlgo == SignatureAlgorithm.ECDSA_P256 && publicKey.length != 128) {
                 throw IllegalArgumentException("Invalid ECDSA_P256 public key size: ${publicKey.length} hex characters")
             }

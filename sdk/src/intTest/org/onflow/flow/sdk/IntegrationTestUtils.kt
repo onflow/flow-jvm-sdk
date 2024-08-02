@@ -48,12 +48,13 @@ object IntegrationTestUtils {
         val payerAccount = getAccount(accessAPI, serviceAccount.flowAddress)
 
         val newAccountKeyPair = Crypto.generateKeyPair(SignatureAlgorithm.ECDSA_P256)
-        val newAccountPublicKey = FlowAccountKey(
-            publicKey = FlowPublicKey(newAccountKeyPair.public.hex),
-            signAlgo = SignatureAlgorithm.ECDSA_P256,
-            hashAlgo = HashAlgorithm.SHA3_256,
-            weight = 1000
-        )
+
+//        val newAccountPublicKey = FlowAccountKey(
+//            publicKey = FlowPublicKey(newAccountKeyPair.public.hex),
+//            signAlgo = SignatureAlgorithm.ECDSA_P256,
+//            hashAlgo = HashAlgorithm.SHA3_256,
+//            weight = 1000
+//        )
 
         val loadedScript = String(FlowTestUtil.loadScript(scriptPath), StandardCharsets.UTF_8)
 
@@ -63,7 +64,7 @@ object IntegrationTestUtils {
             }
 
             arguments {
-                arg { string(newAccountPublicKey.encoded.bytesToHex()) }
+                arg { string(newAccountKeyPair.public.hex) }
             }
 
             referenceBlockId = latestBlockId

@@ -101,7 +101,6 @@ object FlowTestUtil {
             }
         }.sendAndWaitForSeal()
 
-        println(transactionResult)
         return when (transactionResult) {
             is FlowAccessApi.AccessApiCallResponse.Success -> {
                 val result = transactionResult.data

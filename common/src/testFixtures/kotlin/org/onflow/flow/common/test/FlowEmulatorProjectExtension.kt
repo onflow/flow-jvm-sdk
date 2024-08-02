@@ -81,8 +81,6 @@ class FlowEmulatorProjectTestExtension : AbstractFlowEmulatorExtension() {
                 keyIndex = 0,
                 balance = BigDecimal(-1)
             )
-            println(serviceKeyPair.public.hex)
-            println(serviceKeyPair.public.hex.length)
 
             args = """
                 --verbose --grpc-debug 
