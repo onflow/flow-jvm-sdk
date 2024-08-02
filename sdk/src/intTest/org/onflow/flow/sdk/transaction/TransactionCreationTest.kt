@@ -49,7 +49,7 @@ class TransactionCreationTest {
         val result = createAndSubmitAccountCreationTransaction(
             accessAPI,
             serviceAccount,
-            "cadence/transaction_creation/transaction_creation.cdc"
+            "cadence/transaction_creation/transaction_creation_simple_transaction.cdc"
         )
 
         assertThat(result).isNotNull
