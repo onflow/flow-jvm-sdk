@@ -1,7 +1,6 @@
 package org.onflow.flow.common.test
 
 import io.grpc.ManagedChannel
-import io.grpc.ManagedChannelBuilder
 import org.onflow.flow.sdk.*
 import org.onflow.flow.sdk.cadence.StringField
 import org.onflow.flow.sdk.crypto.Crypto
@@ -230,6 +229,13 @@ abstract class AbstractFlowEmulatorExtension : BeforeEachCallback, TestExecution
                     private = Crypto.decodePrivateKey(annotation.privateKey, annotation.signAlgo),
                     public = Crypto.decodePublicKey(annotation.publicKey, annotation.signAlgo)
                 )
+            }
+
+            // Validate key size
+            val publicKey = keyPair.public.hex
+            println(annotation.signAlgo)
+            if (annotation.signAlgo == SignatureAlgorithm.ECDSA_P256 && publicKey.length != 128) {
+                throw IllegalArgumentException("Invalid ECDSA_P256 public key size: ${publicKey.length} hex characters")
             }
 
             val createAccountResult = FlowTestUtil.createAccount(
