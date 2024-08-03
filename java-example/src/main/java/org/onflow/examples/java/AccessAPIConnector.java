@@ -80,7 +80,7 @@ public final class AccessAPIConnector {
 
     private FlowAddress getAccountCreatedAddress(FlowTransactionResult txResult) {
         String addressHex = (String) txResult.getEvents().get(0).getEvent().getValue().getFields()[0].getValue().getValue();
-        return new FlowAddress(addressHex.substring(2));
+        return new FlowAddress(addressHex.split("\\.")[1]);
     }
 
     private byte[] loadScript(String name) {
@@ -96,23 +96,7 @@ public final class AccessAPIConnector {
 
     public FlowAddress createAccount(FlowAddress payerAddress, String publicKeyHex) {
 
-        if (publicKeyHex.length() != 128) {
-            throw new IllegalArgumentException("Invalid ECDSA_P256 public key size: " + publicKeyHex.length() + " hex characters");
-        }
-
-        System.out.println("Public Key: " + publicKeyHex);
-
         FlowAccountKey payerAccountKey = getAccountKey(payerAddress, 0);
-
-        FlowAccountKey newAccountPublicKey = new FlowAccountKey(
-                -1,
-                new FlowPublicKey(publicKeyHex),
-                SignatureAlgorithm.ECDSA_P256,
-                HashAlgorithm.SHA3_256,
-                1000,
-                -1,
-                false
-        );
 
         FlowScript script = new FlowScript(loadScript("cadence/create_account.cdc"));
 
