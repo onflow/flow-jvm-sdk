@@ -145,7 +145,7 @@ abstract class AbstractFlowEmulatorExtension : BeforeEachCallback, TestExecution
 
     protected abstract fun launchEmulator(context: ExtensionContext): Emulator
 
-    fun getManagedChannel(api: Any): ManagedChannel? {
+    private fun getManagedChannel(api: Any): ManagedChannel? {
         return try {
             val field: Field = api.javaClass.getDeclaredField("api")
             field.isAccessible = true
@@ -229,12 +229,6 @@ abstract class AbstractFlowEmulatorExtension : BeforeEachCallback, TestExecution
                     private = Crypto.decodePrivateKey(annotation.privateKey, annotation.signAlgo),
                     public = Crypto.decodePublicKey(annotation.publicKey, annotation.signAlgo)
                 )
-            }
-
-            // Validate key size
-            val publicKey = keyPair.public.hex
-            if (annotation.signAlgo == SignatureAlgorithm.ECDSA_P256 && publicKey.length != 128) {
-                throw IllegalArgumentException("Invalid ECDSA_P256 public key size: ${publicKey.length} hex characters")
             }
 
             val createAccountResult = FlowTestUtil.createAccount(
