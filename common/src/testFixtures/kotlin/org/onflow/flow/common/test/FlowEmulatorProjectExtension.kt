@@ -5,6 +5,7 @@ import org.onflow.flow.sdk.SignatureAlgorithm
 import org.apiguardian.api.API
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.api.extension.ExtensionContext
+import org.onflow.flow.sdk.crypto.Crypto
 import java.lang.annotation.Inherited
 import java.math.BigDecimal
 
@@ -21,7 +22,7 @@ import java.math.BigDecimal
 @ExtendWith(FlowEmulatorProjectTestExtension::class)
 @API(status = API.Status.STABLE, since = "5.0")
 annotation class FlowEmulatorProjectTest(
-    val executable: String = "flow",
+    val executable: String = "flow-c1",
     val arguments: String = "--log debug --verbose",
     val host: String = "localhost",
     val port: Int = -1,
@@ -51,24 +52,14 @@ class FlowEmulatorProjectTestExtension : AbstractFlowEmulatorExtension() {
         val port = config.port.takeUnless { it < 0 } ?: findFreePort("localhost")
         val restPort = config.restPort.takeUnless { it < 0 } ?: findFreePort("localhost")
         val adminPort = config.adminPort.takeUnless { it < 0 } ?: findFreePort("localhost")
-        val ret = FlowTestUtil.runFlow(
-            executable = config.executable,
-            arguments = config.arguments.trim().takeIf { it.isNotEmpty() },
-            host = config.host,
-            port = port,
-            restPort = restPort,
-            adminPort = adminPort,
-            postStartCommands = config.postStartCommands,
-            flowJsonLocation = config.flowJsonLocation.trim().takeIf { it.isNotEmpty() },
-            pidFilename = config.pidFilename
-        )
-        return Emulator(
-            process = ret.first,
-            pidFile = ret.second,
-            host = config.host,
-            port = port,
-            restPort = restPort,
-            adminPort = adminPort,
+
+        val serviceAccount: TestAccount
+        val args: String
+
+        if (config.serviceAccountAddress.isNotEmpty() &&
+            config.serviceAccountPublicKey.isNotEmpty() &&
+            config.serviceAccountPrivateKey.isNotEmpty()
+        ) {
             serviceAccount = TestAccount(
                 address = config.serviceAccountAddress,
                 privateKey = config.serviceAccountPrivateKey,
@@ -78,6 +69,47 @@ class FlowEmulatorProjectTestExtension : AbstractFlowEmulatorExtension() {
                 keyIndex = config.serviceAccountKeyIndex,
                 balance = BigDecimal(-1)
             )
+            args = config.arguments
+        } else {
+            val serviceKeyPair = Crypto.generateKeyPair(SignatureAlgorithm.ECDSA_P256)
+            serviceAccount = TestAccount(
+                address = "0xf8d6e0586b0a20c7",
+                privateKey = serviceKeyPair.private.hex,
+                publicKey = serviceKeyPair.public.hex,
+                signAlgo = SignatureAlgorithm.ECDSA_P256,
+                hashAlgo = HashAlgorithm.SHA3_256,
+                keyIndex = 0,
+                balance = BigDecimal(-1)
+            )
+
+            args = """
+                --verbose --grpc-debug 
+                --service-priv-key=${serviceKeyPair.private.hex.replace(Regex("^(00)+"), "")}
+                --service-sig-algo=${SignatureAlgorithm.ECDSA_P256.name.uppercase()}
+                --service-hash-algo=${HashAlgorithm.SHA3_256.name.uppercase()}
+            """.trimIndent().replace("\n", " ")
+        }
+
+        val ret = FlowTestUtil.runFlow(
+            executable = config.executable,
+            arguments = args.trim().takeIf { it.isNotEmpty() },
+            host = config.host,
+            port = port,
+            restPort = restPort,
+            adminPort = adminPort,
+            postStartCommands = config.postStartCommands,
+            flowJsonLocation = config.flowJsonLocation.trim().takeIf { it.isNotEmpty() },
+            pidFilename = config.pidFilename
+        )
+
+        return Emulator(
+            process = ret.first,
+            pidFile = ret.second,
+            host = config.host,
+            port = port,
+            restPort = restPort,
+            adminPort = adminPort,
+            serviceAccount = serviceAccount
         )
     }
 }

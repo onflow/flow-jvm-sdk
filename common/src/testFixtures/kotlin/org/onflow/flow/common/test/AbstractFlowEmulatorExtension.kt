@@ -1,5 +1,6 @@
 package org.onflow.flow.common.test
 
+import io.grpc.ManagedChannel
 import org.onflow.flow.sdk.*
 import org.onflow.flow.sdk.cadence.StringField
 import org.onflow.flow.sdk.crypto.Crypto
@@ -32,7 +33,7 @@ annotation class FlowTestClient
 @Inherited
 @API(status = API.Status.STABLE, since = "5.0")
 annotation class FlowEmulatorCommand(
-    val value: String = "flow",
+    val value: String = "flow-c1",
     val expectedExitValue: Int = 0,
     val throwOnError: Boolean = true,
     val timeout: Long = 10,
@@ -140,8 +141,33 @@ abstract class AbstractFlowEmulatorExtension : BeforeEachCallback, TestExecution
     private var pidFile: File? = null
     private var accessApi: FlowAccessApiImpl? = null
     private var asyncAccessApi: AsyncFlowAccessApiImpl? = null
+    private val channels = mutableListOf<ManagedChannel>()
 
     protected abstract fun launchEmulator(context: ExtensionContext): Emulator
+
+    private fun getManagedChannel(api: Any): ManagedChannel? {
+        return try {
+            val field: Field = api.javaClass.getDeclaredField("api")
+            field.isAccessible = true
+            val stub = field.get(api) as io.grpc.stub.AbstractStub<*>
+            stub.channel as? ManagedChannel
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
+    private fun createAccessApi(host: String, port: Int): FlowAccessApiImpl {
+        val api = Flow.newAccessApi(host, port) as FlowAccessApiImpl
+        getManagedChannel(api)?.let { channels.add(it) }
+        return api
+    }
+
+    private fun createAsyncAccessApi(host: String, port: Int): AsyncFlowAccessApiImpl {
+        val api = Flow.newAsyncAccessApi(host, port) as AsyncFlowAccessApiImpl
+        getManagedChannel(api)?.let { channels.add(it) }
+        return api
+    }
 
     private fun <T : Annotation> withAnnotatedTestFields(context: ExtensionContext, clazz: Class<T>, block: (Any, Field, T) -> Unit) {
         val tests = (
@@ -166,15 +192,8 @@ abstract class AbstractFlowEmulatorExtension : BeforeEachCallback, TestExecution
         // Adding delay to ensure emulator has started
         Thread.sleep(5000) // Wait for 5 seconds
 
-        this.accessApi = Flow.newAccessApi(
-            host = emulator.host,
-            port = emulator.port
-        ) as FlowAccessApiImpl
-
-        this.asyncAccessApi = Flow.newAsyncAccessApi(
-            host = emulator.host,
-            port = emulator.port
-        ) as AsyncFlowAccessApiImpl
+        this.accessApi = createAccessApi(emulator.host, emulator.port)
+        this.asyncAccessApi = createAsyncAccessApi(emulator.host, emulator.port)
 
         withAnnotatedTestFields(context, FlowTestClient::class.java) { instance, field, _ ->
             field.isAccessible = true
@@ -312,6 +331,8 @@ abstract class AbstractFlowEmulatorExtension : BeforeEachCallback, TestExecution
             pidFile = null
         }
         process = null
+
+        channels.forEach { it.shutdown().awaitTermination(5, TimeUnit.SECONDS) }
     }
 
     protected fun findFreePort(host: String): Int {

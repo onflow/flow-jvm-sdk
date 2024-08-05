@@ -8,7 +8,7 @@ import org.onflow.flow.sdk.*
 import org.onflow.flow.sdk.IntegrationTestUtils.createAndSubmitAccountCreationTransaction
 import java.nio.charset.StandardCharsets
 
-@FlowEmulatorTest
+@FlowEmulatorProjectTest(flowJsonLocation = "../flow/flow.json")
 class JsonCadenceTest {
     @FlowTestClient
     lateinit var flow: FlowAccessApi
@@ -63,14 +63,13 @@ class JsonCadenceTest {
         val txResult = createAndSubmitAccountCreationTransaction(
             flow,
             serviceAccount,
-            "cadence/transaction_creation/transaction_creation.cdc"
+            "cadence/transaction_creation/transaction_creation_simple_transaction.cdc"
         )
-
         assertThat(txResult).isNotNull
         assertThat(txResult.status).isEqualTo(FlowTransactionStatus.SEALED)
 
         val events = txResult.events.map { it.payload.jsonCadence }
-        assertThat(events).hasSize(7)
+        assertThat(events).hasSize(1)
     }
 
     @Test

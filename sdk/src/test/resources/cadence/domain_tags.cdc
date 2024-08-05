@@ -1,6 +1,6 @@
 import Crypto
 
-pub fun main(
+access(all) fun main(
   rawPublicKeys: [String],
   weights: [UFix64],
   signatures: [String],
@@ -36,5 +36,6 @@ pub fun main(
   return keyList.verify(
     signatureSet: signatureSet,
     signedData: message.decodeHex(),
+    domainSeparationTag: "FLOW-V0.0-user"
   )
 }

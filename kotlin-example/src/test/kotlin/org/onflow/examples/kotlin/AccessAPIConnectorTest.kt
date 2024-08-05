@@ -9,7 +9,7 @@ import org.onflow.flow.sdk.FlowAddress
 import org.onflow.flow.sdk.crypto.Crypto
 import java.math.BigDecimal
 
-@FlowEmulatorTest
+@FlowEmulatorProjectTest(flowJsonLocation = "../flow/flow.json")
 internal class AccessAPIConnectorTest {
     private var userPrivateKeyHex: String = ""
     private var userPublicKeyHex: String = ""

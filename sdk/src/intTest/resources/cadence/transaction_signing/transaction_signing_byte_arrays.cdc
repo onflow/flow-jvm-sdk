@@ -1,5 +1,5 @@
 transaction(bytes: [UInt8]) {
-    prepare(signer: AuthAccount) {
+    prepare(signer: &Account) {
         log(bytes)
     }
 }

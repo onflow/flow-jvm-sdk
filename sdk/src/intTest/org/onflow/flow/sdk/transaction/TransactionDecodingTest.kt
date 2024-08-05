@@ -2,12 +2,12 @@ package org.onflow.flow.sdk.transaction
 
 import org.onflow.flow.sdk.*
 import org.assertj.core.api.Assertions.assertThat
-import org.onflow.flow.common.test.FlowEmulatorTest
 import org.junit.jupiter.api.Test
+import org.onflow.flow.common.test.FlowEmulatorProjectTest
 import org.onflow.flow.common.test.FlowTestUtil
 import java.nio.charset.StandardCharsets
 
-@FlowEmulatorTest
+@FlowEmulatorProjectTest(flowJsonLocation = "../flow/flow.json")
 class TransactionDecodingTest {
     @Test
     fun `Can decode transaction envelope`() {

@@ -1,19 +1,19 @@
 package org.onflow.flow.sdk
 
 import org.onflow.flow.sdk.crypto.Crypto
-import org.onflow.flow.common.test.FlowEmulatorTest
-import org.onflow.flow.common.test.FlowServiceAccountCredentials
-import org.onflow.flow.common.test.FlowTestClient
-import org.onflow.flow.common.test.FlowTestUtil
-import org.onflow.flow.common.test.TestAccount
 import org.junit.jupiter.api.Assertions.*
+import org.onflow.flow.common.test.FlowEmulatorProjectTest
+import org.onflow.flow.common.test.FlowTestClient
+import org.onflow.flow.common.test.FlowServiceAccountCredentials
+import org.onflow.flow.common.test.TestAccount
+import org.onflow.flow.common.test.FlowTestUtil
 import org.onflow.flow.sdk.IntegrationTestUtils.getAccount
 import org.onflow.flow.sdk.IntegrationTestUtils.getAccountAddressFromResult
 import org.onflow.flow.sdk.IntegrationTestUtils.handleResult
 import java.math.BigDecimal
 import java.nio.charset.StandardCharsets
 
-@FlowEmulatorTest
+@FlowEmulatorProjectTest(flowJsonLocation = "../flow/flow.json")
 class ExposeAccountKeyIssueTest {
     @FlowTestClient
     lateinit var flow: FlowAccessApi

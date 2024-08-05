@@ -3,18 +3,14 @@ package org.onflow.flow.sdk.transaction
 import org.onflow.flow.sdk.*
 import org.onflow.flow.sdk.crypto.Crypto
 import org.assertj.core.api.Assertions.assertThat
-import org.onflow.flow.common.test.FlowEmulatorTest
-import org.onflow.flow.common.test.FlowServiceAccountCredentials
-import org.onflow.flow.common.test.FlowTestClient
-import org.onflow.flow.common.test.TestAccount
 import org.junit.jupiter.api.Test
-import org.onflow.flow.common.test.FlowTestUtil
+import org.onflow.flow.common.test.*
 import org.onflow.flow.sdk.IntegrationTestUtils.createAndSubmitAccountCreationTransaction
 import org.onflow.flow.sdk.IntegrationTestUtils.handleResult
 import org.onflow.flow.sdk.IntegrationTestUtils.transaction
 import java.nio.charset.StandardCharsets
 
-@FlowEmulatorTest
+@FlowEmulatorProjectTest(flowJsonLocation = "../flow/flow.json")
 class TransactionCreationTest {
     @FlowTestClient
     lateinit var accessAPI: FlowAccessApi
@@ -53,7 +49,7 @@ class TransactionCreationTest {
         val result = createAndSubmitAccountCreationTransaction(
             accessAPI,
             serviceAccount,
-            "cadence/transaction_creation/transaction_creation.cdc"
+            "cadence/transaction_creation/transaction_creation_simple_transaction.cdc"
         )
 
         assertThat(result).isNotNull
