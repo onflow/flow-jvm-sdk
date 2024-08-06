@@ -4,6 +4,7 @@ import org.onflow.flow.sdk.*
 import org.onflow.flow.sdk.cadence.AddressField
 import org.onflow.flow.sdk.cadence.StringField
 import org.onflow.flow.sdk.cadence.UFix64NumberField
+import org.onflow.flow.sdk.cadence.UInt8NumberField
 import org.onflow.flow.sdk.crypto.Crypto
 import org.onflow.flow.sdk.crypto.PrivateKey
 import java.math.BigDecimal
@@ -75,7 +76,8 @@ internal class AccessAPIConnector(
         var tx = FlowTransaction(
             script = FlowScript(loadScript("cadence/create_account.cdc")),
             arguments = listOf(
-                FlowArgument(StringField(publicKeyHex))
+                FlowArgument(StringField(publicKeyHex)),
+                FlowArgument(UInt8NumberField(signatureAlgorithm.index.toString()))
             ),
             referenceBlockId = latestBlockID,
             gasLimit = 100,

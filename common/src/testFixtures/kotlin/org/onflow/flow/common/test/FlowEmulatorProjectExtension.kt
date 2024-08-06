@@ -58,26 +58,30 @@ class FlowEmulatorProjectTestExtension : AbstractFlowEmulatorExtension() {
 
         if (config.serviceAccountAddress.isNotEmpty() &&
             config.serviceAccountPublicKey.isNotEmpty() &&
-            config.serviceAccountPrivateKey.isNotEmpty()
+            config.serviceAccountPrivateKey.isNotEmpty() &&
+            config.serviceAccountSignAlgo != SignatureAlgorithm.UNKNOWN
         ) {
+            val sk = Crypto.decodePrivateKey(config.serviceAccountPrivateKey, config.serviceAccountSignAlgo)
+            val pk = Crypto.decodePublicKey(config.serviceAccountPublicKey, config.serviceAccountSignAlgo)
+
             serviceAccount = TestAccount(
                 address = config.serviceAccountAddress,
-                privateKey = config.serviceAccountPrivateKey,
-                publicKey = config.serviceAccountPublicKey,
-                signAlgo = config.serviceAccountSignAlgo,
+                privateKey = sk,
+                publicKey = pk,
                 hashAlgo = config.serviceAccountHashAlgo,
                 keyIndex = config.serviceAccountKeyIndex,
                 balance = BigDecimal(-1)
             )
             args = config.arguments
         } else {
-            val serviceKeyPair = Crypto.generateKeyPair(SignatureAlgorithm.ECDSA_P256)
+            val signAlgo = SignatureAlgorithm.ECDSA_P256
+            val hashAlgo = HashAlgorithm.SHA3_256
+            val serviceKeyPair = Crypto.generateKeyPair(signAlgo)
             serviceAccount = TestAccount(
                 address = "0xf8d6e0586b0a20c7",
-                privateKey = serviceKeyPair.private.hex,
-                publicKey = serviceKeyPair.public.hex,
-                signAlgo = SignatureAlgorithm.ECDSA_P256,
-                hashAlgo = HashAlgorithm.SHA3_256,
+                privateKey = serviceKeyPair.private,
+                publicKey = serviceKeyPair.public,
+                hashAlgo = hashAlgo,
                 keyIndex = 0,
                 balance = BigDecimal(-1)
             )
@@ -85,8 +89,8 @@ class FlowEmulatorProjectTestExtension : AbstractFlowEmulatorExtension() {
             args = """
                 --verbose --grpc-debug 
                 --service-priv-key=${serviceKeyPair.private.hex.replace(Regex("^(00)+"), "")}
-                --service-sig-algo=${SignatureAlgorithm.ECDSA_P256.name.uppercase()}
-                --service-hash-algo=${HashAlgorithm.SHA3_256.name.uppercase()}
+                --service-sig-algo=${signAlgo.name.uppercase()}
+                --service-hash-algo=${hashAlgo.name.uppercase()}
             """.trimIndent().replace("\n", " ")
         }
 
