@@ -6,12 +6,13 @@ import org.junit.jupiter.api.Test;
 import org.onflow.flow.common.test.*;
 import org.onflow.flow.sdk.FlowAccessApi;
 import org.onflow.flow.sdk.FlowAddress;
+import org.onflow.flow.sdk.SignatureAlgorithm;
 import org.onflow.flow.sdk.crypto.Crypto;
 import org.onflow.flow.sdk.crypto.KeyPair;
 
 import java.math.BigDecimal;
 
-@FlowEmulatorTest
+@FlowEmulatorProjectTest(flowJsonLocation = "../flow/flow.json")
 public class AccessAPIConnectorTest {
     private String userPrivateKeyHex = "";
     private String userPublicKeyHex = "";
@@ -27,7 +28,7 @@ public class AccessAPIConnectorTest {
 
     @BeforeEach
     public void setupUser() {
-        KeyPair keyPair = Crypto.generateKeyPair();
+        KeyPair keyPair = Crypto.generateKeyPair(SignatureAlgorithm.ECDSA_P256);
         userPrivateKeyHex = keyPair.getPrivate().getHex();
         userPublicKeyHex = keyPair.getPublic().getHex();
     }

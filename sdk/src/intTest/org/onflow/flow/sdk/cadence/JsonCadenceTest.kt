@@ -2,13 +2,20 @@ package org.onflow.flow.sdk.cadence
 
 import kotlinx.serialization.Serializable
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.onflow.flow.common.test.*
 import org.onflow.flow.sdk.*
+import org.onflow.flow.sdk.IntegrationTestUtils.createAndSubmitAccountCreationTransaction
 import java.nio.charset.StandardCharsets
-import org.onflow.flow.common.test.FlowTestUtil
 
+@FlowEmulatorProjectTest(flowJsonLocation = "../flow/flow.json")
 class JsonCadenceTest {
+    @FlowTestClient
+    lateinit var flow: FlowAccessApi
+
+    @FlowServiceAccountCredentials
+    lateinit var serviceAccount: TestAccount
+
     @Serializable
     data class StorageInfo(
         val capacity: Int,
@@ -40,13 +47,6 @@ class JsonCadenceTest {
         val rawValue: Int
     )
 
-    private lateinit var flow: FlowAccessApi
-
-    @BeforeEach
-    fun setup() {
-        flow = IntegrationTestUtils.newMainnetAccessApi()
-    }
-
     private fun loadScriptContent(path: String): String {
         return String(FlowTestUtil.loadScript(path), StandardCharsets.UTF_8)
     }
@@ -59,21 +59,22 @@ class JsonCadenceTest {
     }
 
     @Test
-    fun `Can parse new JSON Cadence`() {
-        val tx = when (val transactionResult = flow.getTransactionResultById(FlowId("273f68ffe175a0097db60bc7cf5e92c5a775d189af3f5636f5432c1206be771a"))) {
-            is FlowAccessApi.AccessApiCallResponse.Success -> transactionResult.data
-            is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to get transaction result: ${transactionResult.message}", transactionResult.throwable)
-        }
+    fun `Can parse JSON Cadence from transaction`() {
+        val txResult = createAndSubmitAccountCreationTransaction(
+            flow,
+            serviceAccount,
+            "cadence/transaction_creation/transaction_creation_simple_transaction.cdc"
+        )
+        assertThat(txResult).isNotNull
+        assertThat(txResult.status).isEqualTo(FlowTransactionStatus.SEALED)
 
-        val events = tx.events.map { it.payload.jsonCadence }
-        assertThat(events).hasSize(7)
+        val events = txResult.events.map { it.payload.jsonCadence }
+        assertThat(events).hasSize(1)
     }
 
     @Test
     fun decodeOptional() {
-        val result = executeScript("cadence/json_cadence/decode_optional.cdc")
-
-        val data = when (result) {
+        val data = when (val result = executeScript("cadence/json_cadence/decode_optional.cdc")) {
             is FlowAccessApi.AccessApiCallResponse.Success -> result.data.jsonCadence.decode<Boolean?>()
             is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to execute script: ${result.message}", result.throwable)
         }
@@ -83,9 +84,7 @@ class JsonCadenceTest {
 
     @Test
     fun decodeOptional2() {
-        val result = executeScript("cadence/json_cadence/decode_optional_2.cdc")
-
-        val data = when (result) {
+        val data = when (val result = executeScript("cadence/json_cadence/decode_optional_2.cdc")) {
             is FlowAccessApi.AccessApiCallResponse.Success -> result.data.jsonCadence.decode<Boolean?>()
             is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to execute script: ${result.message}", result.throwable)
         }
@@ -95,9 +94,7 @@ class JsonCadenceTest {
 
     @Test
     fun decodeBoolean() {
-        val result = executeScript("cadence/json_cadence/decode_boolean.cdc")
-
-        val data = when (result) {
+        val data = when (val result = executeScript("cadence/json_cadence/decode_boolean.cdc")) {
             is FlowAccessApi.AccessApiCallResponse.Success -> result.data.jsonCadence.decode<Boolean?>()
             is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to execute script: ${result.message}", result.throwable)
         }
@@ -107,9 +104,7 @@ class JsonCadenceTest {
 
     @Test
     fun decodeArray() {
-        val result = executeScript("cadence/json_cadence/decode_array.cdc")
-
-        val data = when (result) {
+        val data = when (val result = executeScript("cadence/json_cadence/decode_array.cdc")) {
             is FlowAccessApi.AccessApiCallResponse.Success -> result.data.jsonCadence.decode<List<ULong>>()
             is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to execute script: ${result.message}", result.throwable)
         }
@@ -120,9 +115,7 @@ class JsonCadenceTest {
 
     @Test
     fun decodeUFix64() {
-        val result = executeScript("cadence/json_cadence/decode_ufix64.cdc")
-
-        val data = when (result) {
+        val data = when (val result = executeScript("cadence/json_cadence/decode_ufix64.cdc")) {
             is FlowAccessApi.AccessApiCallResponse.Success -> result.data.jsonCadence.decode<Double>()
             is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to execute script: ${result.message}", result.throwable)
         }
@@ -153,7 +146,7 @@ class JsonCadenceTest {
         val loadedScript = loadScriptContent("cadence/json_cadence/decode_complex_dict.cdc")
         val result = flow.simpleFlowScript {
             script { loadedScript }
-            arg { address("0x84221fe0294044d7") }
+            arg { address(serviceAccount.address) }
         }
 
         val data = when (result) {
@@ -166,9 +159,7 @@ class JsonCadenceTest {
 
     @Test
     fun decodeResource() {
-        val result = executeScript("cadence/json_cadence/decode_resource.cdc")
-
-        val decodedResource = when (result) {
+        val decodedResource = when (val result = executeScript("cadence/json_cadence/decode_resource.cdc")) {
             is FlowAccessApi.AccessApiCallResponse.Success -> result.data.jsonCadence.decode<SomeResource>()
             is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to execute script: ${result.message}", result.throwable)
         }
@@ -179,9 +170,7 @@ class JsonCadenceTest {
 
     @Test
     fun decodeEnum() {
-        val result = executeScript("cadence/json_cadence/decode_enum.cdc")
-
-        val decodedEnum = when (result) {
+        val decodedEnum = when (val result = executeScript("cadence/json_cadence/decode_enum.cdc")) {
             is FlowAccessApi.AccessApiCallResponse.Success -> result.data.jsonCadence.decode<SomeEnum>()
             is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to execute script: ${result.message}", result.throwable)
         }
@@ -192,9 +181,7 @@ class JsonCadenceTest {
 
     @Test
     fun decodeReference() {
-        val result = executeScript("cadence/json_cadence/decode_reference.cdc")
-
-        val decodedReference = when (result) {
+        val decodedReference = when (val result = executeScript("cadence/json_cadence/decode_reference.cdc")) {
             is FlowAccessApi.AccessApiCallResponse.Success -> result.data.jsonCadence.decodeToAny()
             is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to execute script: ${result.message}", result.throwable)
         }

@@ -1,8 +1,8 @@
-pub struct TestClass {
-    pub let address: Address
-    pub let balance: UFix64
-    pub let hashAlgorithm: HashAlgorithm
-    pub let isValid: Bool
+access(all) struct TestClass {
+    access(all) let address: Address
+    access(all) let balance: UFix64
+    access(all) let hashAlgorithm: HashAlgorithm
+    access(all) let isValid: Bool
 
     init(address: Address, balance: UFix64, hashAlgorithm: HashAlgorithm, isValid: Bool) {
         self.address = address
@@ -12,7 +12,7 @@ pub struct TestClass {
     }
 }
 
-pub fun main(address: Address): TestClass {
+access(all) fun main(address: Address): TestClass {
     return TestClass(
         address: address,
         balance: UFix64(1234),

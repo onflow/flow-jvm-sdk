@@ -1,10 +1,10 @@
-import FlowToken from 0xFLOWTOKEN
-import FungibleToken from 0xFUNGIBLETOKEN
+import FlowToken from 0x0ae53cb6e3f42a79
+import FungibleToken from 0xee82856bf20e2aa6
 
 transaction(startingBalance: UFix64, publicKey: String, signatureAlgorithm: UInt8, hashAlgorithm: UInt8) {
-    prepare(signer: AuthAccount) {
+    prepare(signer: auth(BorrowValue) &Account) {
 
-        let newAccount = AuthAccount(payer: signer)
+        let newAccount = Account(payer: signer)
 
         newAccount.keys.add(
             publicKey: PublicKey(
@@ -15,15 +15,12 @@ transaction(startingBalance: UFix64, publicKey: String, signatureAlgorithm: UInt
             weight: UFix64(1000)
         )
 
-        let provider = signer.borrow<&FlowToken.Vault>(from: /storage/flowTokenVault)
-            ?? panic("Could not borrow FlowToken.Vault reference")
+        let vaultRef = signer.storage.borrow<auth(FungibleToken.Withdraw) &FlowToken.Vault>(from: /storage/flowTokenVault)
+            ?? panic("The signer does not have a FlowToken Vault in their account storage!")
 
-        let newVault = newAccount
-            .getCapability(/public/flowTokenReceiver)
-            .borrow<&{FungibleToken.Receiver}>()
-            ?? panic("Could not borrow FungibleToken.Receiver reference")
+        let newVault = newAccount.capabilities.borrow<&{FungibleToken.Receiver}>(/public/flowTokenReceiver)!
 
-        let coin <- provider.withdraw(amount: startingBalance)
-        newVault.deposit(from: <- coin)
+        let tokensWithdrawn <- signerVault.withdraw(amount: startingBalance)
+        newVault.deposit(from: <- tokensWithdrawn)
     }
 }

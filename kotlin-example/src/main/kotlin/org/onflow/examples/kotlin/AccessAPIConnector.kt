@@ -64,7 +64,7 @@ internal class AccessAPIConnector(
             .fields[0]
             .value
             .value as String
-        return FlowAddress(addressHex.substring(2))
+        return FlowAddress(addressHex.substring(2).split(".")[0])
     }
 
     private fun loadScript(name: String): ByteArray = javaClass.classLoader.getResourceAsStream(name)!!.use { it.readAllBytes() }
@@ -72,17 +72,10 @@ internal class AccessAPIConnector(
     fun createAccount(payerAddress: FlowAddress, publicKeyHex: String, signatureAlgorithm: SignatureAlgorithm): FlowAddress {
         val payerAccountKey = getAccountKey(payerAddress, 0)
 
-        val newAccountPublicKey = FlowAccountKey(
-            publicKey = FlowPublicKey(publicKeyHex),
-            signAlgo = signatureAlgorithm,
-            hashAlgo = HashAlgorithm.SHA3_256,
-            weight = 1000
-        )
-
         var tx = FlowTransaction(
             script = FlowScript(loadScript("cadence/create_account.cdc")),
             arguments = listOf(
-                FlowArgument(StringField(newAccountPublicKey.encoded.bytesToHex()))
+                FlowArgument(StringField(publicKeyHex))
             ),
             referenceBlockId = latestBlockID,
             gasLimit = 100,

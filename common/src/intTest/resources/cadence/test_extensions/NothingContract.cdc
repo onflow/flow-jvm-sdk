@@ -1,8 +1,8 @@
 
-pub contract NothingContract {
+access(all) contract NothingContract {
 
-    pub let name: String
-    pub let description: String
+    access(all) let name: String
+    access(all) let description: String
 
     init(name: String, description: String) {
         self.name = name

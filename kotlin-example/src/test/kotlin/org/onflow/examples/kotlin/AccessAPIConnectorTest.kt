@@ -10,7 +10,7 @@ import org.onflow.flow.sdk.SignatureAlgorithm
 import org.onflow.flow.sdk.crypto.Crypto
 import java.math.BigDecimal
 
-@FlowEmulatorTest
+@FlowEmulatorProjectTest(flowJsonLocation = "../flow/flow.json")
 internal class AccessAPIConnectorTest {
     // TODO: update to use PrivateKey and PublicKey types instead
     // of hex Strings

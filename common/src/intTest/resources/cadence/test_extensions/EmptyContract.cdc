@@ -1,1 +1,1 @@
-pub contract EmptyContract { init() { } }
+access(all) contract EmptyContract { init() { } }

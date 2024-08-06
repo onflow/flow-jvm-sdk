@@ -54,7 +54,7 @@ object FlowTestUtil {
             script {
                 """
                     transaction(names: [String], codes: [String]$contractArgs) {
-                        prepare(signer: AuthAccount) {
+                        prepare(signer: &Account) {
                             $contractAdds
                         }
                     }
@@ -121,7 +121,7 @@ object FlowTestUtil {
     @JvmStatic
     @JvmOverloads
     fun runFlow(
-        executable: String = "flow",
+        executable: String = "flow-c1",
         arguments: String? = null,
         host: String = "localhost",
         port: Int = 3570,
@@ -132,8 +132,6 @@ object FlowTestUtil {
         classLoader: ClassLoader = AbstractFlowEmulatorExtension::class.java.classLoader,
         pidFilename: String = "flow-emulator.pid"
     ): Pair<Process, File> {
-        var flowJson: String?
-
         val pidFile = File(System.getProperty("java.io.tmpdir"), pidFilename)
         if (pidFile.exists()) {
             // TODO: maybe a better way of doing this?
@@ -157,33 +155,37 @@ object FlowTestUtil {
         }
         pidFile.delete()
 
-        // is it a file?
-        flowJson = flowJsonLocation?.let(::File)
-            ?.takeIf { it.exists() }
-            ?.takeIf { it.isFile }
-            ?.absolutePath
+        var flowJson: String? = null
 
-        // is it in the classpath?
+        // Check if flowJsonLocation is a file
+        val fileLocation = flowJsonLocation?.let(::File)
+        if (fileLocation != null && fileLocation.exists() && fileLocation.isFile) {
+            flowJson = fileLocation.absolutePath
+            println("Flow JSON found as file: $flowJson")
+        }
+
+        // Check if flowJsonLocation is a classpath resource
         if (flowJson == null) {
-            flowJson = flowJsonLocation?.let(classLoader::getResource)
-                ?.openStream()
-                ?.use { input ->
+            val classpathResource = flowJsonLocation?.let(classLoader::getResource)
+            if (classpathResource != null) {
+                flowJson = classpathResource.openStream()?.use { input ->
                     val tmp = File.createTempFile("flow", ".json")
                     tmp.deleteOnExit()
                     tmp.outputStream().use { output -> input.copyTo(output) }
-                    tmp
+                    tmp.absolutePath
                 }
-                ?.absolutePath
+                println("Flow JSON found as classpath resource: $flowJson")
+            }
         }
 
-        // is it a directory with a flow.json file
+        // Check if flowJsonLocation is a directory containing flow.json
         if (flowJson == null) {
-            flowJson = flowJsonLocation?.let(::File)
-                ?.takeIf { it.exists() }
-                ?.takeIf { it.isDirectory }
-                ?.let { File(it, "flow.json") }
-                ?.takeIf { it.exists() }
-                ?.absolutePath
+            val directory = fileLocation?.takeIf { it.isDirectory }
+            val flowJsonFile = directory?.let { File(it, "flow.json") }
+            if (flowJsonFile != null && flowJsonFile.exists()) {
+                flowJson = flowJsonFile.absolutePath
+                println("Flow JSON found in directory: $flowJson")
+            }
         }
 
         var workingDirectory: File? = null
@@ -202,13 +204,12 @@ object FlowTestUtil {
                 listOf("${System.getProperty("user.home")}/.local/bin", "/usr/local/bin", "/usr/bin", "/bin")
                     + (System.getenv()["PATH"]?.split(File.pathSeparator) ?: emptyList())
             )
-                .map { File(it, "flow") }
+                .map { File(it, "flow-c1") }
                 .find { it.exists() }
                 ?: throw IOException("flow command not found")
         }
 
         val emulatorCommand = "$cmd emulator $arguments --port $port --rest-port $restPort --admin-port $adminPort $configFile"
-
         val start = System.currentTimeMillis()
         var proc = ProcessBuilder()
             .command(emulatorCommand.split(" "))

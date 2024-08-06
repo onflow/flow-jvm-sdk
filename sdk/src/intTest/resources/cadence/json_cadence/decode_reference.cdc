@@ -1,6 +1,6 @@
-pub let hello = "Hello"
-pub let helloRef: &String = &hello as &String
+access(all) let hello = "Hello"
+access(all) let helloRef: &String = &hello as &String
 
-pub fun main(): &String {
+access(all) fun main(): &String {
     return helloRef
 }
