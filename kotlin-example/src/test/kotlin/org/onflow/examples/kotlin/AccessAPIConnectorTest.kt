@@ -8,15 +8,22 @@ import org.onflow.flow.sdk.FlowAccessApi
 import org.onflow.flow.sdk.FlowAddress
 import org.onflow.flow.sdk.SignatureAlgorithm
 import org.onflow.flow.sdk.crypto.Crypto
+import org.onflow.flow.sdk.crypto.PublicKey
 import java.math.BigDecimal
 
 @FlowEmulatorProjectTest(flowJsonLocation = "../flow/flow.json")
 internal class AccessAPIConnectorTest {
-    // TODO: update to use PrivateKey and PublicKey types instead
-    // of hex Strings
-    private var userPrivateKeyHex: String = ""
-    private var userPublicKeyHex: String = ""
-    private var userSigningAlgo: SignatureAlgorithm = SignatureAlgorithm.UNKNOWN
+    // user key pairs using all supported signing algorithms
+    private val userKeyPairs = arrayOf(
+        // Crypto.generateKeyPair(SignatureAlgorithm.ECDSA_P256),
+        Crypto.generateKeyPair(SignatureAlgorithm.ECDSA_SECP256k1)
+    )
+
+    // user account addresses
+    private val userAccountAddress = arrayOf(
+        FlowAddress(""),
+        // FlowAddress("")
+    )
 
     @FlowServiceAccountCredentials
     lateinit var serviceAccount: TestAccount
@@ -28,18 +35,27 @@ internal class AccessAPIConnectorTest {
     lateinit var otherAccount: TestAccount
 
     @BeforeEach
-    fun setupUser() {
-        userSigningAlgo = SignatureAlgorithm.ECDSA_SECP256k1
-        val keyPair = Crypto.generateKeyPair(userSigningAlgo)
-        userPrivateKeyHex = keyPair.private.hex
-        userPublicKeyHex = keyPair.public.hex
+    fun setupUsers() {
+        for ((index, address) in userAccountAddress.withIndex()) {
+            if (address == FlowAddress("")) {
+                userAccountAddress[index] = createUserAccount(userKeyPairs[index].public)
+            }
+        }
+    }
+
+    // create an account using the service account
+    private fun createUserAccount(userPublicKey: PublicKey): FlowAddress {
+        val accessAPIConnector = AccessAPIConnector(serviceAccount.privateKey, accessAPI)
+        val account = accessAPIConnector.createAccount(serviceAccount.flowAddress, userPublicKey)
+        return account
     }
 
     @Test
     fun `Can create an account`() {
-        val accessAPIConnector = AccessAPIConnector(serviceAccount.privateKey, accessAPI)
-        val account = accessAPIConnector.createAccount(serviceAccount.flowAddress, userPublicKeyHex, userSigningAlgo)
-        Assertions.assertNotNull(account)
+        // accounts are created in `setupUser`
+        for (address in userAccountAddress) {
+            Assertions.assertNotNull(address)
+        }
     }
 
     @Test
@@ -56,19 +72,18 @@ internal class AccessAPIConnectorTest {
     }
 
     @Test
-    fun `Can transfer tokens from other account`() {
-        val accessAPIConnector = AccessAPIConnector(otherAccount.privateKey, accessAPI)
-        // make sure this test checks the SECp256k1 case
-        Assertions.assertEquals(otherAccount.privateKey.algo, SignatureAlgorithm.ECDSA_SECP256k1)
-
-        val sender: FlowAddress = otherAccount.flowAddress
+    fun `Can transfer tokens from user accounts`() {
         val recipient: FlowAddress = serviceAccount.flowAddress
 
-        val amount = BigDecimal("10.00000001")
-        val balance1 = accessAPIConnector.getAccountBalance(recipient)
-        accessAPIConnector.transferTokens(sender, recipient, amount)
-        val balance2 = accessAPIConnector.getAccountBalance(recipient)
-        Assertions.assertEquals(balance1.add(amount), balance2)
+        for ((index, sender) in userAccountAddress.withIndex()) {
+            val accessAPIConnector = AccessAPIConnector(userKeyPairs[index].private, accessAPI)
+
+            val amount = BigDecimal("1.00000001")
+            val balance1 = accessAPIConnector.getAccountBalance(recipient)
+            accessAPIConnector.transferTokens(sender, recipient, amount)
+            val balance2 = accessAPIConnector.getAccountBalance(recipient)
+            Assertions.assertEquals(balance1.add(amount), balance2)
+        }
     }
 
     @Test

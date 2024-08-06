@@ -7,6 +7,7 @@ import org.onflow.flow.sdk.cadence.UFix64NumberField
 import org.onflow.flow.sdk.cadence.UInt8NumberField
 import org.onflow.flow.sdk.crypto.Crypto
 import org.onflow.flow.sdk.crypto.PrivateKey
+import org.onflow.flow.sdk.crypto.PublicKey
 import java.math.BigDecimal
 
 internal class AccessAPIConnector(
@@ -70,14 +71,14 @@ internal class AccessAPIConnector(
 
     private fun loadScript(name: String): ByteArray = javaClass.classLoader.getResourceAsStream(name)!!.use { it.readAllBytes() }
 
-    fun createAccount(payerAddress: FlowAddress, publicKeyHex: String, signatureAlgorithm: SignatureAlgorithm): FlowAddress {
+    fun createAccount(payerAddress: FlowAddress, publicKey: PublicKey): FlowAddress {
         val payerAccountKey = getAccountKey(payerAddress, 0)
 
         var tx = FlowTransaction(
             script = FlowScript(loadScript("cadence/create_account.cdc")),
             arguments = listOf(
-                FlowArgument(StringField(publicKeyHex)),
-                FlowArgument(UInt8NumberField(signatureAlgorithm.index.toString()))
+                FlowArgument(StringField(publicKey.hex)),
+                FlowArgument(UInt8NumberField(publicKey.algo.index.toString()))
             ),
             referenceBlockId = latestBlockID,
             gasLimit = 100,
@@ -107,6 +108,7 @@ internal class AccessAPIConnector(
             throw Exception("FLOW amount must have exactly 8 decimal places of precision (e.g. 10.00000000)")
         }
         val senderAccountKey = getAccountKey(senderAddress, 0)
+        val pkHex = senderAccountKey.publicKey.bytes.bytesToHex()
 
         var tx = FlowTransaction(
             script = FlowScript(loadScript("cadence/transfer_flow.cdc")),
