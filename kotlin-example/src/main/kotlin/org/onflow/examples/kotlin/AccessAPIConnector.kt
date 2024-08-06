@@ -7,7 +7,10 @@ import org.onflow.flow.sdk.cadence.UFix64NumberField
 import org.onflow.flow.sdk.crypto.Crypto
 import java.math.BigDecimal
 
-internal class AccessAPIConnector(privateKeyHex: String, accessApiConnection: FlowAccessApi) {
+internal class AccessAPIConnector(
+    privateKeyHex: String,
+    accessApiConnection: FlowAccessApi
+) {
     private val accessAPI = accessApiConnection
     private val privateKey = Crypto.decodePrivateKey(privateKeyHex)
 
@@ -17,11 +20,9 @@ internal class AccessAPIConnector(privateKeyHex: String, accessApiConnection: Fl
             is FlowAccessApi.AccessApiCallResponse.Error -> throw Exception(response.message, response.throwable)
         }
 
-    private fun getAccount(address: FlowAddress): FlowAccount {
-        return when (val response = accessAPI.getAccountAtLatestBlock(address)) {
-            is FlowAccessApi.AccessApiCallResponse.Success -> response.data
-            is FlowAccessApi.AccessApiCallResponse.Error -> throw Exception(response.message, response.throwable)
-        }
+    private fun getAccount(address: FlowAddress): FlowAccount = when (val response = accessAPI.getAccountAtLatestBlock(address)) {
+        is FlowAccessApi.AccessApiCallResponse.Success -> response.data
+        is FlowAccessApi.AccessApiCallResponse.Error -> throw Exception(response.message, response.throwable)
     }
 
     fun getAccountBalance(address: FlowAddress): BigDecimal {
@@ -29,21 +30,19 @@ internal class AccessAPIConnector(privateKeyHex: String, accessApiConnection: Fl
         return account.balance
     }
 
-    private fun getAccountKey(address: FlowAddress, keyIndex: Int): FlowAccountKey {
+    fun getAccountKey(address: FlowAddress, keyIndex: Int): FlowAccountKey {
         val account = getAccount(address)
         return account.keys[keyIndex]
     }
 
-    private fun getTransactionResult(txID: FlowId): FlowTransactionResult {
-        return when (val response = accessAPI.getTransactionResultById(txID)) {
-            is FlowAccessApi.AccessApiCallResponse.Success -> {
-                if (response.data.errorMessage.isNotEmpty()) {
-                    throw Exception(response.data.errorMessage)
-                }
-                response.data
+    private fun getTransactionResult(txID: FlowId): FlowTransactionResult = when (val response = accessAPI.getTransactionResultById(txID)) {
+        is FlowAccessApi.AccessApiCallResponse.Success -> {
+            if (response.data.errorMessage.isNotEmpty()) {
+                throw Exception(response.data.errorMessage)
             }
-            is FlowAccessApi.AccessApiCallResponse.Error -> throw Exception(response.message, response.throwable)
+            response.data
         }
+        is FlowAccessApi.AccessApiCallResponse.Error -> throw Exception(response.message, response.throwable)
     }
 
     private fun waitForSeal(txID: FlowId): FlowTransactionResult {
