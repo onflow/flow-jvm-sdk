@@ -105,7 +105,11 @@ internal class AccessAPIConnector(
 
         val txResult = waitForSeal(txID)
 
-        println(txResult)
+        if (!getAccountKey(getAccountCreatedAddress(txResult), 0).publicKey.bytes.bytesToHex().contentEquals(publicKeyHex)) {
+            println(getAccountKey(getAccountCreatedAddress(txResult), 0).publicKey.bytes.bytesToHex())
+            throw Exception("Created account has wrong public key")
+        }
+
 
         return getAccountCreatedAddress(txResult)
     }

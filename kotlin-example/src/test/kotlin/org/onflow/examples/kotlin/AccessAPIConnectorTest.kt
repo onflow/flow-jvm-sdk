@@ -47,6 +47,7 @@ internal class AccessAPIConnectorTest {
         val keyHex = key.publicKey.bytes.bytesToHex()
         // the key is not the expected one
         // it's the service account key that seems to be wrongly put in the nw account
+        println("Service account key hex: "  + serviceAccount.publicKey)
         Assertions.assertEquals(keyHex, userPublicKeyHex)
     }
 
