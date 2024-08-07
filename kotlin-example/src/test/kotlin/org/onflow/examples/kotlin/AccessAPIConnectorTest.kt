@@ -34,9 +34,13 @@ internal class AccessAPIConnectorTest {
     @Test
     fun `Can create an account`() {
         val accessAPIConnector = AccessAPIConnector(serviceAccount.privateKey, accessAPI)
+        println("userPublicKeyHex: $userPublicKeyHex")
         // use the service account as a payer to create a new user account that has `userPublicKeyHex`
         val account = accessAPIConnector.createAccount(serviceAccount.flowAddress, userPublicKeyHex)
         Assertions.assertNotNull(account)
+
+        println("Service account address: "  + serviceAccount.flowAddress)
+        println("Created account address: $account")
 
         // get the newly created user account
         val key = accessAPIConnector.getAccountKey(account, 0)

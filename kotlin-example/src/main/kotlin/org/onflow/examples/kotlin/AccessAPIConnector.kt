@@ -71,6 +71,8 @@ internal class AccessAPIConnector(
     fun createAccount(payerAddress: FlowAddress, publicKeyHex: String): FlowAddress {
         val payerAccountKey = getAccountKey(payerAddress, 0)
 
+        println("publicKeyHex passed to create account: $publicKeyHex")
+
         var tx = FlowTransaction(
             script = FlowScript(loadScript("cadence/create_account.cdc")),
             arguments = listOf(
@@ -96,6 +98,9 @@ internal class AccessAPIConnector(
         }
 
         val txResult = waitForSeal(txID)
+
+        println(txResult)
+
         return getAccountCreatedAddress(txResult)
     }
 
