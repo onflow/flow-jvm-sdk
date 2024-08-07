@@ -33,7 +33,7 @@ internal class AccessAPIConnector(
     fun getAccountKey(address: FlowAddress, keyIndex: Int): FlowAccountKey {
         val account = getAccount(address)
 
-        if (account.address !== address) {
+        if (!account.address.bytes.contentEquals(address.bytes)) {
             println("Account fetching $address")
             println("Account retrieved " + account.address)
             throw Exception("Account addresses do not match")
