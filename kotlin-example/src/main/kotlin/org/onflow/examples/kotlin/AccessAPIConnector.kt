@@ -105,13 +105,19 @@ internal class AccessAPIConnector(
 
         val txResult = waitForSeal(txID)
 
-        if (!getAccountKey(getAccountCreatedAddress(txResult), 0).publicKey.bytes.bytesToHex().contentEquals(publicKeyHex)) {
-            println(getAccountKey(getAccountCreatedAddress(txResult), 0).publicKey.bytes.bytesToHex())
+        val createdAddress = getAccountCreatedAddress(txResult)
+        val createdAccountKey = getAccountKey(createdAddress, 0)
+
+        val createdPublicKeyHex = createdAccountKey.publicKey.bytes.bytesToHex()
+        println("publicKeyHex retrieved from created account: $createdPublicKeyHex")
+
+        if (!createdPublicKeyHex.contentEquals(publicKeyHex)) {
+            println("Expected publicKeyHex: $publicKeyHex")
+            println("Actual publicKeyHex: $createdPublicKeyHex")
             throw Exception("Created account has wrong public key")
         }
 
-
-        return getAccountCreatedAddress(txResult)
+        return createdAddress
     }
 
     fun transferTokens(senderAddress: FlowAddress, recipientAddress: FlowAddress, amount: BigDecimal) {
