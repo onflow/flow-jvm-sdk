@@ -1,8 +1,9 @@
 package org.onflow.examples.java;
 
-import org.bouncycastle.util.encoders.Hex;
+import org.jetbrains.annotations.NotNull;
 import org.onflow.flow.sdk.*;
 import org.onflow.flow.sdk.cadence.AddressField;
+import org.onflow.flow.sdk.cadence.EventField;
 import org.onflow.flow.sdk.cadence.StringField;
 import org.onflow.flow.sdk.cadence.UFix64NumberField;
 import org.onflow.flow.sdk.crypto.Crypto;
@@ -46,9 +47,9 @@ public final class AccessAPIConnector {
         return account.getBalance();
     }
 
-    private FlowAccountKey getAccountKey(FlowAddress address, int keyIndex) {
+    FlowAccountKey getAccountKey(FlowAddress address) {
         FlowAccount account = getAccount(address);
-        return account.getKeys().get(keyIndex);
+        return account.getKeys().get(0);
     }
 
     private FlowTransactionResult getTransactionResult(FlowId txID) {
@@ -79,9 +80,28 @@ public final class AccessAPIConnector {
     }
 
     private FlowAddress getAccountCreatedAddress(FlowTransactionResult txResult) {
-        String addressHex = (String) txResult.getEvents().get(0).getEvent().getValue().getFields()[0].getValue().getValue();
-        return new FlowAddress(addressHex.split("\\.")[1]);
+        for (FlowEvent event : txResult.getEvents()) {
+            if ("flow.AccountCreated".equals(event.getType())) {
+                String addressHex = getString(event);
+                return new FlowAddress(addressHex);
+            }
+        }
+        throw new RuntimeException("No flow.AccountCreated event found in the transaction result.");
     }
+
+    @NotNull
+    private static String getString(FlowEvent event) {
+        EventField eventField = (EventField) event.getPayload().getJsonCadence();
+
+        // Get the "address" field from the payload and cast it to an AddressField
+        AddressField addressField = eventField.get("address");
+        assert addressField != null;
+        String addressHex = addressField.getValue();
+
+        assert addressHex != null;
+        return addressHex;
+    }
+
 
     private byte[] loadScript(String name) {
         try (InputStream is = getClass().getClassLoader().getResourceAsStream(name)) {
@@ -96,7 +116,7 @@ public final class AccessAPIConnector {
 
     public FlowAddress createAccount(FlowAddress payerAddress, String publicKeyHex) {
 
-        FlowAccountKey payerAccountKey = getAccountKey(payerAddress, 0);
+        FlowAccountKey payerAccountKey = getAccountKey(payerAddress);
 
         FlowScript script = new FlowScript(loadScript("cadence/create_account.cdc"));
 
@@ -130,7 +150,7 @@ public final class AccessAPIConnector {
             throw new RuntimeException("FLOW amount must have exactly 8 decimal places of precision (e.g. 10.00000000)");
         }
 
-        FlowAccountKey senderAccountKey = getAccountKey(senderAddress, 0);
+        FlowAccountKey senderAccountKey = getAccountKey(senderAddress);
 
         FlowScript script = new FlowScript(loadScript("cadence/transfer_flow.cdc"));
 

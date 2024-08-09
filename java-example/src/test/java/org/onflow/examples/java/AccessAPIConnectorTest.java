@@ -1,10 +1,12 @@
 package org.onflow.examples.java;
 
+import org.bouncycastle.util.encoders.Hex;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.onflow.flow.common.test.*;
 import org.onflow.flow.sdk.FlowAccessApi;
+import org.onflow.flow.sdk.FlowAccountKey;
 import org.onflow.flow.sdk.FlowAddress;
 import org.onflow.flow.sdk.SignatureAlgorithm;
 import org.onflow.flow.sdk.crypto.Crypto;
@@ -35,8 +37,16 @@ public class AccessAPIConnectorTest {
     @Test
     public void canCreateAnAccount() {
         AccessAPIConnector accessAPIConnector = new AccessAPIConnector(serviceAccount.getPrivateKey(), accessAPI);
+
+        // Use the service account as a payer to create a new user account with the specified public key
         FlowAddress account = accessAPIConnector.createAccount(serviceAccount.getFlowAddress(), userPublicKeyHex);
         Assertions.assertNotNull(account);
+
+        // Retrieve the key from the newly created account at index 0
+        FlowAccountKey key = accessAPIConnector.getAccountKey(account);
+        String keyHex = Hex.toHexString(key.getPublicKey().getBytes());
+
+        Assertions.assertEquals(userPublicKeyHex, keyHex);
     }
 
     @Test
