@@ -12,8 +12,8 @@ internal class AccessAPIConnector(
     privateKey: PrivateKey,
     accessApiConnection: FlowAccessApi
 ) {
-    private val accessAPI = accessApiConnection
     private val privateKey = privateKey
+    private val accessAPI = accessApiConnection
 
     private val latestBlockID: FlowId
         get() = when (val response = accessAPI.getLatestBlockHeader()) {
