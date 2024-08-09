@@ -34,20 +34,15 @@ internal class AccessAPIConnectorTest {
     @Test
     fun `Can create an account`() {
         val accessAPIConnector = AccessAPIConnector(serviceAccount.privateKey, accessAPI)
-        println("userPublicKeyHex: $userPublicKeyHex")
+
         // use the service account as a payer to create a new user account that has `userPublicKeyHex`
         val account = accessAPIConnector.createAccount(serviceAccount.flowAddress, userPublicKeyHex)
         Assertions.assertNotNull(account)
 
-        println("Service account address: "  + serviceAccount.flowAddress)
-        println("Created account address: $account")
-
         // get the newly created user account
         val key = accessAPIConnector.getAccountKey(account, 0)
         val keyHex = key.publicKey.bytes.bytesToHex()
-        // the key is not the expected one
-        // it's the service account key that seems to be wrongly put in the nw account
-        println("Service account key hex: "  + serviceAccount.publicKey)
+
         Assertions.assertEquals(keyHex, userPublicKeyHex)
     }
 

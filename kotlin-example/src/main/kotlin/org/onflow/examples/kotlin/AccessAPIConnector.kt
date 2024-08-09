@@ -35,8 +35,8 @@ internal class AccessAPIConnector(
         val account = getAccount(address)
 
         if (!account.address.bytes.contentEquals(address.bytes)) {
-            println("Account fetching $address")
-            println("Account retrieved " + account.address)
+            println("Account fetching: $address")
+            println("Account retrieved: " + account.address)
             throw Exception("Account addresses do not match")
         }
         return account.keys[keyIndex]
@@ -70,14 +70,6 @@ internal class AccessAPIConnector(
             ?.getRequiredField<AddressField>("address")
             ?.value as String
 
-//        val addressHex = txResult
-//            .events[0]
-//            .event
-//            .value!!
-//            .fields[0]
-//            .value
-//            .value as String
-//        return FlowAddress(addressHex.substring(2).split(".")[0])
         return FlowAddress(address)
     }
 
@@ -85,8 +77,6 @@ internal class AccessAPIConnector(
 
     fun createAccount(payerAddress: FlowAddress, publicKeyHex: String): FlowAddress {
         val payerAccountKey = getAccountKey(payerAddress, 0)
-
-        println("publicKeyHex passed to create account: $publicKeyHex")
 
         var tx = FlowTransaction(
             script = FlowScript(loadScript("cadence/create_account.cdc")),
@@ -118,7 +108,6 @@ internal class AccessAPIConnector(
         val createdAccountKey = getAccountKey(createdAddress, 0)
 
         val createdPublicKeyHex = createdAccountKey.publicKey.bytes.bytesToHex()
-        println("publicKeyHex retrieved from created account: $createdPublicKeyHex")
 
         if (!createdPublicKeyHex.contentEquals(publicKeyHex)) {
             println("Expected publicKeyHex: $publicKeyHex")
