@@ -1,13 +1,11 @@
 package org.onflow.examples.kotlin
 
 import org.onflow.flow.sdk.*
-import org.onflow.flow.sdk.cadence.AddressField
-import org.onflow.flow.sdk.cadence.StringField
-import org.onflow.flow.sdk.cadence.UFix64NumberField
-import org.onflow.flow.sdk.cadence.UInt8NumberField
+import org.onflow.flow.sdk.cadence.*
 import org.onflow.flow.sdk.crypto.Crypto
 import org.onflow.flow.sdk.crypto.PrivateKey
 import org.onflow.flow.sdk.crypto.PublicKey
+import org.onflow.flow.sdk.cadence.EventField
 import java.math.BigDecimal
 
 internal class AccessAPIConnector(
@@ -59,14 +57,14 @@ internal class AccessAPIConnector(
     }
 
     private fun getAccountCreatedAddress(txResult: FlowTransactionResult): FlowAddress {
-        val addressHex = txResult
-            .events[0]
-            .event
-            .value!!
-            .fields[0]
-            .value
-            .value as String
-        return FlowAddress(addressHex.substring(2).split(".")[0])
+        val address = txResult.events
+            .find { it.type == "flow.AccountCreated" }
+            ?.payload
+            ?.let { (it.jsonCadence as EventField).value }
+            ?.getRequiredField<AddressField>("address")
+            ?.value as String
+
+        return FlowAddress(address)
     }
 
     private fun loadScript(name: String): ByteArray = javaClass.classLoader.getResourceAsStream(name)!!.use { it.readAllBytes() }
