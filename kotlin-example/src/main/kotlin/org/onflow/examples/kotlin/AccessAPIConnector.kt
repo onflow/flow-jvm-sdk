@@ -31,7 +31,7 @@ internal class AccessAPIConnector(
         return account.balance
     }
 
-    private fun getAccountKey(address: FlowAddress, keyIndex: Int): FlowAccountKey {
+    fun getAccountKey(address: FlowAddress, keyIndex: Int): FlowAccountKey {
         val account = getAccount(address)
         return account.keys[keyIndex]
     }
