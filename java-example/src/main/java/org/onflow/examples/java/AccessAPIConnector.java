@@ -1,26 +1,37 @@
 package org.onflow.examples.java;
 
-import org.bouncycastle.util.encoders.Hex;
-import org.onflow.flow.sdk.*;
-import org.onflow.flow.sdk.cadence.AddressField;
-import org.onflow.flow.sdk.cadence.StringField;
-import org.onflow.flow.sdk.cadence.UFix64NumberField;
-import org.onflow.flow.sdk.crypto.Crypto;
-import org.onflow.flow.sdk.crypto.PrivateKey;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 
+import org.onflow.flow.sdk.FlowAccessApi;
+import org.onflow.flow.sdk.FlowAccount;
+import org.onflow.flow.sdk.FlowAccountKey;
+import org.onflow.flow.sdk.FlowAddress;
+import org.onflow.flow.sdk.FlowArgument;
+import org.onflow.flow.sdk.FlowBlockHeader;
+import org.onflow.flow.sdk.FlowId;
+import org.onflow.flow.sdk.FlowScript;
+import org.onflow.flow.sdk.FlowTransaction;
+import org.onflow.flow.sdk.FlowTransactionProposalKey;
+import org.onflow.flow.sdk.FlowTransactionResult;
+import org.onflow.flow.sdk.FlowTransactionStatus;
+import org.onflow.flow.sdk.Signer;
+import org.onflow.flow.sdk.cadence.AddressField;
+import org.onflow.flow.sdk.cadence.StringField;
+import org.onflow.flow.sdk.cadence.UFix64NumberField;
+import org.onflow.flow.sdk.crypto.Crypto;
+import org.onflow.flow.sdk.crypto.PrivateKey;
+
 public final class AccessAPIConnector {
     private final FlowAccessApi accessAPI;
     private final PrivateKey privateKey;
 
-    public AccessAPIConnector(String privateKeyHex, FlowAccessApi accessApiConnection) {
+    public AccessAPIConnector(PrivateKey privateKey, FlowAccessApi accessApiConnection) {
         this.accessAPI = accessApiConnection;
-        this.privateKey = Crypto.decodePrivateKey(privateKeyHex);
+        this.privateKey = privateKey;
     }
 
     private FlowId getLatestBlockID() {
