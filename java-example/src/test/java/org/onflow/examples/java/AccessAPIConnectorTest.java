@@ -42,7 +42,7 @@ public class AccessAPIConnectorTest {
         FlowAddress account = accessAPIConnector.createAccount(serviceAccount.getFlowAddress(), userPublicKeyHex);
         Assertions.assertNotNull(account);
 
-        // Retrieve the key from the newly created account at index 0
+        // Retrieve the key from the newly created account
         FlowAccountKey key = accessAPIConnector.getAccountKey(account);
         String keyHex = Hex.toHexString(key.getPublicKey().getBytes());
 

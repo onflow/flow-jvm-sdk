@@ -93,7 +93,6 @@ public final class AccessAPIConnector {
     private static String getString(FlowEvent event) {
         EventField eventField = (EventField) event.getPayload().getJsonCadence();
 
-        // Get the "address" field from the payload and cast it to an AddressField
         AddressField addressField = eventField.get("address");
         assert addressField != null;
         String addressHex = addressField.getValue();
