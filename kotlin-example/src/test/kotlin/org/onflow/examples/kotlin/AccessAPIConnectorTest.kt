@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test
 import org.onflow.flow.common.test.*
 import org.onflow.flow.sdk.FlowAccessApi
 import org.onflow.flow.sdk.FlowAddress
+import org.onflow.flow.sdk.bytesToHex
 import org.onflow.flow.sdk.crypto.Crypto
 import java.math.BigDecimal
 
@@ -33,8 +34,16 @@ internal class AccessAPIConnectorTest {
     @Test
     fun `Can create an account`() {
         val accessAPIConnector = AccessAPIConnector(serviceAccount.privateKey, accessAPI)
+
+        // use the service account as a payer to create a new user account that has `userPublicKeyHex`
         val account = accessAPIConnector.createAccount(serviceAccount.flowAddress, userPublicKeyHex)
         Assertions.assertNotNull(account)
+
+        // get the newly created user account
+        val key = accessAPIConnector.getAccountKey(account, 0)
+        val keyHex = key.publicKey.bytes.bytesToHex()
+
+        Assertions.assertEquals(keyHex, userPublicKeyHex)
     }
 
     @Test
