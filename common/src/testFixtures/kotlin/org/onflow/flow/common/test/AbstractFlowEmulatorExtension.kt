@@ -151,16 +151,14 @@ abstract class AbstractFlowEmulatorExtension :
 
     protected abstract fun launchEmulator(context: ExtensionContext): Emulator
 
-    private fun getManagedChannel(api: Any): ManagedChannel? {
-        return try {
-            val field: Field = api.javaClass.getDeclaredField("api")
-            field.isAccessible = true
-            val stub = field.get(api) as io.grpc.stub.AbstractStub<*>
-            stub.channel as? ManagedChannel
-        } catch (e: Exception) {
-            e.printStackTrace()
-            null
-        }
+    private fun getManagedChannel(api: Any): ManagedChannel? = try {
+        val field: Field = api.javaClass.getDeclaredField("api")
+        field.isAccessible = true
+        val stub = field.get(api) as io.grpc.stub.AbstractStub<*>
+        stub.channel as? ManagedChannel
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
     }
 
     private fun createAccessApi(host: String, port: Int): FlowAccessApiImpl {

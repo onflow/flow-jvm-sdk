@@ -6,24 +6,15 @@ import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 
-import org.onflow.flow.sdk.FlowAccessApi;
-import org.onflow.flow.sdk.FlowAccount;
-import org.onflow.flow.sdk.FlowAccountKey;
-import org.onflow.flow.sdk.FlowAddress;
-import org.onflow.flow.sdk.FlowArgument;
-import org.onflow.flow.sdk.FlowBlockHeader;
-import org.onflow.flow.sdk.FlowId;
-import org.onflow.flow.sdk.FlowScript;
-import org.onflow.flow.sdk.FlowTransaction;
-import org.onflow.flow.sdk.FlowTransactionProposalKey;
-import org.onflow.flow.sdk.FlowTransactionResult;
-import org.onflow.flow.sdk.FlowTransactionStatus;
-import org.onflow.flow.sdk.Signer;
+import org.onflow.flow.sdk.*;
 import org.onflow.flow.sdk.cadence.AddressField;
 import org.onflow.flow.sdk.cadence.StringField;
 import org.onflow.flow.sdk.cadence.UFix64NumberField;
+import org.onflow.flow.sdk.cadence.UInt8NumberField;
+import org.onflow.flow.sdk.cadence.EventField;
 import org.onflow.flow.sdk.crypto.Crypto;
 import org.onflow.flow.sdk.crypto.PrivateKey;
+import org.onflow.flow.sdk.crypto.PublicKey;
 
 public final class AccessAPIConnector {
     private final FlowAccessApi accessAPI;
@@ -57,7 +48,7 @@ public final class AccessAPIConnector {
         return account.getBalance();
     }
 
-    private FlowAccountKey getAccountKey(FlowAddress address, int keyIndex) {
+    public FlowAccountKey getAccountKey(FlowAddress address, int keyIndex) {
         FlowAccount account = getAccount(address);
         return account.getKeys().get(keyIndex);
     }
@@ -90,8 +81,15 @@ public final class AccessAPIConnector {
     }
 
     private FlowAddress getAccountCreatedAddress(FlowTransactionResult txResult) {
-        String addressHex = (String) txResult.getEvents().get(0).getEvent().getValue().getFields()[0].getValue().getValue();
-        return new FlowAddress(addressHex.split("\\.")[1]);
+        FlowEvent event = txResult.getEvents().stream()
+        .filter(it -> "flow.AccountCreated".equals(it.getType()))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("account created event not found"));
+
+        EventField field = (EventField) event.getPayload().getJsonCadence();
+        String address = (String) field.getValue().getRequiredField("address").getValue();
+
+        return new FlowAddress(address);
     }
 
     private byte[] loadScript(String name) {
@@ -105,7 +103,7 @@ public final class AccessAPIConnector {
         }
     }
 
-    public FlowAddress createAccount(FlowAddress payerAddress, String publicKeyHex) {
+    public FlowAddress createAccount(FlowAddress payerAddress, PublicKey publicKey) {
 
         FlowAccountKey payerAccountKey = getAccountKey(payerAddress, 0);
 
@@ -113,7 +111,10 @@ public final class AccessAPIConnector {
 
         FlowTransaction tx = new FlowTransaction(
                 script,
-                List.of(new FlowArgument(new StringField(publicKeyHex))),
+                List.of(
+                        new FlowArgument(new StringField(publicKey.getHex())),
+                        new FlowArgument(new UInt8NumberField(Integer.toString(publicKey.getAlgo().getIndex())))
+                ),
                 getLatestBlockID(),
                 100L,
                 new FlowTransactionProposalKey(
