@@ -5,17 +5,33 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.onflow.flow.common.test.*;
 import org.onflow.flow.sdk.FlowAccessApi;
+import org.onflow.flow.sdk.FlowAccountKey;
 import org.onflow.flow.sdk.FlowAddress;
 import org.onflow.flow.sdk.SignatureAlgorithm;
 import org.onflow.flow.sdk.crypto.Crypto;
 import org.onflow.flow.sdk.crypto.KeyPair;
-
+import org.onflow.flow.sdk.crypto.PublicKey;
+import org.onflow.flow.sdk.crypto.PrivateKey;
 import java.math.BigDecimal;
+import com.google.common.io.BaseEncoding;
+
+
 
 @FlowEmulatorProjectTest(flowJsonLocation = "../flow/flow.json")
 public class AccessAPIConnectorTest {
-    private String userPrivateKeyHex = "";
-    private String userPublicKeyHex = "";
+    // user key pairs using all supported signing algorithms
+    private final KeyPair[] userKeyPairs = {
+            Crypto.generateKeyPair(SignatureAlgorithm.ECDSA_P256),
+            Crypto.generateKeyPair(SignatureAlgorithm.ECDSA_SECP256k1)
+    };
+
+    private final FlowAddress emptyAddress = new FlowAddress("");
+
+    // user account addresses
+    private final FlowAddress[] userAccountAddress = {
+            emptyAddress,
+            emptyAddress
+    };
 
     @FlowServiceAccountCredentials
     private TestAccount serviceAccount;
@@ -28,15 +44,46 @@ public class AccessAPIConnectorTest {
 
     @BeforeEach
     public void setupUser() {
-        KeyPair keyPair = Crypto.generateKeyPair(SignatureAlgorithm.ECDSA_P256);
-        userPrivateKeyHex = keyPair.getPrivate().getHex();
-        userPublicKeyHex = keyPair.getPublic().getHex();
+        for (int index = 0; index < userAccountAddress.length; index++) {
+            FlowAddress address = userAccountAddress[index];
+            if (address.equals(emptyAddress)) {
+                // create test accounts
+                userAccountAddress[index] = createUserAccount(userKeyPairs[index].getPublic());
+                // make sure test accounts have enough tokens for the tests
+                BigDecimal amount = new BigDecimal("100.00000001");
+                transferTokens(serviceAccount.getFlowAddress(), serviceAccount.getPrivateKey(), userAccountAddress[index], amount);
+            }
+        }
     }
+
+    // create an account using the service account
+    private FlowAddress createUserAccount(PublicKey userPublicKey) {
+        AccessAPIConnector accessAPIConnector = new AccessAPIConnector(serviceAccount.getPrivateKey(), accessAPI);
+        FlowAddress account = accessAPIConnector.createAccount(serviceAccount.getFlowAddress(), userPublicKey);
+        return account;
+    }
+
+    // create an account using the service account
+    private void transferTokens(FlowAddress sender, PrivateKey senderKey, FlowAddress to, BigDecimal amount) {
+        AccessAPIConnector accessAPIConnector = new AccessAPIConnector(senderKey, accessAPI);
+        accessAPIConnector.transferTokens(sender, to, amount);
+    }
+
+    private String bytesToHex(byte[] data) {
+        return BaseEncoding.base16().lowerCase().encode(data);
+    }
+
     @Test
     public void canCreateAnAccount() {
-        AccessAPIConnector accessAPIConnector = new AccessAPIConnector(serviceAccount.getPrivateKey(), accessAPI);
-        FlowAddress account = accessAPIConnector.createAccount(serviceAccount.getFlowAddress(), userPublicKeyHex);
-        Assertions.assertNotNull(account);
+        // accounts are already created in `setupUser`
+        for (int index = 0; index < userAccountAddress.length; index++) {
+            FlowAddress address = userAccountAddress[index];
+            Assertions.assertNotNull(address);
+            // check account key is the expected one
+            AccessAPIConnector accessAPIConnector = new AccessAPIConnector(serviceAccount.getPrivateKey(), accessAPI);
+            FlowAccountKey newAccountKey = accessAPIConnector.getAccountKey(address, 0);
+            Assertions.assertEquals(userKeyPairs[index].getPublic().getHex(), bytesToHex(newAccountKey.getPublicKey().getBytes()));
+        }
     }
 
     @Test

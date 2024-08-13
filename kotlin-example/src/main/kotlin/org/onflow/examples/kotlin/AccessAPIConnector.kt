@@ -1,15 +1,19 @@
 package org.onflow.examples.kotlin
 
 import org.onflow.flow.sdk.*
-import org.onflow.flow.sdk.cadence.AddressField
-import org.onflow.flow.sdk.cadence.StringField
-import org.onflow.flow.sdk.cadence.UFix64NumberField
+import org.onflow.flow.sdk.cadence.*
 import org.onflow.flow.sdk.crypto.Crypto
+import org.onflow.flow.sdk.crypto.PrivateKey
+import org.onflow.flow.sdk.crypto.PublicKey
+import org.onflow.flow.sdk.cadence.EventField
 import java.math.BigDecimal
 
-internal class AccessAPIConnector(privateKeyHex: String, accessApiConnection: FlowAccessApi) {
+internal class AccessAPIConnector(
+    privateKey: PrivateKey,
+    accessApiConnection: FlowAccessApi
+) {
+    private val privateKey = privateKey
     private val accessAPI = accessApiConnection
-    private val privateKey = Crypto.decodePrivateKey(privateKeyHex)
 
     private val latestBlockID: FlowId
         get() = when (val response = accessAPI.getLatestBlockHeader()) {
@@ -17,11 +21,9 @@ internal class AccessAPIConnector(privateKeyHex: String, accessApiConnection: Fl
             is FlowAccessApi.AccessApiCallResponse.Error -> throw Exception(response.message, response.throwable)
         }
 
-    private fun getAccount(address: FlowAddress): FlowAccount {
-        return when (val response = accessAPI.getAccountAtLatestBlock(address)) {
-            is FlowAccessApi.AccessApiCallResponse.Success -> response.data
-            is FlowAccessApi.AccessApiCallResponse.Error -> throw Exception(response.message, response.throwable)
-        }
+    private fun getAccount(address: FlowAddress): FlowAccount = when (val response = accessAPI.getAccountAtLatestBlock(address)) {
+        is FlowAccessApi.AccessApiCallResponse.Success -> response.data
+        is FlowAccessApi.AccessApiCallResponse.Error -> throw Exception(response.message, response.throwable)
     }
 
     fun getAccountBalance(address: FlowAddress): BigDecimal {
@@ -29,21 +31,19 @@ internal class AccessAPIConnector(privateKeyHex: String, accessApiConnection: Fl
         return account.balance
     }
 
-    private fun getAccountKey(address: FlowAddress, keyIndex: Int): FlowAccountKey {
+    fun getAccountKey(address: FlowAddress, keyIndex: Int): FlowAccountKey {
         val account = getAccount(address)
         return account.keys[keyIndex]
     }
 
-    private fun getTransactionResult(txID: FlowId): FlowTransactionResult {
-        return when (val response = accessAPI.getTransactionResultById(txID)) {
-            is FlowAccessApi.AccessApiCallResponse.Success -> {
-                if (response.data.errorMessage.isNotEmpty()) {
-                    throw Exception(response.data.errorMessage)
-                }
-                response.data
+    private fun getTransactionResult(txID: FlowId): FlowTransactionResult = when (val response = accessAPI.getTransactionResultById(txID)) {
+        is FlowAccessApi.AccessApiCallResponse.Success -> {
+            if (response.data.errorMessage.isNotEmpty()) {
+                throw Exception(response.data.errorMessage)
             }
-            is FlowAccessApi.AccessApiCallResponse.Error -> throw Exception(response.message, response.throwable)
+            response.data
         }
+        is FlowAccessApi.AccessApiCallResponse.Error -> throw Exception(response.message, response.throwable)
     }
 
     private fun waitForSeal(txID: FlowId): FlowTransactionResult {
@@ -57,25 +57,26 @@ internal class AccessAPIConnector(privateKeyHex: String, accessApiConnection: Fl
     }
 
     private fun getAccountCreatedAddress(txResult: FlowTransactionResult): FlowAddress {
-        val addressHex = txResult
-            .events[0]
-            .event
-            .value!!
-            .fields[0]
-            .value
-            .value as String
-        return FlowAddress(addressHex.substring(2).split(".")[0])
+        val address = txResult.events
+            .find { it.type == "flow.AccountCreated" }
+            ?.payload
+            ?.let { (it.jsonCadence as EventField).value }
+            ?.getRequiredField<AddressField>("address")
+            ?.value as String
+
+        return FlowAddress(address)
     }
 
     private fun loadScript(name: String): ByteArray = javaClass.classLoader.getResourceAsStream(name)!!.use { it.readAllBytes() }
 
-    fun createAccount(payerAddress: FlowAddress, publicKeyHex: String): FlowAddress {
+    fun createAccount(payerAddress: FlowAddress, publicKey: PublicKey): FlowAddress {
         val payerAccountKey = getAccountKey(payerAddress, 0)
 
         var tx = FlowTransaction(
             script = FlowScript(loadScript("cadence/create_account.cdc")),
             arguments = listOf(
-                FlowArgument(StringField(publicKeyHex))
+                FlowArgument(StringField(publicKey.hex)),
+                FlowArgument(UInt8NumberField(publicKey.algo.index.toString()))
             ),
             referenceBlockId = latestBlockID,
             gasLimit = 100,
@@ -105,6 +106,7 @@ internal class AccessAPIConnector(privateKeyHex: String, accessApiConnection: Fl
             throw Exception("FLOW amount must have exactly 8 decimal places of precision (e.g. 10.00000000)")
         }
         val senderAccountKey = getAccountKey(senderAddress, 0)
+        val pkHex = senderAccountKey.publicKey.bytes.bytesToHex()
 
         var tx = FlowTransaction(
             script = FlowScript(loadScript("cadence/transfer_flow.cdc")),
