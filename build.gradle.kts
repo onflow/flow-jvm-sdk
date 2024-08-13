@@ -2,7 +2,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 // Configuration variables
 val defaultGroupId = "org.onflow"
-val defaultVersion = "1.0.1"
+val defaultVersion = "2.0.0"
 
 fun getProp(name: String, defaultValue: String? = null): String? {
     return project.findProperty("flow.$name")?.toString()?.trim()?.ifBlank { null }
