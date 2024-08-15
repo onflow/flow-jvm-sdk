@@ -1,4 +1,4 @@
-package org.onflow.examples.kotlin.get_block
+package org.onflow.examples.kotlin.getBlock
 
 import org.onflow.flow.sdk.*
 

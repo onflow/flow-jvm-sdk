@@ -1,4 +1,4 @@
-package org.onflow.examples.java.get_block;
+package org.onflow.examples.java.getBlock;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;

@@ -1,4 +1,4 @@
-package org.onflow.examples.java.get_block;
+package org.onflow.examples.java.getBlock;
 
 import org.onflow.flow.sdk.*;
 
