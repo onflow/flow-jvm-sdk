@@ -5,7 +5,6 @@ import org.onflow.flow.sdk.*
 internal class GetBlockAccessAPIConnector(
     private val accessAPI: FlowAccessApi
 ) {
-
     fun getLatestSealedBlock(): FlowBlock {
         val isSealed = true
         return when (val response = accessAPI.getLatestBlock(isSealed)) {
