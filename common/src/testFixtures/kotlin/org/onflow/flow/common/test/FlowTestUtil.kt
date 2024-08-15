@@ -161,7 +161,6 @@ object FlowTestUtil {
         val fileLocation = flowJsonLocation?.let(::File)
         if (fileLocation != null && fileLocation.exists() && fileLocation.isFile) {
             flowJson = fileLocation.absolutePath
-            println("Flow JSON found as file: $flowJson")
         }
 
         // Check if flowJsonLocation is a classpath resource
