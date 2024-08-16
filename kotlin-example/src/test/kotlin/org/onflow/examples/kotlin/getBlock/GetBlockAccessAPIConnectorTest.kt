@@ -1,6 +1,5 @@
 package org.onflow.examples.kotlin.getBlock
 
-
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -11,7 +10,6 @@ import java.time.LocalDateTime
 
 @FlowEmulatorProjectTest(flowJsonLocation = "../flow/flow.json")
 internal class GetBlockAccessAPIConnectorTest {
-
     @FlowTestClient
     lateinit var accessAPI: FlowAccessApi
 
