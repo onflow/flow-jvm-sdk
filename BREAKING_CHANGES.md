@@ -37,6 +37,10 @@ sealed class AccessApiCallResponse<out T> {
 #### 4. Refactoring of the hashing implementation in `Crypto.kt` and `models.kt`
 
 - The `id` field has been removed from the `HashAlgorithm` class; it is now automatically inferred based on the algorithm.
+
+#### 5. Cadence 1.0 support as part of Crescendo migration
+
+- This repository has been upgraded to use Cadence 1.0 and run tests using the latest release of the Flow emulator and Flow CLI. Please ensure you have the Cadence 1.0 CLI installed on your machine (available on your system with the `flow-c1` command) before running tests and examples locally.
 ___
 
 *Please ensure your projects are compatible with these changes before upgrading to the latest version.*
