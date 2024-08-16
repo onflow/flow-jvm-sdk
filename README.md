@@ -6,6 +6,8 @@
 The Flow JVM SDK is a library for JVM languages (e.g. Java, Kotlin) that provides
 utilities to interact with the Flow blockchain.
 
+For a summary of the breaking changes introduced in the lastest release, please refer to [BREAKING_CHANGES.md](https://github.com/onflow/flow-jvm-sdk/blob/main/BREAKING_CHANGES.md).
+
 At the moment, this SDK includes the following features:
 - [x] Communication with the [Flow Access API](https://docs.onflow.org/access-api) over gRPC 
 - [x] Transaction preparation and signing
@@ -31,7 +33,7 @@ Similar to the Java Example module, this module provides sample implementations 
 
 This project is in the very early phase; all contributions are welcomed.
 
-Read the [contributing guide](https://github.com/the-nft-company/flow-jvm-sdk/blob/main/CONTRIBUTING.md) to get started.
+Read the [contributing guide](https://github.com/onflow/flow-jvm-sdk/blob/main/CONTRIBUTING.md) to get started.
 
 ## Dependencies
 
