@@ -13,7 +13,6 @@ import org.onflow.flow.sdk.crypto.Crypto
 
 @FlowEmulatorProjectTest(flowJsonLocation = "../flow/flow.json")
 internal class GetTransactionAccessAPIConnectorTest {
-
     @FlowServiceAccountCredentials
     lateinit var serviceAccount: TestAccount
 
