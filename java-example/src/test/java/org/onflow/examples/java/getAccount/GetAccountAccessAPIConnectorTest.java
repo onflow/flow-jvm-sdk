@@ -15,7 +15,6 @@ import java.math.BigDecimal;
 
 @FlowEmulatorProjectTest(flowJsonLocation = "../flow/flow.json")
 public class GetAccountAccessAPIConnectorTest {
-
     @FlowServiceAccountCredentials
     private TestAccount testAccount;
 
