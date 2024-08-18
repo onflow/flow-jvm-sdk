@@ -1,8 +1,7 @@
 package org.onflow.examples.java.getEvent;
 
-import kotlin.ranges.RangesKt;
+import kotlin.ranges.LongRange;
 import org.onflow.flow.sdk.*;
-import kotlin.ranges.ClosedRange;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -15,7 +14,7 @@ public class GetEventAccessAPIConnector {
     }
 
     public List<FlowEventResult> getEventsForHeightRange(String eventType, long startHeight, long endHeight) {
-        ClosedRange<Long> range = RangesKt.rangeTo(startHeight, endHeight);
+        LongRange range = new LongRange(startHeight, endHeight);
         FlowAccessApi.AccessApiCallResponse<List<FlowEventResult>> response = accessAPI.getEventsForHeightRange(eventType, range);
         if (response instanceof FlowAccessApi.AccessApiCallResponse.Success) {
             return ((FlowAccessApi.AccessApiCallResponse.Success<List<FlowEventResult>>) response).getData();
