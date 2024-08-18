@@ -59,6 +59,7 @@ class GetEventsAccessAPIConnectorTest {
 
         assertNotNull(events, "Events should not be null")
         assert(events.isNotEmpty()) { "Expected events for the provided block IDs but found none." }
+        assert(events.size == 1) { "Expected 1 account created event." }
     }
 
     @Test
