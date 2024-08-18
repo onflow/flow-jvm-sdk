@@ -7,7 +7,6 @@ import org.onflow.flow.sdk.crypto.PrivateKey
 import org.onflow.flow.sdk.crypto.PublicKey
 import org.onflow.flow.sdk.cadence.EventField
 import java.math.BigDecimal
-import java.nio.charset.StandardCharsets
 
 internal class AccessAPIConnector(
     privateKey: PrivateKey,
@@ -16,7 +15,7 @@ internal class AccessAPIConnector(
     private val privateKey = privateKey
     private val accessAPI = accessApiConnection
 
-    val latestBlockID: FlowId
+    private val latestBlockID: FlowId
         get() = when (val response = accessAPI.getLatestBlockHeader()) {
             is FlowAccessApi.AccessApiCallResponse.Success -> response.data.id
             is FlowAccessApi.AccessApiCallResponse.Error -> throw Exception(response.message, response.throwable)
@@ -47,7 +46,7 @@ internal class AccessAPIConnector(
         is FlowAccessApi.AccessApiCallResponse.Error -> throw Exception(response.message, response.throwable)
     }
 
-    fun waitForSeal(txID: FlowId): FlowTransactionResult {
+    private fun waitForSeal(txID: FlowId): FlowTransactionResult {
         while (true) {
             val txResult = getTransactionResult(txID)
             if (txResult.status == FlowTransactionStatus.SEALED) {
@@ -68,7 +67,7 @@ internal class AccessAPIConnector(
         return FlowAddress(address)
     }
 
-    fun loadScript(name: String): ByteArray = javaClass.classLoader.getResourceAsStream(name)!!.use { it.readAllBytes() }
+    private fun loadScript(name: String): ByteArray = javaClass.classLoader.getResourceAsStream(name)!!.use { it.readAllBytes() }
 
     fun createAccount(payerAddress: FlowAddress, publicKey: PublicKey): FlowAddress {
         val payerAccountKey = getAccountKey(payerAddress, 0)
@@ -143,7 +142,7 @@ internal class AccessAPIConnector(
             throw Exception("FLOW amount must have exactly 8 decimal places of precision (e.g. 10.00000000)")
         }
         val senderAccountKey = getAccountKey(senderAddress, 0)
-        val pkHex = senderAccountKey.publicKey.bytes.bytesToHex()
+        senderAccountKey.publicKey.bytes.bytesToHex()
 
         var tx = FlowTransaction(
             script = FlowScript(loadScript("cadence/transfer_flow.cdc")),
