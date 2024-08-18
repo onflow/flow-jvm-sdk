@@ -5,7 +5,6 @@ import org.onflow.flow.sdk.*
 class GetEventAccessAPIConnector(
     private val accessAPI: FlowAccessApi
 ) {
-
     fun getEventsForHeightRange(eventType: String, startHeight: Long, endHeight: Long): List<FlowEventResult> {
         val range = startHeight..endHeight
         val response = accessAPI.getEventsForHeightRange(eventType, range)
