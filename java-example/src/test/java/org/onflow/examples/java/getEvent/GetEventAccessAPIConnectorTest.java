@@ -10,9 +10,6 @@ import org.onflow.flow.sdk.crypto.PublicKey;
 
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -33,7 +30,7 @@ public class GetEventAccessAPIConnectorTest {
     private FlowId txID;
 
     @BeforeEach
-    void setup() throws ExecutionException, InterruptedException, TimeoutException {
+    void setup() {
         accessAPIConnector = new AccessAPIConnector(serviceAccount.getPrivateKey(), accessAPI);
         connector = new GetEventAccessAPIConnector(accessAPI);
 
@@ -46,7 +43,7 @@ public class GetEventAccessAPIConnectorTest {
     }
 
     @Test
-    void testGetEventsForHeightRange() throws ExecutionException, InterruptedException, TimeoutException {
+    void testGetEventsForHeightRange() {
         List<FlowEventResult> events = connector.getEventsForHeightRange("flow.AccountCreated", 0, 30);
         assertNotNull(events, "Events should not be null");
         assertFalse(events.isEmpty(), "Expected account created events but found none.");
@@ -54,7 +51,7 @@ public class GetEventAccessAPIConnectorTest {
     }
 
     @Test
-    void testGetEventsForBlockIds() throws ExecutionException, InterruptedException, TimeoutException {
+    void testGetEventsForBlockIds() {
         FlowBlockHeader latestBlock;
 
         // Get the latest block header from the access API
@@ -78,7 +75,7 @@ public class GetEventAccessAPIConnectorTest {
     }
 
     @Test
-    void testAccountCreatedEvents() throws ExecutionException, InterruptedException, TimeoutException {
+    void testAccountCreatedEvents() {
         List<FlowEventResult> events = connector.getAccountCreatedEvents(0, 30);
         assertNotNull(events, "Events should not be null");
         assertFalse(events.isEmpty(), "Expected account created events but found none.");
@@ -90,7 +87,7 @@ public class GetEventAccessAPIConnectorTest {
     }
 
     @Test
-    void testTransactionResultEvents() throws ExecutionException, InterruptedException, TimeoutException {
+    void testTransactionResultEvents() {
         FlowTransactionResult txResult = connector.getTransactionResult(txID);
         assertNotNull(txResult, "Transaction result should not be null");
         assertFalse(txResult.getEvents().isEmpty(), "Expected events in transaction result but found none.");
