@@ -9,16 +9,16 @@ import org.onflow.flow.sdk.FlowAccessApi
 import org.onflow.flow.sdk.FlowChainId
 
 @FlowEmulatorProjectTest(flowJsonLocation = "../flow/flow.json")
-internal class GetNetworkParametersAPIConnectorTest {
+internal class GetNetworkParametersAccessAPIConnectorTest {
 
     @FlowTestClient
     lateinit var accessAPI: FlowAccessApi
 
-    private lateinit var networkParametersConnector: GetNetworkParametersAPIConnector
+    private lateinit var networkParametersConnector: GetNetworkParametersAccessAPIConnector
 
     @BeforeEach
     fun setup() {
-        networkParametersConnector = GetNetworkParametersAPIConnector(accessAPI)
+        networkParametersConnector = GetNetworkParametersAccessAPIConnector(accessAPI)
     }
 
     @Test

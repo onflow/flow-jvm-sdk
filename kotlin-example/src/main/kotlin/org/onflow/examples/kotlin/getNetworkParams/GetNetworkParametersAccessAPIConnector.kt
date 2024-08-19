@@ -3,7 +3,7 @@ package org.onflow.examples.kotlin.getNetworkParams
 import org.onflow.flow.sdk.FlowAccessApi
 import org.onflow.flow.sdk.FlowChainId
 
-internal class GetNetworkParametersAPIConnector(
+internal class GetNetworkParametersAccessAPIConnector(
     private val accessAPI: FlowAccessApi
 ) {
     fun getNetworkParameters(): FlowChainId {
