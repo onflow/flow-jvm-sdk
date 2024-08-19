@@ -50,7 +50,7 @@ public class AccessAPIConnectorTest {
                 // create test accounts
                 userAccountAddress[index] = createUserAccount(userKeyPairs[index].getPublic());
                 // make sure test accounts have enough tokens for the tests
-                BigDecimal amount = new BigDecimal("100.00000001");
+                BigDecimal amount = new BigDecimal("10.00000001");
                 transferTokens(serviceAccount.getFlowAddress(), serviceAccount.getPrivateKey(), userAccountAddress[index], amount);
             }
         }
