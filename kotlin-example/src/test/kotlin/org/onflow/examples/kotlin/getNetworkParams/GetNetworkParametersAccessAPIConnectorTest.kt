@@ -27,6 +27,6 @@ internal class GetNetworkParametersAPIConnectorTest {
         assertNotNull(networkParams, "Network parameters should not be null")
         assertTrue(networkParams.id.isNotEmpty(), "Network parameters should have a valid ID")
         assertEquals(networkParams, FlowChainId.EMULATOR)
-        assertEquals(networkParams.id, "EMULATOR")
+        assertEquals(networkParams.id, "flow-emulator")
     }
 }
