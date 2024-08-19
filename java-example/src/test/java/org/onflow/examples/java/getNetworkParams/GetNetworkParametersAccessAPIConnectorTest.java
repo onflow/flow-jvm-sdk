@@ -10,7 +10,7 @@ import org.onflow.flow.sdk.FlowChainId;
 import static org.junit.jupiter.api.Assertions.*;
 
 @FlowEmulatorProjectTest(flowJsonLocation = "../flow/flow.json")
-public class GetNetworkParametersAPIConnectorTest {
+public class GetNetworkParametersAccessAPIConnectorTest {
 
     @FlowTestClient
     private FlowAccessApi accessAPI;
