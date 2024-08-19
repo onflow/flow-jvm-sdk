@@ -30,7 +30,7 @@ public class AccessAPIConnectorTest {
     // user account addresses
     private final FlowAddress[] userAccountAddress = {
             emptyAddress,
-            emptyAddress
+            // emptyAddress
     };
 
     @FlowServiceAccountCredentials
