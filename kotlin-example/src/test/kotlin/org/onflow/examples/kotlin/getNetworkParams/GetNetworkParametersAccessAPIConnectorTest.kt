@@ -10,7 +10,6 @@ import org.onflow.flow.sdk.FlowChainId
 
 @FlowEmulatorProjectTest(flowJsonLocation = "../flow/flow.json")
 internal class GetNetworkParametersAccessAPIConnectorTest {
-
     @FlowTestClient
     lateinit var accessAPI: FlowAccessApi
 
