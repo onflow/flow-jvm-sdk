@@ -24,7 +24,7 @@ class TransactionIntegrationTest {
         try {
             handleResult(accessAPI.ping(), "Failed to ping")
         } catch (e: Exception) {
-            fail("Failed to ping mainnet: ${e.message}")
+            fail("Failed to ping emulator: ${e.message}")
         }
 
         val address = serviceAccount.flowAddress
