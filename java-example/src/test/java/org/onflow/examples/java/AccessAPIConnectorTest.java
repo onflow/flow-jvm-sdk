@@ -44,23 +44,13 @@ public class AccessAPIConnectorTest {
 
     @BeforeEach
     public void setupUser() {
-        for (int index = 0; index < userAccountAddress.length; index++) {
-            FlowAddress address = userAccountAddress[index];
-            if (address.equals(emptyAddress)) {
-                // create test accounts
-                userAccountAddress[index] = createUserAccount(userKeyPairs[index].getPublic());
-                // make sure test accounts have enough tokens for the tests
-                BigDecimal amount = new BigDecimal("100.00000001");
-                transferTokens(serviceAccount.getFlowAddress(), serviceAccount.getPrivateKey(), userAccountAddress[index], amount);
-            }
-        }
+
     }
 
     // create an account using the service account
     private FlowAddress createUserAccount(PublicKey userPublicKey) {
         AccessAPIConnector accessAPIConnector = new AccessAPIConnector(serviceAccount.getPrivateKey(), accessAPI);
-        FlowAddress account = accessAPIConnector.createAccount(serviceAccount.getFlowAddress(), userPublicKey);
-        return account;
+        return accessAPIConnector.createAccount(serviceAccount.getFlowAddress(), userPublicKey);
     }
 
     // create an account using the service account
@@ -75,7 +65,17 @@ public class AccessAPIConnectorTest {
 
     @Test
     public void canCreateAnAccount() {
-        // accounts are already created in `setupUser`
+        for (int index = 0; index < userAccountAddress.length; index++) {
+            FlowAddress address = userAccountAddress[index];
+            if (address.equals(emptyAddress)) {
+                // create test accounts
+                userAccountAddress[index] = createUserAccount(userKeyPairs[index].getPublic());
+                // make sure test accounts have enough tokens for the tests
+                BigDecimal amount = new BigDecimal("10.00000001");
+                transferTokens(serviceAccount.getFlowAddress(), serviceAccount.getPrivateKey(), userAccountAddress[index], amount);
+            }
+        }
+
         for (int index = 0; index < userAccountAddress.length; index++) {
             FlowAddress address = userAccountAddress[index];
             Assertions.assertNotNull(address);

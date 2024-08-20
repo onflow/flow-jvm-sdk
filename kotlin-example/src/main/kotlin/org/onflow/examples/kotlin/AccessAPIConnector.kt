@@ -79,7 +79,7 @@ internal class AccessAPIConnector(
                 FlowArgument(UInt8NumberField(publicKey.algo.index.toString()))
             ),
             referenceBlockId = latestBlockID,
-            gasLimit = 100,
+            gasLimit = 500,
             proposalKey = FlowTransactionProposalKey(
                 address = payerAddress,
                 keyIndex = payerAccountKey.id,
@@ -115,7 +115,7 @@ internal class AccessAPIConnector(
                 FlowArgument(AddressField(recipientAddress.base16Value))
             ),
             referenceBlockId = latestBlockID,
-            gasLimit = 100,
+            gasLimit = 500,
             proposalKey = FlowTransactionProposalKey(
                 address = senderAddress,
                 keyIndex = senderAccountKey.id,
