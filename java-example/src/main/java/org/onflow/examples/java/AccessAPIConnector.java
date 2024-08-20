@@ -155,7 +155,7 @@ public final class AccessAPIConnector {
                 script,
                 arguments,
                 getLatestBlockID(),
-                100L,
+                500L,
                 new FlowTransactionProposalKey(
                         senderAddress,
                         senderAccountKey.getId(),
