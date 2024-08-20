@@ -82,13 +82,14 @@ public final class AccessAPIConnector {
 
     private FlowAddress getAccountCreatedAddress(FlowTransactionResult txResult) {
         FlowEvent event = txResult.getEvents().stream()
-        .filter(it -> "flow.AccountCreated".equals(it.getType()))
+                .filter(it -> "flow.AccountCreated".equals(it.getType()))
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("account created event not found"));
 
         EventField field = (EventField) event.getPayload().getJsonCadence();
         String address = (String) field.getValue().getRequiredField("address").getValue();
 
+        assert address != null;
         return new FlowAddress(address);
     }
 
@@ -103,18 +104,10 @@ public final class AccessAPIConnector {
         }
     }
 
-    public FlowAddress createAccount(FlowAddress payerAddress, PublicKey publicKey) {
-
-        FlowAccountKey payerAccountKey = getAccountKey(payerAddress, 0);
-
-        FlowScript script = new FlowScript(loadScript("cadence/create_account.cdc"));
-
-        FlowTransaction tx = new FlowTransaction(
+    private FlowTransaction createTransaction(FlowAddress payerAddress, FlowAccountKey payerAccountKey, FlowScript script, List<FlowArgument> arguments) {
+        return new FlowTransaction(
                 script,
-                List.of(
-                        new FlowArgument(new StringField(publicKey.getHex())),
-                        new FlowArgument(new UInt8NumberField(Integer.toString(publicKey.getAlgo().getIndex())))
-                ),
+                arguments,
                 getLatestBlockID(),
                 500L,
                 new FlowTransactionProposalKey(
@@ -127,14 +120,36 @@ public final class AccessAPIConnector {
                 Collections.emptyList(),
                 Collections.emptyList()
         );
+    }
 
+    private FlowId signAndSendTransaction(FlowTransaction tx, FlowAddress payerAddress, FlowAccountKey payerAccountKey) {
         Signer signer = Crypto.getSigner(privateKey, payerAccountKey.getHashAlgo());
         tx = tx.addEnvelopeSignature(payerAddress, payerAccountKey.getId(), signer);
+        return sendTransaction(tx);
+    }
 
-        FlowId txID = sendTransaction(tx);
-
+    public FlowAddress createAccount(FlowAddress payerAddress, PublicKey publicKey) {
+        FlowAccountKey payerAccountKey = getAccountKey(payerAddress, 0);
+        FlowScript script = new FlowScript(loadScript("cadence/create_account.cdc"));
+        List<FlowArgument> arguments = List.of(
+                new FlowArgument(new StringField(publicKey.getHex())),
+                new FlowArgument(new UInt8NumberField(Integer.toString(publicKey.getAlgo().getIndex())))
+        );
+        FlowTransaction tx = createTransaction(payerAddress, payerAccountKey, script, arguments);
+        FlowId txID = signAndSendTransaction(tx, payerAddress, payerAccountKey);
         FlowTransactionResult txResult = waitForSeal(txID);
         return getAccountCreatedAddress(txResult);
+    }
+
+    public FlowId sendSampleTransaction(FlowAddress payerAddress, PublicKey publicKey) {
+        FlowAccountKey payerAccountKey = getAccountKey(payerAddress, 0);
+        FlowScript script = new FlowScript(loadScript("cadence/create_account.cdc"));
+        List<FlowArgument> arguments = List.of(
+                new FlowArgument(new StringField(publicKey.getHex())),
+                new FlowArgument(new UInt8NumberField(Integer.toString(publicKey.getAlgo().getIndex())))
+        );
+        FlowTransaction tx = createTransaction(payerAddress, payerAccountKey, script, arguments);
+        return signAndSendTransaction(tx, payerAddress, payerAccountKey);
     }
 
     public void transferTokens(FlowAddress senderAddress, FlowAddress recipientAddress, BigDecimal amount) {
@@ -143,34 +158,14 @@ public final class AccessAPIConnector {
         }
 
         FlowAccountKey senderAccountKey = getAccountKey(senderAddress, 0);
-
         FlowScript script = new FlowScript(loadScript("cadence/transfer_flow.cdc"));
-
         List<FlowArgument> arguments = List.of(
                 new FlowArgument(new UFix64NumberField(amount.toPlainString())),
                 new FlowArgument(new AddressField(recipientAddress.getBase16Value()))
         );
 
-        FlowTransaction tx = new FlowTransaction(
-                script,
-                arguments,
-                getLatestBlockID(),
-                500L,
-                new FlowTransactionProposalKey(
-                        senderAddress,
-                        senderAccountKey.getId(),
-                        senderAccountKey.getSequenceNumber()
-                ),
-                senderAddress,
-                Collections.singletonList(senderAddress),
-                Collections.emptyList(),
-                Collections.emptyList()
-        );
-
-        Signer signer = Crypto.getSigner(privateKey, senderAccountKey.getHashAlgo());
-        tx = tx.addEnvelopeSignature(senderAddress, senderAccountKey.getId(), signer);
-
-        FlowId txID = sendTransaction(tx);
+        FlowTransaction tx = createTransaction(senderAddress, senderAccountKey, script, arguments);
+        FlowId txID = signAndSendTransaction(tx, senderAddress, senderAccountKey);
         waitForSeal(txID);
     }
 
