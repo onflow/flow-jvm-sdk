@@ -12,7 +12,6 @@ import java.time.LocalDateTime;
 
 @FlowEmulatorProjectTest(flowJsonLocation = "../flow/flow.json")
 public class GetBlockAccessAPIConnectorTest {
-
     @FlowTestClient
     private FlowAccessApi accessAPI;
 

@@ -6,7 +6,6 @@ import org.onflow.flow.sdk.FlowTransaction;
 import org.onflow.flow.sdk.FlowTransactionResult;
 
 public class GetTransactionAccessAPIConnector {
-
     private final FlowAccessApi accessAPI;
 
     public GetTransactionAccessAPIConnector(FlowAccessApi accessAPI) {

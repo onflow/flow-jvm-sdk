@@ -6,7 +6,6 @@ import org.onflow.flow.sdk.FlowCollection;
 import org.onflow.flow.sdk.FlowId;
 
 public class GetCollectionAccessAPIConnector {
-
     private final FlowAccessApi accessAPI;
 
     public GetCollectionAccessAPIConnector(FlowAccessApi accessAPI) {

@@ -4,7 +4,6 @@ import org.onflow.flow.sdk.*;
 import java.math.BigDecimal;
 
 public class GetAccountAccessAPIConnector {
-
     private final FlowAccessApi accessAPI;
 
     public GetAccountAccessAPIConnector(FlowAccessApi accessAPI) {

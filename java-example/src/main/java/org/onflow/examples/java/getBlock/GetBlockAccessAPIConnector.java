@@ -3,7 +3,6 @@ package org.onflow.examples.java.getBlock;
 import org.onflow.flow.sdk.*;
 
 public class GetBlockAccessAPIConnector {
-
     private final FlowAccessApi accessAPI;
 
     public GetBlockAccessAPIConnector(FlowAccessApi accessAPI) {
