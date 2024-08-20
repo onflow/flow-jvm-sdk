@@ -142,7 +142,7 @@ internal class AccessAPIConnector(
             throw Exception("FLOW amount must have exactly 8 decimal places of precision (e.g. 10.00000000)")
         }
         val senderAccountKey = getAccountKey(senderAddress, 0)
-        val pkHex = senderAccountKey.publicKey.bytes.bytesToHex()
+        senderAccountKey.publicKey.bytes.bytesToHex()
 
         var tx = FlowTransaction(
             script = FlowScript(loadScript("cadence/transfer_flow.cdc")),

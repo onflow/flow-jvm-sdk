@@ -28,13 +28,12 @@ public class GetTransactionAccessAPIConnectorTest {
     private FlowAccessApi accessAPI;
 
     private GetTransactionAccessAPIConnector connector;
-    private AccessAPIConnector accessAPIConnector;
 
     private FlowId txID;
 
     @BeforeEach
     public void setup() {
-        accessAPIConnector = new AccessAPIConnector(serviceAccount.getPrivateKey(), accessAPI);
+        AccessAPIConnector accessAPIConnector = new AccessAPIConnector(serviceAccount.getPrivateKey(), accessAPI);
         connector = new GetTransactionAccessAPIConnector(accessAPI);
 
         // Send a sample transaction to create an account and capture the transaction ID
