@@ -50,8 +50,7 @@ public class AccessAPIConnectorTest {
     // create an account using the service account
     private FlowAddress createUserAccount(PublicKey userPublicKey) {
         AccessAPIConnector accessAPIConnector = new AccessAPIConnector(serviceAccount.getPrivateKey(), accessAPI);
-        FlowAddress account = accessAPIConnector.createAccount(serviceAccount.getFlowAddress(), userPublicKey);
-        return account;
+        return accessAPIConnector.createAccount(serviceAccount.getFlowAddress(), userPublicKey);
     }
 
     // create an account using the service account

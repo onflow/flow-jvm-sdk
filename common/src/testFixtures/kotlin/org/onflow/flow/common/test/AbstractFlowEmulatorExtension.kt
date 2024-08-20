@@ -59,7 +59,7 @@ annotation class FlowTestAccount(
     val hashAlgo: HashAlgorithm = HashAlgorithm.SHA3_256,
     val publicKey: String = "",
     val privateKey: String = "",
-    val balance: Double = 1000.01,
+    val balance: Double = 0.01,
     val contracts: Array<FlowTestContractDeployment> = []
 )
 
