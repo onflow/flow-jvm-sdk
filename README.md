@@ -31,7 +31,7 @@ Similar to the Java Example module, this module provides sample implementations 
 
 ## Contribute to this SDK
 
-This project is in the very early phase; all contributions are welcomed.
+We welcome all community contributions and will gladly review improvements and other proposals as PRs.
 
 Read the [contributing guide](https://github.com/onflow/flow-jvm-sdk/blob/main/CONTRIBUTING.md) to get started.
 
