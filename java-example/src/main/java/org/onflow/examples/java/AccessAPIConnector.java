@@ -116,7 +116,7 @@ public final class AccessAPIConnector {
                         new FlowArgument(new UInt8NumberField(Integer.toString(publicKey.getAlgo().getIndex())))
                 ),
                 getLatestBlockID(),
-                100L,
+                500L,
                 new FlowTransactionProposalKey(
                         payerAddress,
                         payerAccountKey.getId(),
