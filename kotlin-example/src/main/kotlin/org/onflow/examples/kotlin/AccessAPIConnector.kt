@@ -101,12 +101,48 @@ internal class AccessAPIConnector(
         return getAccountCreatedAddress(txResult)
     }
 
+    fun sendSampleTransaction(
+        payerAddress: FlowAddress,
+        publicKey: PublicKey,
+        scriptName: String = "cadence/create_account.cdc",
+        gasLimit: Long = 100
+    ): FlowId {
+        val payerAccountKey = getAccountKey(payerAddress, 0)
+
+        var tx = FlowTransaction(
+            script = FlowScript(loadScript(scriptName)),
+            arguments = listOf(
+                FlowArgument(StringField(publicKey.hex)),
+                FlowArgument(UInt8NumberField(publicKey.algo.index.toString()))
+            ),
+            referenceBlockId = latestBlockID,
+            gasLimit = gasLimit,
+            proposalKey = FlowTransactionProposalKey(
+                address = payerAddress,
+                keyIndex = payerAccountKey.id,
+                sequenceNumber = payerAccountKey.sequenceNumber.toLong()
+            ),
+            payerAddress = payerAddress,
+            authorizers = listOf(payerAddress)
+        )
+
+        val signer = Crypto.getSigner(privateKey, payerAccountKey.hashAlgo)
+        tx = tx.addEnvelopeSignature(payerAddress, payerAccountKey.id, signer)
+
+        val txID = when (val response = accessAPI.sendTransaction(tx)) {
+            is FlowAccessApi.AccessApiCallResponse.Success -> response.data
+            is FlowAccessApi.AccessApiCallResponse.Error -> throw Exception(response.message, response.throwable)
+        }
+
+        return txID
+    }
+
     fun transferTokens(senderAddress: FlowAddress, recipientAddress: FlowAddress, amount: BigDecimal) {
         if (amount.scale() != 8) {
             throw Exception("FLOW amount must have exactly 8 decimal places of precision (e.g. 10.00000000)")
         }
         val senderAccountKey = getAccountKey(senderAddress, 0)
-        val pkHex = senderAccountKey.publicKey.bytes.bytesToHex()
+        senderAccountKey.publicKey.bytes.bytesToHex()
 
         var tx = FlowTransaction(
             script = FlowScript(loadScript("cadence/transfer_flow.cdc")),

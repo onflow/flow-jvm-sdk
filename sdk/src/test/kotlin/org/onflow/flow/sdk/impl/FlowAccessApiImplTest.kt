@@ -288,7 +288,7 @@ class FlowAccessApiImplTest {
 
         `when`(mockApi.getEventsForHeightRange(any())).thenReturn(response)
 
-        val result = flowAccessApiImpl.getEventsForHeightRange(type, range)
+        val result = flowAccessApiImpl.getEventsForHeightRange(type = type, range = range)
         assertResultSuccess(result) { assertEquals(2, it.size) }
 
         verify(mockApi).getEventsForHeightRange(Access.GetEventsForHeightRangeRequest.newBuilder().setType(type).setStartHeight(range.first).setEndHeight(range.last).build())
