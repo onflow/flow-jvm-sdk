@@ -105,7 +105,7 @@ internal class AccessAPIConnector(
         payerAddress: FlowAddress,
         publicKey: PublicKey,
         scriptName: String = "cadence/create_account.cdc",
-        gasLimit: Long = 100
+        gasLimit: Long = 500
     ): FlowId {
         val payerAccountKey = getAccountKey(payerAddress, 0)
 
