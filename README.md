@@ -3,8 +3,9 @@
 [![Maven Central](https://img.shields.io/maven-central/v/org.onflow/flow-jvm-sdk)](https://search.maven.org/search?q=g:org.onflow%20AND%20a:flow-jvm-sdk) 
 [![Sonatype OSS](https://img.shields.io/nexus/s/org.onflow/flow-jvm-sdk?label=snapshot&server=https%3A%2F%2Fs01.oss.sonatype.org%2F)](https://s01.oss.sonatype.org/content/repositories/snapshots/org/onflow/flow-jvm-sdk/)
 
-The Flow JVM SDK is a library for JVM languages (e.g. Java, Kotlin) that provides
-utilities to interact with the Flow blockchain.
+The Flow JVM SDK is a library for JVM languages (e.g. Java, Kotlin, Scala, Groovy) that provides utilities to interact with the Flow blockchain.
+
+For a summary of the breaking changes introduced in the lastest release, please refer to [BREAKING_CHANGES.md](https://github.com/onflow/flow-jvm-sdk/blob/main/BREAKING_CHANGES.md).
 
 At the moment, this SDK includes the following features:
 - [x] Communication with the [Flow Access API](https://docs.onflow.org/access-api) over gRPC 
@@ -29,9 +30,9 @@ Similar to the Java Example module, this module provides sample implementations 
 
 ## Contribute to this SDK
 
-This project is in the very early phase; all contributions are welcomed.
+We welcome all community contributions and will gladly review improvements and other proposals as PRs.
 
-Read the [contributing guide](https://github.com/the-nft-company/flow-jvm-sdk/blob/main/CONTRIBUTING.md) to get started.
+Read the [contributing guide](https://github.com/onflow/flow-jvm-sdk/blob/main/CONTRIBUTING.md) to get started.
 
 ## Dependencies
 

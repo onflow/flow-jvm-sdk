@@ -109,7 +109,7 @@ public final class AccessAPIConnector {
                 script,
                 arguments,
                 getLatestBlockID(),
-                100L,
+                500L,
                 new FlowTransactionProposalKey(
                         payerAddress,
                         payerAccountKey.getId(),
@@ -163,6 +163,7 @@ public final class AccessAPIConnector {
                 new FlowArgument(new UFix64NumberField(amount.toPlainString())),
                 new FlowArgument(new AddressField(recipientAddress.getBase16Value()))
         );
+
         FlowTransaction tx = createTransaction(senderAddress, senderAccountKey, script, arguments);
         FlowId txID = signAndSendTransaction(tx, senderAddress, senderAccountKey);
         waitForSeal(txID);
