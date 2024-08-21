@@ -10,7 +10,6 @@ import org.onflow.flow.sdk.*
 
 @FlowEmulatorProjectTest(flowJsonLocation = "../flow/flow.json")
 class GetExecutionDataAccessAPIConnectorTest {
-
     @FlowTestClient
     lateinit var accessAPI: FlowAccessApi
 
@@ -42,4 +41,3 @@ class GetExecutionDataAccessAPIConnectorTest {
         }
     }
 }
-
