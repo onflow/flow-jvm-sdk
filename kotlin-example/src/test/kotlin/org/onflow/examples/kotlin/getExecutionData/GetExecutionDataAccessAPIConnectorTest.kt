@@ -1,6 +1,7 @@
 package org.onflow.examples.kotlin.getExecutionData
 
 import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.onflow.flow.common.test.FlowEmulatorProjectTest
@@ -30,9 +31,15 @@ class GetExecutionDataAccessAPIConnectorTest {
 
     @Test
     fun `Can fetch execution data by block ID`() {
-         val executionData: FlowExecutionResult = connector.getExecutionDataByBlockId(blockId)
+        val executionData: FlowExecutionResult = connector.getExecutionDataByBlockId(blockId)
+
         assertNotNull(executionData, "Execution data should not be null")
-        //connector.printExecutionData(executionData)
+
+        assertTrue(executionData.chunks.isNotEmpty(), "Execution data should contain chunks")
+
+        executionData.chunks.forEachIndexed { chunkNo, chunk ->
+            assertTrue(chunk.numberOfTransactions > 0, "Chunk $chunkNo should contain transactions")
+        }
     }
 }
 
