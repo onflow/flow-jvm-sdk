@@ -10,7 +10,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @FlowEmulatorProjectTest(flowJsonLocation = "../flow/flow.json")
 public class GetExecutionDataAccessAPIConnectorTest {
-
     @FlowTestClient
     private FlowAccessApi accessAPI;
 

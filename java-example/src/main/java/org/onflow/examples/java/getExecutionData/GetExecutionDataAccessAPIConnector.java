@@ -5,7 +5,6 @@ import org.onflow.flow.sdk.FlowExecutionResult;
 import org.onflow.flow.sdk.FlowId;
 
 public class GetExecutionDataAccessAPIConnector {
-
     private final FlowAccessApi accessAPI;
 
     public GetExecutionDataAccessAPIConnector(FlowAccessApi accessAPI) {
