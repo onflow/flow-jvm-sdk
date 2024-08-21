@@ -2,7 +2,6 @@ package org.onflow.examples.java.executeScript;
 
 import org.onflow.examples.java.ExamplesUtils;
 import org.onflow.flow.sdk.*;
-import org.onflow.flow.sdk.cadence.IntNumberField;
 import org.onflow.flow.sdk.cadence.JsonCadenceBuilder;
 
 import java.math.BigDecimal;
@@ -26,15 +25,14 @@ public class ExecuteScriptAccessAPIConnector {
 
         FlowAccessApi.AccessApiCallResponse<FlowScriptResponse> response = simpleFlowScript(accessAPI, scriptBuilder -> {
             scriptBuilder.setScript(flowScript);
-            scriptBuilder.getArguments().add(new JsonCadenceBuilder().number("int", 5));
+            scriptBuilder.getArguments().add(new JsonCadenceBuilder().int(5));
             return null;
         });
 
 
         if (response instanceof FlowAccessApi.AccessApiCallResponse.Success) {
             return ((FlowAccessApi.AccessApiCallResponse.Success<FlowScriptResponse>) response).getData();
-        } else if (response instanceof FlowAccessApi.AccessApiCallResponse.Error) {
-            FlowAccessApi.AccessApiCallResponse.Error error = (FlowAccessApi.AccessApiCallResponse.Error) response;
+        } else if (response instanceof FlowAccessApi.AccessApiCallResponse.Error error) {
             throw new RuntimeException(error.getMessage(), error.getThrowable());
         }
         throw new RuntimeException("Unexpected response type");
