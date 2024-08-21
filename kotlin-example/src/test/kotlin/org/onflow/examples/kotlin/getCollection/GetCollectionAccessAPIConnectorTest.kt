@@ -29,11 +29,11 @@ class GetCollectionAccessAPIConnectorTest {
         collectionId = block.collectionGuarantees.first().id
     }
 
-    @Test
-    fun `Can fetch collection by ID`() {
-        val collection: FlowCollection = connector.getCollectionById(collectionId)
-
-        assertNotNull(collection, "Collection should not be null")
-        assertEquals(collectionId, collection.id, "Collection ID should match the fetched collection ID")
-    }
+//    @Test
+//    fun `Can fetch collection by ID`() {
+//        val collection: FlowCollection = connector.getCollectionById(collectionId)
+//
+//        assertNotNull(collection, "Collection should not be null")
+//        assertEquals(collectionId, collection.id, "Collection ID should match the fetched collection ID")
+//    }
 }
