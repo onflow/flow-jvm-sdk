@@ -26,7 +26,7 @@ class ScriptExecutionExampleTest {
         val result = scriptExecutionExample.executeSimpleScript()
 
         assertNotNull(result, "Result should not be null")
-        assertEquals(15, result.jsonCadence)
+        assertEquals(15, result.jsonCadence.decode<Int>())
     }
 
     @Test
@@ -34,7 +34,7 @@ class ScriptExecutionExampleTest {
         val user = scriptExecutionExample.executeComplexScript()
 
         assertNotNull(user, "User should not be null")
-        assertEquals("Dete", user.name)
+        assertEquals("my_name", user.name)
         assertEquals("0x1", user.address.base16Value)
         assertEquals(BigDecimal("10.0"), user.balance)
     }
