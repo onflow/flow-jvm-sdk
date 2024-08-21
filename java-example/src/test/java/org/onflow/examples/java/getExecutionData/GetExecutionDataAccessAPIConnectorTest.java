@@ -6,8 +6,7 @@ import org.onflow.flow.common.test.FlowEmulatorProjectTest;
 import org.onflow.flow.common.test.FlowTestClient;
 import org.onflow.flow.sdk.*;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @FlowEmulatorProjectTest(flowJsonLocation = "../flow/flow.json")
 public class GetExecutionDataAccessAPIConnectorTest {
@@ -23,7 +22,7 @@ public class GetExecutionDataAccessAPIConnectorTest {
         connector = new GetExecutionDataAccessAPIConnector(accessAPI);
 
         // Set a specific block ID
-        FlowBlock block = null;
+        FlowBlock block;
         FlowAccessApi.AccessApiCallResponse<FlowBlock> response = accessAPI.getLatestBlock(true);
         if (response instanceof FlowAccessApi.AccessApiCallResponse.Success) {
             block = ((FlowAccessApi.AccessApiCallResponse.Success<FlowBlock>) response).getData();
@@ -39,7 +38,7 @@ public class GetExecutionDataAccessAPIConnectorTest {
 
         assertNotNull(executionData, "Execution data should not be null");
 
-        assertTrue(executionData.getChunks().size() > 0, "Execution data should contain chunks");
+        assertFalse(executionData.getChunks().isEmpty(), "Execution data should contain chunks");
 
         for (int chunkNo = 0; chunkNo < executionData.getChunks().size(); chunkNo++) {
             FlowChunk chunk = executionData.getChunks().get(chunkNo);
