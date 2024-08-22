@@ -21,14 +21,11 @@ public class ExecuteScriptAccessAPIConnector {
         String loadedScript = ExamplesUtils.loadScriptContent("cadence/execute_simple_script_example.cdc");
         FlowScript flowScript = new FlowScript(loadedScript.getBytes(StandardCharsets.UTF_8));
 
-        JsonCadenceBuilder builder = new JsonCadenceBuilder();
-
         FlowAccessApi.AccessApiCallResponse<FlowScriptResponse> response = simpleFlowScript(accessAPI, scriptBuilder -> {
             scriptBuilder.setScript(flowScript);
-            scriptBuilder.getArguments().add(new JsonCadenceBuilder().int(5));
+            scriptBuilder.getArguments().add(new JsonCadenceBuilder().int8(5));
             return null;
         });
-
 
         if (response instanceof FlowAccessApi.AccessApiCallResponse.Success) {
             return ((FlowAccessApi.AccessApiCallResponse.Success<FlowScriptResponse>) response).getData();
@@ -38,23 +35,27 @@ public class ExecuteScriptAccessAPIConnector {
         throw new RuntimeException("Unexpected response type");
     }
 
-//    public User executeComplexScript() {
-//        String loadedScript = ExamplesUtils.loadScriptContent("cadence/execute_complex_script_example.cdc");
-//
-//        FlowAccessApi.AccessApiCallResponse<FlowScriptResponse> response = simpleFlowScript(loadedScript, JsonCadenceBuilder.string("my_name"));
-//
-//        FlowScriptResponse value;
-//        if (response instanceof FlowAccessApi.AccessApiCallResponse.Success) {
-//            value = ((FlowAccessApi.AccessApiCallResponse.Success<FlowScriptResponse>) response).getData();
-//        } else if (response instanceof FlowAccessApi.AccessApiCallResponse.Error) {
-//            FlowAccessApi.AccessApiCallResponse.Error error = (FlowAccessApi.AccessApiCallResponse.Error) response;
-//            throw new RuntimeException(error.getMessage(), error.getThrowable());
-//        } else {
-//            throw new RuntimeException("Unexpected response type");
-//        }
-//
-//        return value.getJsonCadence().decode(User.class);
-//    }
+    public User executeComplexScript() {
+        String loadedScript = ExamplesUtils.loadScriptContent("cadence/execute_complex_script_example.cdc");
+        FlowScript flowScript = new FlowScript(loadedScript.getBytes(StandardCharsets.UTF_8));
+
+        FlowAccessApi.AccessApiCallResponse<FlowScriptResponse> response = simpleFlowScript(accessAPI, scriptBuilder -> {
+            scriptBuilder.setScript(flowScript);
+            scriptBuilder.getArguments().add(new JsonCadenceBuilder().string("my_name"));
+            return null;
+        });
+
+        FlowScriptResponse value;
+        if (response instanceof FlowAccessApi.AccessApiCallResponse.Success) {
+            value = ((FlowAccessApi.AccessApiCallResponse.Success<FlowScriptResponse>) response).getData();
+        } else if (response instanceof FlowAccessApi.AccessApiCallResponse.Error error) {
+            throw new RuntimeException(error.getMessage(), error.getThrowable());
+        } else {
+            throw new RuntimeException("Unexpected response type");
+        }
+
+        return (User) value.getJsonCadence().decodeToAny();
+    }
 
     public static class User {
         private BigDecimal balance;
@@ -65,25 +66,14 @@ public class ExecuteScriptAccessAPIConnector {
             return balance;
         }
 
-        public void setBalance(BigDecimal balance) {
-            this.balance = balance;
-        }
-
         public FlowAddress getAddress() {
             return address;
-        }
-
-        public void setAddress(FlowAddress address) {
-            this.address = address;
         }
 
         public String getName() {
             return name;
         }
 
-        public void setName(String name) {
-            this.name = name;
-        }
     }
 }
 

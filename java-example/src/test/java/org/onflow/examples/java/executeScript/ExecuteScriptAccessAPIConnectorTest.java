@@ -32,13 +32,13 @@ class ExecuteScriptAccessAPIConnectorTest {
         assertEquals(15, result.getJsonCadence().decodeToAny());
     }
 
-//    @Test
-//    void canExecuteComplexScript() {
-//        ExecuteScriptAccessAPIConnector.User user = scriptExecutionExample.executeComplexScript();
-//
-//        assertNotNull(user, "User should not be null");
-//        assertEquals("my_name", user.getName());
-//        assertEquals("0x1", user.getAddress().getBase16Value());
-//        assertEquals(new BigDecimal("10.0"), user.getBalance());
-//    }
+    @Test
+    void canExecuteComplexScript() {
+        ExecuteScriptAccessAPIConnector.User user = scriptExecutionExample.executeComplexScript();
+
+        assertNotNull(user, "User should not be null");
+        assertEquals("my_name", user.getName());
+        assertEquals("0x1", user.getAddress().getBase16Value());
+        assertEquals(new BigDecimal("10.0"), user.getBalance());
+    }
 }
