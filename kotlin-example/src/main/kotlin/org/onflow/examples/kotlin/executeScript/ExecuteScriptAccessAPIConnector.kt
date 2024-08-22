@@ -1,6 +1,5 @@
 package org.onflow.examples.kotlin.executeScript
 
-import com.google.protobuf.ByteString
 import org.onflow.examples.kotlin.ExamplesUtils
 import org.onflow.flow.sdk.*
 import org.onflow.flow.sdk.cadence.JsonCadenceBuilder

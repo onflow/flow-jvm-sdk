@@ -8,7 +8,6 @@ import org.onflow.flow.sdk.crypto.PrivateKey
 import org.onflow.flow.sdk.crypto.PublicKey
 import org.onflow.flow.sdk.cadence.EventField
 import java.math.BigDecimal
-import java.nio.charset.StandardCharsets
 
 internal class AccessAPIConnector(
     privateKey: PrivateKey,
