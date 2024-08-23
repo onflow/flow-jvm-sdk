@@ -7,7 +7,7 @@ import java.nio.charset.StandardCharsets;
 
 public class ExamplesUtils {
 
-    public static byte[] loadScript(String name) throws FileNotFoundException {
+    public static byte[] loadScript(String name) {
         InputStream resource = ExamplesUtils.class.getClassLoader().getResourceAsStream(name);
         try (resource) {
             if (resource == null) {
