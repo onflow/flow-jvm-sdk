@@ -5,7 +5,7 @@ import java.nio.charset.StandardCharsets
 object ExamplesUtils {
     fun loadScript(name: String): ByteArray {
         val resource = javaClass.classLoader.getResourceAsStream(name)
-            ?: throw IllegalArgumentException("Script file $name not found")
+            ?: throw FileNotFoundException("Script file $name not found")
         return resource.use { it.readAllBytes() }
     }
 
