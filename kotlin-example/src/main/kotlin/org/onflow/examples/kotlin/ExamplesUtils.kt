@@ -1,5 +1,6 @@
 package org.onflow.examples.kotlin
 
+import java.io.FileNotFoundException
 import java.nio.charset.StandardCharsets
 
 object ExamplesUtils {
