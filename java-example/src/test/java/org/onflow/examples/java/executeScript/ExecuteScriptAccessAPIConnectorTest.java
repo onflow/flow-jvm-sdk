@@ -7,6 +7,7 @@ import org.onflow.flow.common.test.FlowTestClient;
 import org.onflow.flow.sdk.FlowAccessApi;
 import org.onflow.flow.sdk.FlowScriptResponse;
 
+import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.Map;
 
@@ -26,7 +27,7 @@ class ExecuteScriptAccessAPIConnectorTest {
     }
 
     @Test
-    void canExecuteSimpleScript() {
+    void canExecuteSimpleScript() throws FileNotFoundException {
         FlowScriptResponse result = scriptExecutionExample.executeSimpleScript();
 
         assertNotNull(result, "Result should not be null");
@@ -34,7 +35,7 @@ class ExecuteScriptAccessAPIConnectorTest {
     }
 
     @Test
-    void canExecuteComplexScript() {
+    void canExecuteComplexScript() throws FileNotFoundException {
         FlowScriptResponse result = scriptExecutionExample.executeComplexScript();
 
         assertNotNull(result, "Result should not be null");
@@ -45,7 +46,7 @@ class ExecuteScriptAccessAPIConnectorTest {
         assertNotNull(rawList, "Decoded list should not be null");
         assertEquals(1, rawList.size(), "Expected exactly one StorageInfo object");
 
-        // Manually map the LinkedHashMap to your StorageInfo class
+        // Manually map LinkedHashMap to StorageInfo
         Map<String, Object> rawMap = rawList.get(0);
         ExecuteScriptAccessAPIConnector.StorageInfo storageInfo = new ExecuteScriptAccessAPIConnector.StorageInfo(
                 (int) rawMap.get("capacity"),
@@ -53,7 +54,6 @@ class ExecuteScriptAccessAPIConnectorTest {
                 (int) rawMap.get("available")
         );
 
-        // Verify the fields of the StorageInfo object
         assertEquals(1, storageInfo.getCapacity(), "Expected capacity to be 1");
         assertEquals(2, storageInfo.getUsed(), "Expected used to be 2");
         assertEquals(3, storageInfo.getAvailable(), "Expected available to be 3");

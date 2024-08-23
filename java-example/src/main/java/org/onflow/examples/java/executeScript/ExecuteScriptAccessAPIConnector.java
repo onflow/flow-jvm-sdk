@@ -4,6 +4,8 @@ import org.onflow.examples.java.ExamplesUtils;
 import org.onflow.flow.sdk.*;
 import org.onflow.flow.sdk.cadence.IntNumberField;
 import org.onflow.flow.sdk.cadence.JsonCadenceBuilder;
+
+import java.io.FileNotFoundException;
 import java.nio.charset.StandardCharsets;
 
 import static org.onflow.flow.sdk.Script_dslKt.simpleFlowScript;
@@ -16,7 +18,7 @@ public class ExecuteScriptAccessAPIConnector {
         this.accessAPI = accessAPI;
     }
 
-    public FlowScriptResponse executeSimpleScript() {
+    public FlowScriptResponse executeSimpleScript() throws FileNotFoundException {
         String loadedScript = ExamplesUtils.loadScriptContent("cadence/execute_simple_script_example.cdc");
         FlowScript flowScript = new FlowScript(loadedScript.getBytes(StandardCharsets.UTF_8));
 
@@ -34,7 +36,7 @@ public class ExecuteScriptAccessAPIConnector {
         throw new RuntimeException("Unexpected response type");
     }
 
-    public FlowScriptResponse executeComplexScript() {
+    public FlowScriptResponse executeComplexScript() throws FileNotFoundException {
         String loadedScript = ExamplesUtils.loadScriptContent("cadence/execute_complex_script_example.cdc");
         FlowScript flowScript = new FlowScript(loadedScript.getBytes(StandardCharsets.UTF_8));
 
@@ -44,7 +46,6 @@ public class ExecuteScriptAccessAPIConnector {
             return null;
         });
 
-        FlowScriptResponse value;
         if (response instanceof FlowAccessApi.AccessApiCallResponse.Success) {
            return  ((FlowAccessApi.AccessApiCallResponse.Success<FlowScriptResponse>) response).getData();
         } else if (response instanceof FlowAccessApi.AccessApiCallResponse.Error error) {
