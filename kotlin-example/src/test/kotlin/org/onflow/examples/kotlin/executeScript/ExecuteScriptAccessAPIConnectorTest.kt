@@ -9,7 +9,6 @@ import org.onflow.flow.sdk.*
 
 @FlowEmulatorProjectTest(flowJsonLocation = "../flow/flow.json")
 class ScriptExecutionExampleTest {
-
     @FlowTestClient
     lateinit var accessAPI: FlowAccessApi
 
