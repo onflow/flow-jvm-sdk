@@ -22,12 +22,9 @@ import static org.junit.jupiter.api.Assertions.*;
 public class GetTransactionAccessAPIConnectorTest {
     @FlowServiceAccountCredentials
     private TestAccount serviceAccount;
-
     @FlowTestClient
     private FlowAccessApi accessAPI;
-
     private GetTransactionAccessAPIConnector connector;
-
     private FlowId txID;
 
     @BeforeEach
