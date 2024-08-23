@@ -1,19 +1,16 @@
-access(all) struct User {
-    access(all) var balance: UFix64
-    access(all) var address: Address
-    access(all) var name: String
+access(all) struct StorageInfo {
+    access(all) let capacity: Int
+    access(all) let used: Int
+    access(all) let available: Int
 
-    init(name: String, address: Address, balance: UFix64) {
-        self.name = name
-        self.address = address
-        self.balance = balance
+    init(capacity: Int, used: Int, available: Int) {
+        self.capacity = capacity
+        self.used = used
+        self.available = available
     }
 }
 
-access(all) fun main(name: String): User {
-    return User(
-        name: name,
-        address: 0x1,
-        balance: 10.0
-    )
+access(all) fun main(addr: Address): [StorageInfo] {
+    let acct = getAccount(addr)
+    return [StorageInfo(capacity: 1, used: 2, available: 3)]
 }

@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test
 import org.onflow.flow.common.test.FlowEmulatorProjectTest
 import org.onflow.flow.common.test.FlowTestClient
 import org.onflow.flow.sdk.*
-import java.math.BigDecimal
 
 @FlowEmulatorProjectTest(flowJsonLocation = "../flow/flow.json")
 class ScriptExecutionExampleTest {
@@ -31,11 +30,17 @@ class ScriptExecutionExampleTest {
 
     @Test
     fun `Can execute complex script`() {
-        val user = scriptExecutionExample.executeComplexScript()
+        val result = scriptExecutionExample.executeComplexScript()
 
-        assertNotNull(user, "User should not be null")
-        assertEquals("my_name", user.name)
-        assertEquals("0x1", user.address.base16Value)
-        assertEquals(BigDecimal("10.0"), user.balance)
+        val storageInfoList = result.jsonCadence.decode<List<ExecuteScriptAccessAPIConnector.StorageInfo>>()
+
+        assertNotNull(storageInfoList, "Storage info list should not be null")
+        assertEquals(1, storageInfoList.size, "Expected exactly one StorageInfo object")
+
+        val storageInfo = storageInfoList[0]
+
+        assertEquals(1, storageInfo.capacity, "Expected capacity to be 1")
+        assertEquals(2, storageInfo.used, "Expected used to be 2")
+        assertEquals(3, storageInfo.available, "Expected available to be 3")
     }
 }

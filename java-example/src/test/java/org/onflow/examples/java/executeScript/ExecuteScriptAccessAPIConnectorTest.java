@@ -7,7 +7,8 @@ import org.onflow.flow.common.test.FlowTestClient;
 import org.onflow.flow.sdk.FlowAccessApi;
 import org.onflow.flow.sdk.FlowScriptResponse;
 
-import java.math.BigDecimal;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -34,11 +35,27 @@ class ExecuteScriptAccessAPIConnectorTest {
 
     @Test
     void canExecuteComplexScript() {
-        ExecuteScriptAccessAPIConnector.User user = scriptExecutionExample.executeComplexScript();
+        FlowScriptResponse result = scriptExecutionExample.executeComplexScript();
 
-        assertNotNull(user, "User should not be null");
-        assertEquals("my_name", user.getName());
-        assertEquals("0x1", user.getAddress().getBase16Value());
-        assertEquals(new BigDecimal("10.0"), user.getBalance());
+        assertNotNull(result, "Result should not be null");
+
+        // Decode the result as a list of maps
+        List<Map<String, Object>> rawList = (List<Map<String, Object>>) result.getJsonCadence().decodeToAny();
+
+        assertNotNull(rawList, "Decoded list should not be null");
+        assertEquals(1, rawList.size(), "Expected exactly one StorageInfo object");
+
+        // Manually map the LinkedHashMap to your StorageInfo class
+        Map<String, Object> rawMap = rawList.get(0);
+        ExecuteScriptAccessAPIConnector.StorageInfo storageInfo = new ExecuteScriptAccessAPIConnector.StorageInfo(
+                (int) rawMap.get("capacity"),
+                (int) rawMap.get("used"),
+                (int) rawMap.get("available")
+        );
+
+        // Verify the fields of the StorageInfo object
+        assertEquals(1, storageInfo.getCapacity(), "Expected capacity to be 1");
+        assertEquals(2, storageInfo.getUsed(), "Expected used to be 2");
+        assertEquals(3, storageInfo.getAvailable(), "Expected available to be 3");
     }
 }

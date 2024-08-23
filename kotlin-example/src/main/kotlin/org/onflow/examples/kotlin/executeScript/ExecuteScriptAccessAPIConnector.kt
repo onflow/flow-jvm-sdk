@@ -1,11 +1,11 @@
 package org.onflow.examples.kotlin.executeScript
 
+import kotlinx.serialization.Serializable
 import org.onflow.examples.kotlin.ExamplesUtils
 import org.onflow.flow.sdk.*
-import org.onflow.flow.sdk.cadence.JsonCadenceBuilder
-import java.math.BigDecimal
+import org.onflow.flow.sdk.cadence.*
 
-internal class ExecuteScriptAccessAPIConnector(
+class ExecuteScriptAccessAPIConnector(
     private val accessAPI: FlowAccessApi
 ) {
     fun executeSimpleScript(): FlowScriptResponse {
@@ -22,26 +22,24 @@ internal class ExecuteScriptAccessAPIConnector(
         }
     }
 
-    fun executeComplexScript(): User {
+    fun executeComplexScript(): FlowScriptResponse {
         val loadedScript = ExamplesUtils.loadScriptContent("cadence/execute_complex_script_example.cdc")
 
-        val value = accessAPI.simpleFlowScript {
+        return accessAPI.simpleFlowScript {
             script { loadedScript }
-            arg { JsonCadenceBuilder().string("my_name") }
+            arg { JsonCadenceBuilder().address("0x84221fe0294044d7") }
         }.let { response ->
             when (response) {
                 is FlowAccessApi.AccessApiCallResponse.Success -> response.data
                 is FlowAccessApi.AccessApiCallResponse.Error -> throw Exception(response.message, response.throwable)
             }
         }
-
-        val struct = value.jsonCadence.decode<User>()
-        return struct
     }
 
-    data class User(
-        val balance: BigDecimal,
-        val address: FlowAddress,
-        val name: String
+    @Serializable
+    data class StorageInfo(
+        val capacity: Int,
+        val used: Int,
+        val available: Int
     )
 }

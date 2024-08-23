@@ -2,9 +2,8 @@ package org.onflow.examples.java.executeScript;
 
 import org.onflow.examples.java.ExamplesUtils;
 import org.onflow.flow.sdk.*;
+import org.onflow.flow.sdk.cadence.IntNumberField;
 import org.onflow.flow.sdk.cadence.JsonCadenceBuilder;
-
-import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 
 import static org.onflow.flow.sdk.Script_dslKt.simpleFlowScript;
@@ -22,8 +21,8 @@ public class ExecuteScriptAccessAPIConnector {
         FlowScript flowScript = new FlowScript(loadedScript.getBytes(StandardCharsets.UTF_8));
 
         FlowAccessApi.AccessApiCallResponse<FlowScriptResponse> response = simpleFlowScript(accessAPI, scriptBuilder -> {
-            scriptBuilder.setScript(flowScript);
-            scriptBuilder.getArguments().add(new JsonCadenceBuilder().int8(5));
+            scriptBuilder.script(flowScript);
+            scriptBuilder.getArguments().add(new IntNumberField("5"));
             return null;
         });
 
@@ -35,45 +34,48 @@ public class ExecuteScriptAccessAPIConnector {
         throw new RuntimeException("Unexpected response type");
     }
 
-    public User executeComplexScript() {
+    public FlowScriptResponse executeComplexScript() {
         String loadedScript = ExamplesUtils.loadScriptContent("cadence/execute_complex_script_example.cdc");
         FlowScript flowScript = new FlowScript(loadedScript.getBytes(StandardCharsets.UTF_8));
 
         FlowAccessApi.AccessApiCallResponse<FlowScriptResponse> response = simpleFlowScript(accessAPI, scriptBuilder -> {
             scriptBuilder.setScript(flowScript);
-            scriptBuilder.getArguments().add(new JsonCadenceBuilder().string("my_name"));
+            scriptBuilder.getArguments().add(new JsonCadenceBuilder().address("0x84221fe0294044d7"));
             return null;
         });
 
         FlowScriptResponse value;
         if (response instanceof FlowAccessApi.AccessApiCallResponse.Success) {
-            value = ((FlowAccessApi.AccessApiCallResponse.Success<FlowScriptResponse>) response).getData();
+           return  ((FlowAccessApi.AccessApiCallResponse.Success<FlowScriptResponse>) response).getData();
         } else if (response instanceof FlowAccessApi.AccessApiCallResponse.Error error) {
             throw new RuntimeException(error.getMessage(), error.getThrowable());
         } else {
             throw new RuntimeException("Unexpected response type");
         }
-
-        return (User) value.getJsonCadence().decodeToAny();
     }
 
-    public static class User {
-        private BigDecimal balance;
-        private FlowAddress address;
-        private String name;
+    public static class StorageInfo {
+        private final int capacity;
+        private final int used;
+        private final int available;
 
-        public BigDecimal getBalance() {
-            return balance;
+        public StorageInfo(int capacity, int used, int available) {
+            this.capacity = capacity;
+            this.used = used;
+            this.available = available;
         }
 
-        public FlowAddress getAddress() {
-            return address;
+        public int getCapacity() {
+            return capacity;
         }
 
-        public String getName() {
-            return name;
+        public int getUsed() {
+            return used;
         }
 
+        public int getAvailable() {
+            return available;
+        }
     }
 }
 
