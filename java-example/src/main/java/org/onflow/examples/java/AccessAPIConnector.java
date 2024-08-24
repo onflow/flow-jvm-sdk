@@ -122,12 +122,6 @@ public final class AccessAPIConnector {
         );
     }
 
-    private FlowId signAndSendTransaction(FlowTransaction tx, FlowAddress payerAddress, FlowAccountKey payerAccountKey) {
-        Signer signer = Crypto.getSigner(privateKey, payerAccountKey.getHashAlgo());
-        tx = tx.addEnvelopeSignature(payerAddress, payerAccountKey.getId(), signer);
-        return sendTransaction(tx);
-    }
-
     public FlowAddress createAccount(FlowAddress payerAddress, PublicKey publicKey) {
         FlowAccountKey payerAccountKey = getAccountKey(payerAddress, 0);
         FlowScript script = new FlowScript(loadScript("cadence/create_account.cdc"));
@@ -140,6 +134,14 @@ public final class AccessAPIConnector {
         FlowTransactionResult txResult = waitForSeal(txID);
         return getAccountCreatedAddress(txResult);
     }
+
+    private FlowId signAndSendTransaction(FlowTransaction tx, FlowAddress payerAddress, FlowAccountKey payerAccountKey) {
+        Signer signer = Crypto.getSigner(privateKey, payerAccountKey.getHashAlgo());
+        tx = tx.addEnvelopeSignature(payerAddress, payerAccountKey.getId(), signer);
+        return sendTransaction(tx);
+    }
+
+
 
     public FlowId sendSampleTransaction(FlowAddress payerAddress, PublicKey publicKey) {
         FlowAccountKey payerAccountKey = getAccountKey(payerAddress, 0);

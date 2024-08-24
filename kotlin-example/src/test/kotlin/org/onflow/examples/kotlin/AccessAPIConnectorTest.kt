@@ -3,6 +3,7 @@ package org.onflow.examples.kotlin
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.onflow.examples.kotlin.createAccount.CreateAccountExample
 import org.onflow.flow.common.test.*
 import org.onflow.flow.sdk.FlowAccessApi
 import org.onflow.flow.sdk.FlowAddress
@@ -51,8 +52,8 @@ internal class AccessAPIConnectorTest {
 
     // create an account using the service account
     private fun createUserAccount(userPublicKey: PublicKey): FlowAddress {
-        val accessAPIConnector = AccessAPIConnector(serviceAccount.privateKey, accessAPI)
-        val account = accessAPIConnector.createAccount(serviceAccount.flowAddress, userPublicKey)
+        val createAccountExample = CreateAccountExample(serviceAccount.privateKey, accessAPI)
+        val account = createAccountExample.createAccount(serviceAccount.flowAddress, userPublicKey)
         return account
     }
 
@@ -60,18 +61,6 @@ internal class AccessAPIConnectorTest {
     private fun transferTokens(sender: FlowAddress, senderKey: PrivateKey, to: FlowAddress, amount: BigDecimal) {
         val accessAPIConnector = AccessAPIConnector(senderKey, accessAPI)
         accessAPIConnector.transferTokens(sender, to, amount)
-    }
-
-    @Test
-    fun `Can create an account`() {
-        // accounts are already created in `setupUser`
-        for ((index, address) in userAccountAddress.withIndex()) {
-            Assertions.assertNotNull(address)
-            // check account key is the expected one
-            val accessAPIConnector = AccessAPIConnector(serviceAccount.privateKey, accessAPI)
-            val newAccountKey = accessAPIConnector.getAccountKey(address, 0)
-            Assertions.assertEquals(userKeyPairs[index].public.hex, newAccountKey.publicKey.bytes.bytesToHex())
-        }
     }
 
     @Test

@@ -1,5 +1,6 @@
 package org.onflow.examples.kotlin
 
+import org.onflow.examples.kotlin.ExamplesUtils.loadScript
 import org.onflow.flow.sdk.*
 import org.onflow.flow.sdk.cadence.*
 import org.onflow.flow.sdk.crypto.Crypto
@@ -15,7 +16,7 @@ internal class AccessAPIConnector(
     private val privateKey = privateKey
     private val accessAPI = accessApiConnection
 
-    private val latestBlockID: FlowId
+     val latestBlockID: FlowId
         get() = when (val response = accessAPI.getLatestBlockHeader()) {
             is FlowAccessApi.AccessApiCallResponse.Success -> response.data.id
             is FlowAccessApi.AccessApiCallResponse.Error -> throw Exception(response.message, response.throwable)
@@ -46,7 +47,7 @@ internal class AccessAPIConnector(
         is FlowAccessApi.AccessApiCallResponse.Error -> throw Exception(response.message, response.throwable)
     }
 
-    private fun waitForSeal(txID: FlowId): FlowTransactionResult {
+    fun waitForSeal(txID: FlowId): FlowTransactionResult {
         while (true) {
             val txResult = getTransactionResult(txID)
             if (txResult.status == FlowTransactionStatus.SEALED) {
@@ -54,51 +55,6 @@ internal class AccessAPIConnector(
             }
             Thread.sleep(1000)
         }
-    }
-
-    private fun getAccountCreatedAddress(txResult: FlowTransactionResult): FlowAddress {
-        val address = txResult.events
-            .find { it.type == "flow.AccountCreated" }
-            ?.payload
-            ?.let { (it.jsonCadence as EventField).value }
-            ?.getRequiredField<AddressField>("address")
-            ?.value as String
-
-        return FlowAddress(address)
-    }
-
-    private fun loadScript(name: String): ByteArray = javaClass.classLoader.getResourceAsStream(name)!!.use { it.readAllBytes() }
-
-    fun createAccount(payerAddress: FlowAddress, publicKey: PublicKey): FlowAddress {
-        val payerAccountKey = getAccountKey(payerAddress, 0)
-
-        var tx = FlowTransaction(
-            script = FlowScript(loadScript("cadence/create_account.cdc")),
-            arguments = listOf(
-                FlowArgument(StringField(publicKey.hex)),
-                FlowArgument(UInt8NumberField(publicKey.algo.index.toString()))
-            ),
-            referenceBlockId = latestBlockID,
-            gasLimit = 500,
-            proposalKey = FlowTransactionProposalKey(
-                address = payerAddress,
-                keyIndex = payerAccountKey.id,
-                sequenceNumber = payerAccountKey.sequenceNumber.toLong()
-            ),
-            payerAddress = payerAddress,
-            authorizers = listOf(payerAddress)
-        )
-
-        val signer = Crypto.getSigner(privateKey, payerAccountKey.hashAlgo)
-        tx = tx.addEnvelopeSignature(payerAddress, payerAccountKey.id, signer)
-
-        val txID = when (val response = accessAPI.sendTransaction(tx)) {
-            is FlowAccessApi.AccessApiCallResponse.Success -> response.data
-            is FlowAccessApi.AccessApiCallResponse.Error -> throw Exception(response.message, response.throwable)
-        }
-
-        val txResult = waitForSeal(txID)
-        return getAccountCreatedAddress(txResult)
     }
 
     fun sendSampleTransaction(
