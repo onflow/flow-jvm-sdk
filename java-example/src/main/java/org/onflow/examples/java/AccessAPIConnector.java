@@ -25,7 +25,7 @@ public final class AccessAPIConnector {
         this.privateKey = privateKey;
     }
 
-    private FlowId getLatestBlockID() {
+    public FlowId getLatestBlockID() {
         FlowAccessApi.AccessApiCallResponse<FlowBlockHeader> response = accessAPI.getLatestBlockHeader(true);
         if (response instanceof FlowAccessApi.AccessApiCallResponse.Success) {
             return ((FlowAccessApi.AccessApiCallResponse.Success<FlowBlockHeader>) response).getData().getId();
@@ -66,7 +66,7 @@ public final class AccessAPIConnector {
         }
     }
 
-    private FlowTransactionResult waitForSeal(FlowId txID) {
+    public FlowTransactionResult waitForSeal(FlowId txID) {
         while (true) {
             FlowTransactionResult txResult = getTransactionResult(txID);
             if (txResult.getStatus() == FlowTransactionStatus.SEALED) {
@@ -80,19 +80,6 @@ public final class AccessAPIConnector {
         }
     }
 
-    private FlowAddress getAccountCreatedAddress(FlowTransactionResult txResult) {
-        FlowEvent event = txResult.getEvents().stream()
-                .filter(it -> "flow.AccountCreated".equals(it.getType()))
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("account created event not found"));
-
-        EventField field = (EventField) event.getPayload().getJsonCadence();
-        String address = (String) field.getValue().getRequiredField("address").getValue();
-
-        assert address != null;
-        return new FlowAddress(address);
-    }
-
     private byte[] loadScript(String name) {
         try (InputStream is = getClass().getClassLoader().getResourceAsStream(name)) {
             if (is == null) {
@@ -104,7 +91,7 @@ public final class AccessAPIConnector {
         }
     }
 
-    private FlowTransaction createTransaction(FlowAddress payerAddress, FlowAccountKey payerAccountKey, FlowScript script, List<FlowArgument> arguments) {
+    public FlowTransaction createTransaction(FlowAddress payerAddress, FlowAccountKey payerAccountKey, FlowScript script, List<FlowArgument> arguments) {
         return new FlowTransaction(
                 script,
                 arguments,
@@ -122,20 +109,7 @@ public final class AccessAPIConnector {
         );
     }
 
-    public FlowAddress createAccount(FlowAddress payerAddress, PublicKey publicKey) {
-        FlowAccountKey payerAccountKey = getAccountKey(payerAddress, 0);
-        FlowScript script = new FlowScript(loadScript("cadence/create_account.cdc"));
-        List<FlowArgument> arguments = List.of(
-                new FlowArgument(new StringField(publicKey.getHex())),
-                new FlowArgument(new UInt8NumberField(Integer.toString(publicKey.getAlgo().getIndex())))
-        );
-        FlowTransaction tx = createTransaction(payerAddress, payerAccountKey, script, arguments);
-        FlowId txID = signAndSendTransaction(tx, payerAddress, payerAccountKey);
-        FlowTransactionResult txResult = waitForSeal(txID);
-        return getAccountCreatedAddress(txResult);
-    }
-
-    private FlowId signAndSendTransaction(FlowTransaction tx, FlowAddress payerAddress, FlowAccountKey payerAccountKey) {
+    public FlowId signAndSendTransaction(FlowTransaction tx, FlowAddress payerAddress, FlowAccountKey payerAccountKey) {
         Signer signer = Crypto.getSigner(privateKey, payerAccountKey.getHashAlgo());
         tx = tx.addEnvelopeSignature(payerAddress, payerAccountKey.getId(), signer);
         return sendTransaction(tx);
