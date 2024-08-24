@@ -8,7 +8,6 @@ import org.onflow.flow.common.test.*
 import org.onflow.flow.sdk.FlowAccessApi
 import org.onflow.flow.sdk.FlowAddress
 import org.onflow.flow.sdk.SignatureAlgorithm
-import org.onflow.flow.sdk.bytesToHex
 import org.onflow.flow.sdk.crypto.Crypto
 import org.onflow.flow.sdk.crypto.PublicKey
 import org.onflow.flow.sdk.crypto.PrivateKey

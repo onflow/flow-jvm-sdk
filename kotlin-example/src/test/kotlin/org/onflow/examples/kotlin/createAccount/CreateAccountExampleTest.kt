@@ -34,7 +34,6 @@ internal class CreateAccountExampleTest {
     @FlowTestAccount
     lateinit var otherAccount: TestAccount
 
-
     // create an account using the service account
     private fun createUserAccount(userPublicKey: PublicKey): FlowAddress {
         val createAccountExample = CreateAccountExample(serviceAccount.privateKey, accessAPI)
