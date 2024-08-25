@@ -71,7 +71,7 @@ internal class SendTransactionExample(
                 sequenceNumber = payerAccountKey.sequenceNumber.toLong()
             ),
             payerAddress = payerAddress,
-            authorizers = listOf(payerAddress)
+            authorizers = listOf()
         )
 
         val signer = Crypto.getSigner(privateKey, payerAccountKey.hashAlgo)

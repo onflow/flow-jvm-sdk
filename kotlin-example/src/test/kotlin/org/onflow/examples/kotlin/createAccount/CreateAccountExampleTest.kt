@@ -40,7 +40,7 @@ internal class CreateAccountExampleTest {
     }
 
     // create an account using the service account
-    fun createUserAccount(userPublicKey: PublicKey): FlowAddress {
+    private fun createUserAccount(userPublicKey: PublicKey): FlowAddress {
         val createAccountExample = CreateAccountExample(serviceAccount.privateKey, accessAPI)
         val account = createAccountExample.createAccount(serviceAccount.flowAddress, userPublicKey)
         return account
