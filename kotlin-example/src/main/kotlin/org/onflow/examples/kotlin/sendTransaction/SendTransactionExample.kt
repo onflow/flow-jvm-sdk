@@ -53,9 +53,8 @@ internal class SendTransactionExample(
         payerAddress: FlowAddress,
         scriptName: String = "cadence/greeting_script.cdc",
         gasLimit: Long = 500,
-        greeting: String =  "Hello world!"
+        greeting: String = "Hello world!"
     ): FlowTransactionResult {
-
         val payerAccountKey = connector.getAccountKey(payerAddress, 0)
 
         var tx = FlowTransaction(
