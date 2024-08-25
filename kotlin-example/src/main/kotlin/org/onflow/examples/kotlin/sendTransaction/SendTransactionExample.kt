@@ -20,7 +20,7 @@ internal class SendTransactionExample(
         payerAddress: FlowAddress,
         scriptName: String = "cadence/simple_transaction.cdc",
         gasLimit: Long = 500
-    ): FlowId {
+    ): FlowTransactionResult {
         val payerAccountKey = connector.getAccountKey(payerAddress, 0)
 
         var tx = FlowTransaction(
@@ -45,7 +45,8 @@ internal class SendTransactionExample(
             is FlowAccessApi.AccessApiCallResponse.Error -> throw Exception(response.message, response.throwable)
         }
 
-        return txID
+        val txResult = connector.waitForSeal(txID)
+        return txResult
     }
 
     fun sendComplexTransactionWithArguments(
@@ -53,7 +54,7 @@ internal class SendTransactionExample(
         scriptName: String = "cadence/greeting_script.cdc",
         gasLimit: Long = 500,
         greeting: String =  "Hello world!"
-    ): FlowId {
+    ): FlowTransactionResult {
 
         val payerAccountKey = connector.getAccountKey(payerAddress, 0)
 
@@ -81,6 +82,7 @@ internal class SendTransactionExample(
             is FlowAccessApi.AccessApiCallResponse.Error -> throw Exception(response.message, response.throwable)
         }
 
-        return txID
+        val txResult = connector.waitForSeal(txID)
+        return txResult
     }
 }

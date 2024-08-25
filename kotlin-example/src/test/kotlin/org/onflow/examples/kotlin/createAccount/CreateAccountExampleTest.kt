@@ -1,6 +1,7 @@
 package org.onflow.examples.kotlin.createAccount
 
 import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.onflow.examples.kotlin.AccessAPIConnector
 import org.onflow.flow.common.test.*
@@ -31,11 +32,15 @@ internal class CreateAccountExampleTest {
     @FlowTestClient
     lateinit var accessAPI: FlowAccessApi
 
-    @FlowTestAccount
-    lateinit var otherAccount: TestAccount
+    private lateinit var accessAPIConnector: AccessAPIConnector
+
+    @BeforeEach
+    fun setup() {
+        accessAPIConnector = AccessAPIConnector(serviceAccount.privateKey, accessAPI)
+    }
 
     // create an account using the service account
-    private fun createUserAccount(userPublicKey: PublicKey): FlowAddress {
+    fun createUserAccount(userPublicKey: PublicKey): FlowAddress {
         val createAccountExample = CreateAccountExample(serviceAccount.privateKey, accessAPI)
         val account = createAccountExample.createAccount(serviceAccount.flowAddress, userPublicKey)
         return account
@@ -53,14 +58,12 @@ internal class CreateAccountExampleTest {
         for ((index, address) in userAccountAddress.withIndex()) {
             Assertions.assertNotNull(address)
             // check account key is the expected one
-            val accessAPIConnector = AccessAPIConnector(serviceAccount.privateKey, accessAPI)
             val newAccountKey = accessAPIConnector.getAccountKey(address, 0)
             Assertions.assertEquals(userKeyPairs[index].public.hex, newAccountKey.publicKey.bytes.bytesToHex())
         }
     }
     @Test
     fun `Can get an account balance`() {
-        val accessAPIConnector = AccessAPIConnector(serviceAccount.privateKey, accessAPI)
         val balance = accessAPIConnector.getAccountBalance(serviceAccount.flowAddress)
         Assertions.assertNotNull(balance)
     }
