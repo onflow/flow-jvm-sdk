@@ -19,7 +19,7 @@ public class ExamplesUtils {
         }
     }
 
-    public static String loadScriptContent(String path) throws FileNotFoundException {
+    public static String loadScriptContent(String path) {
         return new String(loadScript(path), StandardCharsets.UTF_8);
     }
 }

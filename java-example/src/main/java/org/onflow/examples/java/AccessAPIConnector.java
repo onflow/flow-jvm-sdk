@@ -11,7 +11,6 @@ import org.onflow.flow.sdk.cadence.AddressField;
 import org.onflow.flow.sdk.cadence.StringField;
 import org.onflow.flow.sdk.cadence.UFix64NumberField;
 import org.onflow.flow.sdk.cadence.UInt8NumberField;
-import org.onflow.flow.sdk.cadence.EventField;
 import org.onflow.flow.sdk.crypto.Crypto;
 import org.onflow.flow.sdk.crypto.PrivateKey;
 import org.onflow.flow.sdk.crypto.PublicKey;

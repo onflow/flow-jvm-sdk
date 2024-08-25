@@ -1,5 +1,6 @@
 package org.onflow.examples.java.sendTransaction;
 
+import org.jetbrains.annotations.NotNull;
 import org.onflow.examples.java.AccessAPIConnector;
 import org.onflow.examples.java.ExamplesUtils;
 import org.onflow.flow.sdk.*;
@@ -45,21 +46,7 @@ public class SendTransactionExample {
                 Collections.emptyList()
         );
 
-        Signer signer = Crypto.getSigner(privateKey, payerAccountKey.getHashAlgo());
-        tx = tx.addEnvelopeSignature(payerAddress, payerAccountKey.getId(), signer);
-
-        FlowId txID;
-        FlowAccessApi.AccessApiCallResponse<?> response = accessAPI.sendTransaction(tx);
-        if (response instanceof FlowAccessApi.AccessApiCallResponse.Success) {
-            txID = ((FlowAccessApi.AccessApiCallResponse.Success<FlowId>) response).getData();
-        } else if (response instanceof FlowAccessApi.AccessApiCallResponse.Error) {
-            throw new Exception(((FlowAccessApi.AccessApiCallResponse.Error) response).getMessage(),
-                    ((FlowAccessApi.AccessApiCallResponse.Error) response).getThrowable());
-        } else {
-            throw new Exception("Unknown response type");
-        }
-
-        return connector.waitForSeal(txID);
+        return getFlowTransactionResult(payerAddress, payerAccountKey, tx);
     }
 
     public FlowTransactionResult sendComplexTransactionWithArguments(
@@ -86,6 +73,11 @@ public class SendTransactionExample {
                 Collections.emptyList()
         );
 
+        return getFlowTransactionResult(payerAddress, payerAccountKey, tx);
+    }
+
+    @NotNull
+    private FlowTransactionResult getFlowTransactionResult(FlowAddress payerAddress, FlowAccountKey payerAccountKey, FlowTransaction tx) throws Exception {
         Signer signer = Crypto.getSigner(privateKey, payerAccountKey.getHashAlgo());
         tx = tx.addEnvelopeSignature(payerAddress, payerAccountKey.getId(), signer);
 
