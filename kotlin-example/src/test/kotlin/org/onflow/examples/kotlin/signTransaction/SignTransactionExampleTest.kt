@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.onflow.flow.common.test.*
 import org.onflow.flow.sdk.*
+import org.onflow.flow.sdk.crypto.Crypto
 
 @FlowEmulatorProjectTest(flowJsonLocation = "../flow/flow.json")
 internal class SignTransactionExampleTest {
@@ -13,6 +14,9 @@ internal class SignTransactionExampleTest {
 
     @FlowTestAccount
     lateinit var testAccount: TestAccount
+
+    @FlowTestAccount
+    lateinit var testAccount2: TestAccount
 
     @FlowTestClient
     lateinit var accessAPI: FlowAccessApi
@@ -36,6 +40,49 @@ internal class SignTransactionExampleTest {
     fun `Can sign single party multi-sig transaction`() {
         transactionConnector = SignTransactionExample(testAccount.privateKey, accessAPI)
         val txResult = transactionConnector.singlePartyMultiSignature(testAccount.flowAddress)
+
+        Assertions.assertNotNull(txResult)
+        Assertions.assertTrue(txResult.status === FlowTransactionStatus.SEALED, "Transaction should be sealed")
+    }
+
+    @Test
+    fun `Can sign multi-party single sig transaction`() {
+        val txResult = transactionConnector.multiPartySingleSignature(
+            account1PrivateKey = serviceAccount.privateKey,
+            account2PrivateKey = testAccount.privateKey,
+            payerAddress = testAccount.flowAddress,
+            authorizerAddress = serviceAccount.flowAddress
+        )
+
+        Assertions.assertNotNull(txResult)
+        Assertions.assertTrue(txResult.status === FlowTransactionStatus.SEALED, "Transaction should be sealed")
+    }
+
+    @Test
+    fun `Can sign multi-party multi-sig transaction`() {
+        val serviceAccountKey2 = Crypto.generateKeyPair()
+        val testAccountKey2 = Crypto.generateKeyPair()
+
+        val txResult = transactionConnector.multiPartyMultiSignature(
+            account1PrivateKeys = listOf(testAccount2.privateKey, serviceAccountKey2.private),
+            account2PrivateKeys = listOf(testAccount.privateKey, testAccountKey2.private),
+            payerAddress = testAccount.flowAddress,
+            authorizerAddress = testAccount2.flowAddress
+        )
+
+        Assertions.assertNotNull(txResult)
+        Assertions.assertTrue(txResult.status === FlowTransactionStatus.SEALED, "Transaction should be sealed")
+    }
+
+    @Test
+    fun `Can sign multi-party 2 authorizers transaction`() {
+        val txResult = transactionConnector.multiParty2Authorizers(
+            account1PrivateKey = serviceAccount.privateKey,
+            account2PrivateKey = testAccount.privateKey,
+            payerAddress = testAccount.flowAddress,
+            authorizer1Address = serviceAccount.flowAddress,
+            authorizer2Address = testAccount.flowAddress
+        )
 
         Assertions.assertNotNull(txResult)
         Assertions.assertTrue(txResult.status === FlowTransactionStatus.SEALED, "Transaction should be sealed")

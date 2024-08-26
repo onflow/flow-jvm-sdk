@@ -18,7 +18,7 @@ transaction(startingBalance: UFix64, publicKey: String, signatureAlgorithm: UInt
                 signatureAlgorithm: SignatureAlgorithm(rawValue: signatureAlgorithm)!
             ),
             hashAlgorithm: HashAlgorithm(rawValue: hashAlgorithm)!,
-            weight: UFix64(500)
+            weight: UFix64(1000)
         )
          newAccount.keys.add(
             publicKey: PublicKey(
@@ -26,7 +26,7 @@ transaction(startingBalance: UFix64, publicKey: String, signatureAlgorithm: UInt
                 signatureAlgorithm: SignatureAlgorithm(rawValue: signatureAlgorithm)!
             ),
             hashAlgorithm: HashAlgorithm(rawValue: hashAlgorithm)!,
-            weight: UFix64(500)
+            weight: UFix64(1000)
          )
 
 
