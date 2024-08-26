@@ -212,7 +212,6 @@ public class SignTransactionExample {
 
     @NotNull
     private FlowTransactionResult getFlowTransactionResult(FlowTransaction tx) throws Exception {
-
         FlowId txID;
         FlowAccessApi.AccessApiCallResponse<?> response = accessAPI.sendTransaction(tx);
         if (response instanceof FlowAccessApi.AccessApiCallResponse.Success) {
