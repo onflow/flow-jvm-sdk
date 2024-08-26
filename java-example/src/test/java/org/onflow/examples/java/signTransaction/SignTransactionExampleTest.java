@@ -5,8 +5,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.onflow.flow.common.test.*;
 import org.onflow.flow.sdk.*;
-import org.onflow.flow.sdk.crypto.Crypto;
-import org.onflow.flow.sdk.crypto.KeyPair;
 
 import java.util.List;
 
@@ -65,12 +63,9 @@ public class SignTransactionExampleTest {
 
     @Test
     public void canSignMultiPartyMultiSigTransaction() throws Exception {
-        KeyPair serviceAccountKey2 = Crypto.generateKeyPair();
-        KeyPair testAccountKey2 = Crypto.generateKeyPair();
-
         FlowTransactionResult txResult = transactionConnector.multiPartyMultiSignature(
-                List.of(testAccount2.getPrivateKey(), serviceAccountKey2.getPrivate()),
-                List.of(testAccount.getPrivateKey(), testAccountKey2.getPrivate()),
+                List.of(testAccount2.getPrivateKey(), testAccount2.getPrivateKey()),
+                List.of(testAccount.getPrivateKey(), testAccount.getPrivateKey()),
                 testAccount.getFlowAddress(),
                 testAccount2.getFlowAddress(),
                 "cadence/simple_transaction.cdc",

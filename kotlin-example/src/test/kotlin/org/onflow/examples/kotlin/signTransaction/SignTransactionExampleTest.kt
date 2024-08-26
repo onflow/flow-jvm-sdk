@@ -5,7 +5,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.onflow.flow.common.test.*
 import org.onflow.flow.sdk.*
-import org.onflow.flow.sdk.crypto.Crypto
 
 @FlowEmulatorProjectTest(flowJsonLocation = "../flow/flow.json")
 internal class SignTransactionExampleTest {
@@ -60,12 +59,9 @@ internal class SignTransactionExampleTest {
 
     @Test
     fun `Can sign multi-party multi-sig transaction`() {
-        val serviceAccountKey2 = Crypto.generateKeyPair()
-        val testAccountKey2 = Crypto.generateKeyPair()
-
         val txResult = transactionConnector.multiPartyMultiSignature(
-            account1PrivateKeys = listOf(testAccount2.privateKey, serviceAccountKey2.private),
-            account2PrivateKeys = listOf(testAccount.privateKey, testAccountKey2.private),
+            account1PrivateKeys = listOf(testAccount2.privateKey, testAccount2.privateKey),
+            account2PrivateKeys = listOf(testAccount.privateKey, testAccount.privateKey),
             payerAddress = testAccount.flowAddress,
             authorizerAddress = testAccount2.flowAddress
         )
