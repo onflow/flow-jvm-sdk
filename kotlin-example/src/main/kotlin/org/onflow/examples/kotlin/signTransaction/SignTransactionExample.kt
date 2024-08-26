@@ -1,13 +1,12 @@
-package org.onflow.examples.kotlin.sendTransaction
+package org.onflow.examples.kotlin.signTransaction
 
 import org.onflow.examples.kotlin.AccessAPIConnector
 import org.onflow.examples.kotlin.ExamplesUtils
 import org.onflow.flow.sdk.*
-import org.onflow.flow.sdk.cadence.StringField
 import org.onflow.flow.sdk.crypto.Crypto.getSigner
 import org.onflow.flow.sdk.crypto.PrivateKey
 
-internal class SendTransactionExample(
+internal class SignTransactionExample(
     privateKey: PrivateKey,
     accessApiConnection: FlowAccessApi
 ) {
@@ -16,7 +15,7 @@ internal class SendTransactionExample(
 
     private val connector = AccessAPIConnector(privateKey, accessAPI)
 
-    fun sendSimpleTransaction(
+    fun singlePartySingleSignature(
         payerAddress: FlowAddress,
         scriptName: String = "cadence/simple_transaction.cdc",
         gasLimit: Long = 500
@@ -43,19 +42,18 @@ internal class SendTransactionExample(
         return getFlowTransactionResult(tx)
     }
 
-    fun sendComplexTransactionWithArguments(
+    fun singlePartyMultiSignature(
         payerAddress: FlowAddress,
-        scriptName: String = "cadence/greeting_script.cdc",
-        gasLimit: Long = 500,
-        greeting: String = "Hello world!"
+        scriptName: String = "cadence/simple_transaction.cdc",
+        gasLimit: Long = 500
     ): FlowTransactionResult {
         val payerAccountKey = connector.getAccountKey(payerAddress, 0)
 
+        val payerAccountKey2 = connector.getAccountKey(payerAddress, 1)
+
         var tx = FlowTransaction(
             script = FlowScript(ExamplesUtils.loadScript(scriptName)),
-            arguments = listOf(
-                FlowArgument(StringField(greeting)),
-            ),
+            arguments = listOf(),
             referenceBlockId = connector.latestBlockID,
             gasLimit = gasLimit,
             proposalKey = FlowTransactionProposalKey(
@@ -64,14 +62,21 @@ internal class SendTransactionExample(
                 sequenceNumber = payerAccountKey.sequenceNumber.toLong()
             ),
             payerAddress = payerAddress,
-            authorizers = listOf()
+            authorizers = listOf(payerAddress)
         )
 
         val signer = getSigner(privateKey, payerAccountKey.hashAlgo)
+
+        // account 1 signs the envelope with key 1
         tx = tx.addEnvelopeSignature(payerAddress, payerAccountKey.id, signer)
+
+        // account 1 signs the envelope with key 2
+        tx = tx.addEnvelopeSignature(payerAddress, payerAccountKey2.id, signer)
 
         return getFlowTransactionResult(tx)
     }
+
+
 
     private fun getFlowTransactionResult(tx: FlowTransaction): FlowTransactionResult {
         val txID = when (val response = accessAPI.sendTransaction(tx)) {

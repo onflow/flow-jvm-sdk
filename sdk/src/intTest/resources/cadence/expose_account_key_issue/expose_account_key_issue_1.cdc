@@ -20,7 +20,7 @@ transaction(startingBalance: UFix64, publicKey: String, signatureAlgorithm: UInt
 
         let newVault = newAccount.capabilities.borrow<&{FungibleToken.Receiver}>(/public/flowTokenReceiver)!
 
-        let tokensWithdrawn <- signerVault.withdraw(amount: startingBalance)
+        let tokensWithdrawn <- vaultRef.withdraw(amount: startingBalance)
         newVault.deposit(from: <- tokensWithdrawn)
     }
 }

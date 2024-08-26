@@ -2,14 +2,16 @@ package org.onflow.flow.sdk
 
 import org.onflow.flow.sdk.crypto.Crypto
 import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Test
 import org.onflow.flow.common.test.FlowEmulatorProjectTest
 import org.onflow.flow.common.test.FlowTestClient
 import org.onflow.flow.common.test.FlowServiceAccountCredentials
 import org.onflow.flow.common.test.TestAccount
 import org.onflow.flow.common.test.FlowTestUtil
 import org.onflow.flow.sdk.IntegrationTestUtils.getAccount
-import org.onflow.flow.sdk.IntegrationTestUtils.getAccountAddressFromResult
 import org.onflow.flow.sdk.IntegrationTestUtils.handleResult
+import org.onflow.flow.sdk.cadence.AddressField
+import org.onflow.flow.sdk.cadence.EventField
 import java.math.BigDecimal
 import java.nio.charset.StandardCharsets
 
@@ -27,7 +29,7 @@ class ExposeAccountKeyIssueTest {
     private val hashAlgorithm1 = HashAlgorithm.SHA3_256
 
     // Ignoring for now
-    // @Test
+    @Test
     fun `Expose issue with account keys api`() {
         val addressRegistry = AddressRegistry()
         addressRegistry.registerDefaults()
@@ -44,8 +46,9 @@ class ExposeAccountKeyIssueTest {
 
         val loadedScript1 = String(FlowTestUtil.loadScript("cadence/expose_account_key_issue/expose_account_key_issue_1.cdc"), StandardCharsets.UTF_8)
         val createAccountResult = flow.simpleFlowTransaction(
-            serviceAccount.flowAddress,
-            serviceAccount.signer
+            gasLimit = 1000,
+            address = serviceAccount.flowAddress,
+            signer = serviceAccount.signer
         ) {
             script {
                 loadedScript1
@@ -59,7 +62,7 @@ class ExposeAccountKeyIssueTest {
         }.sendAndWaitForSeal()
 
         val createAccountResultData = handleResult(createAccountResult, "Failed to create account")
-        val newAccountAddress = getAccountAddressFromResult(createAccountResultData)
+        val newAccountAddress = getAccountCreatedAddress(createAccountResultData)
 
         val account = getAccount(flow, newAccountAddress)
 
@@ -116,5 +119,16 @@ class ExposeAccountKeyIssueTest {
         assertEquals(pair2.public.hex, finalAccount.keys[1].publicKey.base16Value)
         assertFalse(finalAccount.keys[0].revoked)
         assertTrue(finalAccount.keys[1].revoked)
+    }
+
+    private fun getAccountCreatedAddress(txResult: FlowTransactionResult): FlowAddress {
+        val address = txResult.events
+            .find { it.type == "flow.AccountCreated" }
+            ?.payload
+            ?.let { (it.jsonCadence as EventField).value }
+            ?.getRequiredField<AddressField>("address")
+            ?.value as String
+
+        return FlowAddress(address)
     }
 }
