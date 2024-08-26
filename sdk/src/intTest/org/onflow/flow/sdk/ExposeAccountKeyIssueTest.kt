@@ -28,7 +28,6 @@ class ExposeAccountKeyIssueTest {
     private val signatureAlgorithm1 = SignatureAlgorithm.ECDSA_P256
     private val hashAlgorithm1 = HashAlgorithm.SHA3_256
 
-    // Ignoring for now
     @Test
     fun `Expose issue with account keys api`() {
         val addressRegistry = AddressRegistry()
