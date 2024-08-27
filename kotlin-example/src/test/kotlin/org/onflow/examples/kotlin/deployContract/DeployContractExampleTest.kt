@@ -9,7 +9,6 @@ import org.onflow.flow.sdk.*
 
 @FlowEmulatorProjectTest(flowJsonLocation = "../flow/flow.json")
 internal class DeployContractExampleTest {
-
     @FlowServiceAccountCredentials
     lateinit var serviceAccount: TestAccount
 
@@ -27,7 +26,6 @@ internal class DeployContractExampleTest {
 
     @Test
     fun `Can deploy contract to account`() {
-
         val initialAccount = accessAPIConnector.getAccount(serviceAccount.flowAddress)
         Assertions.assertTrue(initialAccount.contracts.size == 16, "The service account should initially have 16 contracts")
 
