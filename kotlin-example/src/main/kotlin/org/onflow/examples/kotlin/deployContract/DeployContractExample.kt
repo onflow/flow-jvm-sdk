@@ -26,9 +26,9 @@ internal class DeployContractExample(
 
         val contractCode = ExamplesUtils.loadScriptContent(scriptName)
             .replace("\"", "\\\"") // Escape double quotes
-            .replace("\n", "\\n")  // Escape newlines
+            .replace("\n", "\\n") // Escape newlines
 
-        val contractScript =  """
+        val contractScript = """
                 transaction() {
                     prepare(signer: auth(AddContract) &Account) {
                         signer.contracts.add(
@@ -41,7 +41,8 @@ internal class DeployContractExample(
 
         var tx = FlowTransaction(
             script = FlowScript(
-                contractScript),
+                contractScript
+            ),
             arguments = listOf(),
             referenceBlockId = connector.latestBlockID,
             gasLimit = gasLimit,
