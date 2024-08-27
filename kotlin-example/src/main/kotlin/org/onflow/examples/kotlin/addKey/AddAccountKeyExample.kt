@@ -25,7 +25,6 @@ internal class AddAccountKeyExample(
     ): FlowTransactionResult {
         val payerAccountKey = connector.getAccountKey(payerAddress, 0)
 
-
         var tx = FlowTransaction(
             script = FlowScript(ExamplesUtils.loadScript(scriptName)),
             arguments = listOf(
