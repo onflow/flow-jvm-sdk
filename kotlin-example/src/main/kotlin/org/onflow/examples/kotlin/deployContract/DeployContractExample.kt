@@ -4,6 +4,9 @@ import org.onflow.examples.kotlin.AccessAPIConnector
 import org.onflow.examples.kotlin.ExamplesUtils
 import org.onflow.flow.sdk.*
 import org.onflow.flow.sdk.cadence.Field
+import org.onflow.flow.sdk.cadence.StringField
+import org.onflow.flow.sdk.cadence.UFix64NumberField
+import org.onflow.flow.sdk.cadence.UInt8NumberField
 import org.onflow.flow.sdk.crypto.Crypto
 import org.onflow.flow.sdk.crypto.PrivateKey
 
@@ -19,37 +22,48 @@ internal class DeployContractExample(
     fun deployContract(
         payerAddress: FlowAddress,
         contractName: String = "GreatToken",
-        gasLimit: Int = 1000,
-        contractArgs: Map<String, Field<*>> = emptyMap()
-    ): FlowTransactionStub {
-        val contractCode = ExamplesUtils.loadScript("cadence/great_token.cdc")
+        scriptName: String = "cadence/great_token.cdc",
+        gasLimit: Long = 1000L,
+    ): FlowTransactionResult {
         val payerAccountKey = connector.getAccountKey(payerAddress, 0)
         val signer = Crypto.getSigner(privateKey, payerAccountKey.hashAlgo)
 
-        val sortedArgs = contractArgs.entries.sortedBy { it.key }
-        val contractArgDeclarations = sortedArgs.joinToString(", ") { "${it.key}: ${it.value.type}" }
-        val contractAddArgs = sortedArgs.joinToString(", ") { "${it.key}: ${it.key}" }
-
-        return accessAPI.simpleFlowTransaction(
-            address = payerAddress,
-            signer = signer,
-            keyIndex = payerAccountKey.id
-        ) {
-            script {
-                """
-                transaction($contractArgDeclarations) {
+        val contractCode = ExamplesUtils.loadScript(scriptName)
+        val contractScript =  """
+                transaction() {
                     prepare(signer: &Account) {
                         signer.contracts.add(
-                            name: "$contractName", code: "$contractCode".utf8$contractAddArgs
+                            name: "$contractName", code: "$contractCode".utf8
                         )
                     }
                 }
             """
-            }
-            gasLimit(gasLimit)
-            arguments {
-                sortedArgs.forEach { arg { it.value } }
-            }
+
+        var tx = FlowTransaction(
+            script = FlowScript(
+                contractScript),
+            arguments = listOf(),
+            referenceBlockId = connector.latestBlockID,
+            gasLimit = gasLimit,
+            proposalKey = FlowTransactionProposalKey(
+                address = payerAddress,
+                keyIndex = payerAccountKey.id,
+                sequenceNumber = payerAccountKey.sequenceNumber.toLong()
+            ),
+            payerAddress = payerAddress,
+            authorizers = listOf(payerAddress)
+        )
+
+        tx = tx.addEnvelopeSignature(payerAddress, payerAccountKey.id, signer)
+
+        return getFlowTransactionResult(tx)
+    }
+
+    private fun getFlowTransactionResult(tx: FlowTransaction): FlowTransactionResult {
+        val txID = when (val response = accessAPI.sendTransaction(tx)) {
+            is FlowAccessApi.AccessApiCallResponse.Success -> response.data
+            is FlowAccessApi.AccessApiCallResponse.Error -> throw Exception(response.message, response.throwable)
         }
+        return connector.waitForSeal(txID)
     }
 }
