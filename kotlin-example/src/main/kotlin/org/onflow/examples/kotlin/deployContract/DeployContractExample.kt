@@ -18,11 +18,11 @@ internal class DeployContractExample(
 
     fun deployContract(
         payerAddress: FlowAddress,
-        contractName: String = "cadence/great_token.cdc",
+        contractName: String = "GreatToken",
         gasLimit: Int = 1000,
         contractArgs: Map<String, Field<*>> = emptyMap()
     ): FlowTransactionStub {
-        val contractCode = ExamplesUtils.loadScript(contractName)
+        val contractCode = ExamplesUtils.loadScript("cadence/great_token.cdc")
         val payerAccountKey = connector.getAccountKey(payerAddress, 0)
         val signer = Crypto.getSigner(privateKey, payerAccountKey.hashAlgo)
 
