@@ -1,15 +1,16 @@
 package org.onflow.examples.java;
 
 import org.jetbrains.annotations.NotNull;
-import org.onflow.flow.sdk.FlowAccessApi;
-import org.onflow.flow.sdk.FlowId;
-import org.onflow.flow.sdk.FlowTransaction;
-import org.onflow.flow.sdk.FlowTransactionResult;
+import org.onflow.flow.sdk.*;
+import org.onflow.flow.sdk.cadence.StringField;
+import org.onflow.flow.sdk.cadence.UInt8NumberField;
+import org.onflow.flow.sdk.crypto.PublicKey;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 public class ExamplesUtils {
 
