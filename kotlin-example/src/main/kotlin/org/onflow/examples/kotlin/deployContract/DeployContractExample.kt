@@ -28,12 +28,16 @@ internal class DeployContractExample(
         val payerAccountKey = connector.getAccountKey(payerAddress, 0)
         val signer = Crypto.getSigner(privateKey, payerAccountKey.hashAlgo)
 
-        val contractCode = ExamplesUtils.loadScript(scriptName)
+        val contractCode = ExamplesUtils.loadScriptContent(scriptName)
+            .replace("\"", "\\\"") // Escape double quotes
+            .replace("\n", "\\n")  // Escape newlines
+
         val contractScript =  """
                 transaction() {
-                    prepare(signer: &Account) {
+                    prepare(signer: auth(AddContract) &Account) {
                         signer.contracts.add(
-                            name: "$contractName", code: "$contractCode".utf8
+                            name: "$contractName", 
+                            code: "$contractCode".utf8
                         )
                     }
                 }

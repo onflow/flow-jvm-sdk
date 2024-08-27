@@ -36,10 +36,11 @@ internal class DeployContractExampleTest {
         )
 
         Assertions.assertNotNull(txResult, "Transaction result should not be null")
-        // Assertions.assertTrue(txResult.getResult().status == FlowTransactionStatus.SEALED, "Transaction should be sealed")
+        Assertions.assertTrue(txResult.status == FlowTransactionStatus.SEALED, "Transaction should be sealed")
 
         // Verify the contract was added to the account
         val updatedAccount = accessAPIConnector.getAccount(serviceAccount.flowAddress)
-        //Assertions.assertTrue(updatedAccount.contracts.containsKey(contractName), "The account should now have the contract deployed")
+        Assertions.assertTrue(updatedAccount.contracts.containsKey("GreatToken"), "The account should now have the contract deployed")
+        Assertions.assertTrue(updatedAccount.contracts.size == 17, "The service account should now have 17 contracts")
     }
 }
