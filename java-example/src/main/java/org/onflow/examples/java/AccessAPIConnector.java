@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 
+import org.jetbrains.annotations.NotNull;
 import org.onflow.flow.sdk.*;
 import org.onflow.flow.sdk.cadence.AddressField;
 import org.onflow.flow.sdk.cadence.StringField;
@@ -33,7 +34,7 @@ public final class AccessAPIConnector {
         }
     }
 
-    private FlowAccount getAccount(FlowAddress address) {
+    public FlowAccount getAccount(FlowAddress address) {
         FlowAccessApi.AccessApiCallResponse<FlowAccount> response = accessAPI.getAccountAtLatestBlock(address);
         if (response instanceof FlowAccessApi.AccessApiCallResponse.Success) {
             return ((FlowAccessApi.AccessApiCallResponse.Success<FlowAccount>) response).getData();

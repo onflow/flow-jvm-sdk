@@ -21,7 +21,7 @@ internal class AccessAPIConnector(
             is FlowAccessApi.AccessApiCallResponse.Error -> throw Exception(response.message, response.throwable)
         }
 
-    private fun getAccount(address: FlowAddress): FlowAccount = when (val response = accessAPI.getAccountAtLatestBlock(address)) {
+    fun getAccount(address: FlowAddress): FlowAccount = when (val response = accessAPI.getAccountAtLatestBlock(address)) {
         is FlowAccessApi.AccessApiCallResponse.Success -> response.data
         is FlowAccessApi.AccessApiCallResponse.Error -> throw Exception(response.message, response.throwable)
     }

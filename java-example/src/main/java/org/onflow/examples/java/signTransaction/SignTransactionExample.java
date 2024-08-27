@@ -47,7 +47,7 @@ public class SignTransactionExample {
         Signer signer = Crypto.getSigner(privateKey, payerAccountKey.getHashAlgo());
         tx = tx.addEnvelopeSignature(payerAddress, payerAccountKey.getId(), signer);
 
-        return getFlowTransactionResult(tx);
+        return getTransactionResult(tx);
     }
 
     public FlowTransactionResult singlePartyMultiSignature(
@@ -82,7 +82,7 @@ public class SignTransactionExample {
         // Account 1 signs the envelope with key 2
         tx = tx.addEnvelopeSignature(payerAddress, payerAccountKey2.getId(), signer);
 
-        return getFlowTransactionResult(tx);
+        return getTransactionResult(tx);
     }
 
     public FlowTransactionResult multiPartySingleSignature(
@@ -120,7 +120,7 @@ public class SignTransactionExample {
         Signer account2Signer = Crypto.getSigner(account2PrivateKey, account2Key.getHashAlgo());
         tx = tx.addEnvelopeSignature(payerAddress, account2Key.getId(), account2Signer);
 
-        return getFlowTransactionResult(tx);
+        return getTransactionResult(tx);
     }
 
     public FlowTransactionResult multiPartyMultiSignature(
@@ -168,7 +168,7 @@ public class SignTransactionExample {
         Signer account2Signer2 = Crypto.getSigner(account2PrivateKeys.get(1), account2Key2.getHashAlgo());
         tx = tx.addEnvelopeSignature(payerAddress, account2Key2.getId(), account2Signer2);
 
-        return getFlowTransactionResult(tx);
+        return getTransactionResult(tx);
     }
 
     public FlowTransactionResult multiParty2Authorizers(
@@ -207,23 +207,12 @@ public class SignTransactionExample {
         Signer account2Signer = Crypto.getSigner(account2PrivateKey, account2Key.getHashAlgo());
         tx = tx.addEnvelopeSignature(authorizer2Address, account2Key.getId(), account2Signer);
 
-        return getFlowTransactionResult(tx);
+        return getTransactionResult(tx);
     }
 
     @NotNull
-    private FlowTransactionResult getFlowTransactionResult(FlowTransaction tx) throws Exception {
-        FlowId txID;
-        FlowAccessApi.AccessApiCallResponse<?> response = accessAPI.sendTransaction(tx);
-        if (response instanceof FlowAccessApi.AccessApiCallResponse.Success) {
-            txID = ((FlowAccessApi.AccessApiCallResponse.Success<FlowId>) response).getData();
-        } else if (response instanceof FlowAccessApi.AccessApiCallResponse.Error) {
-            throw new Exception(((FlowAccessApi.AccessApiCallResponse.Error) response).getMessage(),
-                    ((FlowAccessApi.AccessApiCallResponse.Error) response).getThrowable());
-        } else {
-            throw new Exception("Unknown response type");
-        }
-
-        return connector.waitForSeal(txID);
+    private FlowTransactionResult getTransactionResult(FlowTransaction tx) throws Exception {
+        return ExamplesUtils.getFlowTransactionResult(tx, accessAPI, connector);
     }
 }
 
