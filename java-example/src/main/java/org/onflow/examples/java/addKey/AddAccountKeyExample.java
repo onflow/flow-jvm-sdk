@@ -34,10 +34,10 @@ public class AddAccountKeyExample {
         FlowTransaction tx = new FlowTransaction(
                 new FlowScript(ExamplesUtils.loadScript(scriptName)),
                 List.of(
-                        new FlowArgument(new StringField(payerAccountKey.getPublicKey().getStringValue())),
+                        new FlowArgument(new StringField(payerAccountKey.getPublicKey().getBase16Value())),
                         new FlowArgument(new UInt8NumberField(String.valueOf(payerAccountKey.getSignAlgo().getIndex()))),
                         new FlowArgument(new UInt8NumberField(String.valueOf(payerAccountKey.getHashAlgo().getIndex()))),
-                        new FlowArgument(new UFix64NumberField("1000"))
+                        new FlowArgument(new UFix64NumberField("1000.0"))
                 ),
                 connector.getLatestBlockID(),
                 gasLimit,

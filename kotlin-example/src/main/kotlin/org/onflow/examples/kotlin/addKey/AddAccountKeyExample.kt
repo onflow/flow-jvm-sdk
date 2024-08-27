@@ -29,10 +29,10 @@ internal class AddAccountKeyExample(
         var tx = FlowTransaction(
             script = FlowScript(ExamplesUtils.loadScript(scriptName)),
             arguments = listOf(
-                FlowArgument(StringField(payerAccountKey.publicKey.stringValue)),
+                FlowArgument(StringField(payerAccountKey.publicKey.base16Value)),
                 FlowArgument(UInt8NumberField(payerAccountKey.signAlgo.index.toString())),
                 FlowArgument(UInt8NumberField(payerAccountKey.hashAlgo.index.toString())),
-                FlowArgument(UFix64NumberField(1000.toString()))
+                FlowArgument(UFix64NumberField("1000.0"))
             ),
             referenceBlockId = connector.latestBlockID,
             gasLimit = gasLimit,
