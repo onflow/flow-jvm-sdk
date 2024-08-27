@@ -3,10 +3,6 @@ package org.onflow.examples.kotlin.deployContract
 import org.onflow.examples.kotlin.AccessAPIConnector
 import org.onflow.examples.kotlin.ExamplesUtils
 import org.onflow.flow.sdk.*
-import org.onflow.flow.sdk.cadence.Field
-import org.onflow.flow.sdk.cadence.StringField
-import org.onflow.flow.sdk.cadence.UFix64NumberField
-import org.onflow.flow.sdk.cadence.UInt8NumberField
 import org.onflow.flow.sdk.crypto.Crypto
 import org.onflow.flow.sdk.crypto.PrivateKey
 
