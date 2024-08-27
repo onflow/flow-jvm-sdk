@@ -1,5 +1,7 @@
 package org.onflow.examples.java.deployContract;
 
+import java.util.Set;
+import java.util.HashSet;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,6 +38,14 @@ public class DeployContractExampleTest {
 
         Assertions.assertNotNull(txResult, "Transaction result should not be null");
         Assertions.assertSame(txResult.getStatus(), FlowTransactionStatus.SEALED, "Transaction should be sealed");
+        Assertions.assertFalse(txResult.getEvents().isEmpty(), "Expected events in transaction result but found none.");
+
+        txResult.getEvents().forEach(event -> {
+            String eventType = event.getType().substring(event.getType().lastIndexOf('.') + 1);
+            Set<String> expectedEventTypes = new HashSet<>();
+            expectedEventTypes.add("AccountContractAdded");
+            Assertions.assertTrue(expectedEventTypes.contains(eventType), "Unexpected event type: " + eventType);
+        });
 
         // Verify the contract was added to the account
         FlowAccount updatedAccount = accessAPIConnector.getAccount(serviceAccount.getFlowAddress());

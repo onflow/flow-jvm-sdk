@@ -35,6 +35,12 @@ internal class DeployContractExampleTest {
 
         Assertions.assertNotNull(txResult, "Transaction result should not be null")
         Assertions.assertTrue(txResult.status == FlowTransactionStatus.SEALED, "Transaction should be sealed")
+        Assertions.assertTrue(txResult.events.isNotEmpty()) { "Expected events in transaction result but found none." }
+
+        txResult.events.forEach { event ->
+            val eventType = event.type.split(".").last()
+            Assertions.assertTrue(setOf("AccountContractAdded").contains(eventType), "Unexpected event type: $eventType")
+        }
 
         // Verify the contract was added to the account
         val updatedAccount = accessAPIConnector.getAccount(serviceAccount.flowAddress)
