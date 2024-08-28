@@ -4,7 +4,6 @@ import org.onflow.flow.sdk.FlowAccessApi;
 import org.onflow.flow.sdk.FlowChainId;
 
 public class GetNetworkParametersAccessAPIConnector {
-
     private final FlowAccessApi accessAPI;
 
     public GetNetworkParametersAccessAPIConnector(FlowAccessApi accessAPI) {

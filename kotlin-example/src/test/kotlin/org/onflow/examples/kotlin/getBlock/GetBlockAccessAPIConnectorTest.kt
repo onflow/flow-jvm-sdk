@@ -4,12 +4,17 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.onflow.flow.common.test.FlowEmulatorProjectTest
+import org.onflow.flow.common.test.FlowServiceAccountCredentials
 import org.onflow.flow.common.test.FlowTestClient
+import org.onflow.flow.common.test.TestAccount
 import org.onflow.flow.sdk.FlowAccessApi
 import java.time.LocalDateTime
 
 @FlowEmulatorProjectTest(flowJsonLocation = "../flow/flow.json")
 internal class GetBlockAccessAPIConnectorTest {
+    @FlowServiceAccountCredentials
+    lateinit var serviceAccount: TestAccount
+
     @FlowTestClient
     lateinit var accessAPI: FlowAccessApi
 
