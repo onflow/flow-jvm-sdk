@@ -11,9 +11,6 @@ import org.onflow.flow.sdk.cadence.BooleanField
 
 @FlowEmulatorProjectTest(flowJsonLocation = "../flow/flow.json")
 internal class UserSignatureExampleTest {
-    @FlowServiceAccountCredentials
-    lateinit var serviceAccount: TestAccount
-
     @FlowTestAccount
     lateinit var testAccount: TestAccount
 
@@ -32,8 +29,7 @@ internal class UserSignatureExampleTest {
 
     @Test
     fun `Can verify user signature`() {
-        val txResult = connector.runUserSignatureDemo(testAccount.flowAddress, testAccount2.flowAddress)
-        println(txResult)
+        val txResult = connector.verifyUserSignature(testAccount.flowAddress, testAccount2.flowAddress)
 
         if (txResult is BooleanField) {
             assertTrue(txResult.value!!, "Signature verification failed")

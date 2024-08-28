@@ -41,11 +41,9 @@ access(all) fun main(
     .concat(fromAddress.toBytes())
     .concat(amount.toBigEndianBytes())
 
-    log(message)
-
   return keyList.verify(
     signatureSet: signatureSet,
     signedData: message,
-    domainSeparationTag: "FLOW-V0.0-user"
+    domainSeparationTag: ""
   )
 }

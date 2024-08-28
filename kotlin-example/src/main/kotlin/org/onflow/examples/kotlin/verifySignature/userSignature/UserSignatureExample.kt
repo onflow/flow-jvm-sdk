@@ -9,28 +9,7 @@ import java.math.BigInteger
 internal class UserSignatureExample(
     private val accessAPI: FlowAccessApi
 ) {
-    private fun ByteArray.toHexString() = joinToString("") { "%02x".format(it) }
-    private fun UFix64NumberField.toBigEndianBytes(): ByteArray {
-        val parts = this.value!!.split(".")
-        val integerPart = BigInteger(parts[0])
-        val fractionalPart = BigInteger(parts.getOrElse(1) { "0" }.padEnd(8, '0'))
-
-        val integerBytes = ByteArray(8)
-        val fractionalBytes = ByteArray(8)
-
-        val tempIntegerBytes = integerPart.toByteArray()
-        val tempFractionalBytes = fractionalPart.toByteArray()
-
-        // Copy integer part to the end of the 8-byte array
-        System.arraycopy(tempIntegerBytes, 0, integerBytes, 8 - tempIntegerBytes.size, tempIntegerBytes.size)
-
-        // Copy fractional part to the end of the 8-byte array
-        System.arraycopy(tempFractionalBytes, 0, fractionalBytes, 8 - tempFractionalBytes.size, tempFractionalBytes.size)
-
-        return integerBytes + fractionalBytes
-    }
-
-    fun runUserSignatureDemo(
+    fun verifyUserSignature(
         aliceAddress: FlowAddress,
         bobAddress: FlowAddress
     ): Field<*> {
@@ -45,26 +24,17 @@ internal class UserSignatureExample(
 
         // Create the message that will be signed
         val amount = UFix64NumberField("100.00")
+        val amountBigEndianBytes = toBigEndianBytes(amount.value!!)
 
-        println(amount.toBigEndianBytes().joinToString(", ") { it.toString() })
-
-        val message = aliceAddress.bytes + bobAddress.bytes + amount.toBigEndianBytes()
-
-        val messageAsHex = message.joinToString(", ") { it.toString() }
-        println("Message bytes: [$messageAsHex]")
-
-        val unsignedMessage = message.map { it.toInt() and 0xFF }
-        val messageAsUnsignedHex = unsignedMessage.joinToString(", ") { it.toString() }
-        println("Unsigned Message bytes: [$messageAsUnsignedHex]")
+        val message = aliceAddress.bytes + bobAddress.bytes + amountBigEndianBytes
+        val unsignedMessage = message.map { (it.toInt() and 0xFF).toByte() }.toByteArray()
 
         val signerAlice = Crypto.getSigner(privateKeyAlice, HashAlgorithm.SHA3_256)
         val signerBob = Crypto.getSigner(privateKeyBob, HashAlgorithm.SHA3_256)
 
         // Sign the message with Alice and Bob
-        val signatureAlice = signerAlice.sign(message)
-        println(signatureAlice)
-        val signatureBob = signerBob.sign(message)
-        println(signatureBob)
+        val signatureAlice = signerAlice.sign(unsignedMessage)
+        val signatureBob = signerBob.sign(unsignedMessage)
 
         // Each signature has half weight
         val weightAlice = UFix64NumberField("0.5")
@@ -104,6 +74,23 @@ internal class UserSignatureExample(
         }
 
         return result.jsonCadence
+    }
+
+    private fun ByteArray.toHexString() = joinToString("") { "%02x".format(it) }
+
+    fun toBigEndianBytes(value: String): ByteArray {
+        // Convert UFix64 string to BigInteger by multiplying by 10^8
+        val ufix64Value = BigInteger(value.replace(".", "")) * BigInteger.TEN.pow(8 - value.split(".")[1].length)
+
+        // Convert BigInteger to byte array in big-endian order
+        return ufix64Value.toByteArray().let {
+            if (it.size < 8) {
+                // Add leading zeroes if necessary to make it 8 bytes long
+                ByteArray(8 - it.size) + it
+            } else {
+                it
+            }
+        }
     }
 }
 
