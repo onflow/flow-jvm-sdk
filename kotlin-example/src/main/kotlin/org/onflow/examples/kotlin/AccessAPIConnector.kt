@@ -6,7 +6,6 @@ import org.onflow.flow.sdk.cadence.*
 import org.onflow.flow.sdk.crypto.Crypto
 import org.onflow.flow.sdk.crypto.PrivateKey
 import org.onflow.flow.sdk.crypto.PublicKey
-import org.onflow.flow.sdk.cadence.EventField
 import java.math.BigDecimal
 
 internal class AccessAPIConnector(
@@ -16,7 +15,7 @@ internal class AccessAPIConnector(
     private val privateKey = privateKey
     private val accessAPI = accessApiConnection
 
-    private val latestBlockID: FlowId
+    val latestBlockID: FlowId
         get() = when (val response = accessAPI.getLatestBlockHeader()) {
             is FlowAccessApi.AccessApiCallResponse.Success -> response.data.id
             is FlowAccessApi.AccessApiCallResponse.Error -> throw Exception(response.message, response.throwable)
@@ -47,7 +46,7 @@ internal class AccessAPIConnector(
         is FlowAccessApi.AccessApiCallResponse.Error -> throw Exception(response.message, response.throwable)
     }
 
-    private fun waitForSeal(txID: FlowId): FlowTransactionResult {
+    fun waitForSeal(txID: FlowId): FlowTransactionResult {
         while (true) {
             val txResult = getTransactionResult(txID)
             if (txResult.status == FlowTransactionStatus.SEALED) {
