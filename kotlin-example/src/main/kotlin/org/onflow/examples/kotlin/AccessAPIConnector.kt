@@ -1,5 +1,6 @@
 package org.onflow.examples.kotlin
 
+import org.onflow.examples.kotlin.ExamplesUtils.loadScript
 import org.onflow.flow.sdk.*
 import org.onflow.flow.sdk.cadence.*
 import org.onflow.flow.sdk.crypto.Crypto
@@ -66,8 +67,6 @@ internal class AccessAPIConnector(
 
         return FlowAddress(address)
     }
-
-    private fun loadScript(name: String): ByteArray = javaClass.classLoader.getResourceAsStream(name)!!.use { it.readAllBytes() }
 
     fun createAccount(payerAddress: FlowAddress, publicKey: PublicKey): FlowAddress {
         val payerAccountKey = getAccountKey(payerAddress, 0)
