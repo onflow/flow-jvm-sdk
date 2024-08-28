@@ -8,7 +8,7 @@ import org.onflow.flow.sdk.crypto.PrivateKey
 import org.onflow.flow.sdk.crypto.PublicKey
 import java.math.BigDecimal
 
-internal class AccessAPIConnector(
+class AccessAPIConnector(
     privateKey: PrivateKey,
     accessApiConnection: FlowAccessApi
 ) {
