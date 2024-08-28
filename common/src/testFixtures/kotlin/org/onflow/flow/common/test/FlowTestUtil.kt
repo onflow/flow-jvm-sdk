@@ -92,7 +92,7 @@ object FlowTestUtil {
             script {
                 loadedScript
             }
-            gasLimit(1000)
+            gasLimit(5000)
             arguments {
                 arg { ufix64(balance) }
                 arg { string(publicKey) }

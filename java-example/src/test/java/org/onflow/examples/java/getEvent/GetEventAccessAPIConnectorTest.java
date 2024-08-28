@@ -17,15 +17,11 @@ import static org.junit.jupiter.api.Assertions.*;
 public class GetEventAccessAPIConnectorTest {
     @FlowServiceAccountCredentials
     private TestAccount serviceAccount;
-
     @FlowTestAccount
     private TestAccount testAccount;
-
     @FlowTestClient
     private FlowAccessApi accessAPI;
-
     private GetEventAccessAPIConnector connector;
-
     private FlowId txID;
 
     @BeforeEach
