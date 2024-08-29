@@ -16,11 +16,11 @@ internal class UserSignatureExample(
         bobAddress: FlowAddress
     ): Field<*> {
         // Create the keys
-        val keyPairAlice =  Crypto.generateKeyPair(SignatureAlgorithm.ECDSA_P256)
+        val keyPairAlice = Crypto.generateKeyPair(SignatureAlgorithm.ECDSA_P256)
         val privateKeyAlice = keyPairAlice.private
         val publicKeyAlice = keyPairAlice.public
 
-        val keyPairBob =  Crypto.generateKeyPair(SignatureAlgorithm.ECDSA_P256)
+        val keyPairBob = Crypto.generateKeyPair(SignatureAlgorithm.ECDSA_P256)
         val privateKeyBob = keyPairBob.private
         val publicKeyBob = keyPairBob.public
 
@@ -42,33 +42,36 @@ internal class UserSignatureExample(
         val weightBob = UFix64NumberField("0.5")
 
         // Call the script to verify the signatures on-chain
-        val result = when (val response = accessAPI.simpleFlowScript{
-            script {
-              loadScriptContent("cadence/user_signature.cdc")
+        val result = when (
+            val response = accessAPI.simpleFlowScript {
+                script {
+                    loadScriptContent("cadence/user_signature.cdc")
+                }
+                arguments {
+                    listOf(
+                        ArrayField( // public keys
+                            listOf(
+                                StringField(publicKeyAlice.hex),
+                                StringField(publicKeyBob.hex)
+                            )
+                        ),
+                        ArrayField( // weights
+                            listOf(
+                                weightAlice,
+                                weightBob
+                            )
+                        ),
+                        ArrayField(
+                            listOf(
+                                StringField(signatureAlice.toHexString()),
+                                StringField(signatureBob.toHexString())
+                            )
+                        ),
+                        AddressField(aliceAddress.bytes), AddressField(bobAddress.bytes),
+                        UFix64NumberField("100.00")
+                    )
+                }
             }
-            arguments {
-                listOf(ArrayField( // public keys
-                    listOf(
-                        StringField(publicKeyAlice.hex),
-                        StringField(publicKeyBob.hex)
-                    )
-                ),
-                ArrayField( // weights
-                    listOf(
-                        weightAlice,
-                        weightBob
-                    )
-                ),
-                ArrayField(
-                    listOf(
-                        StringField(signatureAlice.toHexString()),
-                        StringField(signatureBob.toHexString())
-                    )
-                ),
-                AddressField(aliceAddress.bytes), AddressField(bobAddress.bytes),
-                UFix64NumberField("100.00"))
-            }
-        }
         ) {
             is FlowAccessApi.AccessApiCallResponse.Success -> response.data
             is FlowAccessApi.AccessApiCallResponse.Error -> throw Exception(response.message, response.throwable)
@@ -92,5 +95,3 @@ internal class UserSignatureExample(
         }
     }
 }
-
-

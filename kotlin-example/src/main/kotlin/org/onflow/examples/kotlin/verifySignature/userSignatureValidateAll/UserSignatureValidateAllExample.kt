@@ -27,25 +27,29 @@ internal class UserSignatureValidateAllExample(
         val keyIndexes = ArrayField(listOf(IntNumberField("0"), IntNumberField("1")))
 
         // Prepare the Cadence arguments
-        val signatures = ArrayField(listOf(
-            StringField(signatureAlice1.toHexString()),
-            StringField(signatureAlice2.toHexString())
-        ))
+        val signatures = ArrayField(
+            listOf(
+                StringField(signatureAlice1.toHexString()),
+                StringField(signatureAlice2.toHexString())
+            )
+        )
 
         // Call the script to verify the signatures on-chain
-        val result = when (val response = accessAPI.simpleFlowScript {
-            script {
-              loadScriptContent("cadence/user_signature_validate_all.cdc")
+        val result = when (
+            val response = accessAPI.simpleFlowScript {
+                script {
+                    loadScriptContent("cadence/user_signature_validate_all.cdc")
+                }
+                arguments {
+                    listOf(
+                        AddressField(aliceAddress.bytes),
+                        signatures,
+                        keyIndexes,
+                        StringField(message.toString(Charsets.UTF_8))
+                    )
+                }
             }
-            arguments {
-                listOf(
-                    AddressField(aliceAddress.bytes),
-                    signatures,
-                    keyIndexes,
-                    StringField(message.toString(Charsets.UTF_8))
-                )
-            }
-        }) {
+        ) {
             is FlowAccessApi.AccessApiCallResponse.Success -> response.data
             is FlowAccessApi.AccessApiCallResponse.Error -> throw Exception(response.message, response.throwable)
         }

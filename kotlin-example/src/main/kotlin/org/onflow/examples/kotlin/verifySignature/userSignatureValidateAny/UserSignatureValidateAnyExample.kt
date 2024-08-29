@@ -25,18 +25,20 @@ internal class UserSignatureValidateAnyExample(
         val signatureAliceHex = signatureAlice.toHexString()
 
         // Execute the script to verify the signature on-chain
-        val result = when (val response = accessAPI.simpleFlowScript {
-            script {
-                loadScriptContent("cadence/user_signature_validate_any.cdc")
+        val result = when (
+            val response = accessAPI.simpleFlowScript {
+                script {
+                    loadScriptContent("cadence/user_signature_validate_any.cdc")
+                }
+                arguments {
+                    listOf(
+                        AddressField(aliceAddress.bytes),
+                        StringField(signatureAliceHex),
+                        StringField(message)
+                    )
+                }
             }
-            arguments {
-                listOf(
-                    AddressField(aliceAddress.bytes),
-                    StringField(signatureAliceHex),
-                    StringField(message)
-                )
-            }
-        }) {
+        ) {
             is FlowAccessApi.AccessApiCallResponse.Success -> response.data
             is FlowAccessApi.AccessApiCallResponse.Error -> throw Exception(response.message, response.throwable)
         }
