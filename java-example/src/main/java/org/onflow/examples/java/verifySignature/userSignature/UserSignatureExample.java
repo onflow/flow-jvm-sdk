@@ -33,7 +33,7 @@ public class UserSignatureExample {
         UFix64NumberField amount = new UFix64NumberField("100.00");
         byte[] amountBigEndianBytes = toBigEndianBytes(Objects.requireNonNull(amount.getValue()));
 
-        byte[] message = toUnsignedByteArray(concatenate(
+        byte[] message = ExamplesUtils.toUnsignedByteArray(concatenate(
                 aliceAddress.getBytes(),
                 bobAddress.getBytes(),
                 amountBigEndianBytes
@@ -66,8 +66,8 @@ public class UserSignatureExample {
                             new UFix64NumberField(Objects.requireNonNull(weightBob.getValue()))
                     )),
                     new ArrayField(Arrays.asList(
-                            new StringField(toHexString(signatureAlice)),
-                            new StringField(toHexString(signatureBob))
+                            new StringField(ExamplesUtils.toHexString(signatureAlice)),
+                            new StringField(ExamplesUtils.toHexString(signatureBob))
                     )),
                     new AddressField(aliceAddress.getBytes()),
                     new AddressField(bobAddress.getBytes()),
@@ -98,14 +98,6 @@ public class UserSignatureExample {
         }
     }
 
-    private byte[] toUnsignedByteArray(byte[] byteArray) {
-        byte[] result = new byte[byteArray.length];
-        for (int i = 0; i < byteArray.length; i++) {
-            result[i] = (byte) (byteArray[i] & 0xFF);
-        }
-        return result;
-    }
-
     private byte[] concatenate(byte[]... arrays) {
         int length = 0;
         for (byte[] array : arrays) {
@@ -120,13 +112,5 @@ public class UserSignatureExample {
         }
 
         return result;
-    }
-
-    private String toHexString(byte[] bytes) {
-        StringBuilder sb = new StringBuilder();
-        for (byte b : bytes) {
-            sb.append(String.format("%02x", b));
-        }
-        return sb.toString();
     }
 }
