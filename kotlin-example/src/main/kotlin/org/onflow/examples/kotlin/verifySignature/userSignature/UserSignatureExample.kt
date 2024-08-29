@@ -1,6 +1,7 @@
 package org.onflow.examples.kotlin.verifySignature.userSignature
 
-import org.onflow.examples.kotlin.ExamplesUtils
+import org.onflow.examples.kotlin.ExamplesUtils.toHexString
+import org.onflow.examples.kotlin.ExamplesUtils.loadScriptContent
 import org.onflow.flow.sdk.*
 import org.onflow.flow.sdk.cadence.*
 import org.onflow.flow.sdk.crypto.Crypto
@@ -43,7 +44,7 @@ internal class UserSignatureExample(
         // Call the script to verify the signatures on-chain
         val result = when (val response = accessAPI.simpleFlowScript{
             script {
-              ExamplesUtils.loadScriptContent("cadence/user_signature.cdc")
+              loadScriptContent("cadence/user_signature.cdc")
             }
             arguments {
                 listOf(ArrayField( // public keys
@@ -76,9 +77,7 @@ internal class UserSignatureExample(
         return result.jsonCadence
     }
 
-    private fun ByteArray.toHexString() = joinToString("") { "%02x".format(it) }
-
-    fun toBigEndianBytes(value: String): ByteArray {
+    private fun toBigEndianBytes(value: String): ByteArray {
         // Convert UFix64 string to BigInteger by multiplying by 10^8
         val ufix64Value = BigInteger(value.replace(".", "")) * BigInteger.TEN.pow(8 - value.split(".")[1].length)
 

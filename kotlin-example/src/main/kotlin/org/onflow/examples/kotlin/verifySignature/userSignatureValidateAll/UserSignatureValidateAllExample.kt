@@ -1,7 +1,7 @@
 package org.onflow.examples.kotlin.verifySignature.userSignatureValidateAll
 
-import org.onflow.examples.kotlin.AccessAPIConnector
-import org.onflow.examples.kotlin.ExamplesUtils
+import org.onflow.examples.kotlin.ExamplesUtils.toHexString
+import org.onflow.examples.kotlin.ExamplesUtils.loadScriptContent
 import org.onflow.flow.sdk.*
 import org.onflow.flow.sdk.cadence.*
 import org.onflow.flow.sdk.crypto.Crypto
@@ -14,11 +14,6 @@ internal class UserSignatureValidateAllExample(
         aliceAddress: FlowAddress,
         alicePrivateKey: PrivateKey
     ): Field<*> {
-
-        val account = AccessAPIConnector(alicePrivateKey, accessAPI).getAccount(aliceAddress)
-        val aliceKey1 = account.keys[0]
-        val aliceKey2 = account.keys[1]
-
         val message = "ananas".toByteArray()
         val unsignedMessage = message.map { (it.toInt() and 0xFF).toByte() }.toByteArray()
 
@@ -40,14 +35,14 @@ internal class UserSignatureValidateAllExample(
         // Call the script to verify the signatures on-chain
         val result = when (val response = accessAPI.simpleFlowScript {
             script {
-                ExamplesUtils.loadScriptContent("cadence/user_signature_validate_all.cdc")
+              loadScriptContent("cadence/user_signature_validate_all.cdc")
             }
             arguments {
                 listOf(
-                    AddressField(aliceAddress.bytes),  // Assuming Alice's address is used here
+                    AddressField(aliceAddress.bytes),
                     signatures,
                     keyIndexes,
-                    StringField(message.toString(Charsets.UTF_8))  // The message is passed as a UTF-8 string
+                    StringField(message.toString(Charsets.UTF_8))
                 )
             }
         }) {
@@ -56,6 +51,4 @@ internal class UserSignatureValidateAllExample(
         }
         return result.jsonCadence
     }
-
-    private fun ByteArray.toHexString() = joinToString("") { "%02x".format(it) }
 }
