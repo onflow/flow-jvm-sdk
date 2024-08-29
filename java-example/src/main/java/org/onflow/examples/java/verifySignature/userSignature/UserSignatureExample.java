@@ -71,7 +71,7 @@ public class UserSignatureExample {
                     )),
                     new AddressField(aliceAddress.getBytes()),
                     new AddressField(bobAddress.getBytes()),
-                    new UFix64NumberField(amount.getValue())
+                    new UFix64NumberField(Objects.requireNonNull(amount.getValue()))
             ));
             return null;
         });

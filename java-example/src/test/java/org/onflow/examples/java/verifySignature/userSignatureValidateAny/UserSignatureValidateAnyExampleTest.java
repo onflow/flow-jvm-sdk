@@ -1,4 +1,4 @@
-package org.onflow.examples.java.verifySignature.userSignature;
+package org.onflow.examples.java.verifySignature.userSignatureValidateAny;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -8,35 +8,32 @@ import org.onflow.flow.common.test.FlowTestClient;
 import org.onflow.flow.common.test.TestAccount;
 import org.onflow.flow.sdk.FlowAccessApi;
 import org.onflow.flow.sdk.cadence.BooleanField;
-import org.onflow.flow.sdk.cadence.Field;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @FlowEmulatorProjectTest(flowJsonLocation = "../flow/flow.json")
-public class UserSignatureExampleTest {
+public class UserSignatureValidateAnyExampleTest {
     @FlowTestAccount
     private TestAccount testAccount;
-    @FlowTestAccount
-    private TestAccount testAccount2;
     @FlowTestClient
     private FlowAccessApi accessAPI;
-
-    private UserSignatureExample connector;
+    private UserSignatureValidateAnyExample connector;
 
     @BeforeEach
     public void setup() {
-        connector = new UserSignatureExample(accessAPI);
+        connector = new UserSignatureValidateAnyExample(accessAPI);
     }
 
     @Test
     public void canVerifyUserSignature() {
         try {
-            Field<?> txResult = connector.verifyUserSignature(testAccount.getFlowAddress(), testAccount2.getFlowAddress());
+            BooleanField txResult = connector.verifyUserSignatureValidateAny(testAccount.getFlowAddress(), testAccount.getPrivateKey(), "ananas");
 
-            if (txResult instanceof BooleanField) {
-                assertEquals(Boolean.TRUE, ((BooleanField) txResult).getValue(), "Signature verification failed");
+            if (txResult != null) {
+                assertEquals(Boolean.TRUE, txResult.getValue(), "Signature verification failed");
             } else {
-                fail("Expected BooleanField but got " + txResult.getClass().getSimpleName());
+                fail("Signature verification failed, no transaction result received");
             }
         } catch (Exception e) {
             fail("Test failed with exception: " + e.getMessage());

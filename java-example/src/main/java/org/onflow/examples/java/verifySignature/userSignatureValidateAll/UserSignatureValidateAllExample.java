@@ -8,10 +8,8 @@ import org.onflow.flow.sdk.crypto.PrivateKey;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.List;
 
 public class UserSignatureValidateAllExample {
-
     private final FlowAccessApi accessAPI;
 
     public UserSignatureValidateAllExample(FlowAccessApi accessAPI) {

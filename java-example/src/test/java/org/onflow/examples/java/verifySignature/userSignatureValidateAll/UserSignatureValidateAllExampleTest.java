@@ -15,13 +15,10 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 @FlowEmulatorProjectTest(flowJsonLocation = "../flow/flow.json")
 public class UserSignatureValidateAllExampleTest {
-
     @FlowTestAccount
     private TestAccount testAccount;
-
     @FlowTestClient
     private FlowAccessApi accessAPI;
-
     private UserSignatureValidateAllExample connector;
 
     @BeforeEach
