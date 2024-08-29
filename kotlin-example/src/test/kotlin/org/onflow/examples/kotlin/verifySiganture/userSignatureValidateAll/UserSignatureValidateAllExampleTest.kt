@@ -15,9 +15,6 @@ internal class UserSignatureValidateAllExampleTest {
     @FlowTestAccount
     lateinit var testAccount: TestAccount
 
-    @FlowTestAccount
-    lateinit var testAccount2: TestAccount
-
     @FlowTestClient
     lateinit var accessAPI: FlowAccessApi
 
@@ -30,7 +27,7 @@ internal class UserSignatureValidateAllExampleTest {
 
     @Test
     fun `Can verify user signature`() {
-        val txResult = connector.verifyUserSignatureValidateAll(testAccount.flowAddress, testAccount2.flowAddress)
+        val txResult = connector.verifyUserSignatureValidateAll(testAccount.flowAddress, testAccount.privateKey)
 
         if (txResult is BooleanField) {
             assertTrue(txResult.value!!, "Signature verification failed")
@@ -38,5 +35,4 @@ internal class UserSignatureValidateAllExampleTest {
             fail("Expected BooleanField but got ${txResult::class.simpleName}")
         }
     }
-
 }

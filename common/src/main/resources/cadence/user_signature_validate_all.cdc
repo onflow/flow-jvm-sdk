@@ -35,8 +35,6 @@ access(all) fun main(
 
 	var i = 0
 	for signature in signatures {
-	    log(signature)
-	    log(i)
 		signatureSet.append(
 			Crypto.KeyListSignature(
 				keyIndex: i,
@@ -45,8 +43,6 @@ access(all) fun main(
 		)
 		i = i + 1
 	}
-
-    log(message.utf8)
 
 	return keyList.verify(
 		signatureSet: signatureSet,

@@ -1,46 +1,40 @@
 package org.onflow.examples.kotlin.verifySignature.userSignatureValidateAll
 
+import org.onflow.examples.kotlin.AccessAPIConnector
 import org.onflow.examples.kotlin.ExamplesUtils
 import org.onflow.flow.sdk.*
 import org.onflow.flow.sdk.cadence.*
 import org.onflow.flow.sdk.crypto.Crypto
+import org.onflow.flow.sdk.crypto.PrivateKey
 
 internal class UserSignatureValidateAllExample(
     private val accessAPI: FlowAccessApi
 ) {
     fun verifyUserSignatureValidateAll(
         aliceAddress: FlowAddress,
-        bobAddress: FlowAddress
+        alicePrivateKey: PrivateKey
     ): Field<*> {
-        // Create the keys
-        val keyPairAlice =  Crypto.generateKeyPair(SignatureAlgorithm.ECDSA_P256)
-        val privateKeyAlice = keyPairAlice.private
-        val publicKeyAlice = keyPairAlice.public
 
-        val keyPairBob =  Crypto.generateKeyPair(SignatureAlgorithm.ECDSA_P256)
-        val privateKeyBob = keyPairBob.private
-        val publicKeyBob = keyPairBob.public
+        val account = AccessAPIConnector(alicePrivateKey, accessAPI).getAccount(aliceAddress)
+        val aliceKey1 = account.keys[0]
+        val aliceKey2 = account.keys[1]
 
-        // Create the message that will be signed (In this case, it's "ananas")
         val message = "ananas".toByteArray()
-
-        // Convert the message to an unsigned byte array
         val unsignedMessage = message.map { (it.toInt() and 0xFF).toByte() }.toByteArray()
 
-        val signerAlice = Crypto.getSigner(privateKeyAlice, HashAlgorithm.SHA3_256)
-        val signerBob = Crypto.getSigner(privateKeyBob, HashAlgorithm.SHA3_256)
+        val signerAlice1 = Crypto.getSigner(alicePrivateKey, HashAlgorithm.SHA3_256)
+        val signerAlice2 = Crypto.getSigner(alicePrivateKey, HashAlgorithm.SHA3_256)
 
-        // Sign the message with Alice and Bob
-        val signatureAlice = signerAlice.sign(unsignedMessage)
-        val signatureBob = signerBob.sign(unsignedMessage)
+        val signatureAlice1 = signerAlice1.sign(unsignedMessage)
+        val signatureAlice2 = signerAlice2.sign(unsignedMessage)
 
         // The signature indexes correspond to the key indexes on the address
-        val keyIndexes = ArrayField(listOf(IntNumberField("1"), IntNumberField("0")))
+        val keyIndexes = ArrayField(listOf(IntNumberField("0"), IntNumberField("1")))
 
         // Prepare the Cadence arguments
         val signatures = ArrayField(listOf(
-            StringField(signatureBob.toHexString()),
-            StringField(signatureAlice.toHexString())
+            StringField(signatureAlice1.toHexString()),
+            StringField(signatureAlice2.toHexString())
         ))
 
         // Call the script to verify the signatures on-chain
@@ -60,14 +54,6 @@ internal class UserSignatureValidateAllExample(
             is FlowAccessApi.AccessApiCallResponse.Success -> response.data
             is FlowAccessApi.AccessApiCallResponse.Error -> throw Exception(response.message, response.throwable)
         }
-
-        println("Unsigned Message Hex (Kotlin): ${unsignedMessage.joinToString("") { "%02x".format(it) }}")
-        println("Signature Alice (Hex): ${signatureAlice.toHexString()}")
-        println("Signature Bob (Hex): ${signatureBob.toHexString()}")
-        println("Public Key Alice (Hex): ${publicKeyAlice.hex}")
-        println("Public Key Bob (Hex): ${publicKeyBob.hex}")
-        println("Key Indexes: $keyIndexes")
-
         return result.jsonCadence
     }
 
