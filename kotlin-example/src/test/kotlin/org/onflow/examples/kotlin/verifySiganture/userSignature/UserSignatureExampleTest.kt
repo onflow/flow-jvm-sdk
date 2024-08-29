@@ -37,5 +37,4 @@ internal class UserSignatureExampleTest {
             fail("Expected BooleanField but got ${txResult::class.simpleName}")
         }
     }
-
 }
