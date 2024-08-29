@@ -2,6 +2,7 @@ package org.onflow.examples.kotlin.verifySignature.userSignatureValidateAny
 
 import org.onflow.examples.kotlin.ExamplesUtils.toHexString
 import org.onflow.examples.kotlin.ExamplesUtils.loadScriptContent
+import org.onflow.examples.kotlin.ExamplesUtils.toUnsignedByteArray
 import org.onflow.flow.sdk.*
 import org.onflow.flow.sdk.cadence.*
 import org.onflow.flow.sdk.crypto.Crypto
@@ -15,13 +16,12 @@ internal class UserSignatureValidateAnyExample(
         alicePrivateKey: PrivateKey,
         message: String
     ): Field<*> {
-        // Convert the message to a byte array
-        val messageBytes = message.toByteArray()
-        val unsignedMessage = messageBytes.map { (it.toInt() and 0xFF).toByte() }.toByteArray()
+        // Convert the message to an unsigned byte array
+        val messageBytes = (message.toByteArray()).toUnsignedByteArray()
 
         // Sign the message with Alice's key
         val signerAlice = Crypto.getSigner(alicePrivateKey, HashAlgorithm.SHA3_256)
-        val signatureAlice = signerAlice.sign(unsignedMessage)
+        val signatureAlice = signerAlice.sign(messageBytes)
         val signatureAliceHex = signatureAlice.toHexString()
 
         // Execute the script to verify the signature on-chain

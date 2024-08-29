@@ -15,4 +15,8 @@ object ExamplesUtils {
     }
 
     fun ByteArray.toHexString() = joinToString("") { "%02x".format(it) }
+
+    fun ByteArray.toUnsignedByteArray(): ByteArray {
+        return this.map { (it.toInt() and 0xFF).toByte() }.toByteArray()
+    }
 }

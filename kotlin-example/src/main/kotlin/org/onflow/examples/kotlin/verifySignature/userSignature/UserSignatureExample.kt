@@ -2,6 +2,7 @@ package org.onflow.examples.kotlin.verifySignature.userSignature
 
 import org.onflow.examples.kotlin.ExamplesUtils.toHexString
 import org.onflow.examples.kotlin.ExamplesUtils.loadScriptContent
+import org.onflow.examples.kotlin.ExamplesUtils.toUnsignedByteArray
 import org.onflow.flow.sdk.*
 import org.onflow.flow.sdk.cadence.*
 import org.onflow.flow.sdk.crypto.Crypto
@@ -27,15 +28,14 @@ internal class UserSignatureExample(
         val amount = UFix64NumberField("100.00")
         val amountBigEndianBytes = toBigEndianBytes(amount.value!!)
 
-        val message = aliceAddress.bytes + bobAddress.bytes + amountBigEndianBytes
-        val unsignedMessage = message.map { (it.toInt() and 0xFF).toByte() }.toByteArray()
+        val message = (aliceAddress.bytes + bobAddress.bytes + amountBigEndianBytes).toUnsignedByteArray()
 
         val signerAlice = Crypto.getSigner(privateKeyAlice, HashAlgorithm.SHA3_256)
         val signerBob = Crypto.getSigner(privateKeyBob, HashAlgorithm.SHA3_256)
 
         // Sign the message with Alice and Bob
-        val signatureAlice = signerAlice.sign(unsignedMessage)
-        val signatureBob = signerBob.sign(unsignedMessage)
+        val signatureAlice = signerAlice.sign(message)
+        val signatureBob = signerBob.sign(message)
 
         // Each signature has half weight
         val weightAlice = UFix64NumberField("0.5")

@@ -2,6 +2,7 @@ package org.onflow.examples.kotlin.verifySignature.userSignatureValidateAll
 
 import org.onflow.examples.kotlin.ExamplesUtils.toHexString
 import org.onflow.examples.kotlin.ExamplesUtils.loadScriptContent
+import org.onflow.examples.kotlin.ExamplesUtils.toUnsignedByteArray
 import org.onflow.flow.sdk.*
 import org.onflow.flow.sdk.cadence.*
 import org.onflow.flow.sdk.crypto.Crypto
@@ -14,14 +15,13 @@ internal class UserSignatureValidateAllExample(
         aliceAddress: FlowAddress,
         alicePrivateKey: PrivateKey
     ): Field<*> {
-        val message = "ananas".toByteArray()
-        val unsignedMessage = message.map { (it.toInt() and 0xFF).toByte() }.toByteArray()
+        val message = ("ananas".toByteArray()).toUnsignedByteArray()
 
         val signerAlice1 = Crypto.getSigner(alicePrivateKey, HashAlgorithm.SHA3_256)
         val signerAlice2 = Crypto.getSigner(alicePrivateKey, HashAlgorithm.SHA3_256)
 
-        val signatureAlice1 = signerAlice1.sign(unsignedMessage)
-        val signatureAlice2 = signerAlice2.sign(unsignedMessage)
+        val signatureAlice1 = signerAlice1.sign(message)
+        val signatureAlice2 = signerAlice2.sign(message)
 
         // The signature indexes correspond to the key indexes on the address
         val keyIndexes = ArrayField(listOf(IntNumberField("0"), IntNumberField("1")))
