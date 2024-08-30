@@ -55,7 +55,7 @@ annotation class FlowServiceAccountCredentials
 @Inherited
 @API(status = API.Status.STABLE, since = "5.0")
 annotation class FlowTestAccount(
-    val signAlgo: SignatureAlgorithm = SignatureAlgorithm.ECDSA_P256,
+    val signAlgo: SignatureAlgorithm = SignatureAlgorithm.ECDSA_SECP256k1,
     val hashAlgo: HashAlgorithm = HashAlgorithm.SHA3_256,
     val publicKey: String = "",
     val privateKey: String = "",
