@@ -18,8 +18,7 @@ public class GetEventAccessAPIConnector {
         FlowAccessApi.AccessApiCallResponse<List<FlowEventResult>> response = accessAPI.getEventsForHeightRange(eventType, range);
         if (response instanceof FlowAccessApi.AccessApiCallResponse.Success) {
             return ((FlowAccessApi.AccessApiCallResponse.Success<List<FlowEventResult>>) response).getData();
-        } else if (response instanceof FlowAccessApi.AccessApiCallResponse.Error) {
-            FlowAccessApi.AccessApiCallResponse.Error errorResponse = (FlowAccessApi.AccessApiCallResponse.Error) response;
+        } else if (response instanceof FlowAccessApi.AccessApiCallResponse.Error errorResponse) {
             throw new RuntimeException(errorResponse.getMessage(), errorResponse.getThrowable());
         } else {
             throw new RuntimeException("Unknown response type");

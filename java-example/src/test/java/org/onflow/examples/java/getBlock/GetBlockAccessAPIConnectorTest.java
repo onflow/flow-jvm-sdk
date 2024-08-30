@@ -14,7 +14,6 @@ import java.time.LocalDateTime;
 public class GetBlockAccessAPIConnectorTest {
     @FlowTestClient
     private FlowAccessApi accessAPI;
-
     private GetBlockAccessAPIConnector blockAPIConnector;
 
     @BeforeEach

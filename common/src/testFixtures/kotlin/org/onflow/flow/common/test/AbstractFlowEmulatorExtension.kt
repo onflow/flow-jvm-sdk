@@ -74,7 +74,7 @@ annotation class FlowTestContractDeployment(
     val code: String = "",
     val codeClasspathLocation: String = "",
     val codeFileLocation: String = "",
-    val gasLimit: Int = 1000,
+    val gasLimit: Int = 5000,
     val arguments: Array<TestContractArg> = []
 )
 

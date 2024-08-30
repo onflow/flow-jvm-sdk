@@ -2,26 +2,37 @@ package org.onflow.examples.java.getCollection;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.onflow.examples.java.AccessAPIConnector;
 import org.onflow.flow.common.test.FlowEmulatorProjectTest;
+import org.onflow.flow.common.test.FlowServiceAccountCredentials;
 import org.onflow.flow.common.test.FlowTestClient;
-import org.onflow.flow.sdk.FlowAccessApi;
-import org.onflow.flow.sdk.FlowBlock;
-import org.onflow.flow.sdk.FlowCollection;
-import org.onflow.flow.sdk.FlowId;
+import org.onflow.flow.common.test.TestAccount;
+import org.onflow.flow.sdk.*;
+import org.onflow.flow.sdk.crypto.Crypto;
+import org.onflow.flow.sdk.crypto.PublicKey;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @FlowEmulatorProjectTest(flowJsonLocation = "../flow/flow.json")
 public class GetCollectionAccessAPIConnectorTest {
+    @FlowServiceAccountCredentials
+    private TestAccount serviceAccount;
     @FlowTestClient
     private FlowAccessApi accessAPI;
-
     private GetCollectionAccessAPIConnector connector;
     private FlowId collectionId;
 
     @BeforeEach
     public void setup() {
+        AccessAPIConnector accessAPIConnector = new AccessAPIConnector(serviceAccount.getPrivateKey(), accessAPI);
         connector = new GetCollectionAccessAPIConnector(accessAPI);
+
+        // Send a sample transaction
+        PublicKey publicKey = Crypto.generateKeyPair(SignatureAlgorithm.ECDSA_P256).getPublic();
+        accessAPIConnector.sendSampleTransaction(
+            serviceAccount.getFlowAddress(),
+            publicKey
+        );
 
         FlowAccessApi.AccessApiCallResponse<FlowBlock> response = accessAPI.getLatestBlock(true);
         if (response instanceof FlowAccessApi.AccessApiCallResponse.Success) {
