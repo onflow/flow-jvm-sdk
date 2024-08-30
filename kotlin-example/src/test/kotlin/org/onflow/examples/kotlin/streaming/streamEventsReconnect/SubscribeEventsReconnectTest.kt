@@ -11,7 +11,6 @@ import org.onflow.flow.sdk.crypto.Crypto
 
 @FlowEmulatorProjectTest(flowJsonLocation = "../flow/flow.json")
 internal class SubscribeEventsReconnectExampleTest {
-
     @FlowServiceAccountCredentials
     lateinit var serviceAccount: TestAccount
 
@@ -25,7 +24,6 @@ internal class SubscribeEventsReconnectExampleTest {
     fun setup() {
         accessAPIConnector = AccessAPIConnector(serviceAccount.privateKey, accessAPI)
         subscribeEventsReconnectExample = SubscribeEventsReconnectExample(accessAPI)
-
     }
 
     @Test
