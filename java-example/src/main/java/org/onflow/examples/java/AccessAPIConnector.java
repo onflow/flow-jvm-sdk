@@ -80,17 +80,6 @@ public final class AccessAPIConnector {
         }
     }
 
-    private byte[] loadScript(String name) {
-        try (InputStream is = getClass().getClassLoader().getResourceAsStream(name)) {
-            if (is == null) {
-                throw new IOException("Script " + name + " not found.");
-            }
-            return is.readAllBytes();
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to load script " + name, e);
-        }
-    }
-
     public FlowTransaction createTransaction(FlowAddress payerAddress, FlowAccountKey payerAccountKey, FlowScript script, List<FlowArgument> arguments) {
         return new FlowTransaction(
                 script,
@@ -115,26 +104,13 @@ public final class AccessAPIConnector {
         return sendTransaction(tx);
     }
 
-
-
-    public FlowId sendSampleTransaction(FlowAddress payerAddress, PublicKey publicKey) {
-        FlowAccountKey payerAccountKey = getAccountKey(payerAddress, 0);
-        FlowScript script = new FlowScript(loadScript("cadence/create_account.cdc"));
-        List<FlowArgument> arguments = List.of(
-                new FlowArgument(new StringField(publicKey.getHex())),
-                new FlowArgument(new UInt8NumberField(Integer.toString(publicKey.getAlgo().getIndex())))
-        );
-        FlowTransaction tx = createTransaction(payerAddress, payerAccountKey, script, arguments);
-        return signAndSendTransaction(tx, payerAddress, payerAccountKey);
-    }
-
     public void transferTokens(FlowAddress senderAddress, FlowAddress recipientAddress, BigDecimal amount) {
         if (amount.scale() != 8) {
             throw new RuntimeException("FLOW amount must have exactly 8 decimal places of precision (e.g. 10.00000000)");
         }
 
         FlowAccountKey senderAccountKey = getAccountKey(senderAddress, 0);
-        FlowScript script = new FlowScript(loadScript("cadence/transfer_flow.cdc"));
+        FlowScript script = new FlowScript(ExamplesUtils.loadScript("cadence/transfer_flow.cdc"));
         List<FlowArgument> arguments = List.of(
                 new FlowArgument(new UFix64NumberField(amount.toPlainString())),
                 new FlowArgument(new AddressField(recipientAddress.getBase16Value()))
@@ -152,5 +128,16 @@ public final class AccessAPIConnector {
         } else {
             throw new RuntimeException(((FlowAccessApi.AccessApiCallResponse.Error) response).getMessage(), ((FlowAccessApi.AccessApiCallResponse.Error) response).getThrowable());
         }
+    }
+
+    public FlowId sendSampleTransaction(FlowAddress payerAddress, PublicKey publicKey) {
+        FlowAccountKey payerAccountKey = getAccountKey(payerAddress, 0);
+        FlowScript script = new FlowScript(ExamplesUtils.loadScript("cadence/create_account.cdc"));
+        List<FlowArgument> arguments = List.of(
+                new FlowArgument(new StringField(publicKey.getHex())),
+                new FlowArgument(new UInt8NumberField(Integer.toString(publicKey.getAlgo().getIndex())))
+        );
+        FlowTransaction tx = createTransaction(payerAddress, payerAccountKey, script, arguments);
+        return signAndSendTransaction(tx, payerAddress, payerAccountKey);
     }
 }
