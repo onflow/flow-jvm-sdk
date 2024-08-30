@@ -26,6 +26,12 @@ internal class SubscribeEventsExampleTest {
         val privateKey = serviceAccount.privateKey
         subscribeEventsExample = SubscribeEventsExample(privateKey, accessAPI)
         accessAPIConnector = AccessAPIConnector(serviceAccount.privateKey, accessAPI)
+    }
+
+    @Test
+    fun `Can subscribe to latest block events`() = runBlocking {
+        val scope = this
+        val (eventChannel, errorChannel) = subscribeEventsExample.subscribeToLatestBlockEvents(scope)
 
         // Send a sample transaction to trigger events
         val publicKey = Crypto.generateKeyPair(SignatureAlgorithm.ECDSA_P256).public
@@ -33,12 +39,6 @@ internal class SubscribeEventsExampleTest {
             serviceAccount.flowAddress,
             publicKey
         )
-    }
-
-    @Test
-    fun `Can subscribe to latest block events`() = runBlocking {
-        val scope = this
-        val (eventChannel, errorChannel) = subscribeEventsExample.subscribeToLatestBlockEvents(scope)
 
         val receivedEvents = mutableListOf<FlowEvent>()
 
