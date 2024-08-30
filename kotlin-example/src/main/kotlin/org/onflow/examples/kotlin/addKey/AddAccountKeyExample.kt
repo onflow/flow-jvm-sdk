@@ -1,13 +1,15 @@
-package org.onflow.examples.kotlin.sendTransaction
+package org.onflow.examples.kotlin.addKey
 
 import org.onflow.examples.kotlin.AccessAPIConnector
 import org.onflow.examples.kotlin.ExamplesUtils
 import org.onflow.flow.sdk.*
 import org.onflow.flow.sdk.cadence.StringField
-import org.onflow.flow.sdk.crypto.Crypto.getSigner
+import org.onflow.flow.sdk.cadence.UFix64NumberField
+import org.onflow.flow.sdk.cadence.UInt8NumberField
+import org.onflow.flow.sdk.crypto.Crypto
 import org.onflow.flow.sdk.crypto.PrivateKey
 
-internal class SendTransactionExample(
+internal class AddAccountKeyExample(
     privateKey: PrivateKey,
     accessApiConnection: FlowAccessApi
 ) {
@@ -16,16 +18,24 @@ internal class SendTransactionExample(
 
     private val connector = AccessAPIConnector(privateKey, accessAPI)
 
-    fun sendSimpleTransaction(
+    fun addKeyToAccount(
         payerAddress: FlowAddress,
-        scriptName: String = "cadence/simple_transaction.cdc",
+        newPublicKey: FlowPublicKey,
+        signAlgo: SignatureAlgorithm,
+        hashAlgo: HashAlgorithm,
+        scriptName: String = "cadence/add_key.cdc",
         gasLimit: Long = 500
     ): FlowTransactionResult {
         val payerAccountKey = connector.getAccountKey(payerAddress, 0)
 
         var tx = FlowTransaction(
             script = FlowScript(ExamplesUtils.loadScript(scriptName)),
-            arguments = listOf(),
+            arguments = listOf(
+                FlowArgument(StringField(newPublicKey.base16Value)),
+                FlowArgument(UInt8NumberField(signAlgo.index.toString())),
+                FlowArgument(UInt8NumberField(hashAlgo.index.toString())),
+                FlowArgument(UFix64NumberField("1000.0"))
+            ),
             referenceBlockId = connector.latestBlockID,
             gasLimit = gasLimit,
             proposalKey = FlowTransactionProposalKey(
@@ -37,37 +47,8 @@ internal class SendTransactionExample(
             authorizers = listOf(payerAddress)
         )
 
-        val signer = getSigner(privateKey, payerAccountKey.hashAlgo)
-        tx = tx.addEnvelopeSignature(payerAddress, payerAccountKey.id, signer)
+        val signer = Crypto.getSigner(privateKey, payerAccountKey.hashAlgo)
 
-        return getFlowTransactionResult(tx)
-    }
-
-    fun sendComplexTransactionWithArguments(
-        payerAddress: FlowAddress,
-        scriptName: String = "cadence/greeting_script.cdc",
-        gasLimit: Long = 500,
-        greeting: String = "Hello world!"
-    ): FlowTransactionResult {
-        val payerAccountKey = connector.getAccountKey(payerAddress, 0)
-
-        var tx = FlowTransaction(
-            script = FlowScript(ExamplesUtils.loadScript(scriptName)),
-            arguments = listOf(
-                FlowArgument(StringField(greeting)),
-            ),
-            referenceBlockId = connector.latestBlockID,
-            gasLimit = gasLimit,
-            proposalKey = FlowTransactionProposalKey(
-                address = payerAddress,
-                keyIndex = payerAccountKey.id,
-                sequenceNumber = payerAccountKey.sequenceNumber.toLong()
-            ),
-            payerAddress = payerAddress,
-            authorizers = listOf()
-        )
-
-        val signer = getSigner(privateKey, payerAccountKey.hashAlgo)
         tx = tx.addEnvelopeSignature(payerAddress, payerAccountKey.id, signer)
 
         return getFlowTransactionResult(tx)
