@@ -2,11 +2,9 @@ package org.onflow.examples.kotlin.getCollection
 
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.onflow.flow.common.test.FlowEmulatorProjectTest
 import org.onflow.flow.common.test.FlowTestClient
 import org.onflow.flow.sdk.FlowAccessApi
-import org.onflow.flow.sdk.FlowCollection
 import org.onflow.flow.sdk.FlowId
 
 @FlowEmulatorProjectTest(flowJsonLocation = "../flow/flow.json")
