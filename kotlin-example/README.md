@@ -26,7 +26,7 @@ Below is a list of all Kotlin code examples currently supported in this repo:
 - Get block by ID
 - Get block by height
 
-### Get Accounts
+#### Get Accounts
 
 [Get accounts by address.](src/main/kotlin/org/onflow/examples/kotlin/getAccount/GetAccountAccessAPIConnector.kt)
 
