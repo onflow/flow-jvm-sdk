@@ -1,6 +1,6 @@
 # JVM SDK - Kotlin Examples
 
-This package contains runnable code examples that use the [Flow JVM SDK](https://github.com/onflow/flow-jvm-sdk) to interact with the Flow blockchain in Kotlin. The examples use the [Flow Emulator](https://github.com/onflow/flow/blob/master/docs/content/emulator/index.md) to simulate a live network connection.
+This package contains runnable code examples that use the [Flow JVM SDK](https://github.com/onflow/flow-jvm-sdk) to interact with the Flow blockchain in Kotlin. The examples use the [Flow Emulator](https://developers.flow.com/tools/emulator) to simulate a live network connection.
 
 ## Running the emulator with the Flow CLI
 
