@@ -2,6 +2,24 @@
 
 This package contains runnable code examples that use the [Flow JVM SDK](https://github.com/onflow/flow-jvm-sdk) to interact with the Flow blockchain in Java. The examples use the [Flow Emulator](https://developers.flow.com/tools/emulator) to simulate a live network connection.
 
+## Table of Contents
+- [Running the emulator with the Flow CLI](#running-the-emulator-with-the-flow-cli)
+  - [Installation](#installation)
+- [Running the examples](#running-the-examples)
+- [Examples summary](#examples-summary)
+  - [Get blocks](#get-blocks)
+  - [Get accounts](#get-accounts)
+  - [Get events](#get-events)
+  - [Get collection](#get-collection)
+  - [Get network parameters](#get-network-parameters)
+  - [Get transactions](#get-transactions)
+  - [Sending transactions](#sending-transactions)
+  - [Execute script](#execute-script)
+  - [Create account](#create-account)
+  - [Add account key](#add-account-key)
+  - [Deploy contract](#deploy-contract)
+  - [Transaction signing](#transaction-signing)
+
 ## Running the emulator with the Flow CLI
 
 The emulator is bundled with the [Flow CLI](https://docs.onflow.org/flow-cli), a command-line interface for working with Flow.
