@@ -68,7 +68,7 @@ dependencies {
 
 The jitpack.io repository is necessary to access some of the dependencies of this library that are not available on Maven Central.
 
-## Example usage
+## Code examples
 
 Check out the [kotlin-example](../kotlin-example) and [java-example](../java-example) modules in this repository for code examples
 of how to use this SDK in your Kotlin or Java application.
