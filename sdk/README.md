@@ -70,12 +70,14 @@ The jitpack.io repository is necessary to access some of the dependencies of thi
 
 ## Example usage
 
-Check out the [kotlin-example](../kotlin-example) and [java-example](../java-example) modules in this repository for examples
+Check out the [kotlin-example](../kotlin-example) and [java-example](../java-example) modules in this repository for code examples
 of how to use this SDK in your Kotlin or Java application.
 
 ## Integration tests
 
-Tests annotated with `FlowEmulatorTest` depend on the [Flow Emulator](https://github.com/onflow/flow-emulator), which is part of the [Flow CLI](https://github.com/onflow/flow-cli) to be installed on your machine.
+Tests annotated with `FlowEmulatorTest` depend on the [Flow Emulator](https://github.com/onflow/flow-emulator), which requires that the [Flow CLI](https://github.com/onflow/flow-cli) be installed on your machine.
+
+This repository is configured to run with Cadence 1.0. Follow [these steps](https://cadence-lang.org/docs/cadence-migration-guide#install-cadence-10-cli) to install the Cadence 1.0 CLI, currently in pre-release.
 
 The`FlowEmulatorTest` extension may be used by consumers of this library as well to streamline unit tests that interact
 with the FLOW blockchain. The `FlowEmulatorTest` extension uses the local flow emulator to prepare the test environment
@@ -143,16 +145,14 @@ class TransactionTest {
 
 There are two ways to test using the emulator:
 
-- `@FlowEmulatorProjectTest` - this uses a `flow.json` file that has your configuration in it
-- `@FlowEmulatorTest` - this creates a fresh and temporary flow configuration for each test
+- `@FlowEmulatorProjectTest` - this uses a `flow.json` file that has your desired configuration in it. We include a functional `flow.json` in this repo (currently used to return tests in GH Actions CICD) which should be sufficient for most use cases.
 
 Also, the following annotations are available in tests as helpers:
 
-- `@FlowTestClient` - used to inject a `FlowAccessApi` or `AsyncFlowAccessApi` into your tests
+- `@FlowTestClient` - used to inject a `FlowAccessApi` or `AsyncFlowAccessApi` instance into your tests
 - `@FlowServiceAccountCredentials` - used to inject a `TestAccount` instance into your tests that contain
   the flow service account credentials
 - `@FlowTestAccount` - used to automatically create an account in the emulator and inject a `TestAccount` instance
   containing the new account's credentials.
 
-See [ProjectTestExtensionsTest](/src/intTest/org/onflow/flow/sdk/extensions/ProjectTestExtensionsTest.kt) and
-[TestExtensionsTest](/src/intTest/org/onflow/flow/sdk/extensions/TestExtensionsTest.kt) for examples.
+See [ProjectTestExtensionsTest](/../common/src/intTest/kotlin/org/onflow/flow/common/extensions/ProjectTestExtensionsTest.kt) for example usage of the annotation.
