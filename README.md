@@ -138,7 +138,107 @@ The Transaction Signing example introduces multiple transaction signing paradigm
 - Multiple parties, 2 authorizers
 - Multiple parties, multiple signatures
 
-Before trying these examples, we recommend that you read through the transaction signature documentation.
+Before trying these examples, we recommend that you read through the [transaction signature documentation](https://developers.flow.com/build/basics/transactions#signing-a-transaction).
+
+### Sending transactions
+
+You can submit a transaction to the Flow network using the Access API client.
+
+See the **Send Transaction** example for runnable code snippets in [Java](java-example/src/main/java/org/onflow/examples/java/sendTransaction/SendTransactionExample.java) or [Kotlin](kotlin-example/src/main/kotlin/org/onflow/examples/kotlin/sendTransaction/SendTransactionExample.kt); we include both a simple transaction and a more complex transaction with passed arguments.
+
+### Querying Transaction Results
+
+After you have submitted a transaction, you can query its status by ID:
+
+```kotlin
+fun getTransactionResult(txID: FlowId): FlowTransactionResult = when (val response = accessAPI.getTransactionResultById(txID)) {
+        is FlowAccessApi.AccessApiCallResponse.Success -> {
+            if (response.data.errorMessage.isNotEmpty()) {
+                throw Exception(response.data.errorMessage)
+            }
+            response.data
+        }
+        is FlowAccessApi.AccessApiCallResponse.Error -> throw Exception(response.message, response.throwable)
+    }
+```
+
+The result includes a `status` field that will be one of the following values:
+
+`UNKNOWN` - The transaction has not yet been seen by the network.
+`PENDING` - The transaction has not yet been included in a block.
+`FINALIZED` - The transaction has been included in a block.
+`EXECUTED` - The transaction has been executed but the result has not yet been sealed.
+`SEALED` - The transaction has been executed and the result is sealed in a block.
+
+```kotlin
+val txResult = getTransactionResult(txID)
+if (txResult.status == FlowTransactionStatus.SEALED) {
+  println("Transaction Sealed")
+}
+```
+
+In the event of a failure, the `FlowAccessApi.AccessApiCallResponse` class returns an `Error` object which contains the corresponding error `message` and throwable `Exception`.
+
+See the **Get Transaction** example for runnable code snippets in [Java](java-example/src/main/java/org/onflow/examples/java/getTransaction/GetTransactionAccessAPIConnector.java) or [Kotlin](kotlin-example/src/main/kotlin/org/onflow/examples/kotlin/getTransaction/GetTransactionAccessAPIConnector.kt).
+
+### Querying Blocks
+
+The Access API exposes `getLatestBlock`, `getBlockById`, and `getBlockByHeight` methods for querying blocks on-chain. See the **Get Blocks** example for runnable code snippets in [Java](java-example/src/main/java/org/onflow/examples/java/getBlock/GetBlockAccessAPIConnector.java) or [Kotlin](kotlin-example/src/main/kotlin/org/onflow/examples/kotlin/getBlock/GetBlockAccessAPIConnector.kt).
+
+A block contains the following fields:
+
+`id` - The ID (hash) of the block.
+`parentId` - The ID of the previous block in the chain.
+`height` - The height of the block in the chain.
+`collectionGuarantees` - The list of collections included in the block.
+
+### Executing a Script
+
+You can use the `simpleFlowScript` method to execute a Cadence script against the latest sealed execution state.
+
+This is an example of a valid script:
+```cadence
+access(all) fun main(a: Int): Int {
+    return a + 10
+}
+```
+```kotlin
+
+fun executeSimpleScript(): FlowScriptResponse {
+        val loadedScript = ExamplesUtils.loadScriptContent("cadence/execute_simple_script_example.cdc")
+
+        return accessAPI.simpleFlowScript {
+            script { loadedScript }
+            arg { JsonCadenceBuilder().int(5) }
+        }.let { response ->
+            when (response) {
+                is FlowAccessApi.AccessApiCallResponse.Success -> response.data
+                is FlowAccessApi.AccessApiCallResponse.Error -> throw Exception(response.message, response.throwable)
+            }
+        }
+    }
+```
+
+See the **Execute Script** example for runnable code snippets in [Java](java-example/src/main/java/org/onflow/examples/java/executeScript/ExecuteScriptAccessAPIConnector.java) or [Kotlin](kotlin-example/src/main/kotlin/org/onflow/examples/kotlin/executeScript/ExecuteScriptAccessAPIConnector.kt).
+
+### Querying Events
+
+The Access API exposes `getEventsForHeightRange`, `getEventsForBlockIds`, and `getTransactionResultById` methods for querying events on-chain. See the **Get Events** example for runnable code snippets in [Java](java-example/src/main/java/org/onflow/examples/java/getEvent/GetEventAccessAPIConnector.java) or [Kotlin](kotlin-example/src/main/kotlin/org/onflow/examples/kotlin/getEvent/GetEventAccessAPIConnector.kt).
+
+### Querying Accounts
+
+The Access API exposes `getAccountAtLatestBlock` and `getAccountByBlockHeight`methods for querying accounts on-chain. See the **Get Accounts** example for runnable code snippets in [Java](java-example/src/main/java/org/onflow/examples/java/getAccount/GetAccountAccessAPIConnector.java) or [Kotlin](kotlin-example/src/main/kotlin/org/onflow/examples/kotlin/getAccount/GetAccountAccessAPIConnector.kt).
+
+A `FlowAccount` contains the following fields:
+
+`address`: `FlowAddress` - The account address.
+`balance`: `BigDecimal` - The account balance.
+`contracts`: `Map<String, FlowCode>` - The contracts deployed at this account.
+`keys`: `List<FlowAccountKey>` - A list of the public keys associated with this account.
+
+### Examples summary 
+
+For a complete list of supported examples use-cases, see the [Examples Summary](kotlin-example/README.md/#examples-summary).
 
 ## Credit
 
