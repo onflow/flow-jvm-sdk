@@ -44,7 +44,7 @@ Below is a list of all Java code examples currently supported in this repo:
 - Get block by ID
 - Get block by height
 
-### Get Accounts
+#### Get Accounts
 
 [Get accounts by address.](src/main/java/org/onflow/examples/java/getAccount/GetAccountAccessAPIConnector.java)
 
