@@ -14,6 +14,30 @@ At the moment, this SDK includes the following features:
 - [x] Marshalling & unmarshalling of [JSON-Cadence](https://docs.onflow.org/cadence/json-cadence-spec/)
 - [x] DSL for creating, signing, and sending transactions and scripts
 
+## Table of Contents
+- [Repository structure](#repository-structure)
+  - [SDK](#sdk)
+  - [Java Example](#java-example)
+  - [Kotlin Example](#kotlin-example)
+  - [Common Utils](#common-utils)
+- [Contribute to this SDK](#contribute-to-this-sdk)
+- [Dependencies](#dependencies)
+- [Getting Started](#getting-started)
+  - [Installation](#installation)
+  - [Generating Keys](#generating-keys)
+  - [Supported Curves](#supported-curves)
+  - [Accessing the Flow Network](#accessing-the-flow-network)
+  - [Creating an Account](#creating-an-account)
+  - [Signing Transactions](#signing-transactions)
+  - [Sending Transactions](#sending-transactions)
+  - [Querying Transaction Results](#querying-transaction-results)
+  - [Querying Blocks](#querying-blocks)
+  - [Executing a Script](#executing-a-script)
+  - [Querying Events](#querying-events)
+  - [Querying Accounts](#querying-accounts)
+  - [Examples Summary](#examples-summary)
+- [Credit](#credit)
+
 ## Repository structure
 
 This repository is organized as a multi-module project, consisting of the following modules:
@@ -28,7 +52,7 @@ This module contains example implementations demonstrating how to use the Flow J
 ### Kotlin Example
 Similar to the Java Example module, this module provides sample implementations in Kotlin. It showcases how to leverage the SDK's capabilities in a Kotlin environment.
 
-### Common utils
+### Common Utils
 The common utils module contains resources shared across all 3 above sub-modules, such as Cadence scripts and testing infrastructure.
 
 ## Contribute to this SDK
@@ -41,13 +65,13 @@ Read the [contributing guide](./CONTRIBUTING.md) to get started.
 
 This SDK requires Java Developer Kit (JDK) 8 or newer.
 
-## Getting started
+## Getting Started
 
 ### Installation
 
 To add the SDK to your project, check out [this README](/sdk/README.md/#installation) for sample Maven and Gradle setup configurations.
 
-### Generating keys
+### Generating Keys
 
 Flow uses [ECDSA](https://en.wikipedia.org/wiki/Elliptic_Curve_Digital_Signature_Algorithm)
 to control access to user accounts. Each key pair can be used in combination with
@@ -68,7 +92,7 @@ val privateKeyHex = privateKey.hex
 val privateKeyBytes = privateKey.hex.toByteArray()
 ```
 
-#### Supported curves
+#### Supported Curves
 
 The example above uses an ECDSA key pair on the P-256 (secp256r1) elliptic curve.
 Flow also supports the secp256k1 curve used by Bitcoin and Ethereum.
@@ -81,7 +105,7 @@ val keyPair = Crypto.generateKeyPair(SignatureAlgorithm.ECDSA_SECP256k1)
 
 Here's a full list of the supported signature and hash algorithms on Flow: [Flow Signature & Hash Algorithms](https://cadence-lang.org/docs/language/crypto#hashing).
 
-### Accessing the Flow network
+### Accessing the Flow Network
 
 You can communicate with any Flow Access Node using the Flow JVM SDK. This includes official Access Nodes, nodes you run yourself, and hosted nodes. Flow JVM SDK currently only supports gRPC communication with Access Nodes.
 
@@ -96,12 +120,12 @@ fun newAccessApiConnnection(): FlowAccessApi = Flow.newAccessApi(MAINNET_HOSTNAM
 val accessAPIConnection = newAccessApiConnnection()
 ```
 
-### Creating an account
+### Creating an Account
 
 Once you have [generated a key pair](#generating-keys), you can create a new account
 using its public key. Check out the **Create Account** example for a runnable code snippet in [Java](java-example/src/main/java/org/onflow/examples/java/createAccount/CreateAccountExample.java) or [Kotlin](kotlin-example/src/main/kotlin/org/onflow/examples/kotlin/createAccount/CreateAccountExample.kt).
 
-### Signing transactions
+### Signing Transactions
 
 Transaction signing is accomplished through the `Crypto.Signer` interface. Below is a simple example of how to sign a transaction using a `PrivateKey` generated with `Crypto.generateKeyPair()`.
 
@@ -140,7 +164,7 @@ The Transaction Signing example introduces multiple transaction signing paradigm
 
 Before trying these examples, we recommend that you read through the [transaction signature documentation](https://developers.flow.com/build/basics/transactions#signing-a-transaction).
 
-### Sending transactions
+### Sending Transactions
 
 You can submit a transaction to the Flow network using the Access API client.
 
@@ -164,11 +188,11 @@ fun getTransactionResult(txID: FlowId): FlowTransactionResult = when (val respon
 
 The result includes a `status` field that will be one of the following values:
 
-`UNKNOWN` - The transaction has not yet been seen by the network.
-`PENDING` - The transaction has not yet been included in a block.
-`FINALIZED` - The transaction has been included in a block.
-`EXECUTED` - The transaction has been executed but the result has not yet been sealed.
-`SEALED` - The transaction has been executed and the result is sealed in a block.
+- `UNKNOWN` - The transaction has not yet been seen by the network.
+- `PENDING` - The transaction has not yet been included in a block.
+- `FINALIZED` - The transaction has been included in a block.
+- `EXECUTED` - The transaction has been executed but the result has not yet been sealed.
+- `SEALED` - The transaction has been executed and the result is sealed in a block.
 
 ```kotlin
 val txResult = getTransactionResult(txID)
@@ -236,7 +260,7 @@ A `FlowAccount` contains the following fields:
 `contracts`: `Map<String, FlowCode>` - The contracts deployed at this account.
 `keys`: `List<FlowAccountKey>` - A list of the public keys associated with this account.
 
-### Examples summary 
+### Examples Summary
 
 For a complete list of supported examples use-cases, see the [Examples Summary](kotlin-example/README.md/#examples-summary).
 
