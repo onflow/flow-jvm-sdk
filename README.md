@@ -49,7 +49,7 @@ It also implements and tests use of the SDK via Java Annotations or Kotlin Exten
 ### Java Examples
 This module contains example implementations demonstrating how to use the Flow JVM SDK in a Java application. It includes sample code for various use cases, making it easier for developers to understand and integrate the SDK into their Java projects.
 
-### Kotlin Example
+### Kotlin Examples
 Similar to the Java Example module, this module provides sample implementations in Kotlin. It showcases how to leverage the SDK's capabilities in a Kotlin environment.
 
 ### Common Utils
