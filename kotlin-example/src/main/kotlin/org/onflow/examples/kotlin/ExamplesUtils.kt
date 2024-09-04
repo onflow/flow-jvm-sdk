@@ -13,4 +13,10 @@ object ExamplesUtils {
     fun loadScriptContent(path: String): String {
         return String(loadScript(path), StandardCharsets.UTF_8)
     }
+
+    fun ByteArray.toHexString() = joinToString("") { "%02x".format(it) }
+
+    fun ByteArray.toUnsignedByteArray(): ByteArray {
+        return this.map { (it.toInt() and 0xFF).toByte() }.toByteArray()
+    }
 }

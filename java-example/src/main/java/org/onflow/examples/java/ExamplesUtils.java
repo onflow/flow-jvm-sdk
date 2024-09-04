@@ -45,4 +45,20 @@ public class ExamplesUtils {
     public static String loadScriptContent(String path) {
         return new String(loadScript(path), StandardCharsets.UTF_8);
     }
+
+    public static byte[] toUnsignedByteArray(byte[] byteArray) {
+        byte[] result = new byte[byteArray.length];
+        for (int i = 0; i < byteArray.length; i++) {
+            result[i] = (byte) (byteArray[i] & 0xFF);
+        }
+        return result;
+    }
+
+    public static String toHexString(byte[] bytes) {
+        StringBuilder sb = new StringBuilder();
+        for (byte b : bytes) {
+            sb.append(String.format("%02x", b));
+        }
+        return sb.toString();
+    }
 }

@@ -20,16 +20,13 @@ transaction(startingBalance: UFix64, publicKey: String, signatureAlgorithm: UInt
             hashAlgorithm: HashAlgorithm(rawValue: hashAlgorithm)!,
             weight: UFix64(1000)
         )
-         newAccount.keys.add(
+        newAccount.keys.add(
             publicKey: PublicKey(
                 publicKey: publicKey.decodeHex(),
                 signatureAlgorithm: SignatureAlgorithm(rawValue: signatureAlgorithm)!
             ),
             hashAlgorithm: HashAlgorithm(rawValue: hashAlgorithm)!,
             weight: UFix64(1000)
-         )
-
-
-
+        )
     }
 }
