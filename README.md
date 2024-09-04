@@ -46,7 +46,7 @@ This repository is organized as a multi-module project, consisting of the follow
 The core module that includes all the necessary tools and libraries to interact with the Flow blockchain. This module provides the main functionalities such as transaction preparation, signing, and interaction with the Flow Access API. 
 It also implements and tests use of the SDK via Java Annotations or Kotlin Extensions which can optionally be used when integrating.
 
-### Java Example
+### Java Examples
 This module contains example implementations demonstrating how to use the Flow JVM SDK in a Java application. It includes sample code for various use cases, making it easier for developers to understand and integrate the SDK into their Java projects.
 
 ### Kotlin Example
