@@ -17,8 +17,8 @@ At the moment, this SDK includes the following features:
 ## Table of Contents
 - [Repository structure](#repository-structure)
   - [SDK](#sdk)
-  - [Java Example](#java-example)
-  - [Kotlin Example](#kotlin-example)
+  - [Java Examples](#java-examples)
+  - [Kotlin Examples](#kotlin-examples)
   - [Common Utils](#common-utils)
 - [Contribute to this SDK](#contribute-to-this-sdk)
 - [Dependencies](#dependencies)
