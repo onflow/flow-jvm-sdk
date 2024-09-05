@@ -24,8 +24,7 @@ class GetEventAccessAPIConnector(
     }
 
     fun getTransactionResult(txID: FlowId): FlowTransactionResult {
-        val response = accessAPI.getTransactionResultById(txID)
-        return when (response) {
+        return when (val response = accessAPI.getTransactionResultById(txID)) {
             is FlowAccessApi.AccessApiCallResponse.Success -> response.data
             is FlowAccessApi.AccessApiCallResponse.Error -> throw RuntimeException(response.message, response.throwable)
         }

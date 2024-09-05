@@ -1,19 +1,116 @@
-# JVM SDK - Kotlin Example
+# JVM SDK - Kotlin Examples
 
-Example Kotlin application using the [Flow JVM SDK](https://github.com/onflow/flow-jvm-sdk) to interact with the Flow blockchain.
+This package contains runnable code examples that use the [Flow JVM SDK](https://github.com/onflow/flow-jvm-sdk) to interact with the Flow blockchain in Kotlin. The examples use the [Flow Emulator](https://developers.flow.com/tools/emulator) to simulate a live network connection.
 
-## Usage
+## Table of Contents
+- [Running the emulator with the Flow CLI](#running-the-emulator-with-the-flow-cli)
+    - [Installation](#installation)
+- [Running the examples](#running-the-examples)
+- [Examples summary](#examples-summary)
+    - [Get blocks](#get-blocks)
+    - [Get accounts](#get-accounts)
+    - [Get events](#get-events)
+    - [Get collection](#get-collection)
+    - [Get network parameters](#get-network-parameters)
+    - [Get transactions](#get-transactions)
+    - [Sending transactions](#sending-transactions)
+    - [Execute script](#execute-script)
+    - [Create account](#create-account)
+    - [Add account key](#add-account-key)
+    - [Deploy contract](#deploy-contract)
+    - [Transaction signing](#transaction-signing)
+  
+## Running the emulator with the Flow CLI
 
-First, install the [Flow CLI](https://docs.onflow.org/flow-cli).
+The emulator is bundled with the [Flow CLI](https://docs.onflow.org/flow-cli), a command-line interface for working with Flow. 
 
-Start the [Flow Emulator](https://docs.onflow.org/emulator) in the main directory of this repository:
+### Installation
 
-```sh
-flow emulator start -v
-```
+This repository is configured to run with Cadence 1.0. Follow [these steps](https://cadence-lang.org/docs/cadence-migration-guide#install-cadence-10-cli) to install the Cadence 1.0 CLI, currently in pre-release.
 
-Then, in a separate terminal, run the application with Gradle:
+## Running the examples
 
-```sh
-./gradlew test -i
-```
+Each code example has a corresponding test file located in `/kotlin-example/src/test`. Each test file provides a series of runnable functions which boot up the emulator and invoke the corresponding code example. We recommend using IntelliJ IDEA (see the free Community Edition [here](https://www.jetbrains.com/idea/download/)) to interact with and run the tests. However, you can also trigger an individual test run with `./gradlew :kotlin-example:test --tests "com.example.MyTestClass.myTestMethod"`. 
+
+## Examples summary
+
+Below is a list of all Kotlin code examples currently supported in this repo:
+
+#### Get Blocks
+
+[Get blocks by ID, height, or latest sealed.](src/main/kotlin/org/onflow/examples/kotlin/getBlock/GetBlockAccessAPIConnector.kt)
+
+- Get the latest sealed block
+- Get block by ID
+- Get block by height
+
+#### Get Accounts
+
+[Get accounts by address.](src/main/kotlin/org/onflow/examples/kotlin/getAccount/GetAccountAccessAPIConnector.kt)
+
+- Get account balance
+- Get account from the latest block
+- Get account from block by height
+
+#### Get Events
+
+[Get events emitted by transactions.](src/main/kotlin/org/onflow/examples/kotlin/getEvent/GetEventAccessAPIConnector.kt)
+
+- Get events for height range
+- Get events for block IDs
+- Get events directly from transaction result
+
+#### Get Collection
+
+[Get collections by ID.](src/main/kotlin/org/onflow/examples/kotlin/getCollection/GetCollectionAccessAPIConnector.kt)
+
+#### Get Network Parameters
+
+[Get the current network parameters.](src/main/kotlin/org/onflow/examples/kotlin/getNetworkParams/GetNetworkParametersAccessAPIConnector.kt)
+
+#### Get Transactions
+
+[Get transactions.](src/main/kotlin/org/onflow/examples/kotlin/getTransaction/GetTransactionAccessAPIConnector.kt)
+
+- Get transaction 
+- Get transaction result
+
+#### Sending Transactions
+
+[Sending transactions.](src/main/kotlin/org/onflow/examples/kotlin/sendTransaction/SendTransactionExample.kt)
+
+- Send transaction
+- Send transaction with arguments
+
+#### Execute Script
+
+[Execute a Cadence script.](src/main/kotlin/org/onflow/examples/kotlin/executeScript/ExecuteScriptAccessAPIConnector.kt)
+
+- Execute a simple Cadence script
+- Execute a more complex Cadence script with arguments
+
+#### Create Account
+
+[Create a new account on Flow.](src/main/kotlin/org/onflow/examples/kotlin/createAccount/CreateAccountExample.kt)
+
+#### Add Account Key
+
+[Add a key to an existing account.](src/main/kotlin/org/onflow/examples/kotlin/addKey/AddAccountKeyExample.kt)
+
+#### Deploy Contract
+
+[Deploy a Cadence smart contract.](src/main/kotlin/org/onflow/examples/kotlin/deployContract/DeployContractExample.kt)
+
+#### Transaction Signing
+
+[Common paradigms for signing transactions.](src/main/kotlin/org/onflow/examples/kotlin/signTransaction/SignTransactionExample.kt)
+
+- Single party, single signature
+- Single party, multiple signatures
+- Multiple parties
+- Multiple parties, 2 authorizers
+- Multiple parties, multiple signatures
+
+#### Unsupported Features
+
+The JVM SDK code examples currently do not support the Access API subscription endpoints (streaming events and execution data), which depend on the Execution Data API (not supported in Flow Emulator). We intend to add these examples as soon as support for these methods is released on the Flow Emulator. 
