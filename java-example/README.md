@@ -110,3 +110,7 @@ Below is a list of all Java code examples currently supported in this repo:
 - Multiple parties
 - Multiple parties, 2 authorizers
 - Multiple parties, multiple signatures
+
+#### Unsupported Features
+
+The JVM SDK code examples currently do not support the Access API subscription endpoints (streaming events and execution data), which depend on the Execution Data API (not supported in Flow Emulator). We intend to add these examples as soon as support for these methods is released on the Flow Emulator. 
