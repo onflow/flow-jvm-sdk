@@ -70,6 +70,8 @@ The associated code file for these error codes can be found [here](sdk/src/main/
 ```
 ### 1057: OperationNotSupportedError
 
+### 1058: BlockHeightOutOfRangeError
+
 ## Execution Errors (1100 - 1199)
 
 ### [DEPRECATED] 1100: CodeExecutionError
@@ -116,13 +118,19 @@ The associated code file for these error codes can be found [here](sdk/src/main/
 ```bash
 [Error Code: 1201] account not found for address xxx
 ```
+
 ### 1202: AccountPublicKeyNotFoundError
 ```bash
 [Error Code: 1202] account public key not found for address xxx and key index 3
 ```
+
 ### 1203: AccountAlreadyExistsError
 
 ### [DEPRECATED] 1204: FrozenAccountError
+
+### [DEPRECATED] 1205: AccountStorageNotInitializedError
+
+### 1206: AccountPublicKeyLimitError
 
 ## Contract Errors (1250 - 1299)
 
