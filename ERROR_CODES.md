@@ -30,14 +30,17 @@ The associated code file for these error codes can be found [here](sdk/src/main/
 ```bash
 [Error Code: 1006] invalid proposal signature: public key 0 on account xxx does not have a valid signature: signature is not valid
 ```
+
 ### 1007: InvalidProposalSeqNumberError
 ```bash
 [Error Code: 1007] invalid proposal key: public key 0 on account xxx has sequence number xxx, but given xxx
 ```
+
 ### 1008: InvalidPayloadSignatureError
 ```bash
 [Error Code: 1008] invalid payload signature: public key 0 on account xxx does not have a valid signature: signature is not valid
 ```
+
 ### 1009: InvalidEnvelopeSignatureError
 ```bash
 [Error Code: 1009] invalid envelope key: public key 1 on account xxx does not have a valid signature: signature is not valid
@@ -51,23 +54,29 @@ The associated code file for these error codes can be found [here](sdk/src/main/
 ```bash
 [Error Code: 1051] invalid value (xxx): invalid encoded public key value: rlp: expected input list for flow.runtimeAccountPublicKeyWrapper...
 ```
+
 ### 1052: InvalidArgumentError
 ```bash
 [Error Code: 1052] transaction arguments are invalid: (argument is not json decodable: failed to decode value: runtime error: slice bounds out of range [:2] with length 0)
 ```
+
 ### 1053: InvalidAddressError
+
 ### 1054: InvalidLocationError
 ```bash
 [Error Code: 1054] location (../contracts/FungibleToken.cdc) is not a valid location: expecting an AddressLocation, but other location types are passed ../contracts/FungibleToken.cdc
 ```
+
 ### 1055: AccountAuthorizationError
 ```bash
 [Error Code: 1055] authorization failed for account e85d442d61a611d8: payer account does not have sufficient signatures (1 < 1000)
 ```
+
 ### 1056: OperationAuthorizationError
 ```bash
 [Error Code: 1056] (RemoveContract) is not authorized: removing contracts requires authorization from specific accounts goroutine 5688834491 [running]:
 ```
+
 ### 1057: OperationNotSupportedError
 
 ### 1058: BlockHeightOutOfRangeError
@@ -105,14 +114,11 @@ The associated code file for these error codes can be found [here](sdk/src/main/
 ### 1108: StateValueSizeLimitError
 
 ### 1109: TransactionFeeDeductionFailedError
-
 ```bash
 [Error Code: 1109] failed to deduct 0 transaction fees from 14af75b8c487333c: Execution failed: f919ee77447b7497.FlowFees:97:24
-
 ```
 
 ### 1110: ComputationLimitExceededError
-
 ```bash
 [Error Code: 1110] computation exceeds limit (100)
 ```
@@ -130,7 +136,6 @@ The associated code file for these error codes can be found [here](sdk/src/main/
 ### 1116: InvalidInternalStateAccessError
 
 ### 1118: InsufficientPayerBalance
-
 ```bash
 [Error Code: 1118] payer ... has insufficient balance to attempt transaction execution (required balance: 0.00100000)
 ```
