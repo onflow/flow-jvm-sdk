@@ -45,6 +45,13 @@ enum class FlowError(val code: Int) {
     FLOW_ERROR_StateKeySizeLimitError(FlowErrorCodeStateKeySizeLimitError),
     FLOW_ERROR_StateValueSizeLimitError(FlowErrorCodeStateValueSizeLimitError),
     FLOW_ERROR_TransactionFeeDeductionFailedError(FlowErrorCodeTransactionFeeDeductionFailedError),
+    FLOW_ERROR_ComputationLimitExceededError(FlowErrorCodeComputationLimitExceededError),
+    FLOW_ERROR_MemoryLimitExceededError(FlowErrorCodeMemoryLimitExceededError),
+    FLOW_ERROR_CouldNotDecodeExecutionParameterFromState(FlowErrorCodeCouldNotDecodeExecutionParameterFromState),
+    FLOW_ERROR_ScriptExecutionTimedOutError(FlowErrorCodeScriptExecutionTimedOutError),
+    FLOW_ERROR_EventEncodingErrorError(FlowErrorCodeEventEncodingError),
+    FLOW_ERROR_InvalidInternalStateAccessError(FlowErrorCodeInvalidInternalStateAccessError),
+    FLOW_ERROR_InsufficientPayerBalanceError(FlowErrorCodeInsufficientPayerBalance),
 
     FLOW_ERROR_AccountNotFoundError(FlowErrorCodeAccountNotFoundError),
     FLOW_ERROR_AccountPublicKeyNotFoundError(FlowErrorCodeAccountPublicKeyNotFoundError),

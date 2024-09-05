@@ -24,7 +24,7 @@ The associated code file for these error codes can be found [here](sdk/src/main/
 
 ### [DEPRECATED] 1004: InvalidScriptError
 
-### [DEPRECATED]1005: InvalidGasLimitError
+### [DEPRECATED] 1005: InvalidGasLimitError
 
 ### 1006: InvalidProposalSignatureError
 ```bash
@@ -109,7 +109,30 @@ The associated code file for these error codes can be found [here](sdk/src/main/
 ```bash
 [Error Code: 1109] failed to deduct 0 transaction fees from 14af75b8c487333c: Execution failed: f919ee77447b7497.FlowFees:97:24
 
+```
 
+### 1110: ComputationLimitExceededError
+
+```bash
+[Error Code: 1110] computation exceeds limit (100)
+```
+
+### 1111: MemoryLimitExceededError
+
+### 1112: CouldNotDecodeExecutionParameterFromState
+
+### 1113: ScriptExecutionTimedOutError
+
+### 1114: ScriptExecutionCancelledError
+
+### 1115: EventEncodingError
+
+### 1116: InvalidInternalStateAccessError
+
+### 1118: InsufficientPayerBalance
+
+```bash
+[Error Code: 1118] payer ... has insufficient balance to attempt transaction execution (required balance: 0.00100000)
 ```
 
 ## Accounts Errors (1200 - 1249)
