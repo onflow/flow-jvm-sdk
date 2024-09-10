@@ -19,6 +19,7 @@ This package contains runnable code examples that use the [Flow JVM SDK](https:/
   - [Add account key](#add-account-key)
   - [Deploy contract](#deploy-contract)
   - [Transaction signing](#transaction-signing)
+  - [Verifying signatures](#verifying-signatures)
 
 ## Running the emulator with the Flow CLI
 
@@ -110,6 +111,15 @@ Below is a list of all Java code examples currently supported in this repo:
 - Multiple parties
 - Multiple parties, 2 authorizers
 - Multiple parties, multiple signatures
+
+#### Verifying Signatures
+
+[Common paradigms for signing messages.](src/main/java/org/onflow/examples/java/verifySignature)
+
+- Signing an arbitrary message.
+- Signing an arbitrary user message and verifying it using the public keys on an account, respecting the weights of each key.
+- Signing an arbitrary user message and verifying it using the public keys on an account. Return success if any public key on the account can sign the message.
+
 
 #### Unsupported Features
 
