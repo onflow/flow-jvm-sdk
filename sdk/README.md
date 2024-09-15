@@ -77,7 +77,7 @@ of how to use this SDK in your Kotlin or Java application.
 
 Tests annotated with `FlowEmulatorTest` depend on the [Flow Emulator](https://github.com/onflow/flow-emulator), which requires that the [Flow CLI](https://github.com/onflow/flow-cli) be installed on your machine.
 
-This repository is configured to run with Cadence 1.0. Follow [these steps](https://cadence-lang.org/docs/cadence-migration-guide#install-cadence-10-cli) to install the Cadence 1.0 CLI, currently in pre-release.
+This repository is configured to run with Cadence 1.0. Follow [these steps](https://cadence-lang.org/docs/cadence-migration-guide#install-cadence-10-cli) to install the Cadence 1.0 CLI.
 
 The`FlowEmulatorTest` extension may be used by consumers of this library as well to streamline unit tests that interact
 with the FLOW blockchain. The `FlowEmulatorTest` extension uses the local flow emulator to prepare the test environment

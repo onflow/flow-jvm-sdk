@@ -27,7 +27,7 @@ The emulator is bundled with the [Flow CLI](https://docs.onflow.org/flow-cli), a
 
 ### Installation
 
-This repository is configured to run with Cadence 1.0. Follow [these steps](https://cadence-lang.org/docs/cadence-migration-guide#install-cadence-10-cli) to install the Cadence 1.0 CLI, currently in pre-release.
+This repository is configured to run with Cadence 1.0. Follow [these steps](https://cadence-lang.org/docs/cadence-migration-guide#install-cadence-10-cli) to install the Cadence 1.0 CLI.
 
 ## Running the examples
 
