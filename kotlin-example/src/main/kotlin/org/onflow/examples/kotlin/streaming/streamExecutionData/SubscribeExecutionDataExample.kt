@@ -8,7 +8,7 @@ import org.onflow.flow.sdk.crypto.PrivateKey
 
 class SubscribeExecutionDataExample(
     privateKey: PrivateKey,
-    private val accessApiConnection: FlowAccessApi
+    accessApiConnection: FlowAccessApi
 
 ) {
     private val accessAPI = accessApiConnection
@@ -22,7 +22,9 @@ class SubscribeExecutionDataExample(
 
         val (dataChannel, errorChannel, job) = accessAPI.subscribeExecutionDataByBlockId(scope, blockId)
         processExecutionData(scope, dataChannel, errorChannel, receivedExecutionData)
-        job.cancelAndJoin()
+        if (job.isActive) {
+            job.cancelAndJoin()
+        }
     }
 
     private suspend fun processExecutionData(
@@ -34,9 +36,9 @@ class SubscribeExecutionDataExample(
         val dataJob = scope.launch {
             try {
                 for (data in dataChannel) {
-                    if (!isActive) break
+                    if (!isActive) break // Respond to cancellation
                     receivedExecutionData.add(data)
-                    yield()
+                    yield() // Cooperative cancellation
                 }
             } catch (e: CancellationException) {
                 println("Data channel processing cancelled")
@@ -49,9 +51,9 @@ class SubscribeExecutionDataExample(
         val errorJob = scope.launch {
             try {
                 for (error in errorChannel) {
+                    if (!isActive) break // Respond to cancellation
                     println("~~~ ERROR: ${error.message} ~~~")
-                    if (!isActive) break
-                    yield()
+                    yield() // Cooperative cancellation
                 }
             } catch (e: CancellationException) {
                 println("Error channel processing cancelled")

@@ -34,7 +34,6 @@ class SubscribeEventsExample(
                 for (events in dataChannel) {
                     if (!isActive) break
                     if (events.isNotEmpty()) {
-                        println("Received events: $events")
                         receivedEvents.addAll(events)
                     }
                     yield()  // Ensure coroutine checks for cancellation
@@ -52,13 +51,13 @@ class SubscribeEventsExample(
                 for (error in errorChannel) {
                     println("~~~ ERROR: ${error.message} ~~~")
                     if (!isActive) break
-                    yield()  // Ensure coroutine checks for cancellation
+                    yield()
                 }
             } catch (e: CancellationException) {
                 println("Error channel processing cancelled")
             } finally {
                 println("Error channel processing finished")
-                errorChannel.cancel()  // Ensure the channel is closed
+                errorChannel.cancel()
             }
         }
 

@@ -33,7 +33,9 @@ internal class SubscribeEventsExampleTest {
         val receivedEvents = mutableListOf<FlowEvent>()
         try {
             val streamJob = launch {
-                subscribeEventsExample.streamEvents(testScope, receivedEvents)
+                withTimeoutOrNull(10_000L) {  // Set timeout to ensure test completes in a reasonable time
+                    subscribeEventsExample.streamEvents(testScope, receivedEvents)
+                }
             }
 
             // Trigger a sample transaction
@@ -50,7 +52,6 @@ internal class SubscribeEventsExampleTest {
             println("Test scope cancelled: ${e.message}")
         }
 
-        println("Hello")
         // Validate that events have been received and processed
         assertTrue(receivedEvents.isNotEmpty(), "Should have received at least one event")
         receivedEvents.forEach { event ->
