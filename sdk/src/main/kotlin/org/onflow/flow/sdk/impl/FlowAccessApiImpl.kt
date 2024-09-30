@@ -2,11 +2,10 @@ package org.onflow.flow.sdk.impl
 
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
-import kotlinx.coroutines.launch
 import com.google.protobuf.ByteString
 import org.onflow.flow.sdk.*
 import io.grpc.ManagedChannel
-import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.*
 import org.onflow.protobuf.access.Access
 import org.onflow.protobuf.access.AccessAPIGrpc
 import org.onflow.protobuf.executiondata.ExecutionDataAPIGrpc
@@ -389,11 +388,11 @@ class FlowAccessApiImpl(
     override fun subscribeExecutionDataByBlockId(
         scope: CoroutineScope,
         blockId: FlowId
-    ): Pair<ReceiveChannel<FlowBlockExecutionData>, ReceiveChannel<Throwable>> {
+    ): Triple<ReceiveChannel<FlowBlockExecutionData>, ReceiveChannel<Throwable>, Job> {
         val responseChannel = Channel<FlowBlockExecutionData>(Channel.UNLIMITED)
         val errorChannel = Channel<Throwable>(Channel.UNLIMITED)
 
-        scope.launch {
+        val job = scope.launch {
             try {
                 val request = Executiondata.SubscribeExecutionDataFromStartBlockIDRequest.newBuilder()
                     .setStartBlockId(blockId.byteStringValue)
@@ -411,7 +410,8 @@ class FlowAccessApiImpl(
                 errorChannel.close()
             }
         }
-        return responseChannel to errorChannel
+
+        return Triple(responseChannel, errorChannel, job)
     }
 
     override fun subscribeExecutionDataByBlockHeight(

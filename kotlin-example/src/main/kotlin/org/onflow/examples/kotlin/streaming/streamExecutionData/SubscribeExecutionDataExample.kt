@@ -7,12 +7,15 @@ import org.onflow.flow.sdk.*
 class SubscribeExecutionDataExample(
     private val accessAPI: FlowAccessApi
 ) {
-    suspend fun streamExecutionData(scope: CoroutineScope, receivedExecutionData: MutableList<FlowBlockExecutionData>) {
+    suspend fun streamExecutionData(
+        scope: CoroutineScope,
+        receivedExecutionData: MutableList<FlowBlockExecutionData>
+    ) {
         val header: FlowBlockHeader = getLatestBlockHeader()
 
-        val (dataChannel, errorChannel) = accessAPI.subscribeExecutionDataByBlockId(scope, header.id)
-
+        val (dataChannel, errorChannel, job) = accessAPI.subscribeExecutionDataByBlockId(scope, header.id)
         processExecutionData(scope, dataChannel, errorChannel, receivedExecutionData)
+        job.cancelAndJoin()
     }
 
     private fun getLatestBlockHeader(): FlowBlockHeader {
@@ -28,17 +31,38 @@ class SubscribeExecutionDataExample(
         errorChannel: ReceiveChannel<Throwable>,
         receivedExecutionData: MutableList<FlowBlockExecutionData>
     ) {
-        scope.launch {
-            for (data in dataChannel) {
-                receivedExecutionData.add(data)
+        val dataJob = scope.launch {
+            try {
+                for (data in dataChannel) {
+                    if (!isActive) break
+                    receivedExecutionData.add(data)
+                    yield()
+                }
+            } catch (e: CancellationException) {
+                println("Data channel processing cancelled")
+            } finally {
+                println("Data channel processing finished")
+                dataChannel.cancel()
             }
         }
 
-        scope.launch {
-            for (error in errorChannel) {
-                println("~~~ ERROR: ${error.message} ~~~")
+        val errorJob = scope.launch {
+            try {
+                for (error in errorChannel) {
+                    println("~~~ ERROR: ${error.message} ~~~")
+                    if (!isActive) break
+                    yield()
+                }
+            } catch (e: CancellationException) {
+                println("Error channel processing cancelled")
+            } finally {
+                println("Error channel processing finished")
+                errorChannel.cancel()
             }
         }
+
+        dataJob.join()
+        errorJob.join()
     }
-    private fun ByteArray.toHexString(): String = joinToString("") { "%02x".format(it) }
 }
+
