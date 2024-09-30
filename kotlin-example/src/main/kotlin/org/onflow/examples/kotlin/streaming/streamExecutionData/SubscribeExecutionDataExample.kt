@@ -7,7 +7,6 @@ import org.onflow.flow.sdk.*
 class SubscribeExecutionDataExample(
     private val accessAPI: FlowAccessApi
 ) {
-
     suspend fun streamExecutionData(scope: CoroutineScope, receivedExecutionData: MutableList<FlowBlockExecutionData>) {
         val header: FlowBlockHeader = getLatestBlockHeader()
 
@@ -41,12 +40,5 @@ class SubscribeExecutionDataExample(
             }
         }
     }
-
-
-
-
-
-
-
     private fun ByteArray.toHexString(): String = joinToString("") { "%02x".format(it) }
 }
