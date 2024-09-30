@@ -23,7 +23,7 @@ internal class SubscribeExecutionDataExampleTest {
     @BeforeEach
     fun setup() {
         accessAPIConnector = AccessAPIConnector(serviceAccount.privateKey, accessAPI)
-        subscribeExecutionDataExample = SubscribeExecutionDataExample(accessAPI)
+        subscribeExecutionDataExample = SubscribeExecutionDataExample(serviceAccount.privateKey, accessAPI)
     }
 
     @Test

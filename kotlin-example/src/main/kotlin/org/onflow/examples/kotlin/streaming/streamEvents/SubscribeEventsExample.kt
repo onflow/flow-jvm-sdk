@@ -32,7 +32,6 @@ class SubscribeEventsExample(
         val dataJob = scope.launch {
             try {
                 for (events in dataChannel) {
-                    println(events)
                     if (!isActive) break
                     if (events.isNotEmpty()) {
                         println("Received events: $events")

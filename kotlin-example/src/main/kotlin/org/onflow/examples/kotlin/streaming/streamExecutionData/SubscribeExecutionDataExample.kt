@@ -2,27 +2,27 @@ package org.onflow.examples.kotlin.streaming.streamExecutionData
 
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.ReceiveChannel
+import org.onflow.examples.kotlin.AccessAPIConnector
 import org.onflow.flow.sdk.*
+import org.onflow.flow.sdk.crypto.PrivateKey
 
 class SubscribeExecutionDataExample(
-    private val accessAPI: FlowAccessApi
+    privateKey: PrivateKey,
+    private val accessApiConnection: FlowAccessApi
+
 ) {
+    private val accessAPI = accessApiConnection
+    private val connector = AccessAPIConnector(privateKey, accessAPI)
+
     suspend fun streamExecutionData(
         scope: CoroutineScope,
         receivedExecutionData: MutableList<FlowBlockExecutionData>
     ) {
-        val header: FlowBlockHeader = getLatestBlockHeader()
+        val blockId = connector.latestBlockID
 
-        val (dataChannel, errorChannel, job) = accessAPI.subscribeExecutionDataByBlockId(scope, header.id)
+        val (dataChannel, errorChannel, job) = accessAPI.subscribeExecutionDataByBlockId(scope, blockId)
         processExecutionData(scope, dataChannel, errorChannel, receivedExecutionData)
         job.cancelAndJoin()
-    }
-
-    private fun getLatestBlockHeader(): FlowBlockHeader {
-        return when (val response = accessAPI.getLatestBlockHeader(true)) {
-            is FlowAccessApi.AccessApiCallResponse.Success -> response.data
-            is FlowAccessApi.AccessApiCallResponse.Error -> throw Exception(response.message, response.throwable)
-        }
     }
 
     private suspend fun processExecutionData(

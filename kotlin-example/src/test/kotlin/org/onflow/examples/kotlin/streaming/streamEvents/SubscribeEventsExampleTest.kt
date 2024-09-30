@@ -29,24 +29,28 @@ internal class SubscribeEventsExampleTest {
 
     @Test
     fun `Can stream and receive block events`() = runBlocking {
-        val scope = this
+        val testScope = CoroutineScope(Dispatchers.IO + Job())
         val receivedEvents = mutableListOf<FlowEvent>()
+        try {
+            val streamJob = launch {
+                subscribeEventsExample.streamEvents(testScope, receivedEvents)
+            }
 
-        // Start streaming events
-        val streamJob = launch {
-            subscribeEventsExample.streamEvents(scope, receivedEvents)
+            // Trigger a sample transaction
+            val publicKey = Crypto.generateKeyPair(SignatureAlgorithm.ECDSA_P256).public
+            accessAPIConnector.sendSampleTransaction(
+                serviceAccount.flowAddress,
+                publicKey
+            )
+
+            delay(3000L)
+            testScope.cancel()
+            streamJob.join()
+        } catch (e: CancellationException) {
+            println("Test scope cancelled: ${e.message}")
         }
 
-        delay(3000L)
-        // Trigger a sample transaction to generate events
-        val publicKey = Crypto.generateKeyPair(SignatureAlgorithm.ECDSA_P256).public
-        accessAPIConnector.sendSampleTransaction(
-            serviceAccount.flowAddress,
-            publicKey
-        )
-        delay(3000L)
-        streamJob.cancelAndJoin()
-
+        println("Hello")
         // Validate that events have been received and processed
         assertTrue(receivedEvents.isNotEmpty(), "Should have received at least one event")
         receivedEvents.forEach { event ->
