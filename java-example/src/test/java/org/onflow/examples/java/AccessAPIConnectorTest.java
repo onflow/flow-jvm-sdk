@@ -35,10 +35,8 @@ public class AccessAPIConnectorTest {
 
     @FlowServiceAccountCredentials
     private TestAccount serviceAccount;
-
     @FlowTestClient
     private FlowAccessApi accessAPI;
-
     @FlowTestAccount
     private TestAccount recipientAccount;
 

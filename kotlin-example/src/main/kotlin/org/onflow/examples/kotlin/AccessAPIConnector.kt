@@ -56,6 +56,49 @@ class AccessAPIConnector(
         }
     }
 
+    private fun getAccountCreatedAddress(txResult: FlowTransactionResult): FlowAddress {
+        val address = txResult.events
+            .find { it.type == "flow.AccountCreated" }
+            ?.payload
+            ?.let { (it.jsonCadence as EventField).value }
+            ?.getRequiredField<AddressField>("address")
+            ?.value as String
+
+        return FlowAddress(address)
+    }
+
+    fun createAccount(payerAddress: FlowAddress, publicKey: PublicKey): FlowAddress {
+        val payerAccountKey = getAccountKey(payerAddress, 0)
+
+        var tx = FlowTransaction(
+            script = FlowScript(loadScript("cadence/create_account.cdc")),
+            arguments = listOf(
+                FlowArgument(StringField(publicKey.hex)),
+                FlowArgument(UInt8NumberField(publicKey.algo.index.toString()))
+            ),
+            referenceBlockId = latestBlockID,
+            gasLimit = 500,
+            proposalKey = FlowTransactionProposalKey(
+                address = payerAddress,
+                keyIndex = payerAccountKey.id,
+                sequenceNumber = payerAccountKey.sequenceNumber.toLong()
+            ),
+            payerAddress = payerAddress,
+            authorizers = listOf(payerAddress)
+        )
+
+        val signer = Crypto.getSigner(privateKey, payerAccountKey.hashAlgo)
+        tx = tx.addEnvelopeSignature(payerAddress, payerAccountKey.id, signer)
+
+        val txID = when (val response = accessAPI.sendTransaction(tx)) {
+            is FlowAccessApi.AccessApiCallResponse.Success -> response.data
+            is FlowAccessApi.AccessApiCallResponse.Error -> throw Exception(response.message, response.throwable)
+        }
+
+        val txResult = waitForSeal(txID)
+        return getAccountCreatedAddress(txResult)
+    }
+
     fun sendSampleTransaction(
         payerAddress: FlowAddress,
         publicKey: PublicKey,

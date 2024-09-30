@@ -20,6 +20,9 @@ internal class AddAccountKeyExample(
 
     fun addKeyToAccount(
         payerAddress: FlowAddress,
+        newPublicKey: FlowPublicKey,
+        signAlgo: SignatureAlgorithm,
+        hashAlgo: HashAlgorithm,
         scriptName: String = "cadence/add_key.cdc",
         gasLimit: Long = 500
     ): FlowTransactionResult {
@@ -28,9 +31,9 @@ internal class AddAccountKeyExample(
         var tx = FlowTransaction(
             script = FlowScript(ExamplesUtils.loadScript(scriptName)),
             arguments = listOf(
-                FlowArgument(StringField(payerAccountKey.publicKey.base16Value)),
-                FlowArgument(UInt8NumberField(payerAccountKey.signAlgo.index.toString())),
-                FlowArgument(UInt8NumberField(payerAccountKey.hashAlgo.index.toString())),
+                FlowArgument(StringField(newPublicKey.base16Value)),
+                FlowArgument(UInt8NumberField(signAlgo.index.toString())),
+                FlowArgument(UInt8NumberField(hashAlgo.index.toString())),
                 FlowArgument(UFix64NumberField("1000.0"))
             ),
             referenceBlockId = connector.latestBlockID,

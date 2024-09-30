@@ -92,7 +92,7 @@ object FlowTestUtil {
             script {
                 loadedScript
             }
-            gasLimit(1000)
+            gasLimit(5000)
             arguments {
                 arg { ufix64(balance) }
                 arg { string(publicKey) }
@@ -121,7 +121,7 @@ object FlowTestUtil {
     @JvmStatic
     @JvmOverloads
     fun runFlow(
-        executable: String = "flow-c1",
+        executable: String = "flow",
         arguments: String? = null,
         host: String = "localhost",
         port: Int = 3570,
@@ -203,7 +203,7 @@ object FlowTestUtil {
                 listOf("${System.getProperty("user.home")}/.local/bin", "/usr/local/bin", "/usr/bin", "/bin")
                     + (System.getenv()["PATH"]?.split(File.pathSeparator) ?: emptyList())
             )
-                .map { File(it, "flow-c1") }
+                .map { File(it, "flow") }
                 .find { it.exists() }
                 ?: throw IOException("flow command not found")
         }

@@ -35,7 +35,7 @@ annotation class FlowTestClient
 @Inherited
 @API(status = API.Status.STABLE, since = "5.0")
 annotation class FlowEmulatorCommand(
-    val value: String = "flow-c1",
+    val value: String = "flow",
     val expectedExitValue: Int = 0,
     val throwOnError: Boolean = true,
     val timeout: Long = 10,
@@ -55,7 +55,7 @@ annotation class FlowServiceAccountCredentials
 @Inherited
 @API(status = API.Status.STABLE, since = "5.0")
 annotation class FlowTestAccount(
-    val signAlgo: SignatureAlgorithm = SignatureAlgorithm.ECDSA_P256,
+    val signAlgo: SignatureAlgorithm = SignatureAlgorithm.ECDSA_SECP256k1,
     val hashAlgo: HashAlgorithm = HashAlgorithm.SHA3_256,
     val publicKey: String = "",
     val privateKey: String = "",
@@ -74,7 +74,7 @@ annotation class FlowTestContractDeployment(
     val code: String = "",
     val codeClasspathLocation: String = "",
     val codeFileLocation: String = "",
-    val gasLimit: Int = 1000,
+    val gasLimit: Int = 5000,
     val arguments: Array<TestContractArg> = []
 )
 

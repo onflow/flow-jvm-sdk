@@ -17,10 +17,8 @@ import java.math.BigDecimal;
 public class GetAccountAccessAPIConnectorTest {
     @FlowServiceAccountCredentials
     private TestAccount testAccount;
-
     @FlowTestClient
     private FlowAccessApi accessAPI;
-
     private GetAccountAccessAPIConnector accountConnector;
 
     @BeforeEach
