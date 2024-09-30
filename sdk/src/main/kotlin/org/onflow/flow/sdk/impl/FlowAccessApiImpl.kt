@@ -417,11 +417,11 @@ class FlowAccessApiImpl(
     override fun subscribeExecutionDataByBlockHeight(
         scope: CoroutineScope,
         height: Long
-    ): Pair<ReceiveChannel<FlowBlockExecutionData>, ReceiveChannel<Throwable>> {
+    ): Triple<ReceiveChannel<FlowBlockExecutionData>, ReceiveChannel<Throwable>, Job> {
         val responseChannel = Channel<FlowBlockExecutionData>(Channel.UNLIMITED)
         val errorChannel = Channel<Throwable>(Channel.UNLIMITED)
 
-        scope.launch {
+        val job = scope.launch {
             try {
                 val request = Executiondata.SubscribeExecutionDataFromStartBlockHeightRequest.newBuilder()
                     .setStartBlockHeight(height)
@@ -439,17 +439,18 @@ class FlowAccessApiImpl(
                 errorChannel.close()
             }
         }
-        return responseChannel to errorChannel
+
+        return Triple(responseChannel, errorChannel, job)
     }
 
     override fun subscribeEventsByBlockId(
         scope: CoroutineScope,
         blockId: FlowId
-    ): Pair<ReceiveChannel<List<FlowEvent>>, ReceiveChannel<Throwable>> {
+    ): Triple<ReceiveChannel<List<FlowEvent>>, ReceiveChannel<Throwable>, Job> {
         val responseChannel = Channel<List<FlowEvent>>(Channel.UNLIMITED)
         val errorChannel = Channel<Throwable>(Channel.UNLIMITED)
 
-        scope.launch {
+        val job = scope.launch {
             try {
                 val request = Executiondata.SubscribeEventsFromStartBlockIDRequest.newBuilder()
                     .setStartBlockId(blockId.byteStringValue)
@@ -467,17 +468,18 @@ class FlowAccessApiImpl(
                 errorChannel.close()
             }
         }
-        return responseChannel to errorChannel
+
+        return Triple(responseChannel, errorChannel, job)
     }
 
     override fun subscribeEventsByBlockHeight(
         scope: CoroutineScope,
         height: Long
-    ): Pair<ReceiveChannel<List<FlowEvent>>, ReceiveChannel<Throwable>> {
+    ): Triple<ReceiveChannel<List<FlowEvent>>, ReceiveChannel<Throwable>, Job> {
         val responseChannel = Channel<List<FlowEvent>>(Channel.UNLIMITED)
         val errorChannel = Channel<Throwable>(Channel.UNLIMITED)
 
-        scope.launch {
+        val job = scope.launch {
             try {
                 val request = Executiondata.SubscribeEventsFromStartHeightRequest.newBuilder()
                     .setStartBlockHeight(height)
@@ -495,6 +497,7 @@ class FlowAccessApiImpl(
                 errorChannel.close()
             }
         }
-        return responseChannel to errorChannel
+
+        return Triple(responseChannel, errorChannel, job)
     }
 }

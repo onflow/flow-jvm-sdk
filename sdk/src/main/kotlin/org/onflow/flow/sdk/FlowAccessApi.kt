@@ -71,15 +71,15 @@ interface FlowAccessApi {
     fun subscribeExecutionDataByBlockHeight(
         scope: CoroutineScope,
         height: Long
-    ): Pair<ReceiveChannel<FlowBlockExecutionData>, ReceiveChannel<Throwable>>
+    ): Triple<ReceiveChannel<FlowBlockExecutionData>, ReceiveChannel<Throwable>, Job>
 
     fun subscribeEventsByBlockId(
         scope: CoroutineScope,
         blockId: FlowId
-    ): Pair<ReceiveChannel<List<FlowEvent>>, ReceiveChannel<Throwable>>
+    ): Triple<ReceiveChannel<List<FlowEvent>>, ReceiveChannel<Throwable>, Job>
 
     fun subscribeEventsByBlockHeight(
         scope: CoroutineScope,
         height: Long
-    ): Pair<ReceiveChannel<List<FlowEvent>>, ReceiveChannel<Throwable>>
+    ): Triple<ReceiveChannel<List<FlowEvent>>, ReceiveChannel<Throwable>, Job>
 }

@@ -75,10 +75,10 @@ class SubscribeEventsReconnectExample(
                 reconnectAttempts++
                 if (reconnectAttempts < maxReconnectAttempts) {
                     println("Reconnecting at block $height (attempt $reconnectAttempts/$maxReconnectAttempts)")
-                    reconnect(scope, height).let {
-                        eventChannel = it.first
-                        errorChannel = it.second
-                    }
+//                    reconnect(scope, height).let {
+//                        eventChannel = it.first
+//                        errorChannel = it.second
+//                    }
                 } else {
                     println("Max reconnect attempts reached. Stopping.")
                     break
@@ -88,10 +88,10 @@ class SubscribeEventsReconnectExample(
         println("Event streaming stopped.")
     }
 
-    private fun reconnect(
-        scope: CoroutineScope,
-        height: Long
-    ): Pair<ReceiveChannel<List<FlowEvent>>, ReceiveChannel<Throwable>> {
-        return accessAPI.subscribeEventsByBlockHeight(scope, height)
-    }
+//    private fun reconnect(
+//        scope: CoroutineScope,
+//        height: Long
+//    ): Pair<ReceiveChannel<List<FlowEvent>>, ReceiveChannel<Throwable>> {
+//        return accessAPI.subscribeEventsByBlockHeight(scope, height)
+//    }
 }

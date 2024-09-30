@@ -28,41 +28,27 @@ internal class SubscribeEventsExampleTest {
     }
 
     @Test
-    fun `Can subscribe to latest block events`() = runBlocking {
+    fun `Can stream and receive block events`() = runBlocking {
         val scope = this
-        val (eventChannel, errorChannel) = subscribeEventsExample.subscribeToLatestBlockEvents(scope)
+        val receivedEvents = mutableListOf<FlowEvent>()
 
-        // Send a sample transaction to trigger events
+        // Start streaming events
+        val streamJob = launch {
+            subscribeEventsExample.streamEvents(scope, receivedEvents)
+        }
+
+        delay(3000L)
+        // Trigger a sample transaction to generate events
         val publicKey = Crypto.generateKeyPair(SignatureAlgorithm.ECDSA_P256).public
         accessAPIConnector.sendSampleTransaction(
             serviceAccount.flowAddress,
             publicKey
         )
+        delay(3000L)
+        streamJob.cancelAndJoin()
 
-        val receivedEvents = mutableListOf<FlowEvent>()
-
-        // Collect events and handle errors
-        val job = launch {
-            try {
-                for (events in eventChannel) {
-                    receivedEvents.addAll(events)
-                }
-            } catch (e: Exception) {
-                println("Error receiving events: ${e.message}")
-                e.printStackTrace()
-            } finally {
-                eventChannel.cancel()
-                errorChannel.cancel()
-            }
-        }
-
-        // Wait for events to be received
-        delay(5000L)
-        job.cancelAndJoin()
-
-        // Verify that events were received
+        // Validate that events have been received and processed
         assertTrue(receivedEvents.isNotEmpty(), "Should have received at least one event")
-
         receivedEvents.forEach { event ->
             assertNotNull(event.type, "Event type should not be null")
             assertNotNull(event.transactionId, "Transaction ID should not be null")
