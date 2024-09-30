@@ -11,7 +11,6 @@ import org.onflow.flow.sdk.crypto.Crypto
 
 @FlowEmulatorProjectTest(flowJsonLocation = "../flow/flow.json")
 internal class SubscribeExecutionDataExampleTest {
-
     @FlowServiceAccountCredentials
     lateinit var serviceAccount: TestAccount
 
