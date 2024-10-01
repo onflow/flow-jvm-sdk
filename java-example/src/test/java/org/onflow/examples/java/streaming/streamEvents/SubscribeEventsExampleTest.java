@@ -1,5 +1,9 @@
 package org.onflow.examples.java.streaming.streamEvents;
 
+import kotlin.Unit;
+import kotlin.coroutines.Continuation;
+import kotlin.coroutines.CoroutineContext;
+import kotlin.jvm.functions.Function2;
 import kotlinx.coroutines.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,7 +25,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @FlowEmulatorProjectTest(flowJsonLocation = "../flow/flow.json")
 public class SubscribeEventsExampleTest {
-
     @FlowServiceAccountCredentials
     private TestAccount serviceAccount;
 
@@ -40,34 +43,38 @@ public class SubscribeEventsExampleTest {
 
     @Test
     public void canStreamAndReceiveBlockEvents() throws Exception {
-        // Create a CoroutineScope with IO Dispatcher and a Job
-        CoroutineScope testScope = new CoroutineScope(Dispatchers.getIO().plus(new Job()));
+        // Create a Job and CoroutineContext with IO Dispatcher
+        Job job = JobKt.Job(null); // Create a standalone Job
+        CoroutineContext context = Dispatchers.getIO().plus(job); // Combine Dispatcher and Job into CoroutineContext
 
-        // Create a list to hold received events
+        // Create a CoroutineScope using the CoroutineScopeKt helper
+        CoroutineScope testScope = CoroutineScopeKt.CoroutineScope(context);
+
+
         List<FlowEvent> receivedEvents = new ArrayList<>();
 
         try {
             // Launch a coroutine to stream events
             Job streamJob = BuildersKt.launch(testScope, Dispatchers.getIO(), CoroutineStart.DEFAULT, (scope, continuation) -> {
-                // Set a timeout to ensure the test completes within 10 seconds
-                BuildersKt.withTimeoutOrNull(testScope.getCoroutineContext(), 10_000L, continuation2 -> {
+                try {
+                    // Stream events directly
                     subscribeEventsExample.streamEvents(receivedEvents);
-                    return null;
-                });
-                return null;
+                    // Resume the coroutine on success
+                    continuation.resumeWith(Unit.INSTANCE);
+                } catch (Exception e) {
+                    // Resume the coroutine with exception in case of failure
+                    continuation.resumeWith(e);
+                }
+                return Unit.INSTANCE;
             });
+
 
             // Trigger a sample transaction
             PublicKey publicKey = Crypto.generateKeyPair(SignatureAlgorithm.ECDSA_P256).getPublic();
             accessAPIConnector.sendSampleTransaction(serviceAccount.getFlowAddress(), publicKey);
 
-            // Wait for 3 seconds to allow events to be received
             Thread.sleep(3000);
-
-            // Cancel the test scope
-            testScope.cancel();
-
-            // Wait for the stream job to complete
+            job.cancel(null);
             streamJob.join(null);
         } catch (CancellationException e) {
             System.out.println("Test scope cancelled: " + e.getMessage());

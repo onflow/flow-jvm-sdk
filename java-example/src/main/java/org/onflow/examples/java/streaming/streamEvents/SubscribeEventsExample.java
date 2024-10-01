@@ -1,6 +1,9 @@
 package org.onflow.examples.java.streaming.streamEvents;
 
+import kotlin.coroutines.Continuation;
 import kotlin.coroutines.CoroutineContext;
+import kotlin.jvm.functions.Function1;
+import kotlin.jvm.functions.Function2;
 import kotlinx.coroutines.*;
 import kotlinx.coroutines.channels.ReceiveChannel;
 import org.onflow.examples.java.AccessAPIConnector;
@@ -56,7 +59,14 @@ public class SubscribeEventsExample {
             try {
                 // Loop through dataChannel and process events
                 while (!dataChannel.isClosedForReceive()) {
-                    List<FlowEvent> events = BuildersKt.runBlocking(scope.getCoroutineContext(), (suspensionPoint) -> dataChannel.receive(null));
+                    // Use BuildersKt.runBlocking with a proper Function2 for suspending receive
+                    List<FlowEvent> events = BuildersKt.runBlocking(scope.getCoroutineContext(), new Function2<CoroutineScope, Continuation<? super List<FlowEvent>>, Object>() {
+                        @Override
+                        public Object invoke(CoroutineScope coroutineScope, Continuation<? super List<FlowEvent>> continuation) {
+                            return dataChannel.receive(continuation);
+                        }
+                    });
+
                     if (!coroutineJob.isActive()) break;
 
                     if (events != null && !events.isEmpty()) {
@@ -67,6 +77,8 @@ public class SubscribeEventsExample {
                 }
             } catch (CancellationException e) {
                 System.out.println("Data channel processing cancelled");
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
             } finally {
                 System.out.println("Data channel processing finished");
                 dataChannel.cancel(null);
@@ -77,14 +89,22 @@ public class SubscribeEventsExample {
         Job errorJob = BuildersKt.launch(scope, Dispatchers.getDefault(), CoroutineStart.DEFAULT, (coroutineScope1, continuation) -> {
             try {
                 while (!errorChannel.isClosedForReceive()) {
-                    Throwable error = BuildersKt.runBlocking(scope.getCoroutineContext(), (suspensionPoint) -> errorChannel.receive(null));
+                    // Use BuildersKt.runBlocking with a proper Function2 for suspending receive
+                    Throwable error = BuildersKt.runBlocking(scope.getCoroutineContext(), new Function2<CoroutineScope, Continuation<? super Throwable>, Object>() {
+                        @Override
+                        public Object invoke(CoroutineScope coroutineScope, Continuation<? super Throwable> continuation) {
+                            return errorChannel.receive(continuation);
+                        }
+                    });
+
                     if (error != null) {
                         System.out.println("~~~ ERROR: " + error.getMessage() + " ~~~");
                     }
                     if (!coroutineJob.isActive()) break;
+
                     Thread.yield();
                 }
-            } catch (CancellationException e) {
+            } catch (CancellationException | InterruptedException e) {
                 System.out.println("Error channel processing cancelled");
             } finally {
                 System.out.println("Error channel processing finished");
@@ -92,10 +112,6 @@ public class SubscribeEventsExample {
             }
             return null;
         });
-
-        dataJob.join(null);
-        errorJob.join(null);
     }
-
 }
 
