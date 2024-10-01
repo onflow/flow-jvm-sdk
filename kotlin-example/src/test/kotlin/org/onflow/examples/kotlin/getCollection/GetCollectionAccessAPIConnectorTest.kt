@@ -2,9 +2,14 @@ package org.onflow.examples.kotlin.getCollection
 
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.onflow.examples.kotlin.AccessAPIConnector
 import org.onflow.flow.common.test.FlowEmulatorProjectTest
+import org.onflow.flow.common.test.FlowServiceAccountCredentials
 import org.onflow.flow.common.test.FlowTestClient
+import org.onflow.flow.common.test.TestAccount
 import org.onflow.flow.sdk.FlowAccessApi
+import org.onflow.flow.sdk.FlowCollection
 import org.onflow.flow.sdk.FlowId
 import org.onflow.flow.sdk.SignatureAlgorithm
 import org.onflow.flow.sdk.crypto.Crypto
@@ -41,11 +46,11 @@ class GetCollectionAccessAPIConnectorTest {
         collectionId = block.collectionGuarantees.first().id
     }
 
-//    @Test
-//    fun `Can fetch collection by ID`() {
-//        val collection: FlowCollection = connector.getCollectionById(collectionId)
-//
-//        assertNotNull(collection, "Collection should not be null")
-//        assertEquals(collectionId, collection.id, "Collection ID should match the fetched collection ID")
-//    }
+    @Test
+    fun `Can fetch collection by ID`() {
+        val collection: FlowCollection = connector.getCollectionById(collectionId)
+
+        assertNotNull(collection, "Collection should not be null")
+        assertEquals(collectionId, collection.id, "Collection ID should match the fetched collection ID")
+    }
 }
