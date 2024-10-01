@@ -1,6 +1,7 @@
 package org.onflow.flow.sdk
 
 import com.google.protobuf.ByteString
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.launch
@@ -336,8 +337,9 @@ class FlowAccessApiTest {
         val scope = this
         val responseChannel = Channel<FlowBlockExecutionData>(Channel.UNLIMITED)
         val errorChannel = Channel<Throwable>(Channel.UNLIMITED)
+        val job = Job()
 
-        `when`(flowAccessApi.subscribeExecutionDataByBlockId(scope, blockId)).thenReturn(responseChannel to errorChannel)
+        `when`(flowAccessApi.subscribeExecutionDataByBlockId(scope, blockId)).thenReturn(Triple(responseChannel, errorChannel, job))
 
         val result = flowAccessApi.subscribeExecutionDataByBlockId(scope, blockId)
         val expectedExecutionData = FlowBlockExecutionData.of(BlockExecutionDataOuterClass.BlockExecutionData.getDefaultInstance())
@@ -369,8 +371,9 @@ class FlowAccessApiTest {
         val scope = this
         val responseChannel = Channel<FlowBlockExecutionData>(Channel.UNLIMITED)
         val errorChannel = Channel<Throwable>(Channel.UNLIMITED)
+        val job = Job()
 
-        `when`(flowAccessApi.subscribeExecutionDataByBlockHeight(scope, blockHeight)).thenReturn(responseChannel to errorChannel)
+        `when`(flowAccessApi.subscribeExecutionDataByBlockHeight(scope, blockHeight)).thenReturn(Triple(responseChannel, errorChannel, job))
 
         val result = flowAccessApi.subscribeExecutionDataByBlockHeight(scope, blockHeight)
         val expectedExecutionData = FlowBlockExecutionData.of(BlockExecutionDataOuterClass.BlockExecutionData.getDefaultInstance())
@@ -402,8 +405,9 @@ class FlowAccessApiTest {
         val scope = this
         val responseChannel = Channel<List<FlowEvent>>(Channel.UNLIMITED)
         val errorChannel = Channel<Throwable>(Channel.UNLIMITED)
+        val job = Job()
 
-        `when`(flowAccessApi.subscribeEventsByBlockId(scope, blockId)).thenReturn(responseChannel to errorChannel)
+        `when`(flowAccessApi.subscribeEventsByBlockId(scope, blockId)).thenReturn(Triple(responseChannel, errorChannel, job))
 
         val result = flowAccessApi.subscribeEventsByBlockId(scope, blockId)
         val expectedEvents = listOf(FlowEvent.of(EventOuterClass.Event.getDefaultInstance()))
@@ -435,8 +439,9 @@ class FlowAccessApiTest {
         val scope = this
         val responseChannel = Channel<List<FlowEvent>>(Channel.UNLIMITED)
         val errorChannel = Channel<Throwable>(Channel.UNLIMITED)
+        val job = Job()
 
-        `when`(flowAccessApi.subscribeEventsByBlockHeight(scope, blockHeight)).thenReturn(responseChannel to errorChannel)
+        `when`(flowAccessApi.subscribeEventsByBlockHeight(scope, blockHeight)).thenReturn(Triple(responseChannel, errorChannel, job))
 
         val result = flowAccessApi.subscribeEventsByBlockHeight(scope, blockHeight)
         val expectedEvents = listOf(FlowEvent.of(EventOuterClass.Event.getDefaultInstance()))
