@@ -46,7 +46,7 @@ public class SendTransactionExample {
                 Collections.emptyList()
         );
 
-        return getFlowTransactionResult(payerAddress, payerAccountKey, tx);
+        return getTransactionResult(payerAddress, payerAccountKey, tx);
     }
 
     public FlowTransactionResult sendComplexTransactionWithArguments(
@@ -73,25 +73,14 @@ public class SendTransactionExample {
                 Collections.emptyList()
         );
 
-        return getFlowTransactionResult(payerAddress, payerAccountKey, tx);
+        return getTransactionResult(payerAddress, payerAccountKey, tx);
     }
 
     @NotNull
-    private FlowTransactionResult getFlowTransactionResult(FlowAddress payerAddress, FlowAccountKey payerAccountKey, FlowTransaction tx) throws Exception {
+    private FlowTransactionResult getTransactionResult(FlowAddress payerAddress, FlowAccountKey payerAccountKey, FlowTransaction tx) throws Exception {
         Signer signer = Crypto.getSigner(privateKey, payerAccountKey.getHashAlgo());
         tx = tx.addEnvelopeSignature(payerAddress, payerAccountKey.getId(), signer);
 
-        FlowId txID;
-        FlowAccessApi.AccessApiCallResponse<?> response = accessAPI.sendTransaction(tx);
-        if (response instanceof FlowAccessApi.AccessApiCallResponse.Success) {
-            txID = ((FlowAccessApi.AccessApiCallResponse.Success<FlowId>) response).getData();
-        } else if (response instanceof FlowAccessApi.AccessApiCallResponse.Error) {
-            throw new Exception(((FlowAccessApi.AccessApiCallResponse.Error) response).getMessage(),
-                    ((FlowAccessApi.AccessApiCallResponse.Error) response).getThrowable());
-        } else {
-            throw new Exception("Unknown response type");
-        }
-
-        return connector.waitForSeal(txID);
+        return ExamplesUtils.getFlowTransactionResult(tx, accessAPI, connector);
     }
 }

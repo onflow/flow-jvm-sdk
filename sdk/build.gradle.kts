@@ -28,7 +28,7 @@ dependencies {
     api("org.onflow:flow:1.0.0")
     api("com.github.TrustedDataFramework:java-rlp:1.1.20")
     api("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
-    api("org.bouncycastle:bcpkix-jdk18on:1.76")
+    api("org.bouncycastle:bcpkix-jdk18on:1.78.1")
     api(platform("com.fasterxml.jackson:jackson-bom:2.16.1"))
     api("com.fasterxml.jackson.core:jackson-core")
     api("com.fasterxml.jackson.module:jackson-module-kotlin")

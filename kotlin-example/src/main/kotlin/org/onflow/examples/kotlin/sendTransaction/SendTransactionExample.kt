@@ -4,7 +4,7 @@ import org.onflow.examples.kotlin.AccessAPIConnector
 import org.onflow.examples.kotlin.ExamplesUtils
 import org.onflow.flow.sdk.*
 import org.onflow.flow.sdk.cadence.StringField
-import org.onflow.flow.sdk.crypto.Crypto
+import org.onflow.flow.sdk.crypto.Crypto.getSigner
 import org.onflow.flow.sdk.crypto.PrivateKey
 
 internal class SendTransactionExample(
@@ -37,16 +37,10 @@ internal class SendTransactionExample(
             authorizers = listOf(payerAddress)
         )
 
-        val signer = Crypto.getSigner(privateKey, payerAccountKey.hashAlgo)
+        val signer = getSigner(privateKey, payerAccountKey.hashAlgo)
         tx = tx.addEnvelopeSignature(payerAddress, payerAccountKey.id, signer)
 
-        val txID = when (val response = accessAPI.sendTransaction(tx)) {
-            is FlowAccessApi.AccessApiCallResponse.Success -> response.data
-            is FlowAccessApi.AccessApiCallResponse.Error -> throw Exception(response.message, response.throwable)
-        }
-
-        val txResult = connector.waitForSeal(txID)
-        return txResult
+        return getFlowTransactionResult(tx)
     }
 
     fun sendComplexTransactionWithArguments(
@@ -73,15 +67,17 @@ internal class SendTransactionExample(
             authorizers = listOf()
         )
 
-        val signer = Crypto.getSigner(privateKey, payerAccountKey.hashAlgo)
+        val signer = getSigner(privateKey, payerAccountKey.hashAlgo)
         tx = tx.addEnvelopeSignature(payerAddress, payerAccountKey.id, signer)
 
+        return getFlowTransactionResult(tx)
+    }
+
+    private fun getFlowTransactionResult(tx: FlowTransaction): FlowTransactionResult {
         val txID = when (val response = accessAPI.sendTransaction(tx)) {
             is FlowAccessApi.AccessApiCallResponse.Success -> response.data
             is FlowAccessApi.AccessApiCallResponse.Error -> throw Exception(response.message, response.throwable)
         }
-
-        val txResult = connector.waitForSeal(txID)
-        return txResult
+        return connector.waitForSeal(txID)
     }
 }

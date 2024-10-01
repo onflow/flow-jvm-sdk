@@ -35,7 +35,7 @@ annotation class FlowTestClient
 @Inherited
 @API(status = API.Status.STABLE, since = "5.0")
 annotation class FlowEmulatorCommand(
-    val value: String = "flow-c1",
+    val value: String = "flow",
     val expectedExitValue: Int = 0,
     val throwOnError: Boolean = true,
     val timeout: Long = 10,
