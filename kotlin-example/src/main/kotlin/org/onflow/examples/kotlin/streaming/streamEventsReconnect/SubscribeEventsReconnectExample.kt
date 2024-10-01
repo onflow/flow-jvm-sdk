@@ -13,13 +13,10 @@ class SubscribeEventsReconnectExample(
     suspend fun streamEvents(scope: CoroutineScope, receivedEvents: MutableList<FlowEvent>) {
         val header: FlowBlockHeader = getLatestBlockHeader()
 
-        val (eventChannel, errorChannel) = accessAPI.subscribeEventsByBlockId(scope, header.id)
-
+        val (eventChannel, errorChannel, job) = accessAPI.subscribeEventsByBlockId(scope, header.id)
         val lastHeight = header.height
 
-        scope.launch {
-            handleEventStream(scope, eventChannel, errorChannel, lastHeight, receivedEvents)
-        }
+        processEventsWithReconnect(scope, eventChannel, errorChannel, lastHeight, receivedEvents, job)
     }
 
     private fun getLatestBlockHeader(): FlowBlockHeader {
@@ -30,68 +27,78 @@ class SubscribeEventsReconnectExample(
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    private suspend fun handleEventStream(
+    private suspend fun processEventsWithReconnect(
         scope: CoroutineScope,
         initialEventChannel: ReceiveChannel<List<FlowEvent>>,
         initialErrorChannel: ReceiveChannel<Throwable>,
         lastHeight: Long,
-        receivedEvents: MutableList<FlowEvent>
+        receivedEvents: MutableList<FlowEvent>,
+        initialJob: Job
     ) {
         var eventChannel = initialEventChannel
         var errorChannel = initialErrorChannel
+        var job = initialJob
         var height = lastHeight
         var reconnectAttempts = 0
         val maxReconnectAttempts = 5
 
-        while (reconnectAttempts < maxReconnectAttempts) {
-            val shouldReconnect: Boolean = select {
-                eventChannel.onReceiveCatching { result ->
-                    result.getOrNull()?.let { events ->
-                        receivedEvents.addAll(events)
-                        println("Received events at height: $height")
-                        height++
-                        reconnectAttempts = 0 // Reset reconnect attempts on success
+        val dataJob = scope.launch {
+            while (reconnectAttempts < maxReconnectAttempts) {
+                val shouldReconnect: Boolean = select {
+                    eventChannel.onReceiveCatching { result ->
+                        result.getOrNull()?.let { events ->
+                            if (events.isNotEmpty()) {
+                                receivedEvents.addAll(events)
+                                println("Received events at height: $height")
+                                height++
+                                reconnectAttempts = 0 // Reset reconnect attempts on success
+                                false
+                            } else {
+                                println("No events received, attempting to reconnect...")
+                                true
+                            }
+                        } ?: true
+                    }
+                    errorChannel.onReceiveCatching { result ->
+                        result.getOrNull()?.let { error ->
+                            println("~~~ ERROR: ${error.message} ~~~")
+                            true
+                        } == true
+                    }
+                    onTimeout(1000L) {
+                        println("Timeout occurred, checking channels...")
                         false
-                    } ?: run {
-                        println("No events received, attempting to reconnect...")
-                        true
                     }
                 }
-                errorChannel.onReceiveCatching { result ->
-                    result.getOrNull()?.let { error ->
-                        println("~~~ ERROR: ${error.message} ~~~")
-                        true
-                    } ?: run {
-                        true
-                    }
-                }
-                onTimeout(1000L) {
-                    println("Timeout occurred, checking channels...")
-                    false
-                }
-            }
 
-            if (shouldReconnect) {
-                reconnectAttempts++
-                if (reconnectAttempts < maxReconnectAttempts) {
-                    println("Reconnecting at block $height (attempt $reconnectAttempts/$maxReconnectAttempts)")
-//                    reconnect(scope, height).let {
-//                        eventChannel = it.first
-//                        errorChannel = it.second
-//                    }
-                } else {
-                    println("Max reconnect attempts reached. Stopping.")
-                    break
+                if (shouldReconnect) {
+                    reconnectAttempts++
+                    if (reconnectAttempts < maxReconnectAttempts) {
+                        println("Reconnecting at block $height (attempt $reconnectAttempts/$maxReconnectAttempts)")
+
+                        // Cancel the previous job before reconnecting
+                        job.cancelAndJoin()
+
+                        // Perform reconnection and update channels and job
+                        val (newEventChannel, newErrorChannel, newJob) = reconnect(scope, height)
+                        eventChannel = newEventChannel
+                        errorChannel = newErrorChannel
+                        job = newJob
+                    } else {
+                        println("Max reconnect attempts reached. Stopping.")
+                        break
+                    }
                 }
             }
         }
-        println("Event streaming stopped.")
+
+        dataJob.join()
     }
 
-//    private fun reconnect(
-//        scope: CoroutineScope,
-//        height: Long
-//    ): Pair<ReceiveChannel<List<FlowEvent>>, ReceiveChannel<Throwable>> {
-//        return accessAPI.subscribeEventsByBlockHeight(scope, height)
-//    }
+    private fun reconnect(
+        scope: CoroutineScope,
+        height: Long
+    ): Triple<ReceiveChannel<List<FlowEvent>>, ReceiveChannel<Throwable>, Job> {
+        return accessAPI.subscribeEventsByBlockHeight(scope, height)
+    }
 }

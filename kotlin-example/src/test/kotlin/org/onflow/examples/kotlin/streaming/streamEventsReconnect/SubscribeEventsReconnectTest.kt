@@ -28,15 +28,12 @@ internal class SubscribeEventsReconnectExampleTest {
 
     @Test
     fun `Can stream and reconnect events`() = runBlocking {
-        val scope = this
+        val testScope = CoroutineScope(Dispatchers.IO + Job())
         val receivedEvents = mutableListOf<FlowEvent>()
 
         val reconnectJob = launch {
-            subscribeEventsReconnectExample.streamEvents(scope, receivedEvents)
+            subscribeEventsReconnectExample.streamEvents(testScope, receivedEvents)
         }
-
-        // Simulate a delay to allow event stream to start
-        delay(5000L)
 
         // Trigger a sample event
         val publicKey = Crypto.generateKeyPair(SignatureAlgorithm.ECDSA_P256).public
@@ -44,6 +41,7 @@ internal class SubscribeEventsReconnectExampleTest {
             serviceAccount.flowAddress,
             publicKey
         )
+        delay(5000L)
 
         // Check if the stream has reconnected and continued processing after the simulated disconnection
         reconnectJob.cancelAndJoin()
