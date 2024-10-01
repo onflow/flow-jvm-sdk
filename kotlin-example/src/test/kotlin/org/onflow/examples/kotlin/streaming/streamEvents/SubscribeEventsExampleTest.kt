@@ -33,7 +33,7 @@ internal class SubscribeEventsExampleTest {
         val receivedEvents = mutableListOf<FlowEvent>()
         try {
             val streamJob = launch {
-                withTimeoutOrNull(10_000L) {  // Set timeout to ensure test completes in a reasonable time
+                withTimeoutOrNull(10_000L) {
                     subscribeEventsExample.streamEvents(testScope, receivedEvents)
                 }
             }

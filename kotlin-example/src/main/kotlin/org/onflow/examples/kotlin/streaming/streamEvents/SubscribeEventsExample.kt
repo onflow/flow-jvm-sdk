@@ -36,13 +36,13 @@ class SubscribeEventsExample(
                     if (events.isNotEmpty()) {
                         receivedEvents.addAll(events)
                     }
-                    yield()  // Ensure coroutine checks for cancellation
+                    yield()
                 }
             } catch (e: CancellationException) {
                 println("Data channel processing cancelled")
             } finally {
                 println("Data channel processing finished")
-                dataChannel.cancel()  // Ensure the channel is closed
+                dataChannel.cancel()
             }
         }
 

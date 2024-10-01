@@ -9,7 +9,6 @@ import org.onflow.flow.sdk.crypto.PrivateKey
 class SubscribeExecutionDataExample(
     privateKey: PrivateKey,
     accessApiConnection: FlowAccessApi
-
 ) {
     private val accessAPI = accessApiConnection
     private val connector = AccessAPIConnector(privateKey, accessAPI)
@@ -67,4 +66,3 @@ class SubscribeExecutionDataExample(
         errorJob.join()
     }
 }
-
