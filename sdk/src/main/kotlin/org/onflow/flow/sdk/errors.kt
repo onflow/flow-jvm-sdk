@@ -60,7 +60,7 @@ enum class FlowError(val code: Int) {
     FLOW_ERROR_FrozenAccountError(FlowErrorCodeFrozenAccountError),
     @Deprecated("No longer in use.")
     FLOW_ERROR_AccountStorageNotInitializedError(FlowErrorCodeAccountStorageNotInitializedError),
-    FLOW_ERROR_AccountPublicKeyLimitError (FlowErrorCodeAccountPublicKeyLimitError),
+    FLOW_ERROR_AccountPublicKeyLimitError(FlowErrorCodeAccountPublicKeyLimitError),
 
     FLOW_ERROR_ContractNotFoundError(FlowErrorCodeContractNotFoundError),
     @Deprecated("No longer in use.")
@@ -116,6 +116,7 @@ const val FlowErrorCodeScriptExecutionCancelledError: Int = 1114
 const val FlowErrorCodeEventEncodingError: Int = 1115
 const val FlowErrorCodeInvalidInternalStateAccessError: Int = 1116
 // 1117 was never deployed and is free to use
+
 const val FlowErrorCodeInsufficientPayerBalance: Int = 1118
 
 // accounts errors 1200 - 1250
