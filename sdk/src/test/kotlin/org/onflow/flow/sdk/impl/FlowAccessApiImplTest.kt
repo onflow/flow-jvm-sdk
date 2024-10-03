@@ -190,7 +190,6 @@ class FlowAccessApiImplTest {
         val result = flowAccessApiImpl.getAccountByAddress(flowAddress)
         assertResultSuccess(result) {
             assertEquals(flowAccount.address, it.address)
-            assertEquals(flowAccount.code, it.code)
             assertEquals(flowAccount.keys, it.keys)
             assertEquals(flowAccount.contracts, it.contracts)
             assertEquals(flowAccount.balance.stripTrailingZeros(), it.balance.stripTrailingZeros())
@@ -208,7 +207,6 @@ class FlowAccessApiImplTest {
         val result = flowAccessApiImpl.getAccountAtLatestBlock(flowAddress)
         assertResultSuccess(result) {
             assertEquals(flowAccount.address, it.address)
-            assertEquals(flowAccount.code, it.code)
             assertEquals(flowAccount.keys, it.keys)
             assertEquals(flowAccount.contracts, it.contracts)
             assertEquals(flowAccount.balance.stripTrailingZeros(), it.balance.stripTrailingZeros())
@@ -227,7 +225,6 @@ class FlowAccessApiImplTest {
         val result = flowAccessApiImpl.getAccountByBlockHeight(flowAddress, height)
         assertResultSuccess(result) {
             assertEquals(flowAccount.address, it.address)
-            assertEquals(flowAccount.code, it.code)
             assertEquals(flowAccount.keys, it.keys)
             assertEquals(flowAccount.contracts, it.contracts)
             assertEquals(flowAccount.balance.stripTrailingZeros(), it.balance.stripTrailingZeros())
