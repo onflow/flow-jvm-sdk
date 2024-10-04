@@ -11,6 +11,7 @@ This package contains runnable code examples that use the [Flow JVM SDK](https:/
     - [Get accounts](#get-accounts)
     - [Get events](#get-events)
     - [Get collection](#get-collection)
+    - [Get execution data](#get-execution-data)
     - [Get network parameters](#get-network-parameters)
     - [Get transactions](#get-transactions)
     - [Sending transactions](#sending-transactions)
@@ -20,6 +21,7 @@ This package contains runnable code examples that use the [Flow JVM SDK](https:/
     - [Deploy contract](#deploy-contract)
     - [Transaction signing](#transaction-signing)
     - [Verifying signatures](#verifying-signatures)
+    - [Streaming events and execution data](#streaming-events-and-execution-data)
   
 ## Running the emulator with the Flow CLI
 
@@ -64,6 +66,10 @@ Below is a list of all Kotlin code examples currently supported in this repo:
 #### Get Collection
 
 [Get collections by ID.](src/main/kotlin/org/onflow/examples/kotlin/getCollection/GetCollectionAccessAPIConnector.kt)
+
+#### Get Execution Data
+
+[Get execution data by block ID.](src/main/kotlin/org/onflow/examples/kotlin/getExecutionData/GetExecutionDataAccessAPIConnector.kt)
 
 #### Get Network Parameters
 
@@ -120,6 +126,10 @@ Below is a list of all Kotlin code examples currently supported in this repo:
 - Signing an arbitrary user message and verifying it using the public keys on an account, respecting the weights of each key.
 - Signing an arbitrary user message and verifying it using the public keys on an account. Return success if any public key on the account can sign the message.
 
-#### Unsupported Features
+#### Streaming Events and Execution Data
 
-The JVM SDK code examples currently do not support the Access API subscription endpoints (streaming events and execution data), which depend on the Execution Data API (not supported in Flow Emulator). We intend to add these examples as soon as support for these methods is released on the Flow Emulator. 
+[Utilizing the Access API subscription endpoints to stream event and execution data.](src/main/kotlin/org/onflow/examples/kotlin/streaming)
+
+- Streaming events.
+- Streaming events and reconnecting in the event of a failure.
+- Streaming execution data.

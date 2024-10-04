@@ -11,6 +11,7 @@ This package contains runnable code examples that use the [Flow JVM SDK](https:/
   - [Get accounts](#get-accounts)
   - [Get events](#get-events)
   - [Get collection](#get-collection)
+  - [Get execution data](#get-execution-data)
   - [Get network parameters](#get-network-parameters)
   - [Get transactions](#get-transactions)
   - [Sending transactions](#sending-transactions)
@@ -64,6 +65,10 @@ Below is a list of all Java code examples currently supported in this repo:
 #### Get Collection
 
 [Get collections by ID.](src/main/java/org/onflow/examples/java/getCollection/GetCollectionAccessAPIConnector.java)
+
+#### Get Execution Data
+
+[Get execution data by block ID.](src/main/java/org/onflow/examples/java/getExecutionData/GetExecutionDataAccessAPIConnector.java)
 
 #### Get Network Parameters
 
