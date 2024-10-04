@@ -267,7 +267,12 @@ data class FlowTransactionResult(
     val status: FlowTransactionStatus,
     val statusCode: Int,
     val errorMessage: String,
-    val events: List<FlowEvent>
+    val events: List<FlowEvent>,
+    val blockId: FlowId,
+    val blockHeight: Long,
+    val transactionId: FlowId,
+    val collectionId: FlowId,
+    val computationUsage: Long
 ) : Serializable {
     companion object {
         @JvmStatic
@@ -275,7 +280,12 @@ data class FlowTransactionResult(
             status = FlowTransactionStatus.of(value.statusValue),
             statusCode = value.statusCode,
             errorMessage = value.errorMessage,
-            events = value.eventsList.map { FlowEvent.of(it) }
+            events = value.eventsList.map { FlowEvent.of(it) },
+            blockId = FlowId.of(value.blockId.toByteArray()),
+            blockHeight = value.blockHeight,
+            transactionId = FlowId.of(value.transactionId.toByteArray()),
+            collectionId = FlowId.of(value.collectionId.toByteArray()),
+            computationUsage = value.computationUsage
         )
     }
 
