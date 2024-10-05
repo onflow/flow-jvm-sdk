@@ -1171,6 +1171,28 @@ data class FlowNodeVersionInfo(
     val nodeRootBlockHeight: Long,
     val compatibleRange: FlowCompatibleRange?
 ) : Serializable {
+    companion object {
+        @JvmStatic
+        fun of(value: NodeVersionInfoOuterClass.NodeVersionInfo) = FlowNodeVersionInfo(
+            semver = value.semver,
+            commit = value.commit,
+            sporkId = value.sporkId.toByteArray(),
+            protocolVersion = value.protocolVersion,
+            sporkRootBlockHeight = value.sporkRootBlockHeight,
+            nodeRootBlockHeight = value.nodeRootBlockHeight,
+            compatibleRange = null,
+        )
+    }
+
+    @JvmOverloads
+    fun builder(builder: NodeVersionInfoOuterClass.NodeVersionInfo.Builder = NodeVersionInfoOuterClass.NodeVersionInfo.newBuilder()): NodeVersionInfoOuterClass.NodeVersionInfo.Builder = builder
+        .setSemver(semver)
+        .setCommit(commit)
+        .setSporkId(UnsafeByteOperations.unsafeWrap(sporkId))
+        .setProtocolVersion(protocolVersion)
+        .setSporkRootBlockHeight(sporkRootBlockHeight)
+        .setNodeRootBlockHeight(nodeRootBlockHeight)
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is FlowNodeVersionInfo) return false
