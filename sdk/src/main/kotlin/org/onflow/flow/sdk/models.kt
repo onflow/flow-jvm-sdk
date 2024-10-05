@@ -1157,6 +1157,47 @@ data class FlowSnapshot(
     override fun hashCode(): Int = bytes.contentHashCode()
 }
 
+data class FlowCompatibleRange(
+    val startHeight: Long,
+    val endHeight: Long
+) : Serializable
+
+data class FlowNodeVersionInfo(
+    val semver: String,
+    val commit: String,
+    val sporkId: ByteArray,
+    val protocolVersion: Long,
+    val sporkRootBlockHeight: Long,
+    val nodeRootBlockHeight: Long,
+    val compatibleRange: FlowCompatibleRange
+) : Serializable {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is FlowNodeVersionInfo) return false
+
+        if (semver != other.semver) return false
+        if (commit != other.commit) return false
+        if (!sporkId.contentEquals(other.sporkId)) return false
+        if (protocolVersion != other.protocolVersion) return false
+        if (sporkRootBlockHeight != other.sporkRootBlockHeight) return false
+        if (nodeRootBlockHeight != other.nodeRootBlockHeight) return false
+        if (compatibleRange != other.compatibleRange) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = semver.hashCode()
+        result = 31 * result + commit.hashCode()
+        result = 31 * result + sporkId.contentHashCode()
+        result = 31 * result + protocolVersion.hashCode()
+        result = 31 * result + sporkRootBlockHeight.hashCode()
+        result = 31 * result + nodeRootBlockHeight.hashCode()
+        result = 31 * result + compatibleRange.hashCode()
+        return result
+    }
+}
+
 data class FlowEventPayload(
     override val bytes: ByteArray
 ) : Serializable,
