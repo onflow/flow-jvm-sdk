@@ -42,7 +42,19 @@ class FlowTransactionResultTest {
         val invalidStatusCode = 1
         val errorMessage = "Error message"
 
-        val flowTransactionResult = FlowTransactionResult(status, invalidStatusCode, errorMessage, emptyList())
+        val flowId = FlowId("0x1")
+
+        val flowTransactionResult = FlowTransactionResult(
+            status,
+            invalidStatusCode,
+            errorMessage,
+            emptyList(),
+            flowId,
+            1L,
+            flowId,
+            flowId,
+            1L
+        )
 
         assertThrows<FlowException> { flowTransactionResult.throwOnError() }
     }
@@ -57,11 +69,18 @@ class FlowTransactionResultTest {
         val event2 = FlowEvent("type2", FlowId("0x2234"), 0, 0, FlowEventPayload(eventField2))
         val event3 = FlowEvent("sub-type1", FlowId("0x3234"), 0, 0, FlowEventPayload(eventField3))
 
+        val flowId = FlowId("0x1")
+
         val flowTransactionResult = FlowTransactionResult(
             FlowTransactionStatus.SEALED,
             0,
             "",
-            listOf(event1, event2, event3)
+            listOf(event1, event2, event3),
+            flowId,
+            1L,
+            flowId,
+            flowId,
+            1L
         )
 
         // Events of a specific type
