@@ -1,5 +1,6 @@
 package org.onflow.flow.sdk.models
 
+import com.google.protobuf.ByteString
 import org.onflow.flow.sdk.*
 import org.onflow.flow.sdk.cadence.CompositeAttribute
 import org.onflow.flow.sdk.cadence.CompositeValue
@@ -26,6 +27,11 @@ class FlowTransactionResultTest {
             .setStatus(TransactionOuterClass.TransactionStatus.EXECUTED)
             .setStatusCode(statusCode)
             .setErrorMessage(errorMessage)
+            .setBlockId(ByteString.copyFromUtf8("blockId"))
+            .setBlockHeight(1L)
+            .setTransactionId(ByteString.copyFromUtf8("transactionId"))
+            .setCollectionId(ByteString.copyFromUtf8("collectionId"))
+            .setComputationUsage(1L)
             .addAllEvents(events.map { it.builder().build() })
 
 
