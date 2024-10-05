@@ -1169,7 +1169,7 @@ data class FlowNodeVersionInfo(
     val protocolVersion: Long,
     val sporkRootBlockHeight: Long,
     val nodeRootBlockHeight: Long,
-    val compatibleRange: FlowCompatibleRange
+    val compatibleRange: FlowCompatibleRange?
 ) : Serializable {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
