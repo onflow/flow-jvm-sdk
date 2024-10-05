@@ -170,7 +170,7 @@ class FlowAccessApiImplTest {
     @Test
     fun `Test getTransactionResultById`() {
         val flowId = FlowId.of("id".toByteArray())
-        val flowTransactionResult = FlowTransactionResult(FlowTransactionStatus.SEALED, 1, "message", emptyList(), flowId,1L, flowId, flowId,1L)
+        val flowTransactionResult = FlowTransactionResult(FlowTransactionStatus.SEALED, 1, "message", emptyList(), flowId, 1L, flowId, flowId, 1L)
         val response = Access.TransactionResultResponse.newBuilder().setStatus(TransactionOuterClass.TransactionStatus.SEALED).setStatusCode(1).setErrorMessage("message").setBlockId(ByteString.copyFromUtf8("id")).build()
 
         `when`(mockApi.getTransactionResult(any())).thenReturn(response)
