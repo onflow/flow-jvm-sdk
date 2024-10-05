@@ -342,6 +342,18 @@ class FlowAccessApiImpl(
         }
     }
 
+    override fun getNodeVersionInfo(): FlowAccessApi.AccessApiCallResponse<FlowNodeVersionInfo> {
+        return try {
+            val ret = api.getNodeVersionInfo(
+                Access.GetNodeVersionInfoRequest.newBuilder()
+                    .build()
+            )
+            FlowAccessApi.AccessApiCallResponse.Success(FlowNodeVersionInfo(ret.info.semver, ret.info.commit, ret.info.sporkId.toByteArray(), ret.info.protocolVersion,ret.info.sporkRootBlockHeight, ret.info.nodeRootBlockHeight, null))
+        } catch (e: Exception) {
+            FlowAccessApi.AccessApiCallResponse.Error("Failed to get latest protocol state snapshot", e)
+        }
+    }
+
     override fun getTransactionsByBlockId(id: FlowId): FlowAccessApi.AccessApiCallResponse<List<FlowTransaction>> {
         return try {
             val ret = api.getTransactionsByBlockID(
