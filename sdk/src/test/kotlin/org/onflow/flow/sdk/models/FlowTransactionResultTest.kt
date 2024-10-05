@@ -28,6 +28,7 @@ class FlowTransactionResultTest {
             .setErrorMessage(errorMessage)
             .addAllEvents(events.map { it.builder().build() })
 
+
         val flowTransactionResult = FlowTransactionResult.of(responseBuilder.build())
 
         assertEquals(status, flowTransactionResult.status)
@@ -42,7 +43,7 @@ class FlowTransactionResultTest {
         val invalidStatusCode = 1
         val errorMessage = "Error message"
 
-        val flowId = FlowId("0x1")
+        val flowId = FlowId("0x01")
 
         val flowTransactionResult = FlowTransactionResult(
             status,
@@ -69,7 +70,7 @@ class FlowTransactionResultTest {
         val event2 = FlowEvent("type2", FlowId("0x2234"), 0, 0, FlowEventPayload(eventField2))
         val event3 = FlowEvent("sub-type1", FlowId("0x3234"), 0, 0, FlowEventPayload(eventField3))
 
-        val flowId = FlowId("0x1")
+        val flowId = FlowId("0x01")
 
         val flowTransactionResult = FlowTransactionResult(
             FlowTransactionStatus.SEALED,
