@@ -348,9 +348,16 @@ class FlowAccessApiImpl(
                 Access.GetNodeVersionInfoRequest.newBuilder()
                     .build()
             )
-            FlowAccessApi.AccessApiCallResponse.Success(FlowNodeVersionInfo(ret.info.semver, ret.info.commit, ret.info.sporkId.toByteArray(), ret.info.protocolVersion,ret.info.sporkRootBlockHeight, ret.info.nodeRootBlockHeight, null))
+
+            val compatibleRange = if (ret.info.hasCompatibleRange()) {
+                FlowCompatibleRange(ret.info.compatibleRange.startHeight, ret.info.compatibleRange.endHeight)
+            } else {
+                null
+            }
+
+            FlowAccessApi.AccessApiCallResponse.Success(FlowNodeVersionInfo(ret.info.semver, ret.info.commit, ret.info.sporkId.toByteArray(), ret.info.protocolVersion,ret.info.sporkRootBlockHeight, ret.info.nodeRootBlockHeight, compatibleRange))
         } catch (e: Exception) {
-            FlowAccessApi.AccessApiCallResponse.Error("Failed to get latest protocol state snapshot", e)
+            FlowAccessApi.AccessApiCallResponse.Error("Failed to get node version info", e)
         }
     }
 

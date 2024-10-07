@@ -3,6 +3,7 @@ package org.onflow.flow.sdk.impl
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.SettableFuture
 import com.google.protobuf.ByteString
+import org.junit.jupiter.api.Assertions.assertArrayEquals
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -13,6 +14,7 @@ import org.onflow.flow.sdk.*
 import org.onflow.protobuf.access.Access
 import org.onflow.protobuf.access.AccessAPIGrpc
 import org.onflow.protobuf.entities.ExecutionResultOuterClass
+import org.onflow.protobuf.entities.NodeVersionInfoOuterClass
 import org.onflow.protobuf.entities.TransactionOuterClass
 import java.math.BigDecimal
 import java.time.LocalDateTime
@@ -325,6 +327,44 @@ class AsyncFlowAccessApiImplTest {
         assert(result is FlowAccessApi.AccessApiCallResponse.Success)
         result as FlowAccessApi.AccessApiCallResponse.Success
         assertEquals(mockFlowSnapshot, result.data)
+    }
+
+    @Test
+    fun `test getNodeVersionInfo`() {
+        val mockNodeVersionInfo = Access.GetNodeVersionInfoResponse.newBuilder()
+            .setInfo(
+                NodeVersionInfoOuterClass.NodeVersionInfo.newBuilder()
+                    .setSemver("v0.0.1")
+                    .setCommit("123456")
+                    .setSporkId(ByteString.copyFromUtf8("sporkId"))
+                    .setProtocolVersion(5)
+                    .setSporkRootBlockHeight(1000)
+                    .setNodeRootBlockHeight(1001)
+                    .setCompatibleRange(
+                        NodeVersionInfoOuterClass.CompatibleRange.newBuilder()
+                            .setStartHeight(100)
+                            .setEndHeight(200)
+                            .build()
+                    )
+                    .build()
+            ).build()
+
+        `when`(api.getNodeVersionInfo(any())).thenReturn(setupFutureMock(mockNodeVersionInfo))
+
+        val result = asyncFlowAccessApi.getNodeVersionInfo().get()
+
+        assert(result is FlowAccessApi.AccessApiCallResponse.Success)
+        result as FlowAccessApi.AccessApiCallResponse.Success
+        val nodeVersionInfo = result.data
+
+        assertEquals("v0.0.1", nodeVersionInfo.semver)
+        assertEquals("123456", nodeVersionInfo.commit)
+        assertArrayEquals("sporkId".toByteArray(), nodeVersionInfo.sporkId)
+        assertEquals(5, nodeVersionInfo.protocolVersion)
+        assertEquals(1000L, nodeVersionInfo.sporkRootBlockHeight)
+        assertEquals(1001L, nodeVersionInfo.nodeRootBlockHeight)
+        assertEquals(100L, nodeVersionInfo.compatibleRange?.startHeight)
+        assertEquals(200L, nodeVersionInfo.compatibleRange?.endHeight)
     }
 
     @Test
