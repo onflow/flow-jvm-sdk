@@ -25,7 +25,7 @@ dependencies {
     api("org.jetbrains.kotlin:kotlin-reflect:1.9.22")
     dokkaHtmlPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:1.9.10")
 
-    api("org.onflow:flow:1.0.0")
+    api("org.onflow:flow:1.1.0")
     api("com.github.TrustedDataFramework:java-rlp:1.1.20")
     api("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
     api("org.bouncycastle:bcpkix-jdk18on:1.78.1")

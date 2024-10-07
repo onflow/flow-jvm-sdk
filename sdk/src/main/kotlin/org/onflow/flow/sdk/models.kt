@@ -1180,7 +1180,11 @@ data class FlowNodeVersionInfo(
             protocolVersion = value.protocolVersion,
             sporkRootBlockHeight = value.sporkRootBlockHeight,
             nodeRootBlockHeight = value.nodeRootBlockHeight,
-            compatibleRange = null,
+            compatibleRange = if (value.hasCompatibleRange()) {
+                FlowCompatibleRange(value.compatibleRange.startHeight, value.compatibleRange.endHeight)
+            } else {
+                null
+            }
         )
     }
 
