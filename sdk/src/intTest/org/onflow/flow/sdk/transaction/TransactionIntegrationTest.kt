@@ -56,6 +56,20 @@ class TransactionIntegrationTest {
     }
 
     @Test
+    fun `Can get node version info`() {
+        val nodeVersionInfo = try {
+            handleResult(
+                accessAPI.getNodeVersionInfo(),
+                "Failed to get network parameters"
+            )
+        } catch (e: Exception) {
+            fail("Failed to retrieve network parameters: ${e.message}")
+        }
+
+        assertThat(nodeVersionInfo).isEqualTo(FlowChainId.EMULATOR)
+    }
+
+    @Test
     fun `Can parse events`() {
         val txResult = createAndSubmitAccountCreationTransaction(
             accessAPI,
