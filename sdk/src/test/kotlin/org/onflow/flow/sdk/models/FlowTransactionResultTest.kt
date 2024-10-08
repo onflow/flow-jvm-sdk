@@ -34,7 +34,6 @@ class FlowTransactionResultTest {
             .setComputationUsage(1L)
             .addAllEvents(events.map { it.builder().build() })
 
-
         val flowTransactionResult = FlowTransactionResult.of(responseBuilder.build())
 
         assertEquals(status, flowTransactionResult.status)

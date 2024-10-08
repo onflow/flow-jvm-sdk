@@ -294,6 +294,11 @@ data class FlowTransactionResult(
         .setStatus(TransactionOuterClass.TransactionStatus.valueOf(status.name))
         .setStatusCode(statusCode)
         .setErrorMessage(errorMessage)
+        .setBlockId(blockId.byteStringValue)
+        .setBlockHeight(blockHeight)
+        .setTransactionId(transactionId.byteStringValue)
+        .setCollectionId(collectionId.byteStringValue)
+        .setComputationUsage(computationUsage)
         .addAllEvents(events.map { it.builder().build() })
 
     @JvmOverloads
