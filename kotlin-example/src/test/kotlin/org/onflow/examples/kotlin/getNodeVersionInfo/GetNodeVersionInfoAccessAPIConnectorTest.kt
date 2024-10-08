@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test
 import org.onflow.flow.common.test.FlowEmulatorProjectTest
 import org.onflow.flow.common.test.FlowTestClient
 import org.onflow.flow.sdk.FlowAccessApi
-import org.onflow.flow.sdk.FlowChainId
 import org.onflow.flow.sdk.FlowNodeVersionInfo
 
 @FlowEmulatorProjectTest(flowJsonLocation = "../flow/flow.json")
@@ -22,7 +21,7 @@ internal class GetNodeVersionInfoAccessAPIConnectorTest {
     }
 
     @Test
-    fun `Can fetch network parameters`() {
+    fun `Can fetch node version info`() {
         val nodeVersionInfo: FlowNodeVersionInfo = nodeVersionInfoConnector.getNodeVersionInfo()
         assertNotNull(nodeVersionInfo, "Node version info should not be null")
         assertEquals(nodeVersionInfo.protocolVersion, 0)
