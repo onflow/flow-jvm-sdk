@@ -66,7 +66,11 @@ class TransactionIntegrationTest {
             fail("Failed to retrieve network parameters: ${e.message}")
         }
 
-        assertThat(nodeVersionInfo).isEqualTo(FlowChainId.EMULATOR)
+        assertThat(nodeVersionInfo).isNotNull()
+        assertThat(nodeVersionInfo.protocolVersion).isEqualTo(0)
+        assertThat(nodeVersionInfo.sporkRootBlockHeight).isEqualTo(0)
+        assertThat(nodeVersionInfo.nodeRootBlockHeight).isEqualTo(0)
+        assertThat(nodeVersionInfo.compatibleRange).isEqualTo(null)
     }
 
     @Test

@@ -526,7 +526,13 @@ class AsyncFlowAccessApiImpl(
                 if (ex != null) {
                     FlowAccessApi.AccessApiCallResponse.Error("Failed to get node version info", ex)
                 } else {
-                    FlowAccessApi.AccessApiCallResponse.Success(FlowNodeVersionInfo(response.info.semver, response.info.commit, response.info.sporkId.toByteArray(), response.info.protocolVersion, response.info.sporkRootBlockHeight, response.info.nodeRootBlockHeight, null))
+                    val compatibleRange = if (response.info.hasCompatibleRange()) {
+                        FlowCompatibleRange(response.info.compatibleRange.startHeight, response.info.compatibleRange.endHeight)
+                    } else {
+                        null
+                    }
+
+                    FlowAccessApi.AccessApiCallResponse.Success(FlowNodeVersionInfo(response.info.semver, response.info.commit, response.info.sporkId.toByteArray(), response.info.protocolVersion, response.info.sporkRootBlockHeight, response.info.nodeRootBlockHeight, compatibleRange))
                 }
             }
         } catch (e: Exception) {
