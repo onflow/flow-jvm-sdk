@@ -162,8 +162,19 @@ class AsyncFlowAccessApiImplTest {
     @Test
     fun `test getTransactionResultById`() {
         val flowId = FlowId.of("id".toByteArray())
-        val flowTransactionResult = FlowTransactionResult(FlowTransactionStatus.SEALED, 1, "message", emptyList())
-        val transactionResultResponse = Access.TransactionResultResponse.newBuilder().setStatus(TransactionOuterClass.TransactionStatus.SEALED).setStatusCode(1).setErrorMessage("message").setBlockId(ByteString.copyFromUtf8("id")).build()
+        val flowTransactionResult = FlowTransactionResult(FlowTransactionStatus.SEALED, 1, "message", emptyList(), flowId, 1L, flowId, flowId, 1L)
+
+        val transactionResultResponse = Access.TransactionResultResponse.newBuilder()
+            .setStatus(TransactionOuterClass.TransactionStatus.SEALED)
+            .setStatusCode(1)
+            .setErrorMessage("message")
+            .setBlockId(ByteString.copyFromUtf8("id"))
+            .setBlockHeight(1L)
+            .setTransactionId(ByteString.copyFromUtf8("id"))
+            .setCollectionId(ByteString.copyFromUtf8("id"))
+            .setComputationUsage(1L)
+            .build()
+
         `when`(api.getTransactionResult(any())).thenReturn(setupFutureMock(transactionResultResponse))
 
         val result = asyncFlowAccessApi.getTransactionResultById(flowId).get()

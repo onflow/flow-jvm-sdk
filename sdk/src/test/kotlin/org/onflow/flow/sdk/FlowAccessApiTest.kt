@@ -299,17 +299,37 @@ class FlowAccessApiTest {
     @Test
     fun `Test getTransactionResultsByBlockId with multiple results`() {
         val flowAccessApi = mock(FlowAccessApi::class.java)
-        val blockId = FlowId("01")
+        val flowId = FlowId("01")
 
-        val transactionResult1 = FlowTransactionResult(FlowTransactionStatus.SEALED, 1, "message1", emptyList())
+        val transactionResult1 = FlowTransactionResult(
+            FlowTransactionStatus.SEALED,
+            1,
+            "message1",
+            emptyList(),
+            flowId,
+            1L,
+            flowId,
+            flowId,
+            1
+        )
 
-        val transactionResult2 = FlowTransactionResult(FlowTransactionStatus.SEALED, 2, "message2", emptyList())
+        val transactionResult2 = FlowTransactionResult(
+            FlowTransactionStatus.SEALED,
+            2,
+            "message2",
+            emptyList(),
+            flowId,
+            1L,
+            flowId,
+            flowId,
+            1
+        )
 
         val transactions = listOf(transactionResult1, transactionResult2)
 
-        `when`(flowAccessApi.getTransactionResultsByBlockId(blockId)).thenReturn(FlowAccessApi.AccessApiCallResponse.Success(transactions))
+        `when`(flowAccessApi.getTransactionResultsByBlockId(flowId)).thenReturn(FlowAccessApi.AccessApiCallResponse.Success(transactions))
 
-        val result = flowAccessApi.getTransactionResultsByBlockId(blockId)
+        val result = flowAccessApi.getTransactionResultsByBlockId(flowId)
 
         assertEquals(FlowAccessApi.AccessApiCallResponse.Success(transactions), result)
 
