@@ -9,18 +9,14 @@ import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.runBlockingTest
 import org.onflow.flow.sdk.*
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.fail
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.*
 import org.onflow.protobuf.access.Access
 import org.onflow.protobuf.access.AccessAPIGrpc
-import org.onflow.protobuf.entities.BlockExecutionDataOuterClass
-import org.onflow.protobuf.entities.EventOuterClass
-import org.onflow.protobuf.entities.ExecutionResultOuterClass
-import org.onflow.protobuf.entities.TransactionOuterClass
+import org.onflow.protobuf.entities.*
 import org.onflow.protobuf.executiondata.ExecutionDataAPIGrpc
 import org.onflow.protobuf.executiondata.Executiondata
 import java.io.ByteArrayOutputStream
@@ -335,6 +331,42 @@ class FlowAccessApiImplTest {
 
         val result = flowAccessApiImpl.getLatestProtocolStateSnapshot()
         assertResultSuccess(result) { assertEquals(mockFlowSnapshot, it) }
+    }
+
+    @Test
+    fun `Test getNodeVersionInfo`() {
+        val mockNodeVersionInfo = Access.GetNodeVersionInfoResponse.newBuilder()
+            .setInfo(
+                NodeVersionInfoOuterClass.NodeVersionInfo.newBuilder()
+                    .setSemver("v0.0.1")
+                    .setCommit("123456")
+                    .setSporkId(ByteString.copyFromUtf8("sporkId"))
+                    .setProtocolVersion(5)
+                    .setSporkRootBlockHeight(1000)
+                    .setNodeRootBlockHeight(1001)
+                    .setCompatibleRange(
+                        NodeVersionInfoOuterClass.CompatibleRange.newBuilder()
+                            .setStartHeight(100)
+                            .setEndHeight(200)
+                            .build()
+                    )
+                    .build()
+            ).build()
+
+        `when`(mockApi.getNodeVersionInfo(any())).thenReturn(mockNodeVersionInfo)
+
+        val result = flowAccessApiImpl.getNodeVersionInfo()
+
+        assertResultSuccess(result) {
+            assertEquals("v0.0.1", it.semver)
+            assertEquals("123456", it.commit)
+            assertArrayEquals("sporkId".toByteArray(), it.sporkId)
+            assertEquals(5, it.protocolVersion)
+            assertEquals(1000L, it.sporkRootBlockHeight)
+            assertEquals(1001L, it.nodeRootBlockHeight)
+            assertEquals(100L, it.compatibleRange?.startHeight)
+            assertEquals(200L, it.compatibleRange?.endHeight)
+        }
     }
 
     @Test

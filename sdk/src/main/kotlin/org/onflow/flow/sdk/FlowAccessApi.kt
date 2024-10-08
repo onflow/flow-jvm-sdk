@@ -57,6 +57,8 @@ interface FlowAccessApi {
 
     fun getLatestProtocolStateSnapshot(): AccessApiCallResponse<FlowSnapshot>
 
+    fun getNodeVersionInfo(): AccessApiCallResponse<FlowNodeVersionInfo>
+
     fun getTransactionsByBlockId(id: FlowId): AccessApiCallResponse<List<FlowTransaction>>
 
     fun getTransactionResultsByBlockId(id: FlowId): AccessApiCallResponse<List<FlowTransactionResult>>

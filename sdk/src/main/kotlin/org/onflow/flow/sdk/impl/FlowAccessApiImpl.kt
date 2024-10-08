@@ -342,6 +342,25 @@ class FlowAccessApiImpl(
         }
     }
 
+    override fun getNodeVersionInfo(): FlowAccessApi.AccessApiCallResponse<FlowNodeVersionInfo> {
+        return try {
+            val ret = api.getNodeVersionInfo(
+                Access.GetNodeVersionInfoRequest.newBuilder()
+                    .build()
+            )
+
+            val compatibleRange = if (ret.info.hasCompatibleRange()) {
+                FlowCompatibleRange(ret.info.compatibleRange.startHeight, ret.info.compatibleRange.endHeight)
+            } else {
+                null
+            }
+
+            FlowAccessApi.AccessApiCallResponse.Success(FlowNodeVersionInfo(ret.info.semver, ret.info.commit, ret.info.sporkId.toByteArray(), ret.info.protocolVersion, ret.info.sporkRootBlockHeight, ret.info.nodeRootBlockHeight, compatibleRange))
+        } catch (e: Exception) {
+            FlowAccessApi.AccessApiCallResponse.Error("Failed to get node version info", e)
+        }
+    }
+
     override fun getTransactionsByBlockId(id: FlowId): FlowAccessApi.AccessApiCallResponse<List<FlowTransaction>> {
         return try {
             val ret = api.getTransactionsByBlockID(
