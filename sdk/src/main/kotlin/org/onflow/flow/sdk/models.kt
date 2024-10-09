@@ -918,13 +918,19 @@ data class FlowBlockExecutionData(
 
 data class FlowCollectionGuarantee(
     val id: FlowId,
-    val signatures: List<FlowSignature>
+    val signatures: List<FlowSignature>,
+    val referenceBlockId: FlowId,
+    val signature: FlowSignature,
+    val signerIndices: ByteArray
 ) : Serializable {
     companion object {
         @JvmStatic
         fun of(value: CollectionOuterClass.CollectionGuarantee) = FlowCollectionGuarantee(
             id = FlowId.of(value.collectionId.toByteArray()),
-            signatures = value.signaturesList.map { FlowSignature(it.toByteArray()) }
+            signatures = value.signaturesList.map { FlowSignature(it.toByteArray()) },
+            referenceBlockId = FlowId.of(value.referenceBlockId.toByteArray()),
+            signature = FlowSignature(value.signature.toByteArray()),
+            signerIndices = value.signerIndices.toByteArray()
         )
     }
 
@@ -932,6 +938,31 @@ data class FlowCollectionGuarantee(
     fun builder(builder: CollectionOuterClass.CollectionGuarantee.Builder = CollectionOuterClass.CollectionGuarantee.newBuilder()): CollectionOuterClass.CollectionGuarantee.Builder = builder
         .setCollectionId(id.byteStringValue)
         .addAllSignatures(signatures.map { it.byteStringValue })
+        .setReferenceBlockId(referenceBlockId.byteStringValue)
+        .setSignature(signature.byteStringValue)
+        .setSignerIndices(UnsafeByteOperations.unsafeWrap(signerIndices))
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is FlowCollectionGuarantee) return false
+
+        if (id != other.id) return false
+        if (signatures != other.signatures) return false
+        if (referenceBlockId != other.referenceBlockId) return false
+        if (signature != other.signature) return false
+        if (!signerIndices.contentEquals(other.signerIndices)) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = id.hashCode()
+        result = 31 * result + signatures.hashCode()
+        result = 31 * result + referenceBlockId.hashCode()
+        result = 31 * result + signature.hashCode()
+        result = 31 * result + signerIndices.contentHashCode()
+        return result
+    }
 }
 
 data class FlowBlockSeal(
