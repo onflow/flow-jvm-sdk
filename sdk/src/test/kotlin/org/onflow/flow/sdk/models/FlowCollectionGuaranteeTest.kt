@@ -10,7 +10,6 @@ import org.onflow.protobuf.entities.CollectionOuterClass
 import com.google.protobuf.UnsafeByteOperations
 
 class FlowCollectionGuaranteeTest {
-
     @Test
     fun `Test building FlowCollectionGuarantee from CollectionOuterClass`() {
         val collectionIdBytes = byteArrayOf(1, 2, 3)
