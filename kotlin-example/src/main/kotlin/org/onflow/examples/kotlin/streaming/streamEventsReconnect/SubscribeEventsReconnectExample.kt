@@ -3,6 +3,7 @@ package org.onflow.examples.kotlin.streaming.streamEventsReconnect
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.selects.select
+import kotlinx.coroutines.selects.onTimeout
 import org.onflow.flow.sdk.*
 
 class SubscribeEventsReconnectExample(
@@ -65,7 +66,7 @@ class SubscribeEventsReconnectExample(
                             true
                         } == true
                     }
-                    onTimeout(1000L) {
+                    onTimeout(timeMillis = 1000L) {
                         println("Timeout occurred, checking channels...")
                         false
                     }
