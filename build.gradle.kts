@@ -64,10 +64,9 @@ subprojects {
     }
 
     tasks.named<KotlinCompile>("compileTestKotlin") {
-        kotlinOptions {
-            jvmTarget = JavaVersion.VERSION_21.toString()
-            freeCompilerArgs = listOf("-Xjvm-default=all", "-opt-in=com.squareup.kotlinpoet.metadata.KotlinPoetMetadataPreview")
-            allWarningsAsErrors = false
+        compilerOptions {
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)  // Set JVM target to 21
+            freeCompilerArgs.addAll("-Xjsr305=strict", "-opt-in=kotlin.RequiresOptIn")
         }
     }
 
