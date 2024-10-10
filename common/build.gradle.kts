@@ -19,9 +19,9 @@ tasks.withType<JavaCompile> {
 }
 
 tasks.withType<KotlinCompile> {
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_21.toString()
-        freeCompilerArgs = listOf("-Xjsr305=strict", "-opt-in=kotlin.RequiresOptIn")
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)  // Set JVM target to 21
+        freeCompilerArgs.addAll("-Xjsr305=strict", "-opt-in=kotlin.RequiresOptIn")
     }
 }
 
@@ -34,35 +34,35 @@ repositories {
 
 dependencies {
     implementation(project(":sdk"))
-    testFixturesImplementation("org.junit.jupiter:junit-jupiter:5.10.1")
-    testFixturesImplementation("org.mockito:mockito-core:3.12.4")
-    testFixturesImplementation("org.mockito:mockito-inline:3.11.2")
+
+    testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
+    testImplementation("org.mockito:mockito-core:5.5.0")
+    testImplementation("org.mockito:mockito-inline:5.2.0")
+
+    testFixturesImplementation(project(":sdk"))
+    testFixturesImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
+    testFixturesImplementation("org.mockito:mockito-core:5.5.0")
+    testFixturesImplementation("org.mockito:mockito-inline:5.2.0")
+
+    intTestImplementation("org.junit.jupiter:junit-jupiter:5.10.1")
+    intTestImplementation("org.assertj:assertj-core:3.25.1")
+    intTestRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 tasks.test {
-    // Use junit platform for unit tests.
     useJUnitPlatform()
 }
 
 sourceSets {
+//    create("testFixtures") {
+//        compileClasspath += sourceSets["main"].output
+//        runtimeClasspath += sourceSets["main"].output
+//    }
     create("intTest") {
-        compileClasspath += sourceSets.main.get().output
-        runtimeClasspath += sourceSets.main.get().output
-        kotlin.srcDirs("src/intTest", "src/testFixtures")
+        compileClasspath += sourceSets["main"].output + sourceSets["testFixtures"].output
+        runtimeClasspath += sourceSets["main"].output + sourceSets["testFixtures"].output
+        kotlin.srcDirs("src/intTest/kotlin")
     }
-}
-
-val intTestImplementation by configurations.getting {
-    extendsFrom(configurations.implementation.get())
-}
-val intTestRuntimeOnly by configurations.getting
-
-configurations["intTestRuntimeOnly"].extendsFrom(configurations.runtimeOnly.get())
-
-dependencies {
-    intTestImplementation("org.junit.jupiter:junit-jupiter:5.10.1")
-    intTestImplementation("org.assertj:assertj-core:3.25.1")
-    intTestRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 val integrationTest = task<Test>("integrationTest") {

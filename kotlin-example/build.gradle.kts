@@ -33,9 +33,8 @@ repositories {
 }
 
 dependencies {
-    // Use JUnit Jupiter Engine for testing.
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.0")
-    testImplementation("org.junit.jupiter:junit-jupiter-engine:5.7.0")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.1")
+    testImplementation("org.junit.jupiter:junit-jupiter-engine:5.10.1")
 
     implementation(project(":sdk"))
     implementation(project(":common"))
@@ -43,12 +42,10 @@ dependencies {
 }
 
 application {
-    // Define the main class for the application.
     mainClass.set("org.onflow.examples.kotlin.AccessAPIConnector")
 }
 
 tasks.test {
-    // Use junit platform for unit tests.
     useJUnitPlatform()
 }
 

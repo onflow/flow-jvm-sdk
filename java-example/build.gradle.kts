@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     java
     application
-    kotlin("jvm") version "1.9.22"
+    kotlin("jvm") version "2.0.21"
 }
 
 // Helper function to get properties

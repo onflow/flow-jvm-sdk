@@ -11,7 +11,7 @@ fun getProp(name: String, defaultValue: String? = null): String? {
 }
 
 plugins {
-    kotlin("jvm") version "1.9.22" apply false
+    kotlin("jvm") version "2.0.21" apply false
     id("org.jetbrains.dokka") version "1.9.10" apply false
     id("org.jmailen.kotlinter") version "4.2.0" apply false
     id("kotlinx-serialization") version "1.8.0" apply false
@@ -51,6 +51,14 @@ subprojects {
         else -> defaultVersion
     }
 
+    val intTestImplementation: Configuration by configurations.creating {
+        extendsFrom(configurations["implementation"])
+    }
+
+    val intTestRuntimeOnly: Configuration by configurations.creating {
+        extendsFrom(configurations["runtimeOnly"])
+    }
+
     tasks.withType<KotlinCompile> {
         kotlinOptions {
             jvmTarget = JavaVersion.VERSION_21.toString()
@@ -64,10 +72,9 @@ subprojects {
     }
 
     tasks.named<KotlinCompile>("compileTestKotlin") {
-        kotlinOptions {
-            jvmTarget = JavaVersion.VERSION_21.toString()
-            freeCompilerArgs = listOf("-Xjvm-default=all", "-opt-in=com.squareup.kotlinpoet.metadata.KotlinPoetMetadataPreview")
-            allWarningsAsErrors = false
+        compilerOptions {
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)  // Set JVM target to 21
+            freeCompilerArgs.addAll("-Xjsr305=strict", "-opt-in=kotlin.RequiresOptIn")
         }
     }
 
