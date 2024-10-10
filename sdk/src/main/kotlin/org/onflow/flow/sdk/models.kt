@@ -644,6 +644,10 @@ data class FlowBlock(
     val collectionGuarantees: List<FlowCollectionGuarantee>,
     val blockSeals: List<FlowBlockSeal>,
     val signatures: List<FlowSignature>,
+    val executionReceiptMetalist,
+    val exectionResultList,
+    val blockHeader,
+    val protocolStateId
 ) : Serializable {
     companion object {
         @JvmStatic
