@@ -33,20 +33,20 @@ dependencies {
     api("com.fasterxml.jackson.core:jackson-core")
     api("com.fasterxml.jackson.module:jackson-module-kotlin")
 
-    api("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
-    api("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.5.2")
-    api("org.jetbrains.kotlinx:kotlinx-coroutines-guava:1.5.2")
+    api("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+    api("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.7.3")
+    api("org.jetbrains.kotlinx:kotlinx-coroutines-guava:1.7.3")
 
     testApi("org.junit.jupiter:junit-jupiter:5.10.1")
     testApi("org.assertj:assertj-core:3.25.1")
 
     testFixturesImplementation("org.junit.jupiter:junit-jupiter:5.10.1")
-    testFixturesImplementation("org.mockito:mockito-core:3.12.4")
-    testFixturesImplementation("org.mockito:mockito-inline:3.11.2")
+    testFixturesImplementation("org.mockito:mockito-core:5.5.0")
+    testFixturesImplementation("org.mockito:mockito-inline:5.2.0")
 
     testImplementation(testFixtures(project(":common")))
     testImplementation(project(":common"))
-    implementation("org.slf4j:slf4j-api:1.7.30")
+    implementation("org.slf4j:slf4j-api:2.0.9")
     implementation("ch.qos.logback:logback-classic:1.4.12")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.5.2")
 }
@@ -59,10 +59,13 @@ sourceSets {
     }
 }
 
-val intTestImplementation by configurations.getting {
-    extendsFrom(configurations.implementation.get())
+val intTestImplementation: Configuration by configurations.creating {
+    extendsFrom(configurations["implementation"])
 }
-val intTestRuntimeOnly by configurations.getting
+
+val intTestRuntimeOnly: Configuration by configurations.creating {
+    extendsFrom(configurations["runtimeOnly"])
+}
 
 configurations["intTestRuntimeOnly"].extendsFrom(configurations.runtimeOnly.get())
 
@@ -97,8 +100,8 @@ java {
 
 tasks {
     withType<KotlinCompile> {
-        kotlinOptions {
-            jvmTarget = "21"
+        compilerOptions {
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)  // Set JVM target to 21
         }
     }
     test {
