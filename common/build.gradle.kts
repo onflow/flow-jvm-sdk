@@ -32,6 +32,14 @@ repositories {
     maven { url = uri("https://dl.bintray.com/ethereum/maven/") }
 }
 
+val intTestImplementation: Configuration by configurations.creating {
+    extendsFrom(configurations["implementation"])
+}
+
+val intTestRuntimeOnly: Configuration by configurations.creating {
+    extendsFrom(configurations["runtimeOnly"])
+}
+
 dependencies {
     implementation(project(":sdk"))
 
@@ -54,23 +62,11 @@ tasks.test {
 }
 
 sourceSets {
-    create("testFixtures") {
-        compileClasspath += sourceSets["main"].output
-        runtimeClasspath += sourceSets["main"].output
-    }
     create("intTest") {
         compileClasspath += sourceSets["main"].output + sourceSets["testFixtures"].output
         runtimeClasspath += sourceSets["main"].output + sourceSets["testFixtures"].output
         kotlin.srcDirs("src/intTest/kotlin")
     }
-}
-
-val intTestImplementation: Configuration by configurations.creating {
-    extendsFrom(configurations["implementation"])
-}
-
-val intTestRuntimeOnly: Configuration by configurations.creating {
-    extendsFrom(configurations["runtimeOnly"])
 }
 
 val integrationTest = task<Test>("integrationTest") {
