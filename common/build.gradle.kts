@@ -54,24 +54,24 @@ tasks.test {
 }
 
 sourceSets {
-    val main by getting
-    val testFixtures by creating {
-        compileClasspath += main.output
-        runtimeClasspath += main.output
+    create("testFixtures") {
+        compileClasspath += sourceSets["main"].output
+        runtimeClasspath += sourceSets["main"].output
     }
-    val intTest by creating {
-        compileClasspath += main.output + testFixtures.output
-        runtimeClasspath += main.output + testFixtures.output
+    create("intTest") {
+        compileClasspath += sourceSets["main"].output + sourceSets["testFixtures"].output
+        runtimeClasspath += sourceSets["main"].output + sourceSets["testFixtures"].output
         kotlin.srcDirs("src/intTest/kotlin")
     }
 }
 
-val intTestImplementation by configurations.getting {
-    extendsFrom(configurations.implementation.get())
+val intTestImplementation: Configuration by configurations.creating {
+    extendsFrom(configurations["implementation"])
 }
-val intTestRuntimeOnly by configurations.getting
 
-configurations["intTestRuntimeOnly"].extendsFrom(configurations.runtimeOnly.get())
+val intTestRuntimeOnly: Configuration by configurations.creating {
+    extendsFrom(configurations["runtimeOnly"])
+}
 
 val integrationTest = task<Test>("integrationTest") {
     description = "Runs integration tests."
