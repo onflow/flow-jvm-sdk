@@ -34,9 +34,10 @@ repositories {
 
 dependencies {
     implementation(project(":sdk"))
-    testFixturesImplementation("org.junit.jupiter:junit-jupiter:5.10.1")
-    testFixturesImplementation("org.mockito:mockito-core:3.12.4")
-    testFixturesImplementation("org.mockito:mockito-inline:3.11.2")
+    testFixturesImplementation(project(":sdk"))
+    testFixturesImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
+    testFixturesImplementation("org.mockito:mockito-core:5.5.0")
+    testFixturesImplementation("org.mockito:mockito-inline:5.2.0")
 }
 
 tasks.test {
