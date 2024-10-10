@@ -21,6 +21,14 @@ repositories {
     mavenCentral()
 }
 
+sourceSets {
+    create("intTest") {
+        compileClasspath += sourceSets.main.get().output
+        runtimeClasspath += sourceSets.main.get().output
+        kotlin.srcDirs("src/intTest")
+    }
+}
+
 dependencies {
     api("org.jetbrains.kotlin:kotlin-reflect:1.9.22")
     dokkaHtmlPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:1.9.10")
@@ -46,30 +54,11 @@ dependencies {
 
     testImplementation(testFixtures(project(":common")))
     testImplementation(project(":common"))
-    implementation("org.slf4j:slf4j-api:2.0.9")
-    implementation("ch.qos.logback:logback-classic:1.4.12")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.5.2")
-}
 
-sourceSets {
-    create("intTest") {
-        compileClasspath += sourceSets.main.get().output
-        runtimeClasspath += sourceSets.main.get().output
-        kotlin.srcDirs("src/intTest")
-    }
-}
+    implementation("org.slf4j:slf4j-api:2.0.9")
+    implementation("ch.qos.logback:logback-classic:1.5.9")
 
-val intTestImplementation: Configuration by configurations.creating {
-    extendsFrom(configurations["implementation"])
-}
-
-val intTestRuntimeOnly: Configuration by configurations.creating {
-    extendsFrom(configurations["runtimeOnly"])
-}
-
-configurations["intTestRuntimeOnly"].extendsFrom(configurations.runtimeOnly.get())
-
-dependencies {
     intTestImplementation(testFixtures(project(":common")))
     intTestImplementation("org.junit.jupiter:junit-jupiter:5.10.1")
     intTestImplementation("org.assertj:assertj-core:3.25.1")

@@ -51,6 +51,14 @@ subprojects {
         else -> defaultVersion
     }
 
+    val intTestImplementation: Configuration by configurations.creating {
+        extendsFrom(configurations["implementation"])
+    }
+
+    val intTestRuntimeOnly: Configuration by configurations.creating {
+        extendsFrom(configurations["runtimeOnly"])
+    }
+
     tasks.withType<KotlinCompile> {
         kotlinOptions {
             jvmTarget = JavaVersion.VERSION_21.toString()

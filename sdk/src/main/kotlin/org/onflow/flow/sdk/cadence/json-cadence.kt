@@ -147,7 +147,7 @@ const val TYPE_CONTRACT_INTERFACE = "ContractInterface"
     ]
 )
 
-abstract class Field<T> constructor(
+abstract class Field<T>(
     val type: String,
     val value: T?
 ) : Serializable {
