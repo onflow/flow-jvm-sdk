@@ -25,7 +25,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.0-Beta1")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.0.21")
     }
 }
 
@@ -68,7 +68,7 @@ subprojects {
     }
 
     dependencies {
-        "api"("org.jetbrains.kotlin:kotlin-reflect:2.1.0-Beta1")
+        "api"("org.jetbrains.kotlin:kotlin-reflect:2.0.21")
         // "dokkaHtmlPlugin"("org.jetbrains.dokka:kotlin-as-java-plugin:2.0.0-Beta")
     }
 
