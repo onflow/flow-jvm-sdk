@@ -69,7 +69,7 @@ subprojects {
 
     dependencies {
         "api"("org.jetbrains.kotlin:kotlin-reflect:2.1.0-Beta1")
-        "dokkaHtmlPlugin"("org.jetbrains.dokka:kotlin-as-java-plugin:2.0.0-Beta")
+        // "dokkaHtmlPlugin"("org.jetbrains.dokka:kotlin-as-java-plugin:2.0.0-Beta")
     }
 
     tasks.named<KotlinCompile>("compileTestKotlin") {

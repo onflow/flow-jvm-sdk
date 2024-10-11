@@ -54,10 +54,6 @@ tasks.test {
 }
 
 sourceSets {
-//    create("testFixtures") {
-//        compileClasspath += sourceSets["main"].output
-//        runtimeClasspath += sourceSets["main"].output
-//    }
     create("intTest") {
         compileClasspath += sourceSets["main"].output + sourceSets["testFixtures"].output
         runtimeClasspath += sourceSets["main"].output + sourceSets["testFixtures"].output

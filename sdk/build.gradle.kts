@@ -31,7 +31,7 @@ sourceSets {
 
 dependencies {
     api("org.jetbrains.kotlin:kotlin-reflect:2.1.0-Beta1")
-    dokkaHtmlPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:2.0.0-Beta")
+    // dokkaHtmlPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:2.0.0-Beta")
 
     api("org.onflow:flow:1.0.0")
     api("com.github.TrustedDataFramework:java-rlp:1.1.20")
@@ -121,11 +121,11 @@ tasks {
         reporters = arrayOf("checkstyle", "plain", "html")
     }
 
-    val documentationJar by creating(Jar::class) {
-        dependsOn(dokkaHtml)
-        archiveClassifier.set("javadoc")
-        from(dokkaHtml.get().outputs)
-    }
+//    val documentationJar by creating(Jar::class) {
+//        dependsOn(dokkaHtml)
+//        archiveClassifier.set("javadoc")
+//        from(dokkaHtml.get().outputs)
+//    }
 
     val sourcesJar by creating(Jar::class) {
         dependsOn(classes)
@@ -134,7 +134,7 @@ tasks {
     }
 
     artifacts {
-        add("archives", documentationJar)
+        // add("archives", documentationJar)
         add("archives", sourcesJar)
     }
 
