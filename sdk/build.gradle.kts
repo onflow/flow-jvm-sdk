@@ -30,38 +30,38 @@ sourceSets {
 }
 
 dependencies {
-    api("org.jetbrains.kotlin:kotlin-reflect:1.9.22")
-    dokkaHtmlPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:1.9.10")
+    api("org.jetbrains.kotlin:kotlin-reflect:2.1.0-Beta1")
+    dokkaHtmlPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:2.0.0-Beta")
 
     api("org.onflow:flow:1.0.0")
     api("com.github.TrustedDataFramework:java-rlp:1.1.20")
-    api("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
+    api("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
     api("org.bouncycastle:bcpkix-jdk18on:1.78.1")
-    api(platform("com.fasterxml.jackson:jackson-bom:2.16.1"))
+    api(platform("com.fasterxml.jackson:jackson-bom:2.18.0"))
     api("com.fasterxml.jackson.core:jackson-core")
     api("com.fasterxml.jackson.module:jackson-module-kotlin")
 
-    api("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
-    api("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.7.3")
-    api("org.jetbrains.kotlinx:kotlinx-coroutines-guava:1.7.3")
+    api("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
+    api("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.9.0")
+    api("org.jetbrains.kotlinx:kotlinx-coroutines-guava:1.9.0")
 
-    testApi("org.junit.jupiter:junit-jupiter:5.10.1")
-    testApi("org.assertj:assertj-core:3.25.1")
+    testApi("org.junit.jupiter:junit-jupiter:5.11.2")
+    testApi("org.assertj:assertj-core:3.26.3")
 
-    testFixturesImplementation("org.junit.jupiter:junit-jupiter:5.10.1")
-    testFixturesImplementation("org.mockito:mockito-core:5.5.0")
-    testFixturesImplementation("org.mockito:mockito-inline:5.2.0")
+    testFixturesImplementation("org.junit.jupiter:junit-jupiter:5.11.2")
+    testFixturesImplementation("org.mockito:mockito-core:5.14.1")
+    testFixturesImplementation("org.mockito:mockito-inline:5.14.1")
 
     testImplementation(testFixtures(project(":common")))
     testImplementation(project(":common"))
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.5.2")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
 
-    implementation("org.slf4j:slf4j-api:2.0.9")
+    implementation("org.slf4j:slf4j-api:2.0.16")
     implementation("ch.qos.logback:logback-classic:1.5.9")
 
     intTestImplementation(testFixtures(project(":common")))
-    intTestImplementation("org.junit.jupiter:junit-jupiter:5.10.1")
-    intTestImplementation("org.assertj:assertj-core:3.25.1")
+    intTestImplementation("org.junit.jupiter:junit-jupiter:5.11.2")
+    intTestImplementation("org.assertj:assertj-core:3.26.3")
     intTestRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 

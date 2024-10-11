@@ -35,17 +35,17 @@ repositories {
 dependencies {
     implementation(project(":sdk"))
 
-    testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
-    testImplementation("org.mockito:mockito-core:5.5.0")
-    testImplementation("org.mockito:mockito-inline:5.2.0")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.11.2")
+    testImplementation("org.mockito:mockito-core:5.14.1")
+    testImplementation("org.mockito:mockito-inline:5.14.1")
 
     testFixturesImplementation(project(":sdk"))
-    testFixturesImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
-    testFixturesImplementation("org.mockito:mockito-core:5.5.0")
-    testFixturesImplementation("org.mockito:mockito-inline:5.2.0")
+    testFixturesImplementation("org.junit.jupiter:junit-jupiter:5.11.2")
+    testFixturesImplementation("org.mockito:mockito-core:5.14.1")
+    testFixturesImplementation("org.mockito:mockito-inline:5.14.1")
 
-    intTestImplementation("org.junit.jupiter:junit-jupiter:5.10.1")
-    intTestImplementation("org.assertj:assertj-core:3.25.1")
+    intTestImplementation("org.junit.jupiter:junit-jupiter:5.11.2")
+    intTestImplementation("org.assertj:assertj-core:3.26.3")
     intTestRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 

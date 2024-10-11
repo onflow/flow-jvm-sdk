@@ -12,8 +12,8 @@ fun getProp(name: String, defaultValue: String? = null): String? {
 
 plugins {
     kotlin("jvm") version "2.0.21" apply false
-    id("org.jetbrains.dokka") version "1.9.10" apply false
-    id("org.jmailen.kotlinter") version "4.2.0" apply false
+    id("org.jetbrains.dokka") version "2.0.0-Beta" apply false
+    id("org.jmailen.kotlinter") version "4.4.1" apply false
     id("kotlinx-serialization") version "1.8.0" apply false
     id("com.vanniktech.maven.publish") version "0.28.0" apply false
 }
@@ -24,7 +24,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.22")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.0-Beta1")
     }
 }
 
@@ -67,8 +67,8 @@ subprojects {
     }
 
     dependencies {
-        "api"("org.jetbrains.kotlin:kotlin-reflect:1.9.22")
-        "dokkaHtmlPlugin"("org.jetbrains.dokka:kotlin-as-java-plugin:1.9.10")
+        "api"("org.jetbrains.kotlin:kotlin-reflect:2.1.0-Beta1")
+        "dokkaHtmlPlugin"("org.jetbrains.dokka:kotlin-as-java-plugin:2.0.0-Beta")
     }
 
     tasks.named<KotlinCompile>("compileTestKotlin") {
