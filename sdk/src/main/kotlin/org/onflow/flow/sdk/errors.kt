@@ -7,7 +7,9 @@ fun parseErrorCode(message: String): Int? = message
     ?.let { it.groupValues[1] }
     ?.toIntOrNull()
 
-enum class FlowError(val code: Int) {
+enum class FlowError(
+    val code: Int
+) {
     @Deprecated("No longer in use.")
     FLOW_ERROR_InvalidTxByteSizeError(FlowErrorCodeInvalidTxByteSizeError),
     @Deprecated("No longer in use.")
