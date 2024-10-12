@@ -79,7 +79,10 @@ class AsyncFlowAccessApiImplTest {
     fun `test getBlockHeaderByHeight`() {
         val height = 123L
         val mockBlockHeader = FlowBlockHeader(FlowId("01"), FlowId("01"), height)
-        val blockHeaderResponse = Access.BlockHeaderResponse.newBuilder().setBlock(mockBlockHeader.builder().build()).build()
+        val blockHeaderResponse = Access.BlockHeaderResponse
+            .newBuilder()
+            .setBlock(mockBlockHeader.builder().build())
+            .build()
         `when`(api.getBlockHeaderByHeight(any())).thenReturn(setupFutureMock(blockHeaderResponse))
 
         val result = asyncFlowAccessApi.getBlockHeaderByHeight(height).get()
@@ -91,7 +94,10 @@ class AsyncFlowAccessApiImplTest {
     @Test
     fun `test getLatestBlock`() {
         val mockBlock = FlowBlock(FlowId("01"), FlowId("01"), 123L, LocalDateTime.now(), emptyList(), emptyList(), emptyList())
-        val blockResponse = Access.BlockResponse.newBuilder().setBlock(mockBlock.builder().build()).build()
+        val blockResponse = Access.BlockResponse
+            .newBuilder()
+            .setBlock(mockBlock.builder().build())
+            .build()
         `when`(api.getLatestBlock(any())).thenReturn(setupFutureMock(blockResponse))
 
         val result = asyncFlowAccessApi.getLatestBlock(true).get()
@@ -104,7 +110,10 @@ class AsyncFlowAccessApiImplTest {
     fun `test getBlockById`() {
         val blockId = FlowId("01")
         val mockBlock = FlowBlock(blockId, FlowId("01"), 123L, LocalDateTime.now(), emptyList(), emptyList(), emptyList())
-        val blockResponse = Access.BlockResponse.newBuilder().setBlock(mockBlock.builder().build()).build()
+        val blockResponse = Access.BlockResponse
+            .newBuilder()
+            .setBlock(mockBlock.builder().build())
+            .build()
         `when`(api.getBlockByID(any())).thenReturn(setupFutureMock(blockResponse))
 
         val result = asyncFlowAccessApi.getBlockById(blockId).get()
@@ -117,7 +126,10 @@ class AsyncFlowAccessApiImplTest {
     fun `test getBlockByHeight`() {
         val height = 123L
         val mockBlock = FlowBlock(FlowId("01"), FlowId("01"), height, LocalDateTime.now(), emptyList(), emptyList(), emptyList())
-        val blockResponse = Access.BlockResponse.newBuilder().setBlock(mockBlock.builder().build()).build()
+        val blockResponse = Access.BlockResponse
+            .newBuilder()
+            .setBlock(mockBlock.builder().build())
+            .build()
         `when`(api.getBlockByHeight(any())).thenReturn(setupFutureMock(blockResponse))
 
         val result = asyncFlowAccessApi.getBlockByHeight(height).get()
@@ -130,7 +142,10 @@ class AsyncFlowAccessApiImplTest {
     fun `test getCollectionById`() {
         val collectionId = FlowId("01")
         val mockCollection = FlowCollection(collectionId, emptyList())
-        val collectionResponse = Access.CollectionResponse.newBuilder().setCollection(mockCollection.builder().build()).build()
+        val collectionResponse = Access.CollectionResponse
+            .newBuilder()
+            .setCollection(mockCollection.builder().build())
+            .build()
         `when`(api.getCollectionByID(any())).thenReturn(setupFutureMock(collectionResponse))
 
         val result = asyncFlowAccessApi.getCollectionById(collectionId).get()
@@ -143,7 +158,10 @@ class AsyncFlowAccessApiImplTest {
     fun `test sendTransaction`() {
         val mockTransaction = FlowTransaction(FlowScript("script"), emptyList(), FlowId.of("01".toByteArray()), 123L, FlowTransactionProposalKey(FlowAddress("02"), 1, 123L), FlowAddress("02"), emptyList())
 
-        val transactionResponse = Access.SendTransactionResponse.newBuilder().setId(ByteString.copyFromUtf8("01")).build()
+        val transactionResponse = Access.SendTransactionResponse
+            .newBuilder()
+            .setId(ByteString.copyFromUtf8("01"))
+            .build()
         `when`(api.sendTransaction(any())).thenReturn(setupFutureMock(transactionResponse))
 
         val result = asyncFlowAccessApi.sendTransaction(mockTransaction).get()
@@ -156,7 +174,10 @@ class AsyncFlowAccessApiImplTest {
     fun `test getTransactionById`() {
         val flowId = FlowId("01")
         val flowTransaction = FlowTransaction(FlowScript("script"), emptyList(), flowId, 123L, FlowTransactionProposalKey(FlowAddress("02"), 1, 123L), FlowAddress("02"), emptyList())
-        val transactionResponse = Access.TransactionResponse.newBuilder().setTransaction(flowTransaction.builder().build()).build()
+        val transactionResponse = Access.TransactionResponse
+            .newBuilder()
+            .setTransaction(flowTransaction.builder().build())
+            .build()
         `when`(api.getTransaction(any())).thenReturn(setupFutureMock(transactionResponse))
 
         val result = asyncFlowAccessApi.getTransactionById(flowId).get()
@@ -194,7 +215,10 @@ class AsyncFlowAccessApiImplTest {
     fun `test getAccountByAddress`() {
         val flowAddress = FlowAddress("01")
         val flowAccount = FlowAccount(flowAddress, BigDecimal.ONE, FlowCode("code".toByteArray()), emptyList(), emptyMap())
-        val accountResponse = Access.GetAccountResponse.newBuilder().setAccount(flowAccount.builder().build()).build()
+        val accountResponse = Access.GetAccountResponse
+            .newBuilder()
+            .setAccount(flowAccount.builder().build())
+            .build()
         `when`(api.getAccount(any())).thenReturn(setupFutureMock(accountResponse))
 
         val result = asyncFlowAccessApi.getAccountByAddress(flowAddress).get()
@@ -210,7 +234,10 @@ class AsyncFlowAccessApiImplTest {
     fun `test getAccountAtLatestBlock`() {
         val flowAddress = FlowAddress("01")
         val flowAccount = FlowAccount(flowAddress, BigDecimal.ONE, FlowCode("code".toByteArray()), emptyList(), emptyMap())
-        val accountResponse = Access.AccountResponse.newBuilder().setAccount(flowAccount.builder().build()).build()
+        val accountResponse = Access.AccountResponse
+            .newBuilder()
+            .setAccount(flowAccount.builder().build())
+            .build()
         `when`(api.getAccountAtLatestBlock(any())).thenReturn(setupFutureMock(accountResponse))
 
         val result = asyncFlowAccessApi.getAccountAtLatestBlock(flowAddress).get()
@@ -227,7 +254,10 @@ class AsyncFlowAccessApiImplTest {
         val flowAddress = FlowAddress("01")
         val flowAccount = FlowAccount(flowAddress, BigDecimal.ONE, FlowCode("code".toByteArray()), emptyList(), emptyMap())
         val height = 123L
-        val accountResponse = Access.AccountResponse.newBuilder().setAccount(flowAccount.builder().build()).build()
+        val accountResponse = Access.AccountResponse
+            .newBuilder()
+            .setAccount(flowAccount.builder().build())
+            .build()
         `when`(api.getAccountAtBlockHeight(any())).thenReturn(setupFutureMock(accountResponse))
 
         val result = asyncFlowAccessApi.getAccountByBlockHeight(flowAddress, height).get()
@@ -243,7 +273,10 @@ class AsyncFlowAccessApiImplTest {
     fun `test executeScriptAtLatestBlock`() {
         val script = FlowScript("script".toByteArray())
         val arguments = listOf(ByteString.copyFromUtf8("argument1"), ByteString.copyFromUtf8("argument2"))
-        val scriptResponse = Access.ExecuteScriptResponse.newBuilder().setValue(ByteString.copyFromUtf8("response_value")).build()
+        val scriptResponse = Access.ExecuteScriptResponse
+            .newBuilder()
+            .setValue(ByteString.copyFromUtf8("response_value"))
+            .build()
         `when`(api.executeScriptAtLatestBlock(any())).thenReturn(setupFutureMock(scriptResponse))
 
         val result = asyncFlowAccessApi.executeScriptAtLatestBlock(script, arguments).get()
@@ -257,7 +290,10 @@ class AsyncFlowAccessApiImplTest {
         val script = FlowScript("some_script")
         val blockId = FlowId("01")
         val arguments = listOf(ByteString.copyFromUtf8("argument1"), ByteString.copyFromUtf8("argument2"))
-        val scriptResponse = Access.ExecuteScriptResponse.newBuilder().setValue(ByteString.copyFromUtf8("response_value")).build()
+        val scriptResponse = Access.ExecuteScriptResponse
+            .newBuilder()
+            .setValue(ByteString.copyFromUtf8("response_value"))
+            .build()
         `when`(api.executeScriptAtBlockID(any())).thenReturn(setupFutureMock(scriptResponse))
 
         val result = asyncFlowAccessApi.executeScriptAtBlockId(script, blockId, arguments).get()
@@ -271,7 +307,10 @@ class AsyncFlowAccessApiImplTest {
         val script = FlowScript("some_script")
         val height = 123L
         val arguments = listOf(ByteString.copyFromUtf8("argument1"), ByteString.copyFromUtf8("argument2"))
-        val scriptResponse = Access.ExecuteScriptResponse.newBuilder().setValue(ByteString.copyFromUtf8("response_value")).build()
+        val scriptResponse = Access.ExecuteScriptResponse
+            .newBuilder()
+            .setValue(ByteString.copyFromUtf8("response_value"))
+            .build()
         `when`(api.executeScriptAtBlockHeight(any())).thenReturn(setupFutureMock(scriptResponse))
 
         val result = asyncFlowAccessApi.executeScriptAtBlockHeight(script, height, arguments).get()
@@ -329,7 +368,10 @@ class AsyncFlowAccessApiImplTest {
     @Test
     fun `test getNetworkParameters`() {
         val mockFlowChainId = FlowChainId.of("test_chain_id")
-        val networkParametersResponse = Access.GetNetworkParametersResponse.newBuilder().setChainId("test_chain_id").build()
+        val networkParametersResponse = Access.GetNetworkParametersResponse
+            .newBuilder()
+            .setChainId("test_chain_id")
+            .build()
         `when`(api.getNetworkParameters(any())).thenReturn(setupFutureMock(networkParametersResponse))
 
         val result = asyncFlowAccessApi.getNetworkParameters().get()
@@ -413,8 +455,22 @@ class AsyncFlowAccessApiImplTest {
     @Test
     fun `test getTransactionResultsByBlockId with multiple results`() {
         val blockId = FlowId("01")
-        val transactionResult1 = FlowTransactionResult.of(Access.TransactionResultResponse.newBuilder().setStatus(TransactionOuterClass.TransactionStatus.SEALED).setStatusCode(1).setErrorMessage("message1").build())
-        val transactionResult2 = FlowTransactionResult.of(Access.TransactionResultResponse.newBuilder().setStatus(TransactionOuterClass.TransactionStatus.SEALED).setStatusCode(2).setErrorMessage("message2").build())
+        val transactionResult1 = FlowTransactionResult.of(
+            Access.TransactionResultResponse
+                .newBuilder()
+                .setStatus(TransactionOuterClass.TransactionStatus.SEALED)
+                .setStatusCode(1)
+                .setErrorMessage("message1")
+                .build()
+        )
+        val transactionResult2 = FlowTransactionResult.of(
+            Access.TransactionResultResponse
+                .newBuilder()
+                .setStatus(TransactionOuterClass.TransactionStatus.SEALED)
+                .setStatusCode(2)
+                .setErrorMessage("message2")
+                .build()
+        )
         val transactionResults = listOf(transactionResult1, transactionResult2)
         val response = Access.TransactionResultsResponse
             .newBuilder()
@@ -457,15 +513,18 @@ class AsyncFlowAccessApiImplTest {
         }
 
         val grpcServiceEvents = serviceEvents.map {
-            ExecutionResultOuterClass.ServiceEvent.newBuilder()
+            ExecutionResultOuterClass.ServiceEvent
+                .newBuilder()
                 .setType(it.type)
                 .setPayload(ByteString.copyFrom(it.payload))
                 .build()
         }
 
-        val response = Access.ExecutionResultByIDResponse.newBuilder()
+        val response = Access.ExecutionResultByIDResponse
+            .newBuilder()
             .setExecutionResult(
-                ExecutionResultOuterClass.ExecutionResult.newBuilder()
+                ExecutionResultOuterClass.ExecutionResult
+                    .newBuilder()
                     .setBlockId(ByteString.copyFrom(BLOCK_ID_BYTES))
                     .setPreviousResultId(ByteString.copyFrom(PARENT_ID_BYTES))
                     .addAllChunks(grpcChunks)
