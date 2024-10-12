@@ -28,16 +28,16 @@ object FlowTestUtil {
         val contractList = contracts.toList()
         val contractArgs = contractList
             .mapIndexed { i, c ->
-                c.args.entries.sortedBy { it.key }
+                c.args.entries
+                    .sortedBy { it.key }
                     .joinToString(separator = "") { ", contract${i}_${it.key}: ${it.value.type}" }
-            }
-            .joinToString(separator = "")
+            }.joinToString(separator = "")
         val contractAddArgs = contractList
             .mapIndexed { i, c ->
-                c.args.entries.sortedBy { it.key }
+                c.args.entries
+                    .sortedBy { it.key }
                     .joinToString(separator = "") { ", ${it.key}: contract${i}_${it.key}" }
-            }
-            .toList()
+            }.toList()
         val contractAdds = List(contractList.size) { i ->
             """
                     signer.contracts.add(
@@ -84,22 +84,23 @@ object FlowTestUtil {
         balance: BigDecimal = BigDecimal(0.01)
     ): FlowAccessApi.AccessApiCallResponse<FlowAddress> {
         val loadedScript = String(loadScript("cadence/test_utils_create_account.cdc"), StandardCharsets.UTF_8)
-        val transactionResult = api.simpleFlowTransaction(
-            address = serviceAccount.flowAddress,
-            signer = serviceAccount.signer,
-            keyIndex = serviceAccount.keyIndex
-        ) {
-            script {
-                loadedScript
-            }
-            gasLimit(5000)
-            arguments {
-                arg { ufix64(balance) }
-                arg { string(publicKey) }
-                arg { uint8(signAlgo.index) }
-                arg { uint8(hashAlgo.index) }
-            }
-        }.sendAndWaitForSeal()
+        val transactionResult = api
+            .simpleFlowTransaction(
+                address = serviceAccount.flowAddress,
+                signer = serviceAccount.signer,
+                keyIndex = serviceAccount.keyIndex
+            ) {
+                script {
+                    loadedScript
+                }
+                gasLimit(5000)
+                arguments {
+                    arg { ufix64(balance) }
+                    arg { string(publicKey) }
+                    arg { uint8(signAlgo.index) }
+                    arg { uint8(hashAlgo.index) }
+                }
+            }.sendAndWaitForSeal()
 
         return when (transactionResult) {
             is FlowAccessApi.AccessApiCallResponse.Success -> {
@@ -114,6 +115,7 @@ object FlowTestUtil {
 
                 FlowAccessApi.AccessApiCallResponse.Success(FlowAddress(address))
             }
+
             is FlowAccessApi.AccessApiCallResponse.Error -> FlowAccessApi.AccessApiCallResponse.Error("Failed to create account: ${transactionResult.message}", transactionResult.throwable)
         }
     }
@@ -202,8 +204,7 @@ object FlowTestUtil {
             (
                 listOf("${System.getProperty("user.home")}/.local/bin", "/usr/local/bin", "/usr/bin", "/bin")
                     + (System.getenv()["PATH"]?.split(File.pathSeparator) ?: emptyList())
-            )
-                .map { File(it, "flow") }
+            ).map { File(it, "flow") }
                 .find { it.exists() }
                 ?: throw IOException("flow command not found")
         }

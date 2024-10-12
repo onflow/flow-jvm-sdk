@@ -7,6 +7,7 @@ insert_final_newline = true
 
 # be sure to update build.gradle.kts in the root as well,
 ktlint_standard_no-wildcard-imports = disabled
+ktlint_standard_chain_method_continuation = disabled
 ktlint_standard_filename = disabled
 ktlint_standard_import-ordering = disabled
 ktlint_standard_chain-wrapping = disabled
