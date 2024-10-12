@@ -34,7 +34,8 @@ class JsonCadenceBuilderUInt64NumberFieldTest {
 
     @Test
     fun `Test decoding of UInt64NumberField with invalid value`() {
-        Assertions.assertThatThrownBy { UInt64NumberField("invalidValue").decodeToAny() }
+        Assertions
+            .assertThatThrownBy { UInt64NumberField("invalidValue").decodeToAny() }
             .isInstanceOf(NumberFormatException::class.java)
     }
 }

@@ -25,7 +25,8 @@ class FlowIdTest {
         Assertions.assertThat(FlowId.of(byteArrayOf()).base16Value).isEqualTo("0000000000000000000000000000000000000000000000000000000000000000")
         Assertions.assertThat(FlowId.of("01".hexToBytes()).base16Value).isEqualTo("0000000000000000000000000000000000000000000000000000000000000001")
         Assertions.assertThat(FlowId.of("10".hexToBytes()).base16Value).isEqualTo("0000000000000000000000000000000000000000000000000000000000000010")
-        Assertions.assertThat(FlowId.of("5e6ef76c524dd131bbab5f9965493b7830bb784561ca6391b320ec60fa5c395e".hexToBytes()).base16Value)
+        Assertions
+            .assertThat(FlowId.of("5e6ef76c524dd131bbab5f9965493b7830bb784561ca6391b320ec60fa5c395e".hexToBytes()).base16Value)
             .isEqualTo("5e6ef76c524dd131bbab5f9965493b7830bb784561ca6391b320ec60fa5c395e")
     }
 

@@ -1,6 +1,7 @@
 package org.onflow.flow.sdk.impl
 
 import com.google.protobuf.ByteString
+import jdk.internal.vm.compiler.word.LocationIdentity.any
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.launch
@@ -210,7 +211,9 @@ class FlowAccessApiImplTest {
     fun `Test getAccountAtLatestBlock`() {
         val flowAddress = FlowAddress("01")
         val flowAccount = createMockAccount(flowAddress)
-        val accountProto = Access.AccountResponse.newBuilder().setAccount(flowAccount.builder().build()).build()
+        val accountProto = Access.AccountResponse
+            .newBuilder()
+            .setAccount(flowAccount.builder().build()).build()
 
         `when`(mockApi.getAccountAtLatestBlock(any())).thenReturn(accountProto)
 
@@ -252,7 +255,13 @@ class FlowAccessApiImplTest {
         val result = flowAccessApiImpl.executeScriptAtLatestBlock(script, arguments)
         assertResultSuccess(result) { assertEquals("response_value", it.stringValue) }
 
-        verify(mockApi).executeScriptAtLatestBlock(Access.ExecuteScriptAtLatestBlockRequest.newBuilder().setScript(script.byteStringValue).addAllArguments(arguments).build())
+        verify(mockApi).executeScriptAtLatestBlock(
+            Access.ExecuteScriptAtLatestBlockRequest
+                .newBuilder()
+                .setScript(script.byteStringValue)
+                .addAllArguments(arguments)
+                .build()
+        )
     }
 
     @Test
@@ -260,14 +269,24 @@ class FlowAccessApiImplTest {
         val script = FlowScript("some_script")
         val blockId = FlowId("01")
         val arguments = listOf(ByteString.copyFromUtf8("argument1"), ByteString.copyFromUtf8("argument2"))
-        val response = Access.ExecuteScriptResponse.newBuilder().setValue(ByteString.copyFromUtf8("response_value")).build()
+        val response = Access.ExecuteScriptResponse
+            .newBuilder()
+            .setValue(ByteString.copyFromUtf8("response_value"))
+            .build()
 
         `when`(mockApi.executeScriptAtBlockID(any())).thenReturn(response)
 
         val result = flowAccessApiImpl.executeScriptAtBlockId(script, blockId, arguments)
         assertResultSuccess(result) { assertEquals("response_value", it.stringValue) }
 
-        verify(mockApi).executeScriptAtBlockID(Access.ExecuteScriptAtBlockIDRequest.newBuilder().setBlockId(blockId.byteStringValue).setScript(script.byteStringValue).addAllArguments(arguments).build())
+        verify(mockApi).executeScriptAtBlockID(
+            Access.ExecuteScriptAtBlockIDRequest
+                .newBuilder()
+                .setBlockId(blockId.byteStringValue)
+                .setScript(script.byteStringValue)
+                .addAllArguments(arguments)
+                .build()
+        )
     }
 
     @Test
@@ -275,39 +294,72 @@ class FlowAccessApiImplTest {
         val script = FlowScript("some_script")
         val height = 123L
         val arguments = listOf(ByteString.copyFromUtf8("argument1"), ByteString.copyFromUtf8("argument2"))
-        val response = Access.ExecuteScriptResponse.newBuilder().setValue(ByteString.copyFromUtf8("response_value")).build()
+        val response = Access.ExecuteScriptResponse
+            .newBuilder()
+            .setValue(ByteString.copyFromUtf8("response_value"))
+            .build()
 
         `when`(mockApi.executeScriptAtBlockHeight(any())).thenReturn(response)
 
         val result = flowAccessApiImpl.executeScriptAtBlockHeight(script, height, arguments)
         assertResultSuccess(result) { assertEquals("response_value", it.stringValue) }
 
-        verify(mockApi).executeScriptAtBlockHeight(Access.ExecuteScriptAtBlockHeightRequest.newBuilder().setBlockHeight(height).setScript(script.byteStringValue).addAllArguments(arguments).build())
+        verify(mockApi).executeScriptAtBlockHeight(
+            Access.ExecuteScriptAtBlockHeightRequest
+                .newBuilder()
+                .setBlockHeight(height)
+                .setScript(script.byteStringValue)
+                .addAllArguments(arguments)
+                .build()
+        )
     }
 
     @Test
     fun `Test getEventsForHeightRange`() {
         val type = "event_type"
         val range = 1L..10L
-        val eventResult1 = Access.EventsResponse.Result.newBuilder().build()
-        val eventResult2 = Access.EventsResponse.Result.newBuilder().build()
-        val response = Access.EventsResponse.newBuilder().addResults(eventResult1).addResults(eventResult2).build()
+        val eventResult1 = Access.EventsResponse.Result
+            .newBuilder()
+            .build()
+        val eventResult2 = Access.EventsResponse.Result
+            .newBuilder()
+            .build()
+        val response = Access.EventsResponse
+            .newBuilder()
+            .addResults(eventResult1)
+            .addResults(eventResult2)
+            .build()
 
         `when`(mockApi.getEventsForHeightRange(any())).thenReturn(response)
 
         val result = flowAccessApiImpl.getEventsForHeightRange(type = type, range = range)
         assertResultSuccess(result) { assertEquals(2, it.size) }
 
-        verify(mockApi).getEventsForHeightRange(Access.GetEventsForHeightRangeRequest.newBuilder().setType(type).setStartHeight(range.first).setEndHeight(range.last).build())
+        verify(mockApi).getEventsForHeightRange(
+            Access.GetEventsForHeightRangeRequest
+                .newBuilder()
+                .setType(type)
+                .setStartHeight(range.first)
+                .setEndHeight(range.last)
+                .build()
+        )
     }
 
     @Test
     fun `Test getEventsForBlockIds`() {
         val type = "event_type"
         val blockIds = setOf(FlowId("01"), FlowId("02"))
-        val eventResult1 = Access.EventsResponse.Result.newBuilder().build()
-        val eventResult2 = Access.EventsResponse.Result.newBuilder().build()
-        val response = Access.EventsResponse.newBuilder().addResults(eventResult1).addResults(eventResult2).build()
+        val eventResult1 = Access.EventsResponse.Result
+            .newBuilder()
+            .build()
+        val eventResult2 = Access.EventsResponse.Result
+            .newBuilder()
+            .build()
+        val response = Access.EventsResponse
+            .newBuilder()
+            .addResults(eventResult1)
+            .addResults(eventResult2)
+            .build()
 
         `when`(mockApi.getEventsForBlockIDs(any())).thenReturn(response)
 
@@ -318,7 +370,10 @@ class FlowAccessApiImplTest {
     @Test
     fun `Test getNetworkParameters`() {
         val mockFlowChainId = FlowChainId.of("test_chain_id")
-        val response = Access.GetNetworkParametersResponse.newBuilder().setChainId("test_chain_id").build()
+        val response = Access.GetNetworkParametersResponse
+            .newBuilder()
+            .setChainId("test_chain_id")
+            .build()
 
         `when`(mockApi.getNetworkParameters(Access.GetNetworkParametersRequest.newBuilder().build())).thenReturn(response)
 
@@ -329,7 +384,10 @@ class FlowAccessApiImplTest {
     @Test
     fun `Test getLatestProtocolStateSnapshot`() {
         val mockFlowSnapshot = FlowSnapshot("test_serialized_snapshot".toByteArray())
-        val response = Access.ProtocolStateSnapshotResponse.newBuilder().setSerializedSnapshot(ByteString.copyFromUtf8("test_serialized_snapshot")).build()
+        val response = Access.ProtocolStateSnapshotResponse
+            .newBuilder()
+            .setSerializedSnapshot(ByteString.copyFromUtf8("test_serialized_snapshot"))
+            .build()
 
         `when`(mockApi.getLatestProtocolStateSnapshot(Access.GetLatestProtocolStateSnapshotRequest.newBuilder().build())).thenReturn(response)
 
@@ -341,7 +399,10 @@ class FlowAccessApiImplTest {
     fun `Test getTransactionsByBlockId`() {
         val blockId = FlowId("01")
         val transactions = listOf(FlowTransaction.of(TransactionOuterClass.Transaction.getDefaultInstance()))
-        val response = Access.TransactionsResponse.newBuilder().addAllTransactions(transactions.map { it.builder().build() }).build()
+        val response = Access.TransactionsResponse
+            .newBuilder()
+            .addAllTransactions(transactions.map { it.builder().build() })
+            .build()
 
         `when`(mockApi.getTransactionsByBlockID(any())).thenReturn(response)
 
@@ -353,9 +414,17 @@ class FlowAccessApiImplTest {
     fun `Test getTransactionsByBlockId with multiple results`() {
         val blockId = FlowId("01")
         val transaction1 = FlowTransaction.of(TransactionOuterClass.Transaction.getDefaultInstance())
-        val transaction2 = FlowTransaction.of(TransactionOuterClass.Transaction.newBuilder().setReferenceBlockId(ByteString.copyFromUtf8("02")).build())
+        val transaction2 = FlowTransaction.of(
+            TransactionOuterClass.Transaction
+                .newBuilder()
+                .setReferenceBlockId(ByteString.copyFromUtf8("02"))
+                .build()
+        )
         val transactions = listOf(transaction1, transaction2)
-        val response = Access.TransactionsResponse.newBuilder().addAllTransactions(transactions.map { it.builder().build() }).build()
+        val response = Access.TransactionsResponse
+            .newBuilder()
+            .addAllTransactions(transactions.map { it.builder().build() })
+            .build()
 
         `when`(mockApi.getTransactionsByBlockID(any())).thenReturn(response)
 
@@ -370,8 +439,16 @@ class FlowAccessApiImplTest {
     @Test
     fun `Test getTransactionResultsByBlockId`() {
         val blockId = FlowId("01")
-        val transactionResults = listOf(FlowTransactionResult.of(Access.TransactionResultResponse.getDefaultInstance()))
-        val response = Access.TransactionResultsResponse.newBuilder().addAllTransactionResults(transactionResults.map { it.builder().build() }).build()
+        val transactionResults = listOf(
+            FlowTransactionResult.of(
+                Access.TransactionResultResponse
+                    .getDefaultInstance()
+            )
+        )
+        val response = Access.TransactionResultsResponse
+            .newBuilder()
+            .addAllTransactionResults(transactionResults.map { it.builder().build() })
+            .build()
 
         `when`(mockApi.getTransactionResultsByBlockID(any())).thenReturn(response)
 
@@ -382,10 +459,27 @@ class FlowAccessApiImplTest {
     @Test
     fun `Test getTransactionResultsByBlockId with multiple results`() {
         val blockId = FlowId("01")
-        val transactionResult1 = FlowTransactionResult.of(Access.TransactionResultResponse.newBuilder().setStatus(TransactionOuterClass.TransactionStatus.SEALED).setStatusCode(1).setErrorMessage("message1").build())
-        val transactionResult2 = FlowTransactionResult.of(Access.TransactionResultResponse.newBuilder().setStatus(TransactionOuterClass.TransactionStatus.SEALED).setStatusCode(2).setErrorMessage("message2").build())
+        val transactionResult1 = FlowTransactionResult.of(
+            Access.TransactionResultResponse
+                .newBuilder()
+                .setStatus(TransactionOuterClass.TransactionStatus.SEALED)
+                .setStatusCode(1)
+                .setErrorMessage("message1")
+                .build()
+        )
+        val transactionResult2 = FlowTransactionResult.of(
+            Access.TransactionResultResponse
+                .newBuilder()
+                .setStatus(TransactionOuterClass.TransactionStatus.SEALED)
+                .setStatusCode(2)
+                .setErrorMessage("message2")
+                .build()
+        )
         val transactionResults = listOf(transactionResult1, transactionResult2)
-        val response = Access.TransactionResultsResponse.newBuilder().addAllTransactionResults(transactionResults.map { it.builder().build() }).build()
+        val response = Access.TransactionResultsResponse
+            .newBuilder()
+            .addAllTransactionResults(transactionResults.map { it.builder().build() })
+            .build()
 
         `when`(mockApi.getTransactionResultsByBlockID(any())).thenReturn(response)
 
@@ -400,13 +494,17 @@ class FlowAccessApiImplTest {
     @Test
     fun `Test getExecutionResultByBlockId`() {
         val blockId = FlowId("01")
-        val grpcExecutionResult = ExecutionResultOuterClass.ExecutionResult.newBuilder()
+        val grpcExecutionResult = ExecutionResultOuterClass.ExecutionResult
+            .newBuilder()
             .setBlockId(ByteString.copyFromUtf8("01"))
             .setPreviousResultId(ByteString.copyFromUtf8("02"))
             .addChunks(ExecutionResultOuterClass.Chunk.newBuilder().build())
             .addServiceEvents(ExecutionResultOuterClass.ServiceEvent.newBuilder().build())
             .build()
-        val response = Access.ExecutionResultByIDResponse.newBuilder().setExecutionResult(grpcExecutionResult).build()
+        val response = Access.ExecutionResultByIDResponse
+            .newBuilder()
+            .setExecutionResult(grpcExecutionResult)
+            .build()
 
         `when`(mockApi.getExecutionResultByID(any())).thenReturn(response)
 
@@ -425,7 +523,8 @@ class FlowAccessApiImplTest {
         val responseIterator = mock(Iterator::class.java) as Iterator<Executiondata.SubscribeExecutionDataResponse>
         `when`(responseIterator.hasNext()).thenReturn(true, false)
         `when`(responseIterator.next()).thenReturn(
-            Executiondata.SubscribeExecutionDataResponse.newBuilder()
+            Executiondata.SubscribeExecutionDataResponse
+                .newBuilder()
                 .setBlockExecutionData(expectedExecutionDataProto)
                 .build()
         )
@@ -472,7 +571,8 @@ class FlowAccessApiImplTest {
         val responseIterator = mock(Iterator::class.java) as Iterator<Executiondata.SubscribeEventsResponse>
         `when`(responseIterator.hasNext()).thenReturn(true, false)
         `when`(responseIterator.next()).thenReturn(
-            Executiondata.SubscribeEventsResponse.newBuilder()
+            Executiondata.SubscribeEventsResponse
+                .newBuilder()
                 .addAllEvents(listOf(expectedEventsProto))
                 .build()
         )
@@ -518,7 +618,8 @@ class FlowAccessApiImplTest {
         val responseIterator = mock(Iterator::class.java) as Iterator<Executiondata.SubscribeEventsResponse>
         `when`(responseIterator.hasNext()).thenReturn(true, false)
         `when`(responseIterator.next()).thenReturn(
-            Executiondata.SubscribeEventsResponse.newBuilder()
+            Executiondata.SubscribeEventsResponse
+                .newBuilder()
                 .addAllEvents(listOf(expectedEventsProto))
                 .build()
         )
@@ -564,7 +665,8 @@ class FlowAccessApiImplTest {
         val responseIterator = mock(Iterator::class.java) as Iterator<Executiondata.SubscribeExecutionDataResponse>
         `when`(responseIterator.hasNext()).thenReturn(true, false)
         `when`(responseIterator.next()).thenReturn(
-            Executiondata.SubscribeExecutionDataResponse.newBuilder()
+            Executiondata.SubscribeExecutionDataResponse
+                .newBuilder()
                 .setBlockExecutionData(expectedExecutionDataProto)
                 .build()
         )

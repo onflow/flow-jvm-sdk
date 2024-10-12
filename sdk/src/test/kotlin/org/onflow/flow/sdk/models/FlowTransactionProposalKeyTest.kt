@@ -14,7 +14,8 @@ class FlowTransactionProposalKeyTest {
         val keyIndex = 1
         val sequenceNumber = 12345L
 
-        val proposalKeyBuilder = TransactionOuterClass.Transaction.ProposalKey.newBuilder()
+        val proposalKeyBuilder = TransactionOuterClass.Transaction.ProposalKey
+            .newBuilder()
             .setAddress(ByteString.copyFromUtf8(addressString))
             .setKeyId(keyIndex)
             .setSequenceNumber(sequenceNumber)

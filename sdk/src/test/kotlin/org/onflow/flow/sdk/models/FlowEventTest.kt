@@ -17,7 +17,8 @@ class FlowEventTest {
         val eventIndex = 1
         val payloadBytes = byteArrayOf(4, 5, 6, 7)
 
-        val eventBuilder = EventOuterClass.Event.newBuilder()
+        val eventBuilder = EventOuterClass.Event
+            .newBuilder()
             .setType(type)
             .setTransactionId(ByteString.copyFrom(transactionIdBytes))
             .setTransactionIndex(transactionIndex)

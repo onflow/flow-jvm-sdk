@@ -333,7 +333,13 @@ class FlowAccessApiTest {
 
         assertEquals(FlowAccessApi.AccessApiCallResponse.Success(transactions), result)
 
-        assertEquals(2, FlowAccessApi.AccessApiCallResponse.Success(transactions).data.size)
+        assertEquals(
+            2,
+            FlowAccessApi.AccessApiCallResponse
+                .Success(transactions)
+                .data
+                .size
+        )
         assertEquals(transactionResult1, FlowAccessApi.AccessApiCallResponse.Success(transactions).data[0])
         assertEquals(transactionResult2, FlowAccessApi.AccessApiCallResponse.Success(transactions).data[1])
     }

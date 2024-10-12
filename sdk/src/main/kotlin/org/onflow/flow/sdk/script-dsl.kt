@@ -39,19 +39,19 @@ object FlowScriptHelper { // enables use of simpleFlowScript builder in Java
 
 class ScriptBuilder {
     private var addressRegistry: AddressRegistry = Flow.DEFAULT_ADDRESS_REGISTRY
-    private var chainId: FlowChainId = Flow.DEFAULT_CHAIN_ID
-    private var script: FlowScript? = null
-    private var arguments: MutableList<Field<*>> = mutableListOf()
+    private var _chainId: FlowChainId = Flow.DEFAULT_CHAIN_ID
+    private var _script: FlowScript? = null
+    private var _arguments: MutableList<Field<*>> = mutableListOf()
 
-    var flowScript: FlowScript
-        get() = script!!
-        set(value) { script = value }
+    var script: FlowScript
+        get() = _script!!
+        set(value) { _script = value }
 
     fun script(script: FlowScript) {
-        this.flowScript = script
+        this.script = script
     }
 
-    fun script(script: String, chainId: FlowChainId = this.chainId, addresses: Map<String, FlowAddress> = mapOf()) = script(
+    fun script(script: String, chainId: FlowChainId = _chainId, addresses: Map<String, FlowAddress> = mapOf()) = script(
         FlowScript(
             addressRegistry.processScript(
                 script = script,
@@ -61,27 +61,27 @@ class ScriptBuilder {
         )
     )
 
-    fun script(code: ByteArray, chainId: FlowChainId = this.chainId, addresses: Map<String, FlowAddress> = mapOf()) = script(String(code), chainId, addresses)
+    fun script(code: ByteArray, chainId: FlowChainId = _chainId, addresses: Map<String, FlowAddress> = mapOf()) = script(String(code), chainId, addresses)
 
-    fun script(chainId: FlowChainId = this.chainId, addresses: Map<String, FlowAddress> = mapOf(), code: () -> String) = this.script(code(), chainId, addresses)
+    fun script(chainId: FlowChainId = _chainId, addresses: Map<String, FlowAddress> = mapOf(), code: () -> String) = this.script(code(), chainId, addresses)
 
-    var flowArguments: MutableList<Field<*>>
-        get() = arguments
+    var arguments: MutableList<Field<*>>
+        get() = _arguments
         set(value) {
-            arguments.clear()
-            arguments.addAll(value)
+            _arguments.clear()
+            _arguments.addAll(value)
         }
 
     fun arguments(arguments: MutableList<Field<*>>) {
-        this.flowArguments = arguments
+        this.arguments = arguments
     }
 
     fun arguments(arguments: JsonCadenceBuilder.() -> Iterable<Field<*>>) {
         val builder = JsonCadenceBuilder()
-        this.flowArguments = arguments(builder).toMutableList()
+        this.arguments = arguments(builder).toMutableList()
     }
 
-    private fun arg(argument: Field<*>) = arguments.add(argument)
+    private fun arg(argument: Field<*>) = _arguments.add(argument)
 
     fun arg(argument: JsonCadenceBuilder.() -> Field<*>) = arg(argument(JsonCadenceBuilder()))
 }
