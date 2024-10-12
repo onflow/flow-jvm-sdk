@@ -356,13 +356,22 @@ fun <T : Any> toMap(obj: T): Map<String, Any?> {
 
 open class VoidField : Field<Void>(TYPE_VOID, null)
 
-open class OptionalField(value: Field<*>?) : Field<Field<*>>(TYPE_OPTIONAL, value)
+open class OptionalField(
+    value: Field<*>?
+) : Field<Field<*>>(TYPE_OPTIONAL, value)
 
-open class BooleanField(value: Boolean) : Field<Boolean>(TYPE_BOOLEAN, value)
+open class BooleanField(
+    value: Boolean
+) : Field<Boolean>(TYPE_BOOLEAN, value)
 
-open class StringField(value: String) : Field<String>(TYPE_STRING, value)
+open class StringField(
+    value: String
+) : Field<String>(TYPE_STRING, value)
 
-open class NumberField(type: String, value: String) : Field<String>(type, value) {
+open class NumberField(
+    type: String,
+    value: String
+) : Field<String>(type, value) {
     fun toUByte(): UByte? = value?.toInt()?.toUByte()
     fun toByte(): Byte? = value?.toInt()?.toByte()
     fun toUShort(): UShort? = value?.toUShort()
@@ -377,28 +386,70 @@ open class NumberField(type: String, value: String) : Field<String>(type, value)
     fun toBigDecimal(): BigDecimal? = value?.toBigDecimal()
 }
 
-open class IntNumberField(value: String) : NumberField(TYPE_INT, value)
-open class UIntNumberField(value: String) : NumberField(TYPE_UINT, value)
-open class Int8NumberField(value: String) : NumberField(TYPE_INT8, value)
-open class UInt8NumberField(value: String) : NumberField(TYPE_UINT8, value)
-open class Int16NumberField(value: String) : NumberField(TYPE_INT16, value)
-open class UInt16NumberField(value: String) : NumberField(TYPE_UINT16, value)
-open class Int32NumberField(value: String) : NumberField(TYPE_INT32, value)
-open class UInt32NumberField(value: String) : NumberField(TYPE_UINT32, value)
-open class Int64NumberField(value: String) : NumberField(TYPE_INT64, value)
-open class UInt64NumberField(value: String) : NumberField(TYPE_UINT64, value)
-open class Int128NumberField(value: String) : NumberField(TYPE_INT128, value)
-open class UInt128NumberField(value: String) : NumberField(TYPE_UINT128, value)
-open class Int256NumberField(value: String) : NumberField(TYPE_INT256, value)
-open class UInt256NumberField(value: String) : NumberField(TYPE_UINT256, value)
-open class Word8NumberField(value: String) : NumberField(TYPE_WORD8, value)
-open class Word16NumberField(value: String) : NumberField(TYPE_WORD16, value)
-open class Word32NumberField(value: String) : NumberField(TYPE_WORD32, value)
-open class Word64NumberField(value: String) : NumberField(TYPE_WORD64, value)
-open class Fix64NumberField(value: String) : NumberField(TYPE_FIX64, value)
-open class UFix64NumberField(value: String) : NumberField(TYPE_UFIX64, value)
+open class IntNumberField(
+    value: String
+) : NumberField(TYPE_INT, value)
+open class UIntNumberField(
+    value: String
+) : NumberField(TYPE_UINT, value)
+open class Int8NumberField(
+    value: String
+) : NumberField(TYPE_INT8, value)
+open class UInt8NumberField(
+    value: String
+) : NumberField(TYPE_UINT8, value)
+open class Int16NumberField(
+    value: String
+) : NumberField(TYPE_INT16, value)
+open class UInt16NumberField(
+    value: String
+) : NumberField(TYPE_UINT16, value)
+open class Int32NumberField(
+    value: String
+) : NumberField(TYPE_INT32, value)
+open class UInt32NumberField(
+    value: String
+) : NumberField(TYPE_UINT32, value)
+open class Int64NumberField(
+    value: String
+) : NumberField(TYPE_INT64, value)
+open class UInt64NumberField(
+    value: String
+) : NumberField(TYPE_UINT64, value)
+open class Int128NumberField(
+    value: String
+) : NumberField(TYPE_INT128, value)
+open class UInt128NumberField(
+    value: String
+) : NumberField(TYPE_UINT128, value)
+open class Int256NumberField(
+    value: String
+) : NumberField(TYPE_INT256, value)
+open class UInt256NumberField(
+    value: String
+) : NumberField(TYPE_UINT256, value)
+open class Word8NumberField(
+    value: String
+) : NumberField(TYPE_WORD8, value)
+open class Word16NumberField(
+    value: String
+) : NumberField(TYPE_WORD16, value)
+open class Word32NumberField(
+    value: String
+) : NumberField(TYPE_WORD32, value)
+open class Word64NumberField(
+    value: String
+) : NumberField(TYPE_WORD64, value)
+open class Fix64NumberField(
+    value: String
+) : NumberField(TYPE_FIX64, value)
+open class UFix64NumberField(
+    value: String
+) : NumberField(TYPE_UFIX64, value)
 
-open class ArrayField(value: Array<Field<*>>) : Field<Array<Field<*>>>(TYPE_ARRAY, value) {
+open class ArrayField(
+    value: Array<Field<*>>
+) : Field<Array<Field<*>>>(TYPE_ARRAY, value) {
     constructor(value: Iterable<Field<*>>) : this(value.toList().toTypedArray())
 
     override fun hashCode(): Int {
@@ -413,7 +464,9 @@ open class ArrayField(value: Array<Field<*>>) : Field<Array<Field<*>>>(TYPE_ARRA
     }
 }
 
-open class DictionaryField(value: Array<DictionaryFieldEntry>) : Field<Array<DictionaryFieldEntry>>(TYPE_DICTIONARY, value) {
+open class DictionaryField(
+    value: Array<DictionaryFieldEntry>
+) : Field<Array<DictionaryFieldEntry>>(TYPE_DICTIONARY, value) {
     constructor(value: Iterable<DictionaryFieldEntry>) : this(value.toList().toTypedArray())
 
     companion object {
@@ -427,23 +480,31 @@ open class DictionaryField(value: Array<DictionaryFieldEntry>) : Field<Array<Dic
     }
 }
 
-open class DictionaryFieldEntry(val key: Field<*>, val value: Field<*>) : Serializable {
+open class DictionaryFieldEntry(
+    val key: Field<*>,
+    val value: Field<*>
+) : Serializable {
     constructor(pair: Pair<Field<*>, Field<*>>) : this(pair.first, pair.second)
 }
 
-open class AddressField(value: String) : Field<String>(
-    TYPE_ADDRESS,
-    if (!value.lowercase().startsWith("0x")) {
-        "0x$value"
-    } else {
-        value
-    }
-) {
+open class AddressField(
+    value: String
+) : Field<String>(
+        TYPE_ADDRESS,
+        if (!value.lowercase().startsWith("0x")) {
+            "0x$value"
+        } else {
+            value
+        }
+    ) {
     constructor(bytes: ByteArray) : this(bytes.bytesToHex())
 }
 
 @kotlinx.serialization.Serializable
-open class PathValue(val domain: String, val identifier: String) : Serializable {
+open class PathValue(
+    val domain: String,
+    val identifier: String
+) : Serializable {
     override fun hashCode(): Int {
         return Objects.hash(domain, identifier)
     }
@@ -458,7 +519,9 @@ open class PathValue(val domain: String, val identifier: String) : Serializable 
     }
 }
 
-open class PathField(value: PathValue) : Field<PathValue>(TYPE_PATH, value) {
+open class PathField(
+    value: PathValue
+) : Field<PathValue>(TYPE_PATH, value) {
     override fun hashCode(): Int {
         return Objects.hash(type, value?.domain, value?.identifier)
     }
@@ -475,16 +538,29 @@ open class PathField(value: PathValue) : Field<PathValue>(TYPE_PATH, value) {
 }
 
 @kotlinx.serialization.Serializable
-open class CapabilityValue(val path: String, val address: String, val borrowType: String) : Serializable
-open class CapabilityField(value: CapabilityValue) : Field<CapabilityValue>(TYPE_CAPABILITY, value)
+open class CapabilityValue(
+    val path: String,
+    val address: String,
+    val borrowType: String
+) : Serializable
 
-open class CompositeField(type: String, value: CompositeValue) : Field<CompositeValue>(type, value) {
+open class CapabilityField(
+    value: CapabilityValue
+) : Field<CapabilityValue>(TYPE_CAPABILITY, value)
+
+open class CompositeField(
+    type: String,
+    value: CompositeValue
+) : Field<CompositeValue>(type, value) {
     val id: String? @JsonIgnore get() = value?.id
     operator fun <T : Field<*>> get(name: String): T? = value?.getField(name)
     operator fun contains(name: String): Boolean = value?.getField<Field<*>>(name) != null
 }
 
-open class CompositeAttribute(val name: String, val value: Field<*>) : Serializable {
+open class CompositeAttribute(
+    val name: String,
+    val value: Field<*>
+) : Serializable {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is CompositeAttribute) return false
@@ -502,7 +578,10 @@ open class CompositeAttribute(val name: String, val value: Field<*>) : Serializa
     }
 }
 
-open class CompositeValue(val id: String, val fields: Array<CompositeAttribute>) : Serializable {
+open class CompositeValue(
+    val id: String,
+    val fields: Array<CompositeAttribute>
+) : Serializable {
     @Suppress("UNCHECKED_CAST")
     fun <T : Field<*>> getField(name: String): T? = fields.find { it.name == name }?.value as T?
     fun <T : Field<*>> getRequiredField(name: String): T = getField(name) ?: throw IllegalStateException("Value for $name not found")
@@ -514,6 +593,7 @@ open class CompositeValue(val id: String, val fields: Array<CompositeAttribute>)
             null
         }
     }
+
     operator fun contains(name: String): Boolean = fields.find { it.name == name } != null
     override fun hashCode(): Int {
         var result = id.hashCode()
@@ -532,13 +612,33 @@ open class CompositeValue(val id: String, val fields: Array<CompositeAttribute>)
     }
 }
 
-open class StructField(value: CompositeValue) : CompositeField(TYPE_STRUCT, value)
-open class ResourceField(value: CompositeValue) : CompositeField(TYPE_RESOURCE, value)
-open class EventField(value: CompositeValue) : CompositeField(TYPE_EVENT, value)
-open class ContractField(value: CompositeValue) : CompositeField(TYPE_CONTRACT, value)
-open class EnumField(value: CompositeValue) : CompositeField(TYPE_ENUM, value)
-open class TypeValue(val staticType: CadenceType) : Serializable
-open class TypeField(value: TypeValue) : Field<TypeValue>(TYPE_TYPE, value)
+open class StructField(
+    value: CompositeValue
+) : CompositeField(TYPE_STRUCT, value)
+
+open class ResourceField(
+    value: CompositeValue
+) : CompositeField(TYPE_RESOURCE, value)
+
+open class EventField(
+    value: CompositeValue
+) : CompositeField(TYPE_EVENT, value)
+
+open class ContractField(
+    value: CompositeValue
+) : CompositeField(TYPE_CONTRACT, value)
+
+open class EnumField(
+    value: CompositeValue
+) : CompositeField(TYPE_ENUM, value)
+
+open class TypeValue(
+    val staticType: CadenceType
+) : Serializable
+
+open class TypeField(
+    value: TypeValue
+) : Field<TypeValue>(TYPE_TYPE, value)
 
 open class InitializerType(
     val label: String,
@@ -564,25 +664,41 @@ open class ParameterType(
 // https://docs.onflow.org/cadence/json-cadence-spec/#repeated-types
 
 @JsonDeserialize(using = CadenceTypeDeserializer::class)
-abstract class CadenceType(val kind: String) : Serializable
+abstract class CadenceType(
+    val kind: String
+) : Serializable
 
 @JsonDeserialize(using = JsonDeserializer.None::class)
-open class PartialCadenceType(kind: String, val type: String) : CadenceType(kind)
+open class PartialCadenceType(
+    kind: String,
+    val type: String
+) : CadenceType(kind)
 
 @JsonDeserialize(using = JsonDeserializer.None::class)
-open class SimpleType(kind: String) : CadenceType(kind)
+open class SimpleType(
+    kind: String
+) : CadenceType(kind)
 
 @JsonDeserialize(using = JsonDeserializer.None::class)
-open class OptionalType(val type: CadenceType) : CadenceType(TYPE_OPTIONAL)
+open class OptionalType(
+    val type: CadenceType
+) : CadenceType(TYPE_OPTIONAL)
 
 @JsonDeserialize(using = JsonDeserializer.None::class)
-open class VariableSizedArrayType(val type: CadenceType) : CadenceType(TYPE_VARIABLE_SIZED_ARRAY)
+open class VariableSizedArrayType(
+    val type: CadenceType
+) : CadenceType(TYPE_VARIABLE_SIZED_ARRAY)
 
 @JsonDeserialize(using = JsonDeserializer.None::class)
-open class ConstantSizedArrayType(val type: CadenceType) : CadenceType(TYPE_CONSTANT_SIZED_ARRAY)
+open class ConstantSizedArrayType(
+    val type: CadenceType
+) : CadenceType(TYPE_CONSTANT_SIZED_ARRAY)
 
 @JsonDeserialize(using = JsonDeserializer.None::class)
-open class DictionaryType(val key: CadenceType, val value: CadenceType) : CadenceType(TYPE_DICTIONARY)
+open class DictionaryType(
+    val key: CadenceType,
+    val value: CadenceType
+) : CadenceType(TYPE_DICTIONARY)
 
 @JsonDeserialize(using = JsonDeserializer.None::class)
 open class CompositeType(
@@ -627,7 +743,9 @@ open class EnumType(
     val fields: Array<FieldType>
 ) : CadenceType(TYPE_ENUM)
 
-class CadenceTypeDeserializer(vc: Class<*>?) : StdDeserializer<CadenceType>(vc) {
+class CadenceTypeDeserializer(
+    vc: Class<*>?
+) : StdDeserializer<CadenceType>(vc) {
     constructor() : this(null)
 
     override fun deserialize(p: JsonParser, ctxt: DeserializationContext): CadenceType {

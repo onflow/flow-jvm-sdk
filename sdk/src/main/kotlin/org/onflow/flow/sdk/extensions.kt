@@ -20,7 +20,8 @@ fun String.hexToBytes(): ByteArray = BaseEncoding.base16().lowerCase().decode(
 
 fun Timestamp.asLocalDateTime(): LocalDateTime = LocalDateTime.ofEpochSecond(this.seconds, this.nanos, ZoneOffset.UTC)
 
-fun LocalDateTime.asTimestamp(): Timestamp = Timestamp.newBuilder()
+fun LocalDateTime.asTimestamp(): Timestamp = Timestamp
+    .newBuilder()
     .setSeconds(this.toEpochSecond(ZoneOffset.UTC))
     .setNanos(this.nano)
     .build()
