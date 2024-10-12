@@ -45,13 +45,12 @@ fun FlowAccessApi.flowTransaction(referenceBlockId: FlowId? = null, block: Trans
     return FlowTransactionStub(this, builder)
 }
 
-fun FlowAccessApi.simpleFlowTransaction(address: FlowAddress, signer: Signer, gasLimit: Number = 100, keyIndex: Number = 0, block: TransactionBuilder.() -> Unit): FlowTransactionStub {
-    return this.flowTransaction {
+fun FlowAccessApi.simpleFlowTransaction(address: FlowAddress, signer: Signer, gasLimit: Number = 100, keyIndex: Number = 0, block: TransactionBuilder.() -> Unit): FlowTransactionStub =
+    this.flowTransaction {
         gasLimit(gasLimit)
         proposeAndPay(address, keyIndex, signer)
         block(this)
     }
-}
 
 class FlowTransactionStub(
     private val api: FlowAccessApi,
@@ -509,8 +508,8 @@ class PendingSignature(
     val signer: Signer? = null,
     val signature: FlowSignature? = null,
 ) {
-    fun applyAsPayloadSignature(tx: FlowTransaction): FlowTransaction {
-        return when {
+    fun applyAsPayloadSignature(tx: FlowTransaction): FlowTransaction =
+        when {
             prepared != null -> {
                 tx.copy(
                     payloadSignatures = tx.payloadSignatures + prepared
@@ -532,10 +531,9 @@ class PendingSignature(
             }
             else -> throw IllegalStateException("One of prepared, signature, or signer must be specified for a payload signature")
         }
-    }
 
-    fun applyAsEnvelopeSignature(tx: FlowTransaction): FlowTransaction {
-        return when {
+    fun applyAsEnvelopeSignature(tx: FlowTransaction): FlowTransaction =
+        when {
             prepared != null -> {
                 tx.copy(
                     envelopeSignatures = tx.envelopeSignatures + prepared
@@ -557,7 +555,6 @@ class PendingSignature(
             }
             else -> throw IllegalStateException("One of prepared, signature, or signer must be specified for an envelope signature")
         }
-    }
 }
 
 class FlowArgumentsBuilder {
@@ -649,8 +646,8 @@ class FlowTransactionSignatureBuilder {
     }
     fun signer(signer: () -> Signer) = this.signer(signer())
 
-    fun build(): PendingSignature {
-        return when {
+    fun build(): PendingSignature =
+        when {
             _signature != null -> {
                 PendingSignature(
                     prepared = FlowTransactionSignature(
@@ -670,7 +667,6 @@ class FlowTransactionSignatureBuilder {
             }
             else -> throw IllegalArgumentException("one of prepared or signer of FlowTransactionSignature required ")
         }
-    }
 }
 
 class FlowAddressCollectionBuilder {

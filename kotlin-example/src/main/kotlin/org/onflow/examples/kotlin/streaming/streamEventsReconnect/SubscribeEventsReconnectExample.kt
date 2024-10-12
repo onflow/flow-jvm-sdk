@@ -20,12 +20,11 @@ class SubscribeEventsReconnectExample(
         processEventsWithReconnect(scope, eventChannel, errorChannel, lastHeight, receivedEvents, job)
     }
 
-    private fun getLatestBlockHeader(): FlowBlockHeader {
-        return when (val response = accessAPI.getLatestBlockHeader(true)) {
+    private fun getLatestBlockHeader(): FlowBlockHeader =
+        when (val response = accessAPI.getLatestBlockHeader(true)) {
             is FlowAccessApi.AccessApiCallResponse.Success -> response.data
             is FlowAccessApi.AccessApiCallResponse.Error -> throw Exception(response.message, response.throwable)
         }
-    }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private suspend fun processEventsWithReconnect(
@@ -99,7 +98,6 @@ class SubscribeEventsReconnectExample(
     private fun reconnect(
         scope: CoroutineScope,
         height: Long
-    ): Triple<ReceiveChannel<List<FlowEvent>>, ReceiveChannel<Throwable>, Job> {
-        return accessAPI.subscribeEventsByBlockHeight(scope, height)
-    }
+    ): Triple<ReceiveChannel<List<FlowEvent>>, ReceiveChannel<Throwable>, Job> =
+        accessAPI.subscribeEventsByBlockHeight(scope, height)
 }

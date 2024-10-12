@@ -165,8 +165,8 @@ abstract class Field<T>(
     }
 
     @kotlin.jvm.Throws
-    fun decodeToAny(): Any? {
-        return when (this) {
+    fun decodeToAny(): Any? =
+        when (this) {
             is StringField -> {
                 value
             }
@@ -315,7 +315,6 @@ abstract class Field<T>(
                 throw Exception(" Can't find right class ")
             }
         }
-    }
 
     @kotlin.jvm.Throws
     inline fun <reified T> decode(): T {
@@ -324,11 +323,10 @@ abstract class Field<T>(
     }
 }
 
-fun CompositeValue.toMap(): Map<String, Any?> {
-    return this.fields.associate {
+fun CompositeValue.toMap(): Map<String, Any?> =
+    this.fields.associate {
         it.name to it.value.decodeToAny()
     }
-}
 
 fun Any?.toJsonElement(): JsonElement = when (this) {
     null -> JsonNull
@@ -342,8 +340,8 @@ fun Any?.toJsonElement(): JsonElement = when (this) {
     else -> Json.encodeToJsonElement(serializer(this::class.createType()), this)
 }
 
-fun <T : Any> toMap(obj: T): Map<String, Any?> {
-    return (obj::class as KClass<T>).memberProperties.associate { prop ->
+fun <T : Any> toMap(obj: T): Map<String, Any?> =
+    (obj::class as KClass<T>).memberProperties.associate { prop ->
         prop.name to prop.get(obj)?.let { value ->
             if (value::class.isData) {
                 toMap(value)
@@ -352,7 +350,6 @@ fun <T : Any> toMap(obj: T): Map<String, Any?> {
             }
         }
     }
-}
 
 open class VoidField : Field<Void>(TYPE_VOID, null)
 
@@ -452,9 +449,8 @@ open class ArrayField(
 ) : Field<Array<Field<*>>>(TYPE_ARRAY, value) {
     constructor(value: Iterable<Field<*>>) : this(value.toList().toTypedArray())
 
-    override fun hashCode(): Int {
-        return value?.contentHashCode() ?: 0
-    }
+    override fun hashCode(): Int =
+        value?.contentHashCode() ?: 0
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -470,13 +466,11 @@ open class DictionaryField(
     constructor(value: Iterable<DictionaryFieldEntry>) : this(value.toList().toTypedArray())
 
     companion object {
-        private fun fromPairs(value: Iterable<Pair<Field<*>, Field<*>>>): DictionaryField {
-            return DictionaryField(value.map { DictionaryFieldEntry(it) }.toTypedArray())
-        }
+        private fun fromPairs(value: Iterable<Pair<Field<*>, Field<*>>>): DictionaryField =
+            DictionaryField(value.map { DictionaryFieldEntry(it) }.toTypedArray())
 
-        fun <K, V> fromMap(value: Map<K, V>, keys: (K) -> Field<*>, values: (V) -> Field<*>): DictionaryField {
-            return fromPairs(value.mapKeys { keys(it.key) }.mapValues { values(it.value) }.map { Pair(it.key, it.value) })
-        }
+        fun <K, V> fromMap(value: Map<K, V>, keys: (K) -> Field<*>, values: (V) -> Field<*>): DictionaryField =
+            fromPairs(value.mapKeys { keys(it.key) }.mapValues { values(it.value) }.map { Pair(it.key, it.value) })
     }
 }
 
@@ -505,9 +499,8 @@ open class PathValue(
     val domain: String,
     val identifier: String
 ) : Serializable {
-    override fun hashCode(): Int {
-        return Objects.hash(domain, identifier)
-    }
+    override fun hashCode(): Int =
+        Objects.hash(domain, identifier)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -522,9 +515,8 @@ open class PathValue(
 open class PathField(
     value: PathValue
 ) : Field<PathValue>(TYPE_PATH, value) {
-    override fun hashCode(): Int {
-        return Objects.hash(type, value?.domain, value?.identifier)
-    }
+    override fun hashCode(): Int =
+        Objects.hash(type, value?.domain, value?.identifier)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

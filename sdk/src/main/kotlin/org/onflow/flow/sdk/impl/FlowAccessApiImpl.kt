@@ -24,8 +24,8 @@ class FlowAccessApiImpl(
         }
     }
 
-    override fun ping(): FlowAccessApi.AccessApiCallResponse<Unit> {
-        return try {
+    override fun ping(): FlowAccessApi.AccessApiCallResponse<Unit> =
+        try {
             api.ping(
                 Access.PingRequest
                     .newBuilder()
@@ -35,10 +35,9 @@ class FlowAccessApiImpl(
         } catch (e: Exception) {
             FlowAccessApi.AccessApiCallResponse.Error("Failed to ping", e)
         }
-    }
 
-    override fun getLatestBlockHeader(sealed: Boolean): FlowAccessApi.AccessApiCallResponse<FlowBlockHeader> {
-        return try {
+    override fun getLatestBlockHeader(sealed: Boolean): FlowAccessApi.AccessApiCallResponse<FlowBlockHeader> =
+        try {
             val ret = api.getLatestBlockHeader(
                 Access.GetLatestBlockHeaderRequest
                     .newBuilder()
@@ -49,10 +48,9 @@ class FlowAccessApiImpl(
         } catch (e: Exception) {
             FlowAccessApi.AccessApiCallResponse.Error("Failed to get latest block header", e)
         }
-    }
 
     override fun getBlockHeaderById(id: FlowId): FlowAccessApi.AccessApiCallResponse<FlowBlockHeader> {
-        return try {
+        try {
             val ret = api.getBlockHeaderByID(
                 Access.GetBlockHeaderByIDRequest
                     .newBuilder()
@@ -69,8 +67,8 @@ class FlowAccessApiImpl(
         }
     }
 
-    override fun getBlockHeaderByHeight(height: Long): FlowAccessApi.AccessApiCallResponse<FlowBlockHeader> {
-        return try {
+    override fun getBlockHeaderByHeight(height: Long): FlowAccessApi.AccessApiCallResponse<FlowBlockHeader> =
+        try {
             val ret = api.getBlockHeaderByHeight(
                 Access.GetBlockHeaderByHeightRequest
                     .newBuilder()
@@ -85,10 +83,9 @@ class FlowAccessApiImpl(
         } catch (e: Exception) {
             FlowAccessApi.AccessApiCallResponse.Error("Failed to get block header by height", e)
         }
-    }
 
-    override fun getLatestBlock(sealed: Boolean): FlowAccessApi.AccessApiCallResponse<FlowBlock> {
-        return try {
+    override fun getLatestBlock(sealed: Boolean): FlowAccessApi.AccessApiCallResponse<FlowBlock> =
+        try {
             val ret = api.getLatestBlock(
                 Access.GetLatestBlockRequest
                     .newBuilder()
@@ -99,10 +96,9 @@ class FlowAccessApiImpl(
         } catch (e: Exception) {
             FlowAccessApi.AccessApiCallResponse.Error("Failed to get latest block", e)
         }
-    }
 
-    override fun getBlockById(id: FlowId): FlowAccessApi.AccessApiCallResponse<FlowBlock> {
-        return try {
+    override fun getBlockById(id: FlowId): FlowAccessApi.AccessApiCallResponse<FlowBlock> =
+        try {
             val ret = api.getBlockByID(
                 Access.GetBlockByIDRequest
                     .newBuilder()
@@ -117,10 +113,9 @@ class FlowAccessApiImpl(
         } catch (e: Exception) {
             FlowAccessApi.AccessApiCallResponse.Error("Failed to get block by ID", e)
         }
-    }
 
-    override fun getBlockByHeight(height: Long): FlowAccessApi.AccessApiCallResponse<FlowBlock> {
-        return try {
+    override fun getBlockByHeight(height: Long): FlowAccessApi.AccessApiCallResponse<FlowBlock> =
+        try {
             val ret = api.getBlockByHeight(
                 Access.GetBlockByHeightRequest
                     .newBuilder()
@@ -135,10 +130,9 @@ class FlowAccessApiImpl(
         } catch (e: Exception) {
             FlowAccessApi.AccessApiCallResponse.Error("Failed to get block by height", e)
         }
-    }
 
-    override fun getCollectionById(id: FlowId): FlowAccessApi.AccessApiCallResponse<FlowCollection> {
-        return try {
+    override fun getCollectionById(id: FlowId): FlowAccessApi.AccessApiCallResponse<FlowCollection> =
+        try {
             val ret = api.getCollectionByID(
                 Access.GetCollectionByIDRequest
                     .newBuilder()
@@ -153,10 +147,9 @@ class FlowAccessApiImpl(
         } catch (e: Exception) {
             FlowAccessApi.AccessApiCallResponse.Error("Failed to get collection by ID", e)
         }
-    }
 
-    override fun sendTransaction(transaction: FlowTransaction): FlowAccessApi.AccessApiCallResponse<FlowId> {
-        return try {
+    override fun sendTransaction(transaction: FlowTransaction): FlowAccessApi.AccessApiCallResponse<FlowId> =
+        try {
             val ret = api.sendTransaction(
                 Access.SendTransactionRequest
                     .newBuilder()
@@ -167,10 +160,9 @@ class FlowAccessApiImpl(
         } catch (e: Exception) {
             FlowAccessApi.AccessApiCallResponse.Error("Failed to send transaction", e)
         }
-    }
 
-    override fun getTransactionById(id: FlowId): FlowAccessApi.AccessApiCallResponse<FlowTransaction> {
-        return try {
+    override fun getTransactionById(id: FlowId): FlowAccessApi.AccessApiCallResponse<FlowTransaction> =
+        try {
             val ret = api.getTransaction(
                 Access.GetTransactionRequest
                     .newBuilder()
@@ -185,7 +177,6 @@ class FlowAccessApiImpl(
         } catch (e: Exception) {
             FlowAccessApi.AccessApiCallResponse.Error("Failed to get transaction by ID", e)
         }
-    }
 
     override fun getTransactionResultById(id: FlowId): FlowAccessApi.AccessApiCallResponse<FlowTransactionResult> {
         return try {
