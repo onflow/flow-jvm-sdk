@@ -511,9 +511,10 @@ class PendingSignature(
     fun applyAsPayloadSignature(tx: FlowTransaction): FlowTransaction =
         when {
             prepared != null -> {
-                tx.copy(
-                    payloadSignatures = tx.payloadSignatures + prepared
-                ).updateSignerIndices()
+                tx
+                    .copy(
+                        payloadSignatures = tx.payloadSignatures + prepared
+                    ).updateSignerIndices()
             }
             signature != null -> {
                 tx.addPayloadSignature(
@@ -535,9 +536,10 @@ class PendingSignature(
     fun applyAsEnvelopeSignature(tx: FlowTransaction): FlowTransaction =
         when {
             prepared != null -> {
-                tx.copy(
-                    envelopeSignatures = tx.envelopeSignatures + prepared
-                ).updateSignerIndices()
+                tx
+                    .copy(
+                        envelopeSignatures = tx.envelopeSignatures + prepared
+                    ).updateSignerIndices()
             }
             signature != null -> {
                 tx.addEnvelopeSignature(
@@ -558,18 +560,18 @@ class PendingSignature(
 }
 
 class FlowArgumentsBuilder {
-    private var _values: MutableList<FlowArgument> = mutableListOf()
+    private var values: MutableList<FlowArgument> = mutableListOf()
     fun arg(value: FlowArgument) {
-        _values.add(value)
+        values.add(value)
     }
     fun arg(arg: JsonCadenceBuilder.() -> Field<*>) = arg(FlowArgument(arg(JsonCadenceBuilder())))
-    fun build(): MutableList<FlowArgument> = _values
+    fun build(): MutableList<FlowArgument> = values
 }
 
 class FlowTransactionSignatureCollectionBuilder {
-    private var _values: MutableList<PendingSignature> = mutableListOf()
+    private var values: MutableList<PendingSignature> = mutableListOf()
     fun signature(value: PendingSignature) {
-        _values.add(value)
+        values.add(value)
     }
     fun signature(signature: FlowTransactionSignatureBuilder.() -> Unit) {
         val builder = FlowTransactionSignatureBuilder()
@@ -597,7 +599,7 @@ class FlowTransactionSignatureCollectionBuilder {
             )
         )
     }
-    fun build(): MutableList<PendingSignature> = _values
+    fun build(): MutableList<PendingSignature> = values
 }
 
 class FlowTransactionSignatureBuilder {
@@ -670,14 +672,14 @@ class FlowTransactionSignatureBuilder {
 }
 
 class FlowAddressCollectionBuilder {
-    private var _values: MutableList<FlowAddress> = mutableListOf()
+    private var values: MutableList<FlowAddress> = mutableListOf()
     fun address(value: FlowAddress) {
-        _values.add(value)
+        values.add(value)
     }
     fun address(payerAddress: String) = address(FlowAddress(payerAddress))
     fun address(payerAddress: ByteArray) = address(FlowAddress.of(payerAddress))
     fun address(payerAddress: () -> FlowAddress) = this.address(payerAddress())
-    fun build(): List<FlowAddress> = _values
+    fun build(): List<FlowAddress> = values
 }
 
 class FlowTransactionProposalKeyBuilder(
