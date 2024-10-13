@@ -496,6 +496,7 @@ class FlowAccessApiImpl(
                     responseChannel.send(response.eventsList.map { FlowEvent.of(it) })
                 }
             } catch (e: Exception) {
+                println("Caught exception: ${e.message}")
                 errorChannel.send(e)
             } finally {
                 responseChannel.close()

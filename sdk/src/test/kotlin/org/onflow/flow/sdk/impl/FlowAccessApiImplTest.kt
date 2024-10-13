@@ -1,9 +1,8 @@
 package org.onflow.flow.sdk.impl
 
 import com.google.protobuf.ByteString
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.consumeEach
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.*
 import org.onflow.flow.sdk.*
 import org.junit.jupiter.api.AfterEach
@@ -627,12 +626,18 @@ class FlowAccessApiImplTest {
 
         `when`(mockExecutionDataApi.subscribeEventsFromStartBlockID(any())).thenThrow(exception)
 
-        val (_, errorChannel) = flowAccessApiImpl.subscribeEventsByBlockId(testScope, blockId)
+        val (_, errorChannel) = flowAccessApiImpl.subscribeEventsByBlockId(CoroutineScope(Dispatchers.Default), blockId)
+
+        verify(mockExecutionDataApi, times(1)).subscribeEventsFromStartBlockID(any())
 
         var receivedException: Throwable? = null
-        val job = backgroundScope.launch {
-            receivedException = errorChannel.receiveCatching().getOrNull()
+
+        val job = launch {
+            withTimeout(5000L) {
+                receivedException = errorChannel.receiveCatching().getOrNull()
+            }
         }
+        advanceUntilIdle()
         job.join()
 
         if (receivedException != null) {
@@ -640,6 +645,8 @@ class FlowAccessApiImplTest {
         } else {
             fail("Expected error but got success")
         }
+
+        errorChannel.cancel()
     }
 
     @Test
