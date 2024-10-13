@@ -13,7 +13,7 @@ fun getProp(name: String, defaultValue: String? = null): String? {
 
 plugins {
     kotlin("jvm") version "2.0.21" apply false
-    id("org.jetbrains.dokka") version "2.0.0-Beta" apply false
+    id("org.jetbrains.dokka") version "1.9.10" apply false
     id("org.jmailen.kotlinter") version "4.4.1" apply false
     id("kotlinx-serialization") version "1.8.0" apply false
     id("com.vanniktech.maven.publish") version "0.28.0" apply false

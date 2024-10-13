@@ -250,6 +250,7 @@ data class FlowEvent(
     val event: EventField get() = payload.jsonCadence as EventField
 
     private fun <T : Field<*>> getField(name: String): T? = event[name]
+
     @Suppress("UNCHECKED_CAST")
     operator fun <T> get(name: String): T? = getField<Field<*>>(name) as T
     operator fun contains(name: String): Boolean = name in event
@@ -469,6 +470,7 @@ data class FlowTransaction(
             payloadSignatures = value.payloadSignaturesList.map { FlowTransactionSignature.of(it) },
             envelopeSignatures = value.envelopeSignaturesList.map { FlowTransactionSignature.of(it) }
         )
+
         @JvmStatic
         fun of(bytes: ByteArray): FlowTransaction {
             val txEnvelope: TransactionEnvelope = RLPCodec.decode(bytes, TransactionEnvelope::class.java)
@@ -608,6 +610,7 @@ data class FlowTransactionSignature(
                 signature = FlowSignature(value.signature.toByteArray())
             )
     }
+
     @JvmOverloads
     fun builder(builder: TransactionOuterClass.Transaction.Signature.Builder = TransactionOuterClass.Transaction.Signature.newBuilder()): TransactionOuterClass.Transaction.Signature.Builder = builder
         .setAddress(address.byteStringValue)

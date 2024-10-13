@@ -62,6 +62,7 @@ internal class CreateAccountExampleTest {
             Assertions.assertEquals(userKeyPairs[index].public.hex, newAccountKey.publicKey.bytes.bytesToHex())
         }
     }
+
     @Test
     fun `Can get an account balance`() {
         val balance = accessAPIConnector.getAccountBalance(serviceAccount.flowAddress)

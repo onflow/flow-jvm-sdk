@@ -31,8 +31,6 @@ sourceSets {
 
 dependencies {
     api("org.jetbrains.kotlin:kotlin-reflect:2.0.21")
-    dokkaHtmlPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:2.0.0-Beta")
-
     api("org.onflow:flow:1.0.0")
     api("com.github.TrustedDataFramework:java-rlp:1.1.20")
     api("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")

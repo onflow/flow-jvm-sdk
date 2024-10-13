@@ -18,11 +18,15 @@ internal class SignTest {
     // all supported curves of the lib
     val supportedAlgos = listOf(
         SupportedCurve(
-            SignatureAlgorithm.ECDSA_SECP256k1, 32, 64,
+            SignatureAlgorithm.ECDSA_SECP256k1,
+            32,
+            64,
             "fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141"
         ),
         SupportedCurve(
-            SignatureAlgorithm.ECDSA_P256, 32, 64,
+            SignatureAlgorithm.ECDSA_P256,
+            32,
+            64,
             "ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551"
         )
     )

@@ -7,7 +7,6 @@ insert_final_newline = true
 
 # be sure to update build.gradle.kts in the root as well,
 ktlint_standard_no-wildcard-imports = disabled
-ktlint_standard_chain_method_continuation = disabled
 ktlint_standard_filename = disabled
 ktlint_standard_import-ordering = disabled
 ktlint_standard_chain-wrapping = disabled
@@ -20,11 +19,7 @@ ktlint_standard_multiline-expression-wrapping= disabled
 ktlint_standard_string-template-indent= disabled
 ktlint_standard_enum-entry-name-case = disabled
 ktlint_standard_property-naming = disabled
-ktlint_standard_spacing-between-declarations-with-annotations = disabled
 ktlint_standard_if-else-wrapping = disabled
-ktlint_standard_argument-list-wrapping = disabled
-ktlint_standard_value-argument-comment = disabled
-ktlint_standard_modifier-list-spacing = disabled
 ktlint_standard_annotation-spacing = disabled
 
 # Defines the imports layout. The layout can be composed by the following symbols:

@@ -33,7 +33,10 @@ class TransactionDecodingTest {
             listOf(
                 FlowTransactionSignature(FlowAddress("f8d6e0586b0a20c7"), 0, 2, FlowSignature(byteArrayOf(2))),
                 FlowTransactionSignature(
-                    FlowAddress("f8d6e0586b0a20c7"), 0, 3, FlowSignature(byteArrayOf(1))
+                    FlowAddress("f8d6e0586b0a20c7"),
+                    0,
+                    3,
+                    FlowSignature(byteArrayOf(1))
                 )
             )
         )

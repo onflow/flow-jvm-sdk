@@ -615,8 +615,11 @@ class FlowTransactionSignatureBuilder {
     fun address(address: FlowAddress) {
         this.address = address
     }
+
     fun address(address: String) = address(FlowAddress(address))
+
     fun address(address: ByteArray) = address(FlowAddress.of(address))
+
     fun address(address: () -> FlowAddress) = this.address(address())
 
     var keyIndex: Number
@@ -635,8 +638,11 @@ class FlowTransactionSignatureBuilder {
     fun signature(signature: FlowSignature) {
         this.signature = signature
     }
+
     fun signature(signature: String) = signature(FlowSignature(signature))
+
     fun signature(signature: ByteArray) = signature(FlowSignature(signature))
+
     fun signature(signature: () -> FlowSignature) = this.signature(signature())
 
     var signer: Signer

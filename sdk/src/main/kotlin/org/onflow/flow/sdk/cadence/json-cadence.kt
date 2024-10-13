@@ -146,7 +146,6 @@ const val TYPE_CONTRACT_INTERFACE = "ContractInterface"
         Type(value = TypeField::class, name = TYPE_TYPE)
     ]
 )
-
 abstract class Field<T>(
     val type: String,
     val value: T?
@@ -386,60 +385,79 @@ open class NumberField(
 open class IntNumberField(
     value: String
 ) : NumberField(TYPE_INT, value)
+
 open class UIntNumberField(
     value: String
 ) : NumberField(TYPE_UINT, value)
+
 open class Int8NumberField(
     value: String
 ) : NumberField(TYPE_INT8, value)
+
 open class UInt8NumberField(
     value: String
 ) : NumberField(TYPE_UINT8, value)
+
 open class Int16NumberField(
     value: String
 ) : NumberField(TYPE_INT16, value)
+
 open class UInt16NumberField(
     value: String
 ) : NumberField(TYPE_UINT16, value)
+
 open class Int32NumberField(
     value: String
 ) : NumberField(TYPE_INT32, value)
+
 open class UInt32NumberField(
     value: String
 ) : NumberField(TYPE_UINT32, value)
+
 open class Int64NumberField(
     value: String
 ) : NumberField(TYPE_INT64, value)
+
 open class UInt64NumberField(
     value: String
 ) : NumberField(TYPE_UINT64, value)
+
 open class Int128NumberField(
     value: String
 ) : NumberField(TYPE_INT128, value)
+
 open class UInt128NumberField(
     value: String
 ) : NumberField(TYPE_UINT128, value)
+
 open class Int256NumberField(
     value: String
 ) : NumberField(TYPE_INT256, value)
+
 open class UInt256NumberField(
     value: String
 ) : NumberField(TYPE_UINT256, value)
+
 open class Word8NumberField(
     value: String
 ) : NumberField(TYPE_WORD8, value)
+
 open class Word16NumberField(
     value: String
 ) : NumberField(TYPE_WORD16, value)
+
 open class Word32NumberField(
     value: String
 ) : NumberField(TYPE_WORD32, value)
+
 open class Word64NumberField(
     value: String
 ) : NumberField(TYPE_WORD64, value)
+
 open class Fix64NumberField(
     value: String
 ) : NumberField(TYPE_FIX64, value)
+
 open class UFix64NumberField(
     value: String
 ) : NumberField(TYPE_UFIX64, value)
@@ -576,7 +594,9 @@ open class CompositeValue(
 ) : Serializable {
     @Suppress("UNCHECKED_CAST")
     fun <T : Field<*>> getField(name: String): T? = fields.find { it.name == name }?.value as T?
+
     fun <T : Field<*>> getRequiredField(name: String): T = getField(name) ?: throw IllegalStateException("Value for $name not found")
+
     inline operator fun <reified T : Field<*>> get(name: String): T? {
         val field = fields.find { it.name == name }?.value
         return if (field is T) {
@@ -587,6 +607,7 @@ open class CompositeValue(
     }
 
     operator fun contains(name: String): Boolean = fields.find { it.name == name } != null
+
     override fun hashCode(): Int {
         var result = id.hashCode()
         result = 31 * result + fields.contentHashCode()

@@ -23,6 +23,7 @@ class SubscribeEventsExample(
         processEvents(scope, dataChannel, errorChannel, receivedEvents)
         job.cancelAndJoin()
     }
+
     private suspend fun processEvents(
         scope: CoroutineScope,
         dataChannel: ReceiveChannel<List<FlowEvent>>,

@@ -67,7 +67,8 @@ internal class UserSignatureExample(
                                 StringField(signatureBob.toHexString())
                             )
                         ),
-                        AddressField(aliceAddress.bytes), AddressField(bobAddress.bytes),
+                        AddressField(aliceAddress.bytes),
+                        AddressField(bobAddress.bytes),
                         UFix64NumberField("100.00")
                     )
                 }
