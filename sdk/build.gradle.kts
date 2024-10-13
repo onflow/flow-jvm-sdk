@@ -53,6 +53,8 @@ dependencies {
     testImplementation(testFixtures(project(":common")))
     testImplementation(project(":common"))
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
+    testImplementation("org.mockito:mockito-core:5.14.1")
+    testImplementation("org.mockito:mockito-inline:5.2.0")
 
     implementation("org.slf4j:slf4j-api:2.0.16")
     implementation("ch.qos.logback:logback-classic:1.5.9")
