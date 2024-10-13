@@ -1,7 +1,6 @@
 package org.onflow.flow.sdk.impl
 
 import com.google.protobuf.ByteString
-import jdk.internal.vm.compiler.word.LocationIdentity.any
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.launch
