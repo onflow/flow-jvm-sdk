@@ -42,7 +42,7 @@ dependencies {
     testFixturesImplementation(project(":sdk"))
     testFixturesImplementation("org.junit.jupiter:junit-jupiter:5.11.2")
     testFixturesImplementation("org.mockito:mockito-core:5.14.1")
-    testFixturesImplementation("org.mockito:mockito-inline:5.14.1")
+    testFixturesImplementation("org.mockito:mockito-inline:5.2.0")
 
     intTestImplementation("org.junit.jupiter:junit-jupiter:5.11.2")
     intTestImplementation("org.assertj:assertj-core:3.26.3")
