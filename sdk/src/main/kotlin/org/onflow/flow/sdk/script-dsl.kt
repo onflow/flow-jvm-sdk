@@ -43,6 +43,12 @@ class ScriptBuilder {
     private var _script: FlowScript? = null
     private var _arguments: MutableList<Field<*>> = mutableListOf()
 
+    var chainId: FlowChainId
+        get() = _chainId
+        set(value) {
+            _chainId = value
+        }
+
     var script: FlowScript
         get() = _script!!
         set(value) { _script = value }
