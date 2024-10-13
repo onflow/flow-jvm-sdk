@@ -20,7 +20,6 @@ tasks.withType<JavaCompile> {
 }
 
 tasks.withType<KotlinCompile> {
-    incremental = false
     compilerOptions {
         jvmTarget.set(JvmTarget.JVM_21)
         freeCompilerArgs.addAll("-Xjsr305=strict", "-opt-in=kotlin.RequiresOptIn")
