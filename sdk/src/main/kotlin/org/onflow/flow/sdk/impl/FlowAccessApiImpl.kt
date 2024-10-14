@@ -255,8 +255,6 @@ class FlowAccessApiImpl(
 
             FlowAccessApi.AccessApiCallResponse.Success(FlowScriptResponse(ret.value.toByteArray()))
         } catch (e: Exception) {
-            println("Error executing script: ${e.message}")
-            e.printStackTrace()
             FlowAccessApi.AccessApiCallResponse.Error("Failed to execute script at latest block", e)
         }
 
@@ -496,7 +494,6 @@ class FlowAccessApiImpl(
                     responseChannel.send(response.eventsList.map { FlowEvent.of(it) })
                 }
             } catch (e: Exception) {
-                println("Caught exception: ${e.message}")
                 errorChannel.send(e)
             } finally {
                 responseChannel.close()
