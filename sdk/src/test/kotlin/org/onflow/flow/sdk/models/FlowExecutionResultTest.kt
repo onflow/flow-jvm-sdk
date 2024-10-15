@@ -106,10 +106,8 @@ class FlowExecutionResultTest {
 
     @Test
     fun `test builder() method`() {
-        // Setup mock FlowServiceEvent
         val serviceEvent = FlowServiceEvent("EventType", blockIdBytes)
 
-        // Setup mock FlowChunk
         val flowChunk = FlowChunk(
             collectionIndex = collectionIndex,
             startState = startStateBytes,

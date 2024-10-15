@@ -44,7 +44,7 @@ class FlowTimeoutCertificateTest {
 
     @Test
     fun `test builder() method`() {
-        // mock FlowQuorumCertificate
+        // Mock FlowQuorumCertificate
         val view = 123L
         val blockIdBytes = ByteArray(32) { 0x01 }
         val signerIndicesBytes = ByteArray(32) { 0x02 }
@@ -58,7 +58,7 @@ class FlowTimeoutCertificateTest {
 
         val flowQuorumCertificate = FlowQuorumCertificate.of(grpcQuorumCertificate)
 
-        // mock FlowTimeoutCertificate
+        // Mock FlowTimeoutCertificate
         val highQcViews = listOf(1L, 2L)
         val signerIndices = byteArrayOf(1, 2)
         val sigData = byteArrayOf(3, 4)
