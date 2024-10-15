@@ -49,7 +49,7 @@ class FlowExecutionResultTest {
 
         // Mock service event
         val serviceEvent = mock(ExecutionResultOuterClass.ServiceEvent::class.java)
-        `when`(serviceEvent.type).thenReturn("EventType")  // Mock the getType() method
+        `when`(serviceEvent.type).thenReturn("EventType")
         `when`(serviceEvent.payload).thenReturn(ByteString.copyFrom(payloadBytes))
         `when`(grpcExecutionResultInner.serviceEventsList).thenReturn(listOf(serviceEvent))
 
@@ -84,8 +84,8 @@ class FlowExecutionResultTest {
 
         // Mock service event
         val serviceEvent = mock(ExecutionResultOuterClass.ServiceEvent::class.java)
-        `when`(serviceEvent.type).thenReturn("EventType")  // Mock the getType() method
-        `when`(serviceEvent.payload).thenReturn(ByteString.copyFrom(payloadBytes))  // Mock the getPayload() method
+        `when`(serviceEvent.type).thenReturn("EventType")
+        `when`(serviceEvent.payload).thenReturn(ByteString.copyFrom(payloadBytes))
 
         // Mock ExecutionResult
         val grpcExecutionResult = mock(ExecutionResultOuterClass.ExecutionResult::class.java)
@@ -100,59 +100,42 @@ class FlowExecutionResultTest {
         assertEquals(FlowId.of(previousResultIdBytes), flowExecutionResult.previousResultId)
         assertEquals(1, flowExecutionResult.chunks.size)
         assertEquals(1, flowExecutionResult.serviceEvents.size)
-        assertEquals("EventType", flowExecutionResult.serviceEvents[0].type)  // Validate the service event type
-        assertArrayEquals(payloadBytes, flowExecutionResult.serviceEvents[0].payload)  // Validate the service event payload
+        assertEquals("EventType", flowExecutionResult.serviceEvents[0].type)
+        assertArrayEquals(payloadBytes, flowExecutionResult.serviceEvents[0].payload)
     }
 
     @Test
     fun `test builder() method`() {
-        val blockIdBytes = ByteArray(32) { 0x01 }
-        val previousResultIdBytes = ByteArray(32) { 0x02 }
-        val blockId = FlowId.of(blockIdBytes)
-        val previousResultId = FlowId.of(previousResultIdBytes)
+        // Setup mock FlowServiceEvent
+        val serviceEvent = FlowServiceEvent("EventType", blockIdBytes)
 
-        // Mock FlowChunk and its builder
-        val chunk = mock(FlowChunk::class.java)
-        val chunkBuilder = mock(ExecutionResultOuterClass.Chunk.Builder::class.java)
+        // Setup mock FlowChunk
+        val flowChunk = FlowChunk(
+            collectionIndex = collectionIndex,
+            startState = startStateBytes,
+            eventCollection = eventCollectionBytes,
+            blockId = FlowId.of(blockIdBytes),
+            totalComputationUsed = totalComputationUsed,
+            numberOfTransactions = numberOfTransactions,
+            index = index,
+            endState = endStateBytes,
+            executionDataId = FlowId.of(blockIdBytes),
+            stateDeltaCommitment = stateDeltaCommitmentBytes
+        )
 
-        // Set up the behavior for the builder methods
-        `when`(chunk.builder()).thenReturn(chunkBuilder)
-        `when`(chunkBuilder.build()).thenReturn(ExecutionResultOuterClass.Chunk.newBuilder()
-            .setCollectionIndex(1)
-            .setBlockId(ByteString.copyFrom(blockIdBytes))
-            .build())  // Return a valid Chunk object with required fields
-
-        // Mock FlowServiceEvent and its builder
-        val serviceEvent = mock(FlowServiceEvent::class.java)
-        val serviceEventBuilder = mock(ExecutionResultOuterClass.ServiceEvent.Builder::class.java)
-
-        // Set up the behavior for the service event builder
-        `when`(serviceEvent.builder()).thenReturn(serviceEventBuilder)
-        `when`(serviceEventBuilder.build()).thenReturn(ExecutionResultOuterClass.ServiceEvent.newBuilder()
-            .setType("EventType")
-            .setPayload(ByteString.copyFrom(ByteArray(32) { 0x07 }))  // Use any valid ByteString payload
-            .build())  // Ensure this returns a valid built object
-
-        // Create FlowExecutionResult instance with mocks
         val flowExecutionResult = FlowExecutionResult(
-            blockId = blockId,
-            previousResultId = previousResultId,
-            chunks = listOf(chunk),
+            blockId = FlowId.of(blockIdBytes),
+            previousResultId = FlowId.of(previousResultIdBytes),
+            chunks = listOf(flowChunk),
             serviceEvents = listOf(serviceEvent)
         )
 
-        // Call the builder() method and build the result
         val result = flowExecutionResult.builder().build()
 
-        // Assertions to verify the builder results
-        assertEquals(blockId.byteStringValue, result.blockId)
-        assertEquals(previousResultId.byteStringValue, result.previousResultId)
+        assertEquals(FlowId.of(blockIdBytes).byteStringValue, result.blockId)
+        assertEquals(FlowId.of(previousResultIdBytes).byteStringValue, result.previousResultId)
         assertEquals(1, result.chunksCount)
         assertEquals(1, result.serviceEventsCount)
-
-        // Verify that the builders for the chunks and service events were invoked
-        verify(chunk).builder()
-        verify(serviceEvent).builder()
     }
 
     @Test

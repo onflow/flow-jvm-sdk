@@ -23,8 +23,8 @@ class FlowBlockHeaderTest {
         val parentId = FlowId.of(parentIdBytes)
         val proposerId = FlowId.of(proposerIdBytes)
         val chainId = FlowChainId.of("mainnet")
-        val timestamp = LocalDateTime.now()
-        val timeoutCertificate = mock(FlowTimeoutCertificate::class.java)
+        val timestamp: LocalDateTime = LocalDateTime.now()
+        val timeoutCertificate: FlowTimeoutCertificate = mock(FlowTimeoutCertificate::class.java)
     }
     @Test
     fun `test of() method`() {
