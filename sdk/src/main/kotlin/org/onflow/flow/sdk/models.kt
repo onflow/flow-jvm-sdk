@@ -758,7 +758,6 @@ data class FlowBlock(
         .addAllExecutionResultList(executionResultList.map { it.builder().build() })
         .setBlockHeader(blockHeader.builder().build())
         .setProtocolStateId(protocolStateId.byteStringValue)
-
 }
 
 data class FlowChunk(

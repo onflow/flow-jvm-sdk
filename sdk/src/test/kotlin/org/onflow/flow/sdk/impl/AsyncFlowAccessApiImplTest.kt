@@ -58,7 +58,6 @@ class AsyncFlowAccessApiImplTest {
             ),
             parentView = 1L
         )
-
     }
 
     private fun <T> setupFutureMock(response: T): ListenableFuture<T> {

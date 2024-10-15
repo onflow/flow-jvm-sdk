@@ -24,11 +24,12 @@ class FlowBlockTest {
             .setTimestamp(timestamp)
             .setBlockHeader(
                 BlockHeaderOuterClass.BlockHeader.newBuilder()
-                .setId(ByteString.copyFromUtf8("header_id"))
-                .setParentId(ByteString.copyFromUtf8("header_parent_id"))
-                .setHeight(124)
-                .setTimestamp(timestamp)
-                .build())
+                    .setId(ByteString.copyFromUtf8("header_id"))
+                    .setParentId(ByteString.copyFromUtf8("header_parent_id"))
+                    .setHeight(124)
+                    .setTimestamp(timestamp)
+                    .build()
+            )
             .setProtocolStateId(ByteString.copyFromUtf8("protocol_state_id"))
 
         val flowBlock = FlowBlock.of(blockBuilder.build())
@@ -91,7 +92,7 @@ class FlowBlockTest {
         assert(blockBuilder.id.toByteArray().contentEquals(fixedSize("id".toByteArray(), 32)))
         assert(blockBuilder.parentId.toByteArray().contentEquals(fixedSize("parent_id".toByteArray(), 32)))
         assert(blockBuilder.height == 123L)
-        assert(blockBuilder.timestamp == flowBlock.timestamp.asTimestamp())
+        assert(blockBuilder.timestamp.equals(flowBlock.timestamp.asTimestamp()))
         assert(blockBuilder.collectionGuaranteesList.isEmpty())
         assert(blockBuilder.blockSealsList.isEmpty())
         assert(blockBuilder.signaturesList.isEmpty())
@@ -99,4 +100,3 @@ class FlowBlockTest {
         assert(blockBuilder.protocolStateId.toByteArray().contentEquals(fixedSize("protocol_state_id".toByteArray(), 32)))
     }
 }
-

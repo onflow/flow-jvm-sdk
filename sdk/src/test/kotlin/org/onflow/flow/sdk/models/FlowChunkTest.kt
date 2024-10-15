@@ -200,4 +200,3 @@ class FlowChunkTest {
         assertNotEquals(flowChunk1.hashCode(), flowChunk3.hashCode())
     }
 }
-

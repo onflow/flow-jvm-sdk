@@ -44,7 +44,6 @@ class FlowTimeoutCertificateTest {
 
     @Test
     fun `test builder() method`() {
-
         // mock FlowQuorumCertificate
         val view = 123L
         val blockIdBytes = ByteArray(32) { 0x01 }
@@ -127,4 +126,3 @@ class FlowTimeoutCertificateTest {
         assertNotEquals(flowTimeoutCertificate1.hashCode(), flowTimeoutCertificate3.hashCode())
     }
 }
-

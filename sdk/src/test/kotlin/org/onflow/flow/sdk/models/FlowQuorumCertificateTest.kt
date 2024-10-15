@@ -9,7 +9,6 @@ import org.onflow.flow.sdk.FlowQuorumCertificate
 import org.onflow.protobuf.entities.BlockHeaderOuterClass
 
 class FlowQuorumCertificateTest {
-
     @Test
     fun `test of() method`() {
         val view = 123L
@@ -88,4 +87,3 @@ class FlowQuorumCertificateTest {
         assertNotEquals(flowQuorumCertificate1.hashCode(), flowQuorumCertificate3.hashCode())
     }
 }
-
