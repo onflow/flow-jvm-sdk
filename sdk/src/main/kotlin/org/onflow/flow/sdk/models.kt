@@ -665,6 +665,16 @@ data class FlowBlockHeader(
         .setId(id.byteStringValue)
         .setParentId(parentId.byteStringValue)
         .setHeight(height)
+        .setTimestamp(timestamp.asTimestamp())
+        .setPayloadHash(UnsafeByteOperations.unsafeWrap(payloadHash))
+        .setView(view)
+        .setParentVoterSigData(UnsafeByteOperations.unsafeWrap(parentVoterSigData))
+        .setProposerId(proposerId.byteStringValue)
+        .setProposerSigData(UnsafeByteOperations.unsafeWrap(proposerSigData))
+        .setChainId(chainId.id)
+        .setParentVoterIndices(UnsafeByteOperations.unsafeWrap(parentVoterIndices))
+        .setLastViewTc(lastViewTc.builder().build())
+        .setParentView(parentView)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -744,6 +754,11 @@ data class FlowBlock(
         .addAllCollectionGuarantees(collectionGuarantees.map { it.builder().build() })
         .addAllBlockSeals(blockSeals.map { it.builder().build() })
         .addAllSignatures(signatures.map { it.byteStringValue })
+        .addAllExecutionReceiptMetaList(executionReceiptMetaList.map { it.builder().build() })
+        .addAllExecutionResultList(executionResultList.map { it.builder().build() })
+        .setBlockHeader(blockHeader.builder().build())
+        .setProtocolStateId(protocolStateId.byteStringValue)
+
 }
 
 data class FlowChunk(
@@ -772,6 +787,19 @@ data class FlowChunk(
             stateDeltaCommitment = grpcExecutionResult.stateDeltaCommitment.toByteArray()
         )
     }
+
+    @JvmOverloads
+    fun builder(builder: ExecutionResultOuterClass.Chunk.Builder = ExecutionResultOuterClass.Chunk.newBuilder()): ExecutionResultOuterClass.Chunk.Builder = builder
+        .setCollectionIndex(collectionIndex)
+        .setStartState(ByteString.copyFrom(startState))
+        .setEventCollection(ByteString.copyFrom(eventCollection))
+        .setBlockId(blockId.byteStringValue)
+        .setTotalComputationUsed(totalComputationUsed)
+        .setNumberOfTransactions(numberOfTransactions)
+        .setIndex(index)
+        .setEndState(ByteString.copyFrom(endState))
+        .setExecutionDataId(executionDataId.byteStringValue)
+        .setStateDeltaCommitment(ByteString.copyFrom(stateDeltaCommitment))
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -817,6 +845,11 @@ data class FlowServiceEvent(
         )
     }
 
+    @JvmOverloads
+    fun builder(builder: ExecutionResultOuterClass.ServiceEvent.Builder = ExecutionResultOuterClass.ServiceEvent.newBuilder()): ExecutionResultOuterClass.ServiceEvent.Builder = builder
+        .setType(type)
+        .setPayload(ByteString.copyFrom(payload))
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is FlowServiceEvent) return false
@@ -854,9 +887,14 @@ data class FlowExecutionResult(
             chunks = grpcExecutionResult.chunksList.map { FlowChunk.of(it) },
             serviceEvents = grpcExecutionResult.serviceEventsList.map { FlowServiceEvent.of(it) },
         )
-
-
     }
+
+    @JvmOverloads
+    fun builder(builder: ExecutionResultOuterClass.ExecutionResult.Builder = ExecutionResultOuterClass.ExecutionResult.newBuilder()): ExecutionResultOuterClass.ExecutionResult.Builder = builder
+        .setBlockId(blockId.byteStringValue)
+        .setPreviousResultId(previousResultId.byteStringValue)
+        .addAllChunks(chunks.map { it.builder().build() })
+        .addAllServiceEvents(serviceEvents.map { it.builder().build() })
 }
 
 data class FlowExecutionReceiptMeta(
@@ -873,6 +911,13 @@ data class FlowExecutionReceiptMeta(
             executorSignature = FlowSignature(grpcExecutionResult.executorSignature.toByteArray())
         )
     }
+
+    @JvmOverloads
+    fun builder(builder: ExecutionResultOuterClass.ExecutionReceiptMeta.Builder = ExecutionResultOuterClass.ExecutionReceiptMeta.newBuilder()): ExecutionResultOuterClass.ExecutionReceiptMeta.Builder = builder
+        .setExecutorId(executorId.byteStringValue)
+        .setResultId(resultId.byteStringValue)
+        .addAllSpocks(spocks.map { ByteString.copyFrom(it) })
+        .setExecutorSignature(executorSignature.byteStringValue)
 }
 
 data class FlowTimeoutCertificate(
@@ -891,6 +936,14 @@ data class FlowTimeoutCertificate(
             sigData = grpcExecutionResult.sigData.toByteArray()
         )
     }
+
+    @JvmOverloads
+    fun builder(builder: BlockHeaderOuterClass.TimeoutCertificate.Builder = BlockHeaderOuterClass.TimeoutCertificate.newBuilder()): BlockHeaderOuterClass.TimeoutCertificate.Builder = builder
+        .setView(view)
+        .addAllHighQcViews(highQcViews)
+        .setHighestQc(highestQc.builder().build())
+        .setSignerIndices(ByteString.copyFrom(signerIndices))
+        .setSigData(ByteString.copyFrom(sigData))
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -929,6 +982,13 @@ data class FlowQuorumCertificate(
             sigData = grpcExecutionResult.sigData.toByteArray()
         )
     }
+
+    @JvmOverloads
+    fun builder(builder: BlockHeaderOuterClass.QuorumCertificate.Builder = BlockHeaderOuterClass.QuorumCertificate.newBuilder()): BlockHeaderOuterClass.QuorumCertificate.Builder = builder
+        .setView(view)
+        .setBlockId(blockId.byteStringValue)
+        .setSignerIndices(ByteString.copyFrom(signerIndices))
+        .setSigData(ByteString.copyFrom(sigData))
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
