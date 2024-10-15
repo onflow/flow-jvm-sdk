@@ -193,14 +193,15 @@ data class FlowAccountKey(
         .setSequenceNumber(sequenceNumber)
         .setRevoked(revoked)
 
-    val encoded: ByteArray get() = RLPCodec.encode(
-        arrayOf(
-            publicKey.bytes,
-            signAlgo.code,
-            hashAlgo.code,
-            weight
+    val encoded: ByteArray
+        get() = RLPCodec.encode(
+            arrayOf(
+                publicKey.bytes,
+                signAlgo.code,
+                hashAlgo.code,
+                weight
+            )
         )
-    )
 }
 
 data class FlowEventResult(
@@ -250,6 +251,7 @@ data class FlowEvent(
     val event: EventField get() = payload.jsonCadence as EventField
 
     private fun <T : Field<*>> getField(name: String): T? = event[name]
+
     @Suppress("UNCHECKED_CAST")
     operator fun <T> get(name: String): T? = getField<Field<*>>(name) as T
     operator fun contains(name: String): Boolean = name in event
@@ -312,7 +314,13 @@ data class FlowTransactionResult(
     @JvmOverloads
     fun getEventsOfType(type: String, exact: Boolean = false, expectedCount: Int? = null): List<EventField> {
         val ret = this.events
-            .filter { if (exact) { it.type == type } else { it.type.endsWith(type) } }
+            .filter {
+                if (exact) {
+                    it.type == type
+                } else {
+                    it.type.endsWith(type)
+                }
+            }
             .map { it.event }
         check(expectedCount == null || ret.size == expectedCount) { "Expected $expectedCount events of type $type but there were ${ret.size}" }
         return ret
@@ -449,12 +457,13 @@ data class FlowTransaction(
             return ret
         }
 
-    val signerMap: Map<FlowAddress, Int> get() {
-        return signerList
-            .withIndex()
-            .map { it.value to it.index }
-            .toMap()
-    }
+    val signerMap: Map<FlowAddress, Int>
+        get() {
+            return signerList
+                .withIndex()
+                .map { it.value to it.index }
+                .toMap()
+        }
 
     companion object {
         @JvmStatic
@@ -469,6 +478,7 @@ data class FlowTransaction(
             payloadSignatures = value.payloadSignaturesList.map { FlowTransactionSignature.of(it) },
             envelopeSignatures = value.envelopeSignaturesList.map { FlowTransactionSignature.of(it) }
         )
+
         @JvmStatic
         fun of(bytes: ByteArray): FlowTransaction {
             val txEnvelope: TransactionEnvelope = RLPCodec.decode(bytes, TransactionEnvelope::class.java)
@@ -608,6 +618,7 @@ data class FlowTransactionSignature(
                 signature = FlowSignature(value.signature.toByteArray())
             )
     }
+
     @JvmOverloads
     fun builder(builder: TransactionOuterClass.Transaction.Signature.Builder = TransactionOuterClass.Transaction.Signature.newBuilder()): TransactionOuterClass.Transaction.Signature.Builder = builder
         .setAddress(address.byteStringValue)
@@ -644,8 +655,8 @@ data class FlowBlock(
     val collectionGuarantees: List<FlowCollectionGuarantee>,
     val blockSeals: List<FlowBlockSeal>,
     val signatures: List<FlowSignature>,
-    val executionReceiptMetalist: List<FlowExecutionReceiptMeta>,
-    val exectionResultList: List<FlowExecutionResult>,
+    val executionReceiptMetaList: List<FlowExecutionReceiptMeta>,
+    val executionResultList: List<FlowExecutionResult>,
     val blockHeader: FlowBlockHeader,
     val protocolStateId: FlowId
 ) : Serializable {
@@ -659,10 +670,10 @@ data class FlowBlock(
             collectionGuarantees = value.collectionGuaranteesList.map { FlowCollectionGuarantee.of(it) },
             blockSeals = value.blockSealsList.map { FlowBlockSeal.of(it) },
             signatures = value.signaturesList.map { FlowSignature(it.toByteArray()) },
-            executionReceiptMetalist = value.executionReceiptMetaListList.map { FlowExecutionReceiptMeta(it.toByteArray()) },
-            exectionResultList = value.executionResultListList.map { FlowExecutionResult.of(it)},
+            executionReceiptMetaList = value.executionReceiptMetaListList.map { FlowExecutionReceiptMeta.of(it) },
+            executionResultList = value.executionResultListList.map { FlowExecutionResult.of(it) },
             blockHeader = FlowBlockHeader.of(value.blockHeader),
-            protocolStateId =  FlowId.of(value.protocolStateId.toByteArray())
+            protocolStateId = FlowId.of(value.protocolStateId.toByteArray())
         )
     }
 
@@ -777,6 +788,31 @@ data class FlowExecutionResult(
             previousResultId = FlowId.of(grpcExecutionResult.executionResult.previousResultId.toByteArray()),
             chunks = grpcExecutionResult.executionResult.chunksList.map { FlowChunk.of(it) },
             serviceEvents = grpcExecutionResult.executionResult.serviceEventsList.map { FlowServiceEvent.of(it) },
+        )
+
+        fun of(grpcExecutionResult: ExecutionResultOuterClass.ExecutionResult) = FlowExecutionResult(
+            blockId = FlowId.of(grpcExecutionResult.blockId.toByteArray()),
+            previousResultId = FlowId.of(grpcExecutionResult.previousResultId.toByteArray()),
+            chunks = grpcExecutionResult.chunksList.map { FlowChunk.of(it) },
+            serviceEvents = grpcExecutionResult.serviceEventsList.map { FlowServiceEvent.of(it) },
+        )
+
+
+    }
+}
+
+data class FlowExecutionReceiptMeta(
+    val executorId: FlowId,
+    val resultId: FlowId,
+    val spocks: List<ByteArray>,
+    val executorSignature: FlowSignature,
+) : Serializable {
+    companion object {
+        fun of(grpcExecutionResult: ExecutionResultOuterClass.ExecutionReceiptMeta) = FlowExecutionReceiptMeta(
+            executorId = FlowId.of(grpcExecutionResult.executorId.toByteArray()),
+            resultId = FlowId.of(grpcExecutionResult.resultId.toByteArray()),
+            spocks = grpcExecutionResult.spocksList.map { it.toByteArray() },
+            executorSignature = FlowSignature(grpcExecutionResult.executorSignature.toByteArray())
         )
     }
 }
