@@ -629,14 +629,34 @@ data class FlowTransactionSignature(
 data class FlowBlockHeader(
     val id: FlowId,
     val parentId: FlowId,
-    val height: Long
+    val height: Long,
+    val timestamp: LocalDateTime,
+    val payloadHash: ByteArray,
+    val view: Long,
+    val parentVoterSigData: ByteArray,
+    val proposerId: FlowId,
+    val proposerSigData: ByteArray,
+    val chainId: FlowChainId,
+    val parentVoterIndices: ByteArray,
+    val lastViewTc: FlowTimeoutCertificate,
+    val parentView: Long
 ) : Serializable {
     companion object {
         @JvmStatic
         fun of(value: BlockHeaderOuterClass.BlockHeader): FlowBlockHeader = FlowBlockHeader(
             id = FlowId.of(value.id.toByteArray()),
             parentId = FlowId.of(value.parentId.toByteArray()),
-            height = value.height
+            height = value.height,
+            timestamp = value.timestamp.asLocalDateTime(),
+            payloadHash = value.payloadHash.toByteArray(),
+            view = value.view,
+            parentVoterSigData = value.parentVoterSigData.toByteArray(),
+            proposerId = FlowId.of(value.proposerId.toByteArray()),
+            proposerSigData = value.proposerSigData.toByteArray(),
+            chainId = FlowChainId.of(value.chainId),
+            parentVoterIndices = value.parentVoterIndices.toByteArray(),
+            lastViewTc = FlowTimeoutCertificate.of(value.lastViewTc),
+            parentView = value.parentView
         )
     }
 
@@ -645,6 +665,44 @@ data class FlowBlockHeader(
         .setId(id.byteStringValue)
         .setParentId(parentId.byteStringValue)
         .setHeight(height)
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is FlowBlockHeader) return false
+
+        if (id != other.id) return false
+        if (parentId != other.parentId) return false
+        if (height != other.height) return false
+        if (timestamp != other.timestamp) return false
+        if (!payloadHash.contentEquals(other.payloadHash)) return false
+        if (view != other.view) return false
+        if (!parentVoterSigData.contentEquals(other.parentVoterSigData)) return false
+        if (proposerId != other.proposerId) return false
+        if (!proposerSigData.contentEquals(other.proposerSigData)) return false
+        if (chainId != other.chainId) return false
+        if (!parentVoterIndices.contentEquals(other.parentVoterIndices)) return false
+        if (lastViewTc != other.lastViewTc) return false
+        if (parentView != other.parentView) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = id.hashCode()
+        result = 31 * result + parentId.hashCode()
+        result = 31 * result + height.hashCode()
+        result = 31 * result + timestamp.hashCode()
+        result = 31 * result + payloadHash.contentHashCode()
+        result = 31 * result + view.hashCode()
+        result = 31 * result + parentVoterSigData.contentHashCode()
+        result = 31 * result + proposerId.hashCode()
+        result = 31 * result + proposerSigData.contentHashCode()
+        result = 31 * result + chainId.hashCode()
+        result = 31 * result + parentVoterIndices.contentHashCode()
+        result = 31 * result + lastViewTc.hashCode()
+        result = 31 * result + parentView.hashCode()
+        return result
+    }
 }
 
 data class FlowBlock(
@@ -814,6 +872,82 @@ data class FlowExecutionReceiptMeta(
             spocks = grpcExecutionResult.spocksList.map { it.toByteArray() },
             executorSignature = FlowSignature(grpcExecutionResult.executorSignature.toByteArray())
         )
+    }
+}
+
+data class FlowTimeoutCertificate(
+    val view: Long,
+    val highQcViews: List<Long>,
+    val highestQc: FlowQuorumCertificate,
+    val signerIndices: ByteArray,
+    val sigData: ByteArray
+) : Serializable {
+    companion object {
+        fun of(grpcExecutionResult: BlockHeaderOuterClass.TimeoutCertificate) = FlowTimeoutCertificate(
+            view = grpcExecutionResult.view,
+            highQcViews = grpcExecutionResult.highQcViewsList,
+            highestQc = FlowQuorumCertificate.of(grpcExecutionResult.highestQc),
+            signerIndices = grpcExecutionResult.signerIndices.toByteArray(),
+            sigData = grpcExecutionResult.sigData.toByteArray()
+        )
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is FlowTimeoutCertificate) return false
+
+        if (view != other.view) return false
+        if (highQcViews != other.highQcViews) return false
+        if (highestQc != other.highestQc) return false
+        if (!signerIndices.contentEquals(other.signerIndices)) return false
+        if (!sigData.contentEquals(other.sigData)) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = view.hashCode()
+        result = 31 * result + highQcViews.hashCode()
+        result = 31 * result + highestQc.hashCode()
+        result = 31 * result + signerIndices.contentHashCode()
+        result = 31 * result + sigData.contentHashCode()
+        return result
+    }
+}
+
+data class FlowQuorumCertificate(
+    val view: Long,
+    val blockId: FlowId,
+    val signerIndices: ByteArray,
+    val sigData: ByteArray
+) : Serializable {
+    companion object {
+        fun of(grpcExecutionResult: BlockHeaderOuterClass.QuorumCertificate) = FlowQuorumCertificate(
+            view = grpcExecutionResult.view,
+            blockId = FlowId.of(grpcExecutionResult.blockId.toByteArray()),
+            signerIndices = grpcExecutionResult.signerIndices.toByteArray(),
+            sigData = grpcExecutionResult.sigData.toByteArray()
+        )
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is FlowQuorumCertificate) return false
+
+        if (view != other.view) return false
+        if (blockId != other.blockId) return false
+        if (!signerIndices.contentEquals(other.signerIndices)) return false
+        if (!sigData.contentEquals(other.sigData)) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = view.hashCode()
+        result = 31 * result + blockId.hashCode()
+        result = 31 * result + signerIndices.contentHashCode()
+        result = 31 * result + sigData.contentHashCode()
+        return result
     }
 }
 
