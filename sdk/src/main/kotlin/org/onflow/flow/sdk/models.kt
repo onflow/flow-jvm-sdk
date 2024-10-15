@@ -644,10 +644,10 @@ data class FlowBlock(
     val collectionGuarantees: List<FlowCollectionGuarantee>,
     val blockSeals: List<FlowBlockSeal>,
     val signatures: List<FlowSignature>,
-    val executionReceiptMetalist,
-    val exectionResultList,
-    val blockHeader,
-    val protocolStateId
+    val executionReceiptMetalist: List<FlowExecutionReceiptMeta>,
+    val exectionResultList: List<FlowExecutionResult>,
+    val blockHeader: FlowBlockHeader,
+    val protocolStateId: FlowId
 ) : Serializable {
     companion object {
         @JvmStatic
@@ -659,6 +659,10 @@ data class FlowBlock(
             collectionGuarantees = value.collectionGuaranteesList.map { FlowCollectionGuarantee.of(it) },
             blockSeals = value.blockSealsList.map { FlowBlockSeal.of(it) },
             signatures = value.signaturesList.map { FlowSignature(it.toByteArray()) },
+            executionReceiptMetalist = value.executionReceiptMetaListList.map { FlowExecutionReceiptMeta(it.toByteArray()) },
+            exectionResultList = value.executionResultListList.map { FlowExecutionResult.of(it)},
+            blockHeader = FlowBlockHeader.of(value.blockHeader),
+            protocolStateId =  FlowId.of(value.protocolStateId.toByteArray())
         )
     }
 
