@@ -29,6 +29,35 @@ class AsyncFlowAccessApiImplTest {
     companion object {
         val BLOCK_ID_BYTES = byteArrayOf(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1)
         val PARENT_ID_BYTES = byteArrayOf(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2)
+
+        const val HEIGHT = 123L
+
+        val mockBlockHeader = FlowBlockHeader(
+            id = FlowId.of(BLOCK_ID_BYTES),
+            parentId = FlowId.of(PARENT_ID_BYTES),
+            height = 123L,
+            timestamp = LocalDateTime.of(2024, 10, 15, 18, 33, 12),
+            payloadHash = ByteArray(32) { 0 },
+            view = 1L,
+            parentVoterSigData = ByteArray(32) { 0 },
+            proposerId = FlowId.of(PARENT_ID_BYTES),
+            proposerSigData = ByteArray(32) { 0 },
+            chainId = FlowChainId.MAINNET,
+            parentVoterIndices = ByteArray(32) { 0 },
+            lastViewTc = FlowTimeoutCertificate(
+                view = 1L,
+                highQcViews = emptyList(),
+                highestQc = FlowQuorumCertificate(
+                    view = 1L,
+                    blockId = FlowId.of(BLOCK_ID_BYTES),
+                    signerIndices = ByteArray(32) { 0 },
+                    sigData = ByteArray(32) { 0 }
+                ),
+                signerIndices = ByteArray(32) { 0 },
+                sigData = ByteArray(32) { 0 }
+            ),
+            parentView = 1L
+        )
     }
 
     private fun <T> setupFutureMock(response: T): ListenableFuture<T> {
@@ -48,7 +77,7 @@ class AsyncFlowAccessApiImplTest {
 
     @Test
     fun `test getLatestBlockHeader`() {
-        val mockBlockHeader = FlowBlockHeader(FlowId("01"), FlowId("01"), 123L)
+        val mockBlockHeader = mockBlockHeader
         val blockHeaderResponse = Access.BlockHeaderResponse.newBuilder().setBlock(mockBlockHeader.builder().build()).build()
         `when`(api.getLatestBlockHeader(any())).thenReturn(setupFutureMock(blockHeaderResponse))
 
@@ -60,8 +89,8 @@ class AsyncFlowAccessApiImplTest {
 
     @Test
     fun `test getBlockHeaderById`() {
-        val blockId = FlowId("01")
-        val mockBlockHeader = FlowBlockHeader(blockId, FlowId("01"), 123L)
+        val blockId = FlowId.of(BLOCK_ID_BYTES)
+        val mockBlockHeader = mockBlockHeader
         val blockHeaderResponse = Access.BlockHeaderResponse.newBuilder().setBlock(mockBlockHeader.builder().build()).build()
         `when`(api.getBlockHeaderByID(any())).thenReturn(setupFutureMock(blockHeaderResponse))
 
@@ -73,8 +102,8 @@ class AsyncFlowAccessApiImplTest {
 
     @Test
     fun `test getBlockHeaderByHeight`() {
-        val height = 123L
-        val mockBlockHeader = FlowBlockHeader(FlowId("01"), FlowId("01"), height)
+        val height = HEIGHT
+        val mockBlockHeader = mockBlockHeader
         val blockHeaderResponse = Access.BlockHeaderResponse.newBuilder().setBlock(mockBlockHeader.builder().build()).build()
         `when`(api.getBlockHeaderByHeight(any())).thenReturn(setupFutureMock(blockHeaderResponse))
 
@@ -86,7 +115,19 @@ class AsyncFlowAccessApiImplTest {
 
     @Test
     fun `test getLatestBlock`() {
-        val mockBlock = FlowBlock(FlowId("01"), FlowId("01"), 123L, LocalDateTime.now(), emptyList(), emptyList(), emptyList())
+        val mockBlock = FlowBlock(
+            id = FlowId.of(BLOCK_ID_BYTES),
+            parentId = FlowId.of(PARENT_ID_BYTES),
+            height = 123L,
+            timestamp = LocalDateTime.now(),
+            collectionGuarantees = emptyList(),
+            blockSeals = emptyList(),
+            signatures = emptyList(),
+            executionReceiptMetaList = emptyList(),
+            executionResultList = emptyList(),
+            blockHeader = mockBlockHeader,
+            protocolStateId = FlowId.of(ByteArray(32))
+        )
         val blockResponse = Access.BlockResponse.newBuilder().setBlock(mockBlock.builder().build()).build()
         `when`(api.getLatestBlock(any())).thenReturn(setupFutureMock(blockResponse))
 
@@ -98,8 +139,20 @@ class AsyncFlowAccessApiImplTest {
 
     @Test
     fun `test getBlockById`() {
-        val blockId = FlowId("01")
-        val mockBlock = FlowBlock(blockId, FlowId("01"), 123L, LocalDateTime.now(), emptyList(), emptyList(), emptyList())
+        val blockId = FlowId.of(BLOCK_ID_BYTES)
+        val mockBlock = FlowBlock(
+            id = blockId,
+            parentId = FlowId.of(PARENT_ID_BYTES),
+            height = 123L,
+            timestamp = LocalDateTime.now(),
+            collectionGuarantees = emptyList(),
+            blockSeals = emptyList(),
+            signatures = emptyList(),
+            executionReceiptMetaList = emptyList(),
+            executionResultList = emptyList(),
+            blockHeader = mockBlockHeader,
+            protocolStateId = FlowId.of(ByteArray(32))
+        )
         val blockResponse = Access.BlockResponse.newBuilder().setBlock(mockBlock.builder().build()).build()
         `when`(api.getBlockByID(any())).thenReturn(setupFutureMock(blockResponse))
 
@@ -111,8 +164,20 @@ class AsyncFlowAccessApiImplTest {
 
     @Test
     fun `test getBlockByHeight`() {
-        val height = 123L
-        val mockBlock = FlowBlock(FlowId("01"), FlowId("01"), height, LocalDateTime.now(), emptyList(), emptyList(), emptyList())
+        val height = HEIGHT
+        val mockBlock = FlowBlock(
+            FlowId("01"),
+            FlowId("01"),
+            height,
+            LocalDateTime.now(),
+            emptyList(),
+            emptyList(),
+            emptyList(),
+            emptyList(),
+            emptyList(),
+            mockBlockHeader,
+            FlowId.of(ByteArray(32))
+        )
         val blockResponse = Access.BlockResponse.newBuilder().setBlock(mockBlock.builder().build()).build()
         `when`(api.getBlockByHeight(any())).thenReturn(setupFutureMock(blockResponse))
 
