@@ -611,7 +611,7 @@ data class FlowTransactionSignature(
         fun of(value: TransactionOuterClass.Transaction.Signature): FlowTransactionSignature =
             FlowTransactionSignature(
                 address = FlowAddress.of(value.address.toByteArray()),
-                signerIndex = value.keyId ,
+                signerIndex = value.keyId,
                 keyIndex = value.keyId,
                 signature = FlowSignature(value.signature.toByteArray())
             )
@@ -1469,7 +1469,8 @@ data class FlowNodeVersionInfo(
         .setNodeRootBlockHeight(nodeRootBlockHeight)
         .setCompatibleRange(
             compatibleRange?.let {
-                NodeVersionInfoOuterClass.CompatibleRange.newBuilder()
+                NodeVersionInfoOuterClass.CompatibleRange
+                    .newBuilder()
                     .setStartHeight(it.startHeight)
                     .setEndHeight(it.endHeight)
                     .build()
