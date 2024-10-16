@@ -11,29 +11,31 @@ class ExecuteScriptAccessAPIConnector(
     fun executeSimpleScript(): FlowScriptResponse {
         val loadedScript = ExamplesUtils.loadScriptContent("cadence/execute_simple_script_example.cdc")
 
-        return accessAPI.simpleFlowScript {
-            script { loadedScript }
-            arg { JsonCadenceBuilder().int(5) }
-        }.let { response ->
-            when (response) {
-                is FlowAccessApi.AccessApiCallResponse.Success -> response.data
-                is FlowAccessApi.AccessApiCallResponse.Error -> throw Exception(response.message, response.throwable)
+        return accessAPI
+            .simpleFlowScript {
+                script { loadedScript }
+                arg { JsonCadenceBuilder().int(5) }
+            }.let { response ->
+                when (response) {
+                    is FlowAccessApi.AccessApiCallResponse.Success -> response.data
+                    is FlowAccessApi.AccessApiCallResponse.Error -> throw Exception(response.message, response.throwable)
+                }
             }
-        }
     }
 
     fun executeComplexScript(): FlowScriptResponse {
         val loadedScript = ExamplesUtils.loadScriptContent("cadence/execute_complex_script_example.cdc")
 
-        return accessAPI.simpleFlowScript {
-            script { loadedScript }
-            arg { JsonCadenceBuilder().address("0x84221fe0294044d7") }
-        }.let { response ->
-            when (response) {
-                is FlowAccessApi.AccessApiCallResponse.Success -> response.data
-                is FlowAccessApi.AccessApiCallResponse.Error -> throw Exception(response.message, response.throwable)
+        return accessAPI
+            .simpleFlowScript {
+                script { loadedScript }
+                arg { JsonCadenceBuilder().address("0x84221fe0294044d7") }
+            }.let { response ->
+                when (response) {
+                    is FlowAccessApi.AccessApiCallResponse.Success -> response.data
+                    is FlowAccessApi.AccessApiCallResponse.Error -> throw Exception(response.message, response.throwable)
+                }
             }
-        }
     }
 
     @Serializable

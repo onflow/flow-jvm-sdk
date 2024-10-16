@@ -19,7 +19,8 @@ class FlowBlockTest {
         val unixTimestamp = 123456789L
         val timestamp = Timestamp.newBuilder().setSeconds(unixTimestamp).build()
 
-        val blockBuilder = BlockOuterClass.Block.newBuilder()
+        val blockBuilder = BlockOuterClass.Block
+            .newBuilder()
             .setId(ByteString.copyFromUtf8("id"))
             .setParentId(ByteString.copyFromUtf8("parent_id"))
             .setHeight(123)

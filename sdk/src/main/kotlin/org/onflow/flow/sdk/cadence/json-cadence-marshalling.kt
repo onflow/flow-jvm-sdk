@@ -54,12 +54,10 @@ data class CadenceNamespace(
 }
 
 interface JsonCadenceConverter<T> {
-    fun unmarshall(value: Field<*>, namespace: CadenceNamespace): T {
+    fun unmarshall(value: Field<*>, namespace: CadenceNamespace): T =
         throw UnsupportedOperationException("${this::class.simpleName} cannot deserialize $value")
-    }
-    fun marshall(value: T, namespace: CadenceNamespace): Field<*> {
+    fun marshall(value: T, namespace: CadenceNamespace): Field<*> =
         throw UnsupportedOperationException("${this::class.simpleName} cannot serializer $value")
-    }
 }
 
 object JsonCadenceMarshalling {
@@ -270,12 +268,11 @@ class JsonCadenceParser {
     fun <T> dictionary(field: Field<*>, block: JsonCadenceParser.(field: DictionaryField) -> T): T = block(field as DictionaryField)
     fun <K, V> dictionaryPairs(field: Field<*>, mapper: JsonCadenceParser.(key: Field<*>, value: Field<*>) -> Pair<K, V>): List<Pair<K, V>> = (field as DictionaryField).value!!.map { mapper(it.key, it.value) }
     fun <K, V> dictionaryMap(field: Field<*>, mapper: JsonCadenceParser.(key: Field<*>, value: Field<*>) -> Pair<K, V>): Map<K, V> = dictionaryPairs(field, mapper).toMap()
-    inline fun <reified T : Enum<T>, V : Field<*>> enum(field: Field<*>, crossinline mapper: (V) -> T): T {
-        return withField(field as CompositeField) {
+    inline fun <reified T : Enum<T>, V : Field<*>> enum(field: Field<*>, crossinline mapper: (V) -> T): T =
+        withField(field as CompositeField) {
             val f = compositeValue.getRequiredField<V>("rawValue")
             mapper(f)
         }
-    }
     inline fun <reified T : Enum<T>> enum(field: Field<*>): T = enum<T, UInt8NumberField>(field) { f -> f.toInt()!!.let { enumValues<T>()[it] } }
     fun <T> optional(field: Field<*>, block: JsonCadenceParser.(field: Field<*>) -> T): T? {
         if (field !is OptionalField) {

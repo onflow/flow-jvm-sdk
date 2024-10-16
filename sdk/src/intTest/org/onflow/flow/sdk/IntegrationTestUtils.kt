@@ -21,12 +21,11 @@ object IntegrationTestUtils {
         authorizers = listOf(FlowAddress.of(byteArrayOf(9, 9, 9, 9, 9)), FlowAddress.of(byteArrayOf(8, 9, 9, 9, 9)))
     )
 
-    fun <T> handleResult(result: FlowAccessApi.AccessApiCallResponse<T>, errorMessage: String): T {
-        return when (result) {
+    fun <T> handleResult(result: FlowAccessApi.AccessApiCallResponse<T>, errorMessage: String): T =
+        when (result) {
             is FlowAccessApi.AccessApiCallResponse.Success -> result.data ?: throw IllegalStateException("$errorMessage: result data is null")
             is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("$errorMessage: ${result.message}", result.throwable)
         }
-    }
 
     fun getAccountAddressFromResult(result: Any): FlowAddress {
         val addressField = (result as List<*>).find { it is AddressField } as? AddressField

@@ -14,7 +14,8 @@ import java.util.concurrent.CompletableFuture
 
 class AsyncFlowAccessApiImpl(
     private val api: AccessAPIGrpc.AccessAPIFutureStub,
-) : AsyncFlowAccessApi, Closeable {
+) : AsyncFlowAccessApi,
+    Closeable {
     override fun close() {
         val chan = api.channel
         if (chan is ManagedChannel) {
@@ -46,9 +47,13 @@ class AsyncFlowAccessApiImpl(
         return try {
             completableFuture(
                 try {
-                    api.getLatestBlockHeader(
-                        Access.GetLatestBlockHeaderRequest.newBuilder().setIsSealed(sealed).build()
-                    )
+                    api
+                        .getLatestBlockHeader(
+                            Access.GetLatestBlockHeaderRequest
+                                .newBuilder()
+                                .setIsSealed(sealed)
+                                .build()
+                        )
                 } catch (e: Exception) {
                     return CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get latest block header", e))
                 }
@@ -68,7 +73,12 @@ class AsyncFlowAccessApiImpl(
         return try {
             completableFuture(
                 try {
-                    api.getBlockHeaderByID(Access.GetBlockHeaderByIDRequest.newBuilder().setId(id.byteStringValue).build())
+                    api.getBlockHeaderByID(
+                        Access.GetBlockHeaderByIDRequest
+                            .newBuilder()
+                            .setId(id.byteStringValue)
+                            .build()
+                    )
                 } catch (e: Exception) {
                     return CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get block header by ID", e))
                 }
@@ -92,7 +102,12 @@ class AsyncFlowAccessApiImpl(
         return try {
             completableFuture(
                 try {
-                    api.getBlockHeaderByHeight(Access.GetBlockHeaderByHeightRequest.newBuilder().setHeight(height).build())
+                    api.getBlockHeaderByHeight(
+                        Access.GetBlockHeaderByHeightRequest
+                            .newBuilder()
+                            .setHeight(height)
+                            .build()
+                    )
                 } catch (e: Exception) {
                     return CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get block header by height", e))
                 }
@@ -116,7 +131,12 @@ class AsyncFlowAccessApiImpl(
         return try {
             completableFuture(
                 try {
-                    api.getLatestBlock(Access.GetLatestBlockRequest.newBuilder().setIsSealed(sealed).build())
+                    api.getLatestBlock(
+                        Access.GetLatestBlockRequest
+                            .newBuilder()
+                            .setIsSealed(sealed)
+                            .build()
+                    )
                 } catch (e: Exception) {
                     return CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get latest block", e))
                 }
@@ -136,7 +156,12 @@ class AsyncFlowAccessApiImpl(
         return try {
             completableFuture(
                 try {
-                    api.getBlockByID(Access.GetBlockByIDRequest.newBuilder().setId(id.byteStringValue).build())
+                    api.getBlockByID(
+                        Access.GetBlockByIDRequest
+                            .newBuilder()
+                            .setId(id.byteStringValue)
+                            .build()
+                    )
                 } catch (e: Exception) {
                     return CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get block by ID", e))
                 }
@@ -160,7 +185,12 @@ class AsyncFlowAccessApiImpl(
         return try {
             completableFuture(
                 try {
-                    api.getBlockByHeight(Access.GetBlockByHeightRequest.newBuilder().setHeight(height).build())
+                    api.getBlockByHeight(
+                        Access.GetBlockByHeightRequest
+                            .newBuilder()
+                            .setHeight(height)
+                            .build()
+                    )
                 } catch (e: Exception) {
                     return CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get block by height", e))
                 }
@@ -184,7 +214,12 @@ class AsyncFlowAccessApiImpl(
         return try {
             completableFuture(
                 try {
-                    api.getCollectionByID(Access.GetCollectionByIDRequest.newBuilder().setId(id.byteStringValue).build())
+                    api.getCollectionByID(
+                        Access.GetCollectionByIDRequest
+                            .newBuilder()
+                            .setId(id.byteStringValue)
+                            .build()
+                    )
                 } catch (e: Exception) {
                     return CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get collection by ID", e))
                 }
@@ -208,7 +243,12 @@ class AsyncFlowAccessApiImpl(
         return try {
             completableFuture(
                 try {
-                    api.sendTransaction(Access.SendTransactionRequest.newBuilder().setTransaction(transaction.builder().build()).build())
+                    api.sendTransaction(
+                        Access.SendTransactionRequest
+                            .newBuilder()
+                            .setTransaction(transaction.builder().build())
+                            .build()
+                    )
                 } catch (e: Exception) {
                     return CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to send transaction", e))
                 }
@@ -228,7 +268,12 @@ class AsyncFlowAccessApiImpl(
         return try {
             completableFuture(
                 try {
-                    api.getTransaction(Access.GetTransactionRequest.newBuilder().setId(id.byteStringValue).build())
+                    api.getTransaction(
+                        Access.GetTransactionRequest
+                            .newBuilder()
+                            .setId(id.byteStringValue)
+                            .build()
+                    )
                 } catch (e: Exception) {
                     return CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get transaction by ID", e))
                 }
@@ -252,7 +297,12 @@ class AsyncFlowAccessApiImpl(
         return try {
             completableFuture(
                 try {
-                    api.getTransactionResult(Access.GetTransactionRequest.newBuilder().setId(id.byteStringValue).build())
+                    api.getTransactionResult(
+                        Access.GetTransactionRequest
+                            .newBuilder()
+                            .setId(id.byteStringValue)
+                            .build()
+                    )
                 } catch (e: Exception) {
                     return CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get transaction result by ID", e))
                 }
@@ -273,7 +323,12 @@ class AsyncFlowAccessApiImpl(
         return try {
             completableFuture(
                 try {
-                    api.getAccount(Access.GetAccountRequest.newBuilder().setAddress(addresss.byteStringValue).build())
+                    api.getAccount(
+                        Access.GetAccountRequest
+                            .newBuilder()
+                            .setAddress(addresss.byteStringValue)
+                            .build()
+                    )
                 } catch (e: Exception) {
                     return CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get account by address", e))
                 }
@@ -297,7 +352,12 @@ class AsyncFlowAccessApiImpl(
         return try {
             completableFuture(
                 try {
-                    api.getAccountAtLatestBlock(Access.GetAccountAtLatestBlockRequest.newBuilder().setAddress(addresss.byteStringValue).build())
+                    api.getAccountAtLatestBlock(
+                        Access.GetAccountAtLatestBlockRequest
+                            .newBuilder()
+                            .setAddress(addresss.byteStringValue)
+                            .build()
+                    )
                 } catch (e: Exception) {
                     return CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get account at latest block", e))
                 }
@@ -322,7 +382,8 @@ class AsyncFlowAccessApiImpl(
             completableFuture(
                 try {
                     api.getAccountAtBlockHeight(
-                        Access.GetAccountAtBlockHeightRequest.newBuilder()
+                        Access.GetAccountAtBlockHeightRequest
+                            .newBuilder()
                             .setAddress(addresss.byteStringValue)
                             .setBlockHeight(height)
                             .build()
@@ -351,7 +412,8 @@ class AsyncFlowAccessApiImpl(
             completableFuture(
                 try {
                     api.executeScriptAtLatestBlock(
-                        Access.ExecuteScriptAtLatestBlockRequest.newBuilder()
+                        Access.ExecuteScriptAtLatestBlockRequest
+                            .newBuilder()
                             .setScript(script.byteStringValue)
                             .addAllArguments(arguments)
                             .build()
@@ -376,7 +438,8 @@ class AsyncFlowAccessApiImpl(
             completableFuture(
                 try {
                     api.executeScriptAtBlockID(
-                        Access.ExecuteScriptAtBlockIDRequest.newBuilder()
+                        Access.ExecuteScriptAtBlockIDRequest
+                            .newBuilder()
                             .setBlockId(blockId.byteStringValue)
                             .setScript(script.byteStringValue)
                             .addAllArguments(arguments)
@@ -402,7 +465,8 @@ class AsyncFlowAccessApiImpl(
             completableFuture(
                 try {
                     api.executeScriptAtBlockHeight(
-                        Access.ExecuteScriptAtBlockHeightRequest.newBuilder()
+                        Access.ExecuteScriptAtBlockHeightRequest
+                            .newBuilder()
                             .setBlockHeight(height)
                             .setScript(script.byteStringValue)
                             .addAllArguments(arguments)
@@ -428,7 +492,8 @@ class AsyncFlowAccessApiImpl(
             completableFuture(
                 try {
                     api.getEventsForHeightRange(
-                        Access.GetEventsForHeightRangeRequest.newBuilder()
+                        Access.GetEventsForHeightRangeRequest
+                            .newBuilder()
                             .setType(type)
                             .setStartHeight(range.start)
                             .setEndHeight(range.endInclusive)
@@ -454,7 +519,8 @@ class AsyncFlowAccessApiImpl(
             completableFuture(
                 try {
                     api.getEventsForBlockIDs(
-                        Access.GetEventsForBlockIDsRequest.newBuilder()
+                        Access.GetEventsForBlockIDsRequest
+                            .newBuilder()
                             .setType(type)
                             .addAllBlockIds(ids.map { it.byteStringValue })
                             .build()
@@ -478,7 +544,11 @@ class AsyncFlowAccessApiImpl(
         return try {
             completableFuture(
                 try {
-                    api.getNetworkParameters(Access.GetNetworkParametersRequest.newBuilder().build())
+                    api.getNetworkParameters(
+                        Access.GetNetworkParametersRequest
+                            .newBuilder()
+                            .build()
+                    )
                 } catch (e: Exception) {
                     return CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get network parameters", e))
                 }
@@ -498,7 +568,11 @@ class AsyncFlowAccessApiImpl(
         return try {
             completableFuture(
                 try {
-                    api.getLatestProtocolStateSnapshot(Access.GetLatestProtocolStateSnapshotRequest.newBuilder().build())
+                    api.getLatestProtocolStateSnapshot(
+                        Access.GetLatestProtocolStateSnapshotRequest
+                            .newBuilder()
+                            .build()
+                    )
                 } catch (e: Exception) {
                     return CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get latest protocol state snapshot", e))
                 }
@@ -519,7 +593,10 @@ class AsyncFlowAccessApiImpl(
             completableFuture(
                 try {
                     api.getTransactionsByBlockID(
-                        Access.GetTransactionsByBlockIDRequest.newBuilder().setBlockId(id.byteStringValue).build()
+                        Access.GetTransactionsByBlockIDRequest
+                            .newBuilder()
+                            .setBlockId(id.byteStringValue)
+                            .build()
                     )
                 } catch (e: Exception) {
                     return CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get transactions by block ID", e))
@@ -541,7 +618,10 @@ class AsyncFlowAccessApiImpl(
             completableFuture(
                 try {
                     api.getTransactionResultsByBlockID(
-                        Access.GetTransactionsByBlockIDRequest.newBuilder().setBlockId(id.byteStringValue).build()
+                        Access.GetTransactionsByBlockIDRequest
+                            .newBuilder()
+                            .setBlockId(id.byteStringValue)
+                            .build()
                     )
                 } catch (e: Exception) {
                     return CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get transaction results by block ID", e))
@@ -562,7 +642,12 @@ class AsyncFlowAccessApiImpl(
         return try {
             completableFuture(
                 try {
-                    api.getExecutionResultByID(Access.GetExecutionResultByIDRequest.newBuilder().setId(id.byteStringValue).build())
+                    api.getExecutionResultByID(
+                        Access.GetExecutionResultByIDRequest
+                            .newBuilder()
+                            .setId(id.byteStringValue)
+                            .build()
+                    )
                 } catch (e: Exception) {
                     return CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get execution result by block ID", e))
                 }

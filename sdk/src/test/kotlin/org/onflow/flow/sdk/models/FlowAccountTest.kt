@@ -12,11 +12,17 @@ class FlowAccountTest {
     fun `Test building FlowAccount from AccountOuterClass`() {
         val addressString = "12345678"
 
-        val accountBuilder = AccountOuterClass.Account.newBuilder()
+        val accountBuilder = AccountOuterClass.Account
+            .newBuilder()
             .setAddress(ByteString.copyFromUtf8(addressString))
             .setBalance(1000000000)
-            .addKeys(AccountOuterClass.AccountKey.newBuilder().setIndex(0).setPublicKey(ByteString.copyFromUtf8("0x1234")).build())
-            .putContracts("contract1", ByteString.copyFromUtf8("0x123456"))
+            .addKeys(
+                AccountOuterClass.AccountKey
+                    .newBuilder()
+                    .setIndex(0)
+                    .setPublicKey(ByteString.copyFromUtf8("0x1234"))
+                    .build()
+            ).putContracts("contract1", ByteString.copyFromUtf8("0x123456"))
             .putContracts("contract2", ByteString.copyFromUtf8("0xabcdef"))
 
         val flowAccount = FlowAccount.of(accountBuilder.build())

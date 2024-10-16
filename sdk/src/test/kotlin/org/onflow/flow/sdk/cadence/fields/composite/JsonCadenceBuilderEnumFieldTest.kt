@@ -14,6 +14,7 @@ class JsonCadenceBuilderEnumFieldTest {
         assertEquals(TYPE_ENUM, enumField.type)
         assertEquals(fieldValue, enumField.value)
     }
+
     @Test
     fun `Test hashCode`() {
         val compositeValue1 = CompositeValue("id1", arrayOf())

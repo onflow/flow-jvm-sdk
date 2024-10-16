@@ -40,7 +40,8 @@ class JsonCadenceBuilderUFix64NumberFieldTest {
 
     @Test
     fun `Test decoding of UFix64NumberField with invalid value`() {
-        Assertions.assertThatThrownBy { UFix64NumberField("invalidValue").decodeToAny() }
+        Assertions
+            .assertThatThrownBy { UFix64NumberField("invalidValue").decodeToAny() }
             .isInstanceOf(NumberFormatException::class.java)
     }
 }

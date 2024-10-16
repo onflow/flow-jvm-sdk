@@ -63,5 +63,9 @@ class JsonCadenceBuilderFieldTest {
             .isInstanceOf(Exception::class.java)
             .hasMessage(expectedMessage)
     }
-    private class SampleField(type: String, value: Any?) : Field<Any>(type, value)
+
+    private class SampleField(
+        type: String,
+        value: Any?
+    ) : Field<Any>(type, value)
 }

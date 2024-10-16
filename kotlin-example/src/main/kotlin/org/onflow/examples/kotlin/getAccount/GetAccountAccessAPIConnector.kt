@@ -6,19 +6,17 @@ import java.math.BigDecimal
 internal class GetAccountAccessAPIConnector(
     private val accessAPI: FlowAccessApi
 ) {
-    fun getAccountAtLatestBlock(address: FlowAddress): FlowAccount {
-        return when (val response = accessAPI.getAccountAtLatestBlock(address)) {
+    fun getAccountAtLatestBlock(address: FlowAddress): FlowAccount =
+        when (val response = accessAPI.getAccountAtLatestBlock(address)) {
             is FlowAccessApi.AccessApiCallResponse.Success -> response.data
             is FlowAccessApi.AccessApiCallResponse.Error -> throw Exception(response.message, response.throwable)
         }
-    }
 
-    fun getAccountAtBlockHeight(address: FlowAddress, height: Long): FlowAccount {
-        return when (val response = accessAPI.getAccountByBlockHeight(address, height)) {
+    fun getAccountAtBlockHeight(address: FlowAddress, height: Long): FlowAccount =
+        when (val response = accessAPI.getAccountByBlockHeight(address, height)) {
             is FlowAccessApi.AccessApiCallResponse.Success -> response.data
             is FlowAccessApi.AccessApiCallResponse.Error -> throw Exception(response.message, response.throwable)
         }
-    }
 
     fun getAccountBalance(address: FlowAddress): BigDecimal {
         val account = getAccountAtLatestBlock(address)

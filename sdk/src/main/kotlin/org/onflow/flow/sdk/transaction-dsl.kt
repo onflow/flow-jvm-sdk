@@ -45,13 +45,12 @@ fun FlowAccessApi.flowTransaction(referenceBlockId: FlowId? = null, block: Trans
     return FlowTransactionStub(this, builder)
 }
 
-fun FlowAccessApi.simpleFlowTransaction(address: FlowAddress, signer: Signer, gasLimit: Number = 100, keyIndex: Number = 0, block: TransactionBuilder.() -> Unit): FlowTransactionStub {
-    return this.flowTransaction {
+fun FlowAccessApi.simpleFlowTransaction(address: FlowAddress, signer: Signer, gasLimit: Number = 100, keyIndex: Number = 0, block: TransactionBuilder.() -> Unit): FlowTransactionStub =
+    this.flowTransaction {
         gasLimit(gasLimit)
         proposeAndPay(address, keyIndex, signer)
         block(this)
     }
-}
 
 class FlowTransactionStub(
     private val api: FlowAccessApi,
@@ -509,12 +508,13 @@ class PendingSignature(
     val signer: Signer? = null,
     val signature: FlowSignature? = null,
 ) {
-    fun applyAsPayloadSignature(tx: FlowTransaction): FlowTransaction {
-        return when {
+    fun applyAsPayloadSignature(tx: FlowTransaction): FlowTransaction =
+        when {
             prepared != null -> {
-                tx.copy(
-                    payloadSignatures = tx.payloadSignatures + prepared
-                ).updateSignerIndices()
+                tx
+                    .copy(
+                        payloadSignatures = tx.payloadSignatures + prepared
+                    ).updateSignerIndices()
             }
             signature != null -> {
                 tx.addPayloadSignature(
@@ -532,14 +532,14 @@ class PendingSignature(
             }
             else -> throw IllegalStateException("One of prepared, signature, or signer must be specified for a payload signature")
         }
-    }
 
-    fun applyAsEnvelopeSignature(tx: FlowTransaction): FlowTransaction {
-        return when {
+    fun applyAsEnvelopeSignature(tx: FlowTransaction): FlowTransaction =
+        when {
             prepared != null -> {
-                tx.copy(
-                    envelopeSignatures = tx.envelopeSignatures + prepared
-                ).updateSignerIndices()
+                tx
+                    .copy(
+                        envelopeSignatures = tx.envelopeSignatures + prepared
+                    ).updateSignerIndices()
             }
             signature != null -> {
                 tx.addEnvelopeSignature(
@@ -557,22 +557,21 @@ class PendingSignature(
             }
             else -> throw IllegalStateException("One of prepared, signature, or signer must be specified for an envelope signature")
         }
-    }
 }
 
 class FlowArgumentsBuilder {
-    private var _values: MutableList<FlowArgument> = mutableListOf()
+    private var values: MutableList<FlowArgument> = mutableListOf()
     fun arg(value: FlowArgument) {
-        _values.add(value)
+        values.add(value)
     }
     fun arg(arg: JsonCadenceBuilder.() -> Field<*>) = arg(FlowArgument(arg(JsonCadenceBuilder())))
-    fun build(): MutableList<FlowArgument> = _values
+    fun build(): MutableList<FlowArgument> = values
 }
 
 class FlowTransactionSignatureCollectionBuilder {
-    private var _values: MutableList<PendingSignature> = mutableListOf()
+    private var values: MutableList<PendingSignature> = mutableListOf()
     fun signature(value: PendingSignature) {
-        _values.add(value)
+        values.add(value)
     }
     fun signature(signature: FlowTransactionSignatureBuilder.() -> Unit) {
         val builder = FlowTransactionSignatureBuilder()
@@ -600,7 +599,7 @@ class FlowTransactionSignatureCollectionBuilder {
             )
         )
     }
-    fun build(): MutableList<PendingSignature> = _values
+    fun build(): MutableList<PendingSignature> = values
 }
 
 class FlowTransactionSignatureBuilder {
@@ -616,8 +615,11 @@ class FlowTransactionSignatureBuilder {
     fun address(address: FlowAddress) {
         this.address = address
     }
+
     fun address(address: String) = address(FlowAddress(address))
+
     fun address(address: ByteArray) = address(FlowAddress.of(address))
+
     fun address(address: () -> FlowAddress) = this.address(address())
 
     var keyIndex: Number
@@ -636,8 +638,11 @@ class FlowTransactionSignatureBuilder {
     fun signature(signature: FlowSignature) {
         this.signature = signature
     }
+
     fun signature(signature: String) = signature(FlowSignature(signature))
+
     fun signature(signature: ByteArray) = signature(FlowSignature(signature))
+
     fun signature(signature: () -> FlowSignature) = this.signature(signature())
 
     var signer: Signer
@@ -649,8 +654,8 @@ class FlowTransactionSignatureBuilder {
     }
     fun signer(signer: () -> Signer) = this.signer(signer())
 
-    fun build(): PendingSignature {
-        return when {
+    fun build(): PendingSignature =
+        when {
             _signature != null -> {
                 PendingSignature(
                     prepared = FlowTransactionSignature(
@@ -670,18 +675,17 @@ class FlowTransactionSignatureBuilder {
             }
             else -> throw IllegalArgumentException("one of prepared or signer of FlowTransactionSignature required ")
         }
-    }
 }
 
 class FlowAddressCollectionBuilder {
-    private var _values: MutableList<FlowAddress> = mutableListOf()
+    private var values: MutableList<FlowAddress> = mutableListOf()
     fun address(value: FlowAddress) {
-        _values.add(value)
+        values.add(value)
     }
     fun address(payerAddress: String) = address(FlowAddress(payerAddress))
     fun address(payerAddress: ByteArray) = address(FlowAddress.of(payerAddress))
     fun address(payerAddress: () -> FlowAddress) = this.address(payerAddress())
-    fun build(): List<FlowAddress> = _values
+    fun build(): List<FlowAddress> = values
 }
 
 class FlowTransactionProposalKeyBuilder(

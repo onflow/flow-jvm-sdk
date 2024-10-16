@@ -1,3 +1,4 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 // Configuration variables
@@ -11,9 +12,9 @@ fun getProp(name: String, defaultValue: String? = null): String? {
 }
 
 plugins {
-    kotlin("jvm") version "1.9.22" apply false
+    kotlin("jvm") version "2.0.21" apply false
     id("org.jetbrains.dokka") version "1.9.10" apply false
-    id("org.jmailen.kotlinter") version "4.2.0" apply false
+    id("org.jmailen.kotlinter") version "4.4.1" apply false
     id("kotlinx-serialization") version "1.8.0" apply false
     id("com.vanniktech.maven.publish") version "0.28.0" apply false
 }
@@ -24,7 +25,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.22")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.0.21")
     }
 }
 
@@ -51,23 +52,30 @@ subprojects {
         else -> defaultVersion
     }
 
+    val intTestImplementation: Configuration by configurations.creating {
+        extendsFrom(configurations["implementation"])
+    }
+
+    val intTestRuntimeOnly: Configuration by configurations.creating {
+        extendsFrom(configurations["runtimeOnly"])
+    }
+
     tasks.withType<KotlinCompile> {
-        kotlinOptions {
-            jvmTarget = JavaVersion.VERSION_21.toString()
-            freeCompilerArgs = listOf("-Xjsr305=strict", "-opt-in=kotlin.RequiresOptIn")
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_21)
+            freeCompilerArgs.addAll("-Xjsr305=strict", "-opt-in=kotlin.RequiresOptIn")
         }
     }
 
     dependencies {
-        "api"("org.jetbrains.kotlin:kotlin-reflect:1.9.22")
-        "dokkaHtmlPlugin"("org.jetbrains.dokka:kotlin-as-java-plugin:1.9.10")
+        "api"("org.jetbrains.kotlin:kotlin-reflect:2.0.21")
+        //dokkaHtmlPlugin"("org.jetbrains.dokka:kotlin-as-java-plugin:2.0.0-Beta")
     }
 
     tasks.named<KotlinCompile>("compileTestKotlin") {
-        kotlinOptions {
-            jvmTarget = JavaVersion.VERSION_21.toString()
-            freeCompilerArgs = listOf("-Xjvm-default=all", "-opt-in=com.squareup.kotlinpoet.metadata.KotlinPoetMetadataPreview")
-            allWarningsAsErrors = false
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_21)
+            freeCompilerArgs.addAll("-Xjsr305=strict", "-opt-in=kotlin.RequiresOptIn")
         }
     }
 

@@ -107,8 +107,8 @@ class FlowTransactionTest {
         private const val EXPECTED_PAYER_INDEX = 1
         private const val AUTHORIZER_INDEX_OFFSET = 2
 
-        private fun createSampleFlowTransaction(): FlowTransaction {
-            return FlowTransaction(
+        private fun createSampleFlowTransaction(): FlowTransaction =
+            FlowTransaction(
                 FlowScript("sample script"),
                 listOf(FlowArgument(StringField("argument"))),
                 FlowId("0x1234"),
@@ -117,6 +117,5 @@ class FlowTransactionTest {
                 FlowAddress.of("0x02".hexToBytes()),
                 listOf(FlowAddress.of("0x03".hexToBytes()))
             )
-        }
     }
 }

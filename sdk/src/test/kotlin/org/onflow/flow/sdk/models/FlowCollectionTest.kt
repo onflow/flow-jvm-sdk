@@ -14,7 +14,8 @@ class FlowCollectionTest {
         val transaction1IdBytes = byteArrayOf(4, 5, 6)
         val transaction2IdBytes = byteArrayOf(7, 8, 9)
 
-        val collectionBuilder = CollectionOuterClass.Collection.newBuilder()
+        val collectionBuilder = CollectionOuterClass.Collection
+            .newBuilder()
             .setId(ByteString.copyFrom(collectionIdBytes))
             .addTransactionIds(ByteString.copyFrom(transaction1IdBytes))
             .addTransactionIds(ByteString.copyFrom(transaction2IdBytes))

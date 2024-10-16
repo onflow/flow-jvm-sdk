@@ -47,9 +47,8 @@ class JsonCadenceTest {
         val rawValue: Int
     )
 
-    private fun loadScriptContent(path: String): String {
-        return String(FlowTestUtil.loadScript(path), StandardCharsets.UTF_8)
-    }
+    private fun loadScriptContent(path: String): String =
+        String(FlowTestUtil.loadScript(path), StandardCharsets.UTF_8)
 
     private fun executeScript(scriptPath: String): FlowAccessApi.AccessApiCallResponse<FlowScriptResponse> {
         val loadedScript = loadScriptContent(scriptPath)
@@ -132,7 +131,10 @@ class JsonCadenceTest {
         }
 
         val data = when (result) {
-            is FlowAccessApi.AccessApiCallResponse.Success -> result.data.jsonCadence.decode<List<StorageInfo>>().first()
+            is FlowAccessApi.AccessApiCallResponse.Success ->
+                result.data.jsonCadence
+                    .decode<List<StorageInfo>>()
+                    .first()
             is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Failed to execute script: ${result.message}", result.throwable)
         }
 

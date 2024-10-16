@@ -7,15 +7,21 @@ fun parseErrorCode(message: String): Int? = message
     ?.let { it.groupValues[1] }
     ?.toIntOrNull()
 
-enum class FlowError(val code: Int) {
+enum class FlowError(
+    val code: Int
+) {
     @Deprecated("No longer in use.")
     FLOW_ERROR_InvalidTxByteSizeError(FlowErrorCodeInvalidTxByteSizeError),
+
     @Deprecated("No longer in use.")
     FLOW_ERROR_InvalidReferenceBlockError(FlowErrorCodeInvalidReferenceBlockError),
+
     @Deprecated("No longer in use.")
     FLOW_ERROR_ExpiredTransactionError(FlowErrorCodeExpiredTransactionError),
+
     @Deprecated("No longer in use.")
     FLOW_ERROR_InvalidScriptError(FlowErrorCodeInvalidScriptError),
+
     @Deprecated("No longer in use.")
     FLOW_ERROR_InvalidGasLimitError(FlowErrorCodeInvalidGasLimitError),
     FLOW_ERROR_InvalidProposalSignatureError(FlowErrorCodeInvalidProposalSignatureError),
@@ -35,9 +41,11 @@ enum class FlowError(val code: Int) {
     FLOW_ERROR_FBlockHeightOutOfRangeError(FlowErrorCodeBlockHeightOutOfRangeError),
 
     FLOW_ERROR_CadenceRunTimeError(FlowErrorCodeCadenceRunTimeError),
+
     @Deprecated("No longer in use.")
     FLOW_ERROR_EncodingUnsupportedValue(FlowErrorCodeEncodingUnsupportedValue),
     FLOW_ERROR_StorageCapacityExceeded(FlowErrorCodeStorageCapacityExceeded),
+
     @Deprecated("No longer in use.")
     FLOW_ERROR_GasLimitExceededError(FlowErrorCodeGasLimitExceededError),
     FLOW_ERROR_EventLimitExceededError(FlowErrorCodeEventLimitExceededError),
@@ -56,13 +64,16 @@ enum class FlowError(val code: Int) {
     FLOW_ERROR_AccountNotFoundError(FlowErrorCodeAccountNotFoundError),
     FLOW_ERROR_AccountPublicKeyNotFoundError(FlowErrorCodeAccountPublicKeyNotFoundError),
     FLOW_ERROR_AccountAlreadyExistsError(FlowErrorCodeAccountAlreadyExistsError),
+
     @Deprecated("No longer in use.")
     FLOW_ERROR_FrozenAccountError(FlowErrorCodeFrozenAccountError),
+
     @Deprecated("No longer in use.")
     FLOW_ERROR_AccountStorageNotInitializedError(FlowErrorCodeAccountStorageNotInitializedError),
     FLOW_ERROR_AccountPublicKeyLimitError(FlowErrorCodeAccountPublicKeyLimitError),
 
     FLOW_ERROR_ContractNotFoundError(FlowErrorCodeContractNotFoundError),
+
     @Deprecated("No longer in use.")
     FLOW_ERROR_ContractNamesNotFoundError(FlowErrorCodeContractNamesNotFoundError)
     ;

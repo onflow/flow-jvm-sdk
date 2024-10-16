@@ -44,21 +44,22 @@ class ExposeAccountKeyIssueTest {
         val signer1 = Crypto.getSigner(pair1.private, hashAlgorithm1)
 
         val loadedScript1 = String(FlowTestUtil.loadScript("cadence/expose_account_key_issue/expose_account_key_issue_1.cdc"), StandardCharsets.UTF_8)
-        val createAccountResult = flow.simpleFlowTransaction(
-            gasLimit = 1000,
-            address = serviceAccount.flowAddress,
-            signer = serviceAccount.signer
-        ) {
-            script {
-                loadedScript1
-            }
-            arguments {
-                arg { ufix64(startingBalance) }
-                arg { string(pair1.public.hex) }
-                arg { uint8(signatureAlgorithm1.index) }
-                arg { uint8(hashAlgorithm1.index) }
-            }
-        }.sendAndWaitForSeal()
+        val createAccountResult = flow
+            .simpleFlowTransaction(
+                gasLimit = 1000,
+                address = serviceAccount.flowAddress,
+                signer = serviceAccount.signer
+            ) {
+                script {
+                    loadedScript1
+                }
+                arguments {
+                    arg { ufix64(startingBalance) }
+                    arg { string(pair1.public.hex) }
+                    arg { uint8(signatureAlgorithm1.index) }
+                    arg { uint8(hashAlgorithm1.index) }
+                }
+            }.sendAndWaitForSeal()
 
         val createAccountResultData = handleResult(createAccountResult, "Failed to create account")
         val newAccountAddress = getAccountCreatedAddress(createAccountResultData)
@@ -76,17 +77,18 @@ class ExposeAccountKeyIssueTest {
         val signer2 = Crypto.getSigner(pair2.private, hashAlgorithm2)
 
         val loadedScript2 = String(FlowTestUtil.loadScript("cadence/expose_account_key_issue/expose_account_key_issue_2.cdc"), StandardCharsets.UTF_8)
-        val addKeyResult = flow.simpleFlowTransaction(newAccountAddress, signer1) {
-            script {
-                loadedScript2
-            }
-            arguments {
-                arg { string(pair2.public.hex) }
-                arg { uint8(signatureAlgorithm2.index) }
-                arg { uint8(hashAlgorithm2.index) }
-                arg { ufix64(1000) }
-            }
-        }.sendAndWaitForSeal()
+        val addKeyResult = flow
+            .simpleFlowTransaction(newAccountAddress, signer1) {
+                script {
+                    loadedScript2
+                }
+                arguments {
+                    arg { string(pair2.public.hex) }
+                    arg { uint8(signatureAlgorithm2.index) }
+                    arg { uint8(hashAlgorithm2.index) }
+                    arg { ufix64(1000) }
+                }
+            }.sendAndWaitForSeal()
 
         handleResult(addKeyResult, "Failed to add key")
 
@@ -100,14 +102,15 @@ class ExposeAccountKeyIssueTest {
 
         val loadedScript3 = String(FlowTestUtil.loadScript("cadence/expose_account_key_issue/expose_account_key_issue_3.cdc"), StandardCharsets.UTF_8)
         // Remove the second key
-        val removeKeyResult = flow.simpleFlowTransaction(newAccountAddress, signer1) {
-            script {
-                loadedScript3
-            }
-            arguments {
-                arg { int(1) }
-            }
-        }.sendAndWaitForSeal()
+        val removeKeyResult = flow
+            .simpleFlowTransaction(newAccountAddress, signer1) {
+                script {
+                    loadedScript3
+                }
+                arguments {
+                    arg { int(1) }
+                }
+            }.sendAndWaitForSeal()
 
         handleResult(removeKeyResult, "Failed to remove key")
 

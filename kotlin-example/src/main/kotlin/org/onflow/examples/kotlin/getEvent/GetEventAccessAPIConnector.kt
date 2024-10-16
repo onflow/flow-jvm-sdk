@@ -5,32 +5,24 @@ import org.onflow.flow.sdk.*
 class GetEventAccessAPIConnector(
     private val accessAPI: FlowAccessApi
 ) {
-    fun getEventsForHeightRange(eventType: String, startHeight: Long, endHeight: Long): List<FlowEventResult> {
-        val range = startHeight..endHeight
-        val response = accessAPI.getEventsForHeightRange(eventType, range)
-        return when (response) {
+    fun getEventsForHeightRange(eventType: String, startHeight: Long, endHeight: Long): List<FlowEventResult> =
+        when (val response = accessAPI.getEventsForHeightRange(eventType, startHeight..endHeight)) {
             is FlowAccessApi.AccessApiCallResponse.Success -> response.data
             is FlowAccessApi.AccessApiCallResponse.Error -> throw RuntimeException(response.message, response.throwable)
         }
-    }
 
-    fun getEventsForBlockIds(eventType: String, blockIds: List<FlowId>): List<FlowEventResult> {
-        val blockIdSet = blockIds.toSet()
-        val response = accessAPI.getEventsForBlockIds(eventType, blockIdSet)
-        return when (response) {
+    fun getEventsForBlockIds(eventType: String, blockIds: List<FlowId>): List<FlowEventResult> =
+        when (val response = accessAPI.getEventsForBlockIds(eventType, blockIds.toSet())) {
             is FlowAccessApi.AccessApiCallResponse.Success -> response.data
             is FlowAccessApi.AccessApiCallResponse.Error -> throw RuntimeException(response.message, response.throwable)
         }
-    }
 
-    fun getTransactionResult(txID: FlowId): FlowTransactionResult {
-        return when (val response = accessAPI.getTransactionResultById(txID)) {
+    fun getTransactionResult(txID: FlowId): FlowTransactionResult =
+        when (val response = accessAPI.getTransactionResultById(txID)) {
             is FlowAccessApi.AccessApiCallResponse.Success -> response.data
             is FlowAccessApi.AccessApiCallResponse.Error -> throw RuntimeException(response.message, response.throwable)
         }
-    }
 
-    fun getAccountCreatedEvents(startHeight: Long, endHeight: Long): List<FlowEventResult> {
-        return getEventsForHeightRange("flow.AccountCreated", startHeight, endHeight)
-    }
+    fun getAccountCreatedEvents(startHeight: Long, endHeight: Long): List<FlowEventResult> =
+        getEventsForHeightRange("flow.AccountCreated", startHeight, endHeight)
 }
