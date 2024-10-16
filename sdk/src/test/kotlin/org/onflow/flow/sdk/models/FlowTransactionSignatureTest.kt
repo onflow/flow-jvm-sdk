@@ -14,7 +14,8 @@ class FlowTransactionSignatureTest {
         val keyIndex = 1
         val signature = FlowSignature(byteArrayOf(1, 2, 3, 4))
 
-        val signatureProtoBuilder = TransactionOuterClass.Transaction.Signature.newBuilder()
+        val signatureProtoBuilder = TransactionOuterClass.Transaction.Signature
+            .newBuilder()
             .setAddress(address.byteStringValue)
             .setKeyId(keyIndex)
             .setSignature(signature.byteStringValue)
@@ -33,7 +34,8 @@ class FlowTransactionSignatureTest {
         val keyIndex = 1
         val signature = FlowSignature(byteArrayOf(1, 2, 3, 4))
 
-        val expectedProtoBuilder = TransactionOuterClass.Transaction.Signature.newBuilder()
+        val expectedProtoBuilder = TransactionOuterClass.Transaction.Signature
+            .newBuilder()
             .setAddress(address.byteStringValue)
             .setKeyId(keyIndex)
             .setSignature(signature.byteStringValue)

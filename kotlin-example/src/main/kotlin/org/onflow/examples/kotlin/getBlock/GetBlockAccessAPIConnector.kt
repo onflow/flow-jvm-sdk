@@ -13,17 +13,15 @@ internal class GetBlockAccessAPIConnector(
         }
     }
 
-    fun getBlockByID(blockID: FlowId): FlowBlock {
-        return when (val response = accessAPI.getBlockById(blockID)) {
+    fun getBlockByID(blockID: FlowId): FlowBlock =
+        when (val response = accessAPI.getBlockById(blockID)) {
             is FlowAccessApi.AccessApiCallResponse.Success -> response.data
             is FlowAccessApi.AccessApiCallResponse.Error -> throw Exception(response.message, response.throwable)
         }
-    }
 
-    fun getBlockByHeight(height: Long): FlowBlock {
-        return when (val response = accessAPI.getBlockByHeight(height)) {
+    fun getBlockByHeight(height: Long): FlowBlock =
+        when (val response = accessAPI.getBlockByHeight(height)) {
             is FlowAccessApi.AccessApiCallResponse.Success -> response.data
             is FlowAccessApi.AccessApiCallResponse.Error -> throw Exception(response.message, response.throwable)
         }
-    }
 }

@@ -19,7 +19,8 @@ class FlowCollectionGuaranteeTest {
         val signature2Bytes = byteArrayOf(7, 8, 9)
         val signerIndicesBytes = byteArrayOf(16, 17)
 
-        val collectionGuaranteeBuilder = CollectionOuterClass.CollectionGuarantee.newBuilder()
+        val collectionGuaranteeBuilder = CollectionOuterClass.CollectionGuarantee
+            .newBuilder()
             .setCollectionId(ByteString.copyFrom(collectionIdBytes))
             .addSignatures(ByteString.copyFrom(signature1Bytes))
             .addSignatures(ByteString.copyFrom(signature2Bytes))

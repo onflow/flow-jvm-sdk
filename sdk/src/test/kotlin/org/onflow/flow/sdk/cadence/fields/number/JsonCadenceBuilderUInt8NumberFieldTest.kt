@@ -27,7 +27,8 @@ class JsonCadenceBuilderUInt8NumberFieldTest {
 
     @Test
     fun `Test creating UInt8NumberField with invalid value`() {
-        Assertions.assertThatThrownBy { UInt8NumberField("invalidValue").decodeToAny() }
+        Assertions
+            .assertThatThrownBy { UInt8NumberField("invalidValue").decodeToAny() }
             .isInstanceOf(NumberFormatException::class.java)
     }
 }

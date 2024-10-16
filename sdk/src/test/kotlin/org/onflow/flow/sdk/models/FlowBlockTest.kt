@@ -17,20 +17,21 @@ class FlowBlockTest {
         val unixTimestamp = 123456789L
         val timestamp = Timestamp.newBuilder().setSeconds(unixTimestamp).build()
 
-        val blockBuilder = BlockOuterClass.Block.newBuilder()
+        val blockBuilder = BlockOuterClass.Block
+            .newBuilder()
             .setId(ByteString.copyFromUtf8("id"))
             .setParentId(ByteString.copyFromUtf8("parent_id"))
             .setHeight(123)
             .setTimestamp(timestamp)
             .setBlockHeader(
-                BlockHeaderOuterClass.BlockHeader.newBuilder()
+                BlockHeaderOuterClass.BlockHeader
+                    .newBuilder()
                     .setId(ByteString.copyFromUtf8("header_id"))
                     .setParentId(ByteString.copyFromUtf8("header_parent_id"))
                     .setHeight(124)
                     .setTimestamp(timestamp)
                     .build()
-            )
-            .setProtocolStateId(ByteString.copyFromUtf8("protocol_state_id"))
+            ).setProtocolStateId(ByteString.copyFromUtf8("protocol_state_id"))
 
         val flowBlock = FlowBlock.of(blockBuilder.build())
 
@@ -53,8 +54,18 @@ class FlowBlockTest {
         assert(flowBlock.signatures.isEmpty())
         assert(flowBlock.executionReceiptMetaList.isEmpty())
         assert(flowBlock.executionResultList.isEmpty())
-        assert(flowBlock.blockHeader.id.bytes.contentEquals(fixedSize("header_id".toByteArray(), 32)))
-        assert(flowBlock.protocolStateId.bytes.contentEquals(fixedSize("protocol_state_id".toByteArray(), 32)))
+        assert(
+            flowBlock.blockHeader.id.bytes
+                .contentEquals(
+                    fixedSize("header_id".toByteArray(), 32)
+                )
+        )
+        assert(
+            flowBlock.protocolStateId.bytes
+                .contentEquals(
+                    fixedSize("protocol_state_id".toByteArray(), 32)
+                )
+        )
     }
 
     @Test
@@ -96,7 +107,15 @@ class FlowBlockTest {
         assert(blockBuilder.collectionGuaranteesList.isEmpty())
         assert(blockBuilder.blockSealsList.isEmpty())
         assert(blockBuilder.signaturesList.isEmpty())
-        assert(blockBuilder.blockHeader.id.toByteArray().contentEquals(fixedSize("header_id".toByteArray(), 32)))
-        assert(blockBuilder.protocolStateId.toByteArray().contentEquals(fixedSize("protocol_state_id".toByteArray(), 32)))
+        assert(
+            blockBuilder.blockHeader.id
+                .toByteArray()
+                .contentEquals(fixedSize("header_id".toByteArray(), 32))
+        )
+        assert(
+            blockBuilder.protocolStateId
+                .toByteArray()
+                .contentEquals(fixedSize("protocol_state_id".toByteArray(), 32))
+        )
     }
 }

@@ -7,8 +7,13 @@ import kotlinx.coroutines.channels.ReceiveChannel
 
 interface FlowAccessApi {
     sealed class AccessApiCallResponse<out T> {
-        data class Success<out T>(val data: T) : AccessApiCallResponse<T>()
-        data class Error(val message: String, val throwable: Throwable? = null) : AccessApiCallResponse<Nothing>()
+        data class Success<out T>(
+            val data: T
+        ) : AccessApiCallResponse<T>()
+        data class Error(
+            val message: String,
+            val throwable: Throwable? = null
+        ) : AccessApiCallResponse<Nothing>()
     }
 
     fun ping(): AccessApiCallResponse<Unit>

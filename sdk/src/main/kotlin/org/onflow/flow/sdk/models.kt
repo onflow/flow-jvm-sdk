@@ -320,8 +320,7 @@ data class FlowTransactionResult(
                 } else {
                     it.type.endsWith(type)
                 }
-            }
-            .map { it.event }
+            }.map { it.event }
         check(expectedCount == null || ret.size == expectedCount) { "Expected $expectedCount events of type $type but there were ${ret.size}" }
         return ret
     }

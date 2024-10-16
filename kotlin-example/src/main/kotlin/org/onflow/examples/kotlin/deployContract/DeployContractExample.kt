@@ -24,7 +24,8 @@ internal class DeployContractExample(
         val payerAccountKey = connector.getAccountKey(payerAddress, 0)
         val signer = Crypto.getSigner(privateKey, payerAccountKey.hashAlgo)
 
-        val contractCode = ExamplesUtils.loadScriptContent(scriptName)
+        val contractCode = ExamplesUtils
+            .loadScriptContent(scriptName)
             .replace("\"", "\\\"") // Escape double quotes
             .replace("\n", "\\n") // Escape newlines
 

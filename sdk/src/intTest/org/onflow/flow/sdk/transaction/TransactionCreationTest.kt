@@ -68,15 +68,16 @@ class TransactionCreationTest {
 
         val loadedScript = String(FlowTestUtil.loadScript("cadence/transaction_creation/transaction_creation_simple_transaction.cdc"), StandardCharsets.UTF_8)
 
-        val transactionResult = accessAPI.simpleFlowTransaction(serviceAccount.flowAddress, serviceAccount.signer) {
-            script {
-                loadedScript
-            }
+        val transactionResult = accessAPI
+            .simpleFlowTransaction(serviceAccount.flowAddress, serviceAccount.signer) {
+                script {
+                    loadedScript
+                }
 
-            arguments {
-                arg { string(newAccountPublicKey.encoded.bytesToHex()) }
-            }
-        }.sendAndWaitForSeal()
+                arguments {
+                    arg { string(newAccountPublicKey.encoded.bytesToHex()) }
+                }
+            }.sendAndWaitForSeal()
 
         val result = handleResult(transactionResult, "Failed to create account")
 

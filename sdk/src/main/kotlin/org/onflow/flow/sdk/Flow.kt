@@ -73,16 +73,19 @@ object Flow {
 
     @JvmStatic
     fun <T : Field<*>> decodeJsonCadenceList(string: String): List<T> = decodeJsonCadenceList(string.toByteArray(Charsets.UTF_8))
+
     @JvmStatic
     fun <T : Field<*>> decodeJsonCadenceList(bytes: ByteArray): List<T> = OBJECT_MAPPER.readValue(bytes, object : TypeReference<List<T>>() {})
 
     @JvmStatic
     fun <T : Field<*>> decodeJsonCadence(string: String): T = decodeJsonCadence(string.toByteArray(Charsets.UTF_8))
+
     @JvmStatic
     fun <T : Field<*>> decodeJsonCadence(bytes: ByteArray): T = OBJECT_MAPPER.readValue(bytes, object : TypeReference<T>() {})
 
     @JvmStatic
     fun <T : Field<*>> encodeJsonCadenceList(jsonCadences: Iterable<T>): ByteArray = OBJECT_MAPPER.writeValueAsBytes(jsonCadences)
+
     @JvmStatic
     fun <T : Field<*>> encodeJsonCadence(jsonCadence: T): ByteArray = OBJECT_MAPPER.writeValueAsBytes(jsonCadence)
 

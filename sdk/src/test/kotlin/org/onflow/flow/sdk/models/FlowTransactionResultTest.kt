@@ -23,7 +23,8 @@ class FlowTransactionResultTest {
             FlowEvent("type2", FlowId("0x2234"), 0, 0, FlowEventPayload(StringField("payload2")))
         )
 
-        val responseBuilder = Access.TransactionResultResponse.newBuilder()
+        val responseBuilder = Access.TransactionResultResponse
+            .newBuilder()
             .setStatus(TransactionOuterClass.TransactionStatus.EXECUTED)
             .setStatusCode(statusCode)
             .setErrorMessage(errorMessage)

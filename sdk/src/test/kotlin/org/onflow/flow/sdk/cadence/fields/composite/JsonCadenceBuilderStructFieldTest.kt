@@ -14,6 +14,7 @@ class JsonCadenceBuilderStructFieldTest {
         assertEquals(TYPE_STRUCT, structField.type)
         assertEquals(fieldValue, structField.value)
     }
+
     @Test
     fun `Test hashCode`() {
         val compositeValue1 = CompositeValue("id1", arrayOf())

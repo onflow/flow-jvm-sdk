@@ -26,6 +26,7 @@ class FlowBlockHeaderTest {
         val timestamp: LocalDateTime = LocalDateTime.now()
         val timeoutCertificate: FlowTimeoutCertificate = mock(FlowTimeoutCertificate::class.java)
     }
+
     @Test
     fun `test of() method`() {
         val chainId = "mainnet"

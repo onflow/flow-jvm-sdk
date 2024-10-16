@@ -10,8 +10,8 @@ fun flowScript(block: ScriptBuilder.() -> Unit): ScriptBuilder {
     return builder
 }
 
-private fun executeScript(api: FlowAccessApi, builder: ScriptBuilder): FlowAccessApi.AccessApiCallResponse<FlowScriptResponse> {
-    return try {
+private fun executeScript(api: FlowAccessApi, builder: ScriptBuilder): FlowAccessApi.AccessApiCallResponse<FlowScriptResponse> =
+    try {
         val result = api.executeScriptAtLatestBlock(
             script = builder.script,
             arguments = builder.arguments.map { UnsafeByteOperations.unsafeWrap(Flow.encodeJsonCadence(it)) }
@@ -23,7 +23,6 @@ private fun executeScript(api: FlowAccessApi, builder: ScriptBuilder): FlowAcces
     } catch (t: Throwable) {
         FlowAccessApi.AccessApiCallResponse.Error("Error while running script", t)
     }
-}
 
 fun FlowAccessApi.simpleFlowScript(block: ScriptBuilder.() -> Unit): FlowAccessApi.AccessApiCallResponse<FlowScriptResponse> {
     val builder = flowScript(block)
@@ -43,6 +42,12 @@ class ScriptBuilder {
     private var _chainId: FlowChainId = Flow.DEFAULT_CHAIN_ID
     private var _script: FlowScript? = null
     private var _arguments: MutableList<Field<*>> = mutableListOf()
+
+    var chainId: FlowChainId
+        get() = _chainId
+        set(value) {
+            _chainId = value
+        }
 
     var script: FlowScript
         get() = _script!!

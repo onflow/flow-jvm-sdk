@@ -12,7 +12,8 @@ import org.onflow.protobuf.entities.AccountOuterClass
 class FlowAccountKeyTest {
     @Test
     fun `Test creating FlowAccountKey from protobuf`() {
-        val protobufKey = AccountOuterClass.AccountKey.newBuilder()
+        val protobufKey = AccountOuterClass.AccountKey
+            .newBuilder()
             .setIndex(1)
             .setPublicKey(ByteString.copyFromUtf8("0x1234"))
             .setSignAlgo(SignatureAlgorithm.ECDSA_P256.code)

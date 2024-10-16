@@ -34,7 +34,8 @@ class FlowNodeVersionInfoTest {
     @Test
     fun `FlowNodeVersionInfo of method`() {
         val sporkId = byteArrayOf(0x01, 0x02)
-        val protoVersionInfo = NodeVersionInfoOuterClass.NodeVersionInfo.newBuilder()
+        val protoVersionInfo = NodeVersionInfoOuterClass.NodeVersionInfo
+            .newBuilder()
             .setSemver("1.0.0")
             .setCommit("commit1")
             .setSporkId(UnsafeByteOperations.unsafeWrap(sporkId))

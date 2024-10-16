@@ -57,13 +57,15 @@ class JsonCadenceBuilderOptionalFieldTest {
     @Test
     fun `Test decoding OptionalField with invalid inner field`() {
         val invalidInnerField = NumberField(TYPE_INT, "abc")
-        Assertions.assertThatThrownBy { OptionalField(invalidInnerField).decodeToAny() }
+        Assertions
+            .assertThatThrownBy { OptionalField(invalidInnerField).decodeToAny() }
             .isInstanceOf(Exception::class.java)
     }
 
     @Test
     fun `Test decoding OptionalField with invalid null inner field`() {
-        Assertions.assertThatThrownBy { OptionalField(null as Field<*>).decodeToAny() }
+        Assertions
+            .assertThatThrownBy { OptionalField(null as Field<*>).decodeToAny() }
             .isInstanceOf(Exception::class.java)
     }
 }

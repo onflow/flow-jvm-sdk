@@ -29,8 +29,8 @@ class TestClassConverterJson : JsonCadenceConverter<TestClass> {
         )
     }
 
-    override fun marshall(value: TestClass, namespace: CadenceNamespace): Field<*> {
-        return marshall {
+    override fun marshall(value: TestClass, namespace: CadenceNamespace): Field<*> =
+        marshall {
             struct {
                 compositeOfPairs(namespace.withNamespace("TestClass")) {
                     listOf(
@@ -42,7 +42,6 @@ class TestClassConverterJson : JsonCadenceConverter<TestClass> {
                 }
             }
         }
-    }
 }
 
 @FlowEmulatorProjectTest(flowJsonLocation = "../flow/flow.json")
