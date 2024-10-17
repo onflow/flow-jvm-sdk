@@ -4,3 +4,4 @@ build
 sdk/gradle.properties
 flowdb
 .DS_Store
+.kotlin/errors

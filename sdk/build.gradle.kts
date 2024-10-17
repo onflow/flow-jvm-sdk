@@ -32,7 +32,7 @@ sourceSets {
 
 dependencies {
     api("org.jetbrains.kotlin:kotlin-reflect:2.0.21")
-    api("org.onflow:flow:1.0.0")
+    api("org.onflow:flow:1.1.0")
     api("com.github.TrustedDataFramework:java-rlp:1.1.20")
     api("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
     api("org.bouncycastle:bcpkix-jdk18on:1.78.1")

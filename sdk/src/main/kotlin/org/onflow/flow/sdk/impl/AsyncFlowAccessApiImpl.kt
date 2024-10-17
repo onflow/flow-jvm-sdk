@@ -588,6 +588,32 @@ class AsyncFlowAccessApiImpl(
         }
     }
 
+    override fun getNodeVersionInfo(): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowNodeVersionInfo>> {
+        return try {
+            completableFuture(
+                try {
+                    api.getNodeVersionInfo(Access.GetNodeVersionInfoRequest.newBuilder().build())
+                } catch (e: Exception) {
+                    return CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get node version info", e))
+                }
+            ).handle { response, ex ->
+                if (ex != null) {
+                    FlowAccessApi.AccessApiCallResponse.Error("Failed to get node version info", ex)
+                } else {
+                    val compatibleRange = if (response.info.hasCompatibleRange()) {
+                        FlowCompatibleRange(response.info.compatibleRange.startHeight, response.info.compatibleRange.endHeight)
+                    } else {
+                        null
+                    }
+
+                    FlowAccessApi.AccessApiCallResponse.Success(FlowNodeVersionInfo(response.info.semver, response.info.commit, response.info.sporkId.toByteArray(), response.info.protocolVersion, response.info.sporkRootBlockHeight, response.info.nodeRootBlockHeight, compatibleRange))
+                }
+            }
+        } catch (e: Exception) {
+            CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get node version info", e))
+        }
+    }
+
     override fun getTransactionsByBlockId(id: FlowId): CompletableFuture<FlowAccessApi.AccessApiCallResponse<List<FlowTransaction>>> {
         return try {
             completableFuture(

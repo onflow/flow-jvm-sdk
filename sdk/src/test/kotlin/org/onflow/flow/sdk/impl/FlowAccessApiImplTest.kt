@@ -6,18 +6,14 @@ import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.test.*
 import org.onflow.flow.sdk.*
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.fail
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.*
 import org.onflow.protobuf.access.Access
 import org.onflow.protobuf.access.AccessAPIGrpc
-import org.onflow.protobuf.entities.BlockExecutionDataOuterClass
-import org.onflow.protobuf.entities.EventOuterClass
-import org.onflow.protobuf.entities.ExecutionResultOuterClass
-import org.onflow.protobuf.entities.TransactionOuterClass
+import org.onflow.protobuf.entities.*
 import org.onflow.protobuf.executiondata.ExecutionDataAPIGrpc
 import org.onflow.protobuf.executiondata.Executiondata
 import java.io.ByteArrayOutputStream
@@ -35,6 +31,27 @@ class FlowAccessApiImplTest {
 
     private val testDispatcher = StandardTestDispatcher()
     private val testScope = TestScope(testDispatcher)
+
+    companion object {
+        val mockBlockHeader = FlowBlockHeader(
+            id = FlowId.of(AsyncFlowAccessApiImplTest.BLOCK_ID_BYTES),
+            parentId = FlowId.of(AsyncFlowAccessApiImplTest.PARENT_ID_BYTES),
+            height = 123L,
+            timestamp = LocalDateTime.now(),
+            payloadHash = ByteArray(32),
+            view = 1L,
+            parentVoterSigData = ByteArray(32),
+            proposerId = FlowId.of(AsyncFlowAccessApiImplTest.PARENT_ID_BYTES),
+            proposerSigData = ByteArray(32),
+            chainId = FlowChainId.MAINNET,
+            parentVoterIndices = ByteArray(32),
+            lastViewTc = FlowTimeoutCertificate(1L, emptyList(), FlowQuorumCertificate(1L, FlowId.of(AsyncFlowAccessApiImplTest.BLOCK_ID_BYTES), ByteArray(32), ByteArray(32)), ByteArray(32), ByteArray(32)),
+            parentView = 1L
+        )
+
+        val blockId = FlowId("01")
+        val mockBlock = FlowBlock(blockId, FlowId("01"), 123L, LocalDateTime.now(), emptyList(), emptyList(), emptyList(), emptyList(), emptyList(), mockBlockHeader, FlowId("01"))
+    }
 
     @BeforeEach
     fun setUp() {
@@ -59,7 +76,7 @@ class FlowAccessApiImplTest {
 
     @Test
     fun `Test getLatestBlockHeader`() {
-        val mockBlockHeader = FlowBlockHeader(FlowId("01"), FlowId("01"), 123L)
+        val mockBlockHeader = mockBlockHeader
         val blockHeaderProto = Access.BlockHeaderResponse
             .newBuilder()
             .setBlock(mockBlockHeader.builder().build())
@@ -73,8 +90,8 @@ class FlowAccessApiImplTest {
 
     @Test
     fun `Test getBlockHeaderById`() {
-        val blockId = FlowId("01")
-        val mockBlockHeader = FlowBlockHeader(blockId, FlowId("01"), 123L)
+        val blockId = blockId
+        val mockBlockHeader = mockBlockHeader
         val blockHeaderProto = Access.BlockHeaderResponse
             .newBuilder()
             .setBlock(mockBlockHeader.builder().build())
@@ -89,7 +106,7 @@ class FlowAccessApiImplTest {
     @Test
     fun `Test getBlockHeaderByHeight`() {
         val height = 123L
-        val mockBlockHeader = FlowBlockHeader(FlowId("01"), FlowId("01"), height)
+        val mockBlockHeader = mockBlockHeader
         val blockHeaderProto = Access.BlockHeaderResponse
             .newBuilder()
             .setBlock(mockBlockHeader.builder().build())
@@ -103,7 +120,7 @@ class FlowAccessApiImplTest {
 
     @Test
     fun `Test getLatestBlock`() {
-        val mockBlock = FlowBlock(FlowId("01"), FlowId("01"), 123L, LocalDateTime.now(), emptyList(), emptyList(), emptyList())
+        val mockBlock = mockBlock
         val blockProto = Access.BlockResponse
             .newBuilder()
             .setBlock(mockBlock.builder().build())
@@ -117,8 +134,9 @@ class FlowAccessApiImplTest {
 
     @Test
     fun `Test getBlockById`() {
-        val blockId = FlowId("01")
-        val mockBlock = FlowBlock(blockId, FlowId("01"), 123L, LocalDateTime.now(), emptyList(), emptyList(), emptyList())
+        val blockId = blockId
+        val mockBlock = mockBlock
+
         val blockProto = Access.BlockResponse
             .newBuilder()
             .setBlock(mockBlock.builder().build())
@@ -133,7 +151,7 @@ class FlowAccessApiImplTest {
     @Test
     fun `Test getBlockByHeight`() {
         val height = 123L
-        val mockBlock = FlowBlock(FlowId("01"), FlowId("01"), height, LocalDateTime.now(), emptyList(), emptyList(), emptyList())
+        val mockBlock = mockBlock
         val blockProto = Access.BlockResponse
             .newBuilder()
             .setBlock(mockBlock.builder().build())
@@ -425,6 +443,44 @@ class FlowAccessApiImplTest {
 
         val result = flowAccessApiImpl.getLatestProtocolStateSnapshot()
         assertResultSuccess(result) { assertEquals(mockFlowSnapshot, it) }
+    }
+
+    @Test
+    fun `Test getNodeVersionInfo`() {
+        val mockNodeVersionInfo = Access.GetNodeVersionInfoResponse
+            .newBuilder()
+            .setInfo(
+                NodeVersionInfoOuterClass.NodeVersionInfo
+                    .newBuilder()
+                    .setSemver("v0.0.1")
+                    .setCommit("123456")
+                    .setSporkId(ByteString.copyFromUtf8("sporkId"))
+                    .setProtocolVersion(5)
+                    .setSporkRootBlockHeight(1000)
+                    .setNodeRootBlockHeight(1001)
+                    .setCompatibleRange(
+                        NodeVersionInfoOuterClass.CompatibleRange
+                            .newBuilder()
+                            .setStartHeight(100)
+                            .setEndHeight(200)
+                            .build()
+                    ).build()
+            ).build()
+
+        `when`(mockApi.getNodeVersionInfo(any())).thenReturn(mockNodeVersionInfo)
+
+        val result = flowAccessApiImpl.getNodeVersionInfo()
+
+        assertResultSuccess(result) {
+            assertEquals("v0.0.1", it.semver)
+            assertEquals("123456", it.commit)
+            assertArrayEquals("sporkId".toByteArray(), it.sporkId)
+            assertEquals(5, it.protocolVersion)
+            assertEquals(1000L, it.sporkRootBlockHeight)
+            assertEquals(1001L, it.nodeRootBlockHeight)
+            assertEquals(100L, it.compatibleRange?.startHeight)
+            assertEquals(200L, it.compatibleRange?.endHeight)
+        }
     }
 
     @Test
