@@ -1520,15 +1520,17 @@ data class FlowNodeVersionInfo(
         .setProtocolVersion(protocolVersion)
         .setSporkRootBlockHeight(sporkRootBlockHeight)
         .setNodeRootBlockHeight(nodeRootBlockHeight)
-        .setCompatibleRange(
+        .apply {
             compatibleRange?.let {
-                NodeVersionInfoOuterClass.CompatibleRange
-                    .newBuilder()
-                    .setStartHeight(it.startHeight)
-                    .setEndHeight(it.endHeight)
-                    .build()
+                setCompatibleRange(
+                    NodeVersionInfoOuterClass.CompatibleRange
+                        .newBuilder()
+                        .setStartHeight(it.startHeight)
+                        .setEndHeight(it.endHeight)
+                        .build()
+                )
             }
-        )
+        }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
