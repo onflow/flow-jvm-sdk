@@ -62,19 +62,39 @@ class FlowBlockSealTest {
         val resultIdBytes = "resultId".toByteArray()
         val finalStateBytes = "finalState".toByteArray()
 
-        Mockito.`when`(blockSealProto.blockId).thenReturn(com.google.protobuf.ByteString.copyFrom(blockIdBytes))
-        Mockito.`when`(blockSealProto.executionReceiptId).thenReturn(com.google.protobuf.ByteString.copyFrom(executionReceiptIdBytes))
-        Mockito.`when`(blockSealProto.resultId).thenReturn(com.google.protobuf.ByteString.copyFrom(resultIdBytes))
-        Mockito.`when`(blockSealProto.finalState).thenReturn(com.google.protobuf.ByteString.copyFrom(finalStateBytes))
-        Mockito.`when`(blockSealProto.executionReceiptSignaturesList).thenReturn(listOf(
-            com.google.protobuf.ByteString.copyFrom("signature1".toByteArray())
-        ))
-        Mockito.`when`(blockSealProto.resultApprovalSignaturesList).thenReturn(listOf(
-            com.google.protobuf.ByteString.copyFrom("signature2".toByteArray())
-        ))
-        Mockito.`when`(blockSealProto.aggregatedApprovalSigsList).thenReturn(listOf(
-            BlockSealOuterClass.AggregatedSignature.newBuilder().build()
-        ))
+        Mockito.`when`(blockSealProto.blockId).thenReturn(
+            com.google.protobuf.ByteString
+                .copyFrom(blockIdBytes)
+        )
+        Mockito.`when`(blockSealProto.executionReceiptId).thenReturn(
+            com.google.protobuf.ByteString
+                .copyFrom(executionReceiptIdBytes)
+        )
+        Mockito.`when`(blockSealProto.resultId).thenReturn(
+            com.google.protobuf.ByteString
+                .copyFrom(resultIdBytes)
+        )
+        Mockito.`when`(blockSealProto.finalState).thenReturn(
+            com.google.protobuf.ByteString
+                .copyFrom(finalStateBytes)
+        )
+        Mockito.`when`(blockSealProto.executionReceiptSignaturesList).thenReturn(
+            listOf(
+                com.google.protobuf.ByteString
+                    .copyFrom("signature1".toByteArray())
+            )
+        )
+        Mockito.`when`(blockSealProto.resultApprovalSignaturesList).thenReturn(
+            listOf(
+                com.google.protobuf.ByteString
+                    .copyFrom("signature2".toByteArray())
+            )
+        )
+        Mockito.`when`(blockSealProto.aggregatedApprovalSigsList).thenReturn(
+            listOf(
+                BlockSealOuterClass.AggregatedSignature.newBuilder().build()
+            )
+        )
 
         val flowBlockSeal = FlowBlockSeal.of(blockSealProto)
 

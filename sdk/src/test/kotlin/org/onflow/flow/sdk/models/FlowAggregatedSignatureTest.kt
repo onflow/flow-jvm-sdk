@@ -50,10 +50,16 @@ class FlowAggregatedSignatureTest {
         val signerIdBytes = "signerId".toByteArray()
 
         Mockito.`when`(aggregatedSignatureProto.verifierSignaturesList).thenReturn(
-            listOf(com.google.protobuf.ByteString.copyFrom(signatureBytes))
+            listOf(
+                com.google.protobuf.ByteString
+                    .copyFrom(signatureBytes)
+            )
         )
         Mockito.`when`(aggregatedSignatureProto.signerIdsList).thenReturn(
-            listOf(com.google.protobuf.ByteString.copyFrom(signerIdBytes))
+            listOf(
+                com.google.protobuf.ByteString
+                    .copyFrom(signerIdBytes)
+            )
         )
 
         val flowAggregatedSignature = FlowAggregatedSignature.of(aggregatedSignatureProto)
