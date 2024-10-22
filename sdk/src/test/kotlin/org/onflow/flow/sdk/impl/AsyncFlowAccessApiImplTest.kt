@@ -206,6 +206,70 @@ class AsyncFlowAccessApiImplTest {
     }
 
     @Test
+    fun `test getAccountBalanceAtLatestBlock success`() {
+        val flowAddress = FlowAddress("01")
+        val expectedBalance = 1000L
+        val balanceResponse = Access.AccountBalanceResponse
+            .newBuilder()
+            .setBalance(expectedBalance)
+            .build()
+
+        `when`(api.getAccountBalanceAtLatestBlock(any())).thenReturn(setupFutureMock(balanceResponse))
+
+        val result = asyncFlowAccessApi.getAccountBalanceAtLatestBlock(flowAddress).get()
+        assert(result is FlowAccessApi.AccessApiCallResponse.Success)
+        result as FlowAccessApi.AccessApiCallResponse.Success
+        assertEquals(expectedBalance, result.data)
+    }
+
+    @Test
+    fun `test getAccountBalanceAtLatestBlock failure`() {
+        val flowAddress = FlowAddress("01")
+        val exception = RuntimeException("Test exception")
+
+        `when`(api.getAccountBalanceAtLatestBlock(any())).thenThrow(exception)
+
+        val result = asyncFlowAccessApi.getAccountBalanceAtLatestBlock(flowAddress).get()
+        assert(result is FlowAccessApi.AccessApiCallResponse.Error)
+        result as FlowAccessApi.AccessApiCallResponse.Error
+        assertEquals("Failed to get account balance at latest block", result.message)
+        assertEquals(exception, result.throwable)
+    }
+
+    @Test
+    fun `test getAccountBalanceAtBlockHeight success`() {
+        val flowAddress = FlowAddress("01")
+        val blockHeight = 123L
+        val expectedBalance = 1000L
+        val balanceResponse = Access.AccountBalanceResponse
+            .newBuilder()
+            .setBalance(expectedBalance)
+            .build()
+
+        `when`(api.getAccountBalanceAtBlockHeight(any())).thenReturn(setupFutureMock(balanceResponse))
+
+        val result = asyncFlowAccessApi.getAccountBalanceAtBlockHeight(flowAddress, blockHeight).get()
+        assert(result is FlowAccessApi.AccessApiCallResponse.Success)
+        result as FlowAccessApi.AccessApiCallResponse.Success
+        assertEquals(expectedBalance, result.data)
+    }
+
+    @Test
+    fun `test getAccountBalanceAtBlockHeight failure`() {
+        val flowAddress = FlowAddress("01")
+        val blockHeight = 123L
+        val exception = RuntimeException("Test exception")
+
+        `when`(api.getAccountBalanceAtBlockHeight(any())).thenThrow(exception)
+
+        val result = asyncFlowAccessApi.getAccountBalanceAtBlockHeight(flowAddress, blockHeight).get()
+        assert(result is FlowAccessApi.AccessApiCallResponse.Error)
+        result as FlowAccessApi.AccessApiCallResponse.Error
+        assertEquals("Failed to get account balance at block height", result.message)
+        assertEquals(exception, result.throwable)
+    }
+
+    @Test
     fun `test getCollectionById`() {
         val collectionId = FlowId("01")
         val mockCollection = FlowCollection(collectionId, emptyList())
