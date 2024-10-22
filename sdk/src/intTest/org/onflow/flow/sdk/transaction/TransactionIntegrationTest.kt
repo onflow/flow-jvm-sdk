@@ -142,6 +142,76 @@ class TransactionIntegrationTest {
     }
 
     @Test
+    fun `Can get account balance at latest block`() {
+        val address = serviceAccount.flowAddress
+
+        val balanceResponse = try {
+            handleResult(
+                accessAPI.getAccountBalanceAtLatestBlock(address),
+                "Failed to get account balance at latest block"
+            )
+        } catch (e: Exception) {
+            fail("Failed to retrieve account balance at latest block: ${e.message}")
+        }
+
+        assertThat(balanceResponse).isNotNull
+
+        val account = try {
+            handleResult(
+                accessAPI.getAccountAtLatestBlock(address),
+                "Failed to get account at latest block"
+            )
+        } catch (e: Exception) {
+            fail("Failed to retrieve account at latest block: ${e.message}")
+        }
+
+        val normalizedBalance = balanceResponse / 100_000_000L
+
+        assertThat(normalizedBalance).isEqualTo(account.balance.toBigInteger().longValueExact())
+    }
+
+    @Test
+    fun `Can get account balance at block height`() {
+        val address = serviceAccount.flowAddress
+
+        val latestBlock = try {
+            handleResult(
+                accessAPI.getLatestBlock(true),
+                "Failed to get latest block"
+            )
+        } catch (e: Exception) {
+            fail("Failed to retrieve latest block: ${e.message}")
+        }
+
+        val height = latestBlock.height
+
+        val balanceResponse = try {
+            handleResult(
+                accessAPI.getAccountBalanceAtBlockHeight(address, height),
+                "Failed to get account balance at block height"
+            )
+        } catch (e: Exception) {
+            fail("Failed to retrieve account balance at block height: ${e.message}")
+        }
+
+        assertThat(balanceResponse).isNotNull
+
+        val account = try {
+            handleResult(
+                accessAPI.getAccountByBlockHeight(address, height),
+                "Failed to get account by block height"
+            )
+        } catch (e: Exception) {
+            fail("Failed to retrieve account by block height: ${e.message}")
+        }
+
+        val normalizedBalance = balanceResponse / 100_000_000L
+
+        assertThat(normalizedBalance).isEqualTo(account.balance.toBigInteger().longValueExact())
+    }
+
+
+    @Test
     fun `Can get latest block`() {
         val latestBlock = try {
             handleResult(
