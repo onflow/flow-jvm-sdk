@@ -210,7 +210,6 @@ class TransactionIntegrationTest {
         assertThat(normalizedBalance).isEqualTo(account.balance.toBigInteger().longValueExact())
     }
 
-
     @Test
     fun `Can get latest block`() {
         val latestBlock = try {
