@@ -26,6 +26,10 @@ interface FlowAccessApi {
 
     fun getLatestBlock(sealed: Boolean = true): AccessApiCallResponse<FlowBlock>
 
+    fun getAccountBalanceAtLatestBlock(address: FlowAddress): AccessApiCallResponse<Long>
+
+    fun getAccountBalanceAtBlockHeight(address: FlowAddress, height: Long): AccessApiCallResponse<Long>
+
     fun getBlockById(id: FlowId): AccessApiCallResponse<FlowBlock>
 
     fun getBlockByHeight(height: Long): AccessApiCallResponse<FlowBlock>
