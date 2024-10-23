@@ -96,6 +96,33 @@ class FlowAccessApiImpl(
             FlowAccessApi.AccessApiCallResponse.Error("Failed to get latest block", e)
         }
 
+    override fun getAccountBalanceAtLatestBlock(address: FlowAddress): FlowAccessApi.AccessApiCallResponse<Long> =
+        try {
+            val ret = api.getAccountBalanceAtLatestBlock(
+                Access.GetAccountBalanceAtLatestBlockRequest
+                    .newBuilder()
+                    .setAddress(address.byteStringValue)
+                    .build()
+            )
+            FlowAccessApi.AccessApiCallResponse.Success(ret.balance)
+        } catch (e: Exception) {
+            FlowAccessApi.AccessApiCallResponse.Error("Failed to get account balance at latest block", e)
+        }
+
+    override fun getAccountBalanceAtBlockHeight(address: FlowAddress, height: Long): FlowAccessApi.AccessApiCallResponse<Long> =
+        try {
+            val ret = api.getAccountBalanceAtBlockHeight(
+                Access.GetAccountBalanceAtBlockHeightRequest
+                    .newBuilder()
+                    .setAddress(address.byteStringValue)
+                    .setBlockHeight(height)
+                    .build()
+            )
+            FlowAccessApi.AccessApiCallResponse.Success(ret.balance)
+        } catch (e: Exception) {
+            FlowAccessApi.AccessApiCallResponse.Error("Failed to get account balance at block height", e)
+        }
+
     override fun getBlockById(id: FlowId): FlowAccessApi.AccessApiCallResponse<FlowBlock> =
         try {
             val ret = api.getBlockByID(
