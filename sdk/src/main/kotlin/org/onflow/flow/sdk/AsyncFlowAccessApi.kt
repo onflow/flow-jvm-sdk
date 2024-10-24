@@ -12,11 +12,11 @@ interface AsyncFlowAccessApi {
 
     fun getBlockHeaderByHeight(height: Long): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowBlockHeader?>>
 
-    fun getLatestBlock(sealed: Boolean = true): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowBlock>>
+    fun getLatestBlock(sealed: Boolean = true, fullBlockResponse: Boolean = false): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowBlock>>
 
-    fun getBlockById(id: FlowId): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowBlock?>>
+    fun getBlockById(id: FlowId, fullBlockResponse: Boolean = false): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowBlock?>>
 
-    fun getBlockByHeight(height: Long): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowBlock?>>
+    fun getBlockByHeight(height: Long, fullBlockResponse: Boolean = false): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowBlock?>>
 
     fun getCollectionById(id: FlowId): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowCollection?>>
 
