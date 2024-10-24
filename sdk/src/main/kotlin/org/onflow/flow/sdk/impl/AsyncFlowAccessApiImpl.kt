@@ -127,7 +127,7 @@ class AsyncFlowAccessApiImpl(
         }
     }
 
-    override fun getLatestBlock(sealed: Boolean): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowBlock>> {
+    override fun getLatestBlock(sealed: Boolean, fullBlockResponse: Boolean): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowBlock>> {
         return try {
             completableFuture(
                 try {
@@ -135,6 +135,7 @@ class AsyncFlowAccessApiImpl(
                         Access.GetLatestBlockRequest
                             .newBuilder()
                             .setIsSealed(sealed)
+                            .setFullBlockResponse(fullBlockResponse)
                             .build()
                     )
                 } catch (e: Exception) {
@@ -152,7 +153,7 @@ class AsyncFlowAccessApiImpl(
         }
     }
 
-    override fun getBlockById(id: FlowId): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowBlock?>> {
+    override fun getBlockById(id: FlowId, fullBlockResponse: Boolean): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowBlock?>> {
         return try {
             completableFuture(
                 try {
@@ -160,6 +161,7 @@ class AsyncFlowAccessApiImpl(
                         Access.GetBlockByIDRequest
                             .newBuilder()
                             .setId(id.byteStringValue)
+                            .setFullBlockResponse(fullBlockResponse)
                             .build()
                     )
                 } catch (e: Exception) {
@@ -181,7 +183,7 @@ class AsyncFlowAccessApiImpl(
         }
     }
 
-    override fun getBlockByHeight(height: Long): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowBlock?>> {
+    override fun getBlockByHeight(height: Long, fullBlockResponse: Boolean): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowBlock?>> {
         return try {
             completableFuture(
                 try {
@@ -189,6 +191,7 @@ class AsyncFlowAccessApiImpl(
                         Access.GetBlockByHeightRequest
                             .newBuilder()
                             .setHeight(height)
+                            .setFullBlockResponse(fullBlockResponse)
                             .build()
                     )
                 } catch (e: Exception) {
