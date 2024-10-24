@@ -34,7 +34,7 @@ public class GetCollectionAccessAPIConnectorTest {
             publicKey
         );
 
-        FlowAccessApi.AccessApiCallResponse<FlowBlock> response = accessAPI.getLatestBlock(true);
+        FlowAccessApi.AccessApiCallResponse<FlowBlock> response = accessAPI.getLatestBlock(true, false);
         if (response instanceof FlowAccessApi.AccessApiCallResponse.Success) {
             FlowBlock block = ((FlowAccessApi.AccessApiCallResponse.Success<FlowBlock>) response).getData();
             collectionId = block.getCollectionGuarantees().get(0).getId();
