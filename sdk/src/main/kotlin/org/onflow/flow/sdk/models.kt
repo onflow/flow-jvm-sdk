@@ -1201,27 +1201,80 @@ data class FlowCollectionGuarantee(
 }
 
 data class FlowBlockSeal(
-    val id: FlowId,
+    val blockId: FlowId,
     val executionReceiptId: FlowId,
     val executionReceiptSignatures: List<FlowSignature>,
-    val resultApprovalSignatures: List<FlowSignature>
+    val resultApprovalSignatures: List<FlowSignature>,
+    val finalState: ByteArray,
+    val resultId: FlowId,
+    val aggregatedApprovalSigs: List<FlowAggregatedSignature>,
 ) : Serializable {
     companion object {
         @JvmStatic
         fun of(value: BlockSealOuterClass.BlockSeal) = FlowBlockSeal(
-            id = FlowId.of(value.blockId.toByteArray()),
+            blockId = FlowId.of(value.blockId.toByteArray()),
             executionReceiptId = FlowId.of(value.executionReceiptId.toByteArray()),
             executionReceiptSignatures = value.executionReceiptSignaturesList.map { FlowSignature(it.toByteArray()) },
-            resultApprovalSignatures = value.executionReceiptSignaturesList.map { FlowSignature(it.toByteArray()) }
+            resultApprovalSignatures = value.resultApprovalSignaturesList.map { FlowSignature(it.toByteArray()) },
+            finalState = value.finalState.toByteArray(),
+            resultId = FlowId.of(value.resultId.toByteArray()),
+            aggregatedApprovalSigs = value.aggregatedApprovalSigsList.map { FlowAggregatedSignature.of(it) },
         )
     }
 
     @JvmOverloads
     fun builder(builder: BlockSealOuterClass.BlockSeal.Builder = BlockSealOuterClass.BlockSeal.newBuilder()): BlockSealOuterClass.BlockSeal.Builder = builder
-        .setBlockId(id.byteStringValue)
+        .setBlockId(blockId.byteStringValue)
         .setExecutionReceiptId(executionReceiptId.byteStringValue)
         .addAllExecutionReceiptSignatures(executionReceiptSignatures.map { it.byteStringValue })
         .addAllResultApprovalSignatures(resultApprovalSignatures.map { it.byteStringValue })
+        .setFinalState(UnsafeByteOperations.unsafeWrap(finalState))
+        .setResultId(resultId.byteStringValue)
+        .addAllAggregatedApprovalSigs(aggregatedApprovalSigs.map { it.builder().build() })
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is FlowBlockSeal) return false
+
+        if (blockId != other.blockId) return false
+        if (executionReceiptId != other.executionReceiptId) return false
+        if (executionReceiptSignatures != other.executionReceiptSignatures) return false
+        if (resultApprovalSignatures != other.resultApprovalSignatures) return false
+        if (!finalState.contentEquals(other.finalState)) return false
+        if (resultId != other.resultId) return false
+        if (aggregatedApprovalSigs != other.aggregatedApprovalSigs) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = blockId.hashCode()
+        result = 31 * result + executionReceiptId.hashCode()
+        result = 31 * result + executionReceiptSignatures.hashCode()
+        result = 31 * result + resultApprovalSignatures.hashCode()
+        result = 31 * result + finalState.contentHashCode()
+        result = 31 * result + resultId.hashCode()
+        result = 31 * result + aggregatedApprovalSigs.hashCode()
+        return result
+    }
+}
+
+data class FlowAggregatedSignature(
+    val verifierSignatures: List<FlowSignature>,
+    val signerIds: List<FlowId>,
+) : Serializable {
+    companion object {
+        @JvmStatic
+        fun of(value: BlockSealOuterClass.AggregatedSignature) = FlowAggregatedSignature(
+            verifierSignatures = value.verifierSignaturesList.map { FlowSignature(it.toByteArray()) },
+            signerIds = value.signerIdsList.map { FlowId.of(it.toByteArray()) }
+        )
+    }
+
+    @JvmOverloads
+    fun builder(builder: BlockSealOuterClass.AggregatedSignature.Builder = BlockSealOuterClass.AggregatedSignature.newBuilder()): BlockSealOuterClass.AggregatedSignature.Builder = builder
+        .addAllVerifierSignatures(verifierSignatures.map { it.byteStringValue })
+        .addAllSignerIds(signerIds.map { it.byteStringValue })
 }
 
 data class FlowCollection(
@@ -1467,15 +1520,17 @@ data class FlowNodeVersionInfo(
         .setProtocolVersion(protocolVersion)
         .setSporkRootBlockHeight(sporkRootBlockHeight)
         .setNodeRootBlockHeight(nodeRootBlockHeight)
-        .setCompatibleRange(
+        .apply {
             compatibleRange?.let {
-                NodeVersionInfoOuterClass.CompatibleRange
-                    .newBuilder()
-                    .setStartHeight(it.startHeight)
-                    .setEndHeight(it.endHeight)
-                    .build()
+                setCompatibleRange(
+                    NodeVersionInfoOuterClass.CompatibleRange
+                        .newBuilder()
+                        .setStartHeight(it.startHeight)
+                        .setEndHeight(it.endHeight)
+                        .build()
+                )
             }
-        )
+        }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

@@ -152,6 +152,57 @@ class AsyncFlowAccessApiImpl(
         }
     }
 
+    override fun getAccountBalanceAtLatestBlock(address: FlowAddress): CompletableFuture<FlowAccessApi.AccessApiCallResponse<Long>> {
+        return try {
+            completableFuture(
+                try {
+                    api.getAccountBalanceAtLatestBlock(
+                        Access.GetAccountBalanceAtLatestBlockRequest
+                            .newBuilder()
+                            .setAddress(address.byteStringValue)
+                            .build()
+                    )
+                } catch (e: Exception) {
+                    return CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get account balance at latest block", e))
+                }
+            ).handle { response, ex ->
+                if (ex != null) {
+                    FlowAccessApi.AccessApiCallResponse.Error("Failed to get account balance at latest block", ex)
+                } else {
+                    FlowAccessApi.AccessApiCallResponse.Success(response.balance)
+                }
+            }
+        } catch (e: Exception) {
+            CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get account balance at latest block", e))
+        }
+    }
+
+    override fun getAccountBalanceAtBlockHeight(address: FlowAddress, height: Long): CompletableFuture<FlowAccessApi.AccessApiCallResponse<Long>> {
+        return try {
+            completableFuture(
+                try {
+                    api.getAccountBalanceAtBlockHeight(
+                        Access.GetAccountBalanceAtBlockHeightRequest
+                            .newBuilder()
+                            .setAddress(address.byteStringValue)
+                            .setBlockHeight(height)
+                            .build()
+                    )
+                } catch (e: Exception) {
+                    return CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get account balance at block height", e))
+                }
+            ).handle { response, ex ->
+                if (ex != null) {
+                    FlowAccessApi.AccessApiCallResponse.Error("Failed to get account balance at block height", ex)
+                } else {
+                    FlowAccessApi.AccessApiCallResponse.Success(response.balance)
+                }
+            }
+        } catch (e: Exception) {
+            CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get account balance at block height", e))
+        }
+    }
+
     override fun getBlockById(id: FlowId): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowBlock?>> {
         return try {
             completableFuture(

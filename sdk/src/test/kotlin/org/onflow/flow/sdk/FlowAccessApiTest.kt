@@ -89,6 +89,68 @@ class FlowAccessApiTest {
     }
 
     @Test
+    fun `Test getAccountBalanceAtLatestBlock success`() {
+        val flowAccessApi = mock(FlowAccessApi::class.java)
+        val flowAddress = FlowAddress("01")
+        val expectedBalance = 1000L
+        val response = FlowAccessApi.AccessApiCallResponse.Success(expectedBalance)
+
+        `when`(flowAccessApi.getAccountBalanceAtLatestBlock(flowAddress)).thenReturn(response)
+
+        val result = flowAccessApi.getAccountBalanceAtLatestBlock(flowAddress)
+
+        assertEquals(response, result)
+        verify(flowAccessApi).getAccountBalanceAtLatestBlock(flowAddress)
+    }
+
+    @Test
+    fun `Test getAccountBalanceAtLatestBlock failure`() {
+        val flowAccessApi = mock(FlowAccessApi::class.java)
+        val flowAddress = FlowAddress("01")
+        val exception = RuntimeException("Test exception")
+        val response = FlowAccessApi.AccessApiCallResponse.Error("Failed to get account balance at latest block", exception)
+
+        `when`(flowAccessApi.getAccountBalanceAtLatestBlock(flowAddress)).thenReturn(response)
+
+        val result = flowAccessApi.getAccountBalanceAtLatestBlock(flowAddress)
+
+        assertEquals(response, result)
+        verify(flowAccessApi).getAccountBalanceAtLatestBlock(flowAddress)
+    }
+
+    @Test
+    fun `Test getAccountBalanceAtBlockHeight success`() {
+        val flowAccessApi = mock(FlowAccessApi::class.java)
+        val flowAddress = FlowAddress("01")
+        val blockHeight = 123L
+        val expectedBalance = 1000L
+        val response = FlowAccessApi.AccessApiCallResponse.Success(expectedBalance)
+
+        `when`(flowAccessApi.getAccountBalanceAtBlockHeight(flowAddress, blockHeight)).thenReturn(response)
+
+        val result = flowAccessApi.getAccountBalanceAtBlockHeight(flowAddress, blockHeight)
+
+        assertEquals(response, result)
+        verify(flowAccessApi).getAccountBalanceAtBlockHeight(flowAddress, blockHeight)
+    }
+
+    @Test
+    fun `Test getAccountBalanceAtBlockHeight failure`() {
+        val flowAccessApi = mock(FlowAccessApi::class.java)
+        val flowAddress = FlowAddress("01")
+        val blockHeight = 123L
+        val exception = RuntimeException("Test exception")
+        val response = FlowAccessApi.AccessApiCallResponse.Error("Failed to get account balance at block height", exception)
+
+        `when`(flowAccessApi.getAccountBalanceAtBlockHeight(flowAddress, blockHeight)).thenReturn(response)
+
+        val result = flowAccessApi.getAccountBalanceAtBlockHeight(flowAddress, blockHeight)
+
+        assertEquals(response, result)
+        verify(flowAccessApi).getAccountBalanceAtBlockHeight(flowAddress, blockHeight)
+    }
+
+    @Test
     fun `Test getCollectionById`() {
         val flowAccessApi = mock(FlowAccessApi::class.java)
         val flowId = FlowId("01")
