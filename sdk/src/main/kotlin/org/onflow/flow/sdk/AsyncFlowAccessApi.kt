@@ -6,6 +6,14 @@ import java.util.concurrent.CompletableFuture
 interface AsyncFlowAccessApi {
     fun ping(): CompletableFuture<FlowAccessApi.AccessApiCallResponse<Unit>>
 
+    fun getAccountKeyAtLatestBlock(address: FlowAddress, keyIndex: Int): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowAccountKey>>
+
+    fun getAccountKeyAtBlockHeight(address: FlowAddress, keyIndex: Int, height: Long): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowAccountKey>>
+
+    fun getAccountKeysAtLatestBlock(address: FlowAddress): CompletableFuture<FlowAccessApi.AccessApiCallResponse<List<FlowAccountKey>>>
+
+    fun getAccountKeysAtBlockHeight(address: FlowAddress, height: Long): CompletableFuture<FlowAccessApi.AccessApiCallResponse<List<FlowAccountKey>>>
+
     fun getLatestBlockHeader(sealed: Boolean = true): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowBlockHeader>>
 
     fun getBlockHeaderById(id: FlowId): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowBlockHeader?>>
