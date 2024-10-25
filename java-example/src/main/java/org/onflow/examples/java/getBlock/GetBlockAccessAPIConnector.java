@@ -11,7 +11,8 @@ public class GetBlockAccessAPIConnector {
 
     public FlowBlock getLatestSealedBlock() {
         boolean isSealed = true;
-        FlowAccessApi.AccessApiCallResponse<FlowBlock> response = accessAPI.getLatestBlock(isSealed);
+        boolean fullBlockResponse = false;
+        FlowAccessApi.AccessApiCallResponse<FlowBlock> response = accessAPI.getLatestBlock(isSealed, fullBlockResponse);
 
         if (response instanceof FlowAccessApi.AccessApiCallResponse.Success) {
             return ((FlowAccessApi.AccessApiCallResponse.Success<FlowBlock>) response).getData();
@@ -22,7 +23,8 @@ public class GetBlockAccessAPIConnector {
     }
 
     public FlowBlock getBlockByID(FlowId blockID) {
-        FlowAccessApi.AccessApiCallResponse<FlowBlock> response = accessAPI.getBlockById(blockID);
+        boolean fullBlockResponse = false;
+        FlowAccessApi.AccessApiCallResponse<FlowBlock> response = accessAPI.getBlockById(blockID, fullBlockResponse);
 
         if (response instanceof FlowAccessApi.AccessApiCallResponse.Success) {
             return ((FlowAccessApi.AccessApiCallResponse.Success<FlowBlock>) response).getData();
@@ -33,7 +35,8 @@ public class GetBlockAccessAPIConnector {
     }
 
     public FlowBlock getBlockByHeight(long height) {
-        FlowAccessApi.AccessApiCallResponse<FlowBlock> response = accessAPI.getBlockByHeight(height);
+        boolean fullBlockResponse = false;
+        FlowAccessApi.AccessApiCallResponse<FlowBlock> response = accessAPI.getBlockByHeight(height, fullBlockResponse);
 
         if (response instanceof FlowAccessApi.AccessApiCallResponse.Success) {
             return ((FlowAccessApi.AccessApiCallResponse.Success<FlowBlock>) response).getData();

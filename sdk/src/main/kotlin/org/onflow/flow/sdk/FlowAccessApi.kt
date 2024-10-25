@@ -24,15 +24,14 @@ interface FlowAccessApi {
 
     fun getBlockHeaderByHeight(height: Long): AccessApiCallResponse<FlowBlockHeader>
 
-    fun getLatestBlock(sealed: Boolean = true): AccessApiCallResponse<FlowBlock>
+    fun getLatestBlock(sealed: Boolean = true, fullBlockResponse: Boolean = false): AccessApiCallResponse<FlowBlock>
 
+    fun getBlockById(id: FlowId, fullBlockResponse: Boolean = false): AccessApiCallResponse<FlowBlock>
     fun getAccountBalanceAtLatestBlock(address: FlowAddress): AccessApiCallResponse<Long>
 
     fun getAccountBalanceAtBlockHeight(address: FlowAddress, height: Long): AccessApiCallResponse<Long>
 
-    fun getBlockById(id: FlowId): AccessApiCallResponse<FlowBlock>
-
-    fun getBlockByHeight(height: Long): AccessApiCallResponse<FlowBlock>
+    fun getBlockByHeight(height: Long, fullBlockResponse: Boolean = false): AccessApiCallResponse<FlowBlock>
 
     fun getCollectionById(id: FlowId): AccessApiCallResponse<FlowCollection>
 
