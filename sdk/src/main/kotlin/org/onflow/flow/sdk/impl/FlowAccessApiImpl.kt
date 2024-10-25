@@ -83,12 +83,13 @@ class FlowAccessApiImpl(
             FlowAccessApi.AccessApiCallResponse.Error("Failed to get block header by height", e)
         }
 
-    override fun getLatestBlock(sealed: Boolean): FlowAccessApi.AccessApiCallResponse<FlowBlock> =
+    override fun getLatestBlock(sealed: Boolean, fullBlockResponse: Boolean): FlowAccessApi.AccessApiCallResponse<FlowBlock> =
         try {
             val ret = api.getLatestBlock(
                 Access.GetLatestBlockRequest
                     .newBuilder()
                     .setIsSealed(sealed)
+                    .setFullBlockResponse(fullBlockResponse)
                     .build()
             )
             FlowAccessApi.AccessApiCallResponse.Success(FlowBlock.of(ret.block))
@@ -123,12 +124,13 @@ class FlowAccessApiImpl(
             FlowAccessApi.AccessApiCallResponse.Error("Failed to get account balance at block height", e)
         }
 
-    override fun getBlockById(id: FlowId): FlowAccessApi.AccessApiCallResponse<FlowBlock> =
+    override fun getBlockById(id: FlowId, fullBlockResponse: Boolean): FlowAccessApi.AccessApiCallResponse<FlowBlock> =
         try {
             val ret = api.getBlockByID(
                 Access.GetBlockByIDRequest
                     .newBuilder()
                     .setId(id.byteStringValue)
+                    .setFullBlockResponse(fullBlockResponse)
                     .build()
             )
             if (ret.hasBlock()) {
@@ -140,12 +142,13 @@ class FlowAccessApiImpl(
             FlowAccessApi.AccessApiCallResponse.Error("Failed to get block by ID", e)
         }
 
-    override fun getBlockByHeight(height: Long): FlowAccessApi.AccessApiCallResponse<FlowBlock> =
+    override fun getBlockByHeight(height: Long, fullBlockResponse: Boolean): FlowAccessApi.AccessApiCallResponse<FlowBlock> =
         try {
             val ret = api.getBlockByHeight(
                 Access.GetBlockByHeightRequest
                     .newBuilder()
                     .setHeight(height)
+                    .setFullBlockResponse(fullBlockResponse)
                     .build()
             )
             if (ret.hasBlock()) {
