@@ -19,6 +19,72 @@ import org.onflow.protobuf.entities.TransactionOuterClass
 
 class FlowAccessApiTest {
     @Test
+    fun `Test getAccountKeyAtLatestBlock`() {
+        val flowAccessApi = mock(FlowAccessApi::class.java)
+        val address = FlowAddress("01")
+        val keyIndex = 0
+        val accountKey = FlowAccountKey.of(AccountOuterClass.AccountKey.getDefaultInstance())
+
+        `when`(flowAccessApi.getAccountKeyAtLatestBlock(address, keyIndex)).thenReturn(FlowAccessApi.AccessApiCallResponse.Success(accountKey))
+
+        val result = flowAccessApi.getAccountKeyAtLatestBlock(address, keyIndex)
+
+        assertEquals(FlowAccessApi.AccessApiCallResponse.Success(accountKey), result)
+        verify(flowAccessApi).getAccountKeyAtLatestBlock(address, keyIndex)
+    }
+
+    @Test
+    fun `Test getAccountKeyAtBlockHeight`() {
+        val flowAccessApi = mock(FlowAccessApi::class.java)
+        val address = FlowAddress("01")
+        val keyIndex = 0
+        val height = 123L
+        val accountKey = FlowAccountKey.of(AccountOuterClass.AccountKey.getDefaultInstance())
+
+        `when`(flowAccessApi.getAccountKeyAtBlockHeight(address, keyIndex, height)).thenReturn(FlowAccessApi.AccessApiCallResponse.Success(accountKey))
+
+        val result = flowAccessApi.getAccountKeyAtBlockHeight(address, keyIndex, height)
+
+        assertEquals(FlowAccessApi.AccessApiCallResponse.Success(accountKey), result)
+        verify(flowAccessApi).getAccountKeyAtBlockHeight(address, keyIndex, height)
+    }
+
+    @Test
+    fun `Test getAccountKeysAtLatestBlock`() {
+        val flowAccessApi = mock(FlowAccessApi::class.java)
+        val address = FlowAddress("01")
+        val accountKeys = listOf(
+            FlowAccountKey.of(AccountOuterClass.AccountKey.getDefaultInstance()),
+            FlowAccountKey.of(AccountOuterClass.AccountKey.getDefaultInstance())
+        )
+
+        `when`(flowAccessApi.getAccountKeysAtLatestBlock(address)).thenReturn(FlowAccessApi.AccessApiCallResponse.Success(accountKeys))
+
+        val result = flowAccessApi.getAccountKeysAtLatestBlock(address)
+
+        assertEquals(FlowAccessApi.AccessApiCallResponse.Success(accountKeys), result)
+        verify(flowAccessApi).getAccountKeysAtLatestBlock(address)
+    }
+
+    @Test
+    fun `Test getAccountKeysAtBlockHeight`() {
+        val flowAccessApi = mock(FlowAccessApi::class.java)
+        val address = FlowAddress("01")
+        val height = 123L
+        val accountKeys = listOf(
+            FlowAccountKey.of(AccountOuterClass.AccountKey.getDefaultInstance()),
+            FlowAccountKey.of(AccountOuterClass.AccountKey.getDefaultInstance())
+        )
+
+        `when`(flowAccessApi.getAccountKeysAtBlockHeight(address, height)).thenReturn(FlowAccessApi.AccessApiCallResponse.Success(accountKeys))
+
+        val result = flowAccessApi.getAccountKeysAtBlockHeight(address, height)
+
+        assertEquals(FlowAccessApi.AccessApiCallResponse.Success(accountKeys), result)
+        verify(flowAccessApi).getAccountKeysAtBlockHeight(address, height)
+    }
+
+    @Test
     fun `Test getLatestBlockHeader`() {
         val flowAccessApi = mock(FlowAccessApi::class.java)
         val latestBlockHeader = FlowBlockHeader.of(BlockHeaderOuterClass.BlockHeader.getDefaultInstance())
