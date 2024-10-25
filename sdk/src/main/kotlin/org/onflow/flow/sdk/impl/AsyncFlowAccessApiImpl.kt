@@ -43,6 +43,110 @@ class AsyncFlowAccessApiImpl(
         }
     }
 
+    override fun getAccountKeyAtLatestBlock(address: FlowAddress, keyIndex: Int): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowAccountKey>> {
+        return try {
+            completableFuture(
+                try {
+                    api.getAccountKeyAtLatestBlock(
+                        Access.GetAccountKeyAtLatestBlockRequest
+                            .newBuilder()
+                            .setAddress(address.byteStringValue)
+                            .setIndex(keyIndex)
+                            .build()
+                    )
+                } catch (e: Exception) {
+                    return CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get account key at latest block", e))
+                }
+            ).handle { response, ex ->
+                if (ex != null) {
+                    FlowAccessApi.AccessApiCallResponse.Error("Failed to get account key at latest block", ex)
+                } else {
+                    FlowAccessApi.AccessApiCallResponse.Success(FlowAccountKey.of(response.accountKey ))
+                }
+            }
+        } catch (e: Exception) {
+            CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get account key at latest block", e))
+        }
+    }
+
+    override fun getAccountKeyAtBlockHeight(address: FlowAddress, keyIndex: Int, height: Long): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowAccountKey>> {
+        return try {
+            completableFuture(
+                try {
+                    api.getAccountKeyAtBlockHeight(
+                        Access.GetAccountKeyAtBlockHeightRequest
+                            .newBuilder()
+                            .setAddress(address.byteStringValue)
+                            .setIndex(keyIndex)
+                            .setBlockHeight(height)
+                            .build()
+                    )
+                } catch (e: Exception) {
+                    return CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get account key at block height", e))
+                }
+            ).handle { response, ex ->
+                if (ex != null) {
+                    FlowAccessApi.AccessApiCallResponse.Error("Failed to get account key at block height", ex)
+                } else {
+                    FlowAccessApi.AccessApiCallResponse.Success(FlowAccountKey.of(response.accountKey ))
+                }
+            }
+        } catch (e: Exception) {
+            CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get account key at block height", e))
+        }
+    }
+
+    override fun getAccountKeysAtLatestBlock(address: FlowAddress): CompletableFuture<FlowAccessApi.AccessApiCallResponse<List<FlowAccountKey>>> {
+        return try {
+            completableFuture(
+                try {
+                    api.getAccountKeysAtLatestBlock(
+                        Access.GetAccountKeysAtLatestBlockRequest
+                            .newBuilder()
+                            .setAddress(address.byteStringValue)
+                            .build()
+                    )
+                } catch (e: Exception) {
+                    return CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get account keys at latest block", e))
+                }
+            ).handle { response, ex ->
+                if (ex != null) {
+                    FlowAccessApi.AccessApiCallResponse.Error("Failed to get account keys at latest block", ex)
+                } else {
+                    FlowAccessApi.AccessApiCallResponse.Success(response.accountKeysList.map { FlowAccountKey.of(it) })
+                }
+            }
+        } catch (e: Exception) {
+            CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get account keys at latest block", e))
+        }
+    }
+
+    override fun getAccountKeysAtBlockHeight(address: FlowAddress, height: Long): CompletableFuture<FlowAccessApi.AccessApiCallResponse<List<FlowAccountKey>>> {
+        return try {
+            completableFuture(
+                try {
+                    api.getAccountKeysAtBlockHeight(
+                        Access.GetAccountKeysAtBlockHeightRequest
+                            .newBuilder()
+                            .setAddress(address.byteStringValue)
+                            .setBlockHeight(height)
+                            .build()
+                    )
+                } catch (e: Exception) {
+                    return CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get account keys at block height", e))
+                }
+            ).handle { response, ex ->
+                if (ex != null) {
+                    FlowAccessApi.AccessApiCallResponse.Error("Failed to get account keys at block height", ex)
+                } else {
+                    FlowAccessApi.AccessApiCallResponse.Success(response.accountKeysList.map { FlowAccountKey.of(it) })
+                }
+            }
+        } catch (e: Exception) {
+            CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get account keys at block height", e))
+        }
+    }
+
     override fun getLatestBlockHeader(sealed: Boolean): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowBlockHeader>> {
         return try {
             completableFuture(
