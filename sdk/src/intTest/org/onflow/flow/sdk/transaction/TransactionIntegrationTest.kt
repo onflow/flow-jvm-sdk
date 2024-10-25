@@ -56,6 +56,94 @@ class TransactionIntegrationTest {
     }
 
     @Test
+    fun `Can get account key at latest block`() {
+        val address = serviceAccount.flowAddress
+        val keyIndex = 0
+
+        val accountKey = try {
+            handleResult(
+                accessAPI.getAccountKeyAtLatestBlock(address, keyIndex),
+                "Failed to get account key at latest block"
+            )
+        } catch (e: Exception) {
+            fail("Failed to retrieve account key at latest block: ${e.message}")
+        }
+
+        assertThat(accountKey).isNotNull
+        assertThat(accountKey.sequenceNumber).isEqualTo(keyIndex)
+    }
+
+    @Test
+    fun `Can get account key at block height`() {
+        val address = serviceAccount.flowAddress
+        val keyIndex = 0
+
+        val latestBlock = try {
+            handleResult(
+                accessAPI.getLatestBlock(true),
+                "Failed to get latest block"
+            )
+        } catch (e: Exception) {
+            fail("Failed to retrieve latest block: ${e.message}")
+        }
+
+        val accountKey = try {
+            handleResult(
+                accessAPI.getAccountKeyAtBlockHeight(address, keyIndex, latestBlock.height),
+                "Failed to get account key at block height"
+            )
+        } catch (e: Exception) {
+            fail("Failed to retrieve account key at block height: ${e.message}")
+        }
+
+        assertThat(accountKey).isNotNull
+        assertThat(accountKey.sequenceNumber).isEqualTo(keyIndex)
+    }
+
+    @Test
+    fun `Can get account keys at latest block`() {
+        val address = serviceAccount.flowAddress
+
+        val accountKeys = try {
+            handleResult(
+                accessAPI.getAccountKeysAtLatestBlock(address),
+                "Failed to get account keys at latest block"
+            )
+        } catch (e: Exception) {
+            fail("Failed to retrieve account keys at latest block: ${e.message}")
+        }
+
+        assertThat(accountKeys).isNotNull
+        assertThat(accountKeys).isNotEmpty
+    }
+
+    @Test
+    fun `Can get account keys at block height`() {
+        val address = serviceAccount.flowAddress
+
+        val latestBlock = try {
+            handleResult(
+                accessAPI.getLatestBlock(true),
+                "Failed to get latest block"
+            )
+        } catch (e: Exception) {
+            fail("Failed to retrieve latest block: ${e.message}")
+        }
+
+        val accountKeys = try {
+            handleResult(
+                accessAPI.getAccountKeysAtBlockHeight(address, latestBlock.height),
+                "Failed to get account keys at block height"
+            )
+        } catch (e: Exception) {
+            fail("Failed to retrieve account keys at block height: ${e.message}")
+        }
+
+        assertThat(accountKeys).isNotNull
+        assertThat(accountKeys).isNotEmpty
+    }
+
+    @Test
     fun `Can get node version info`() {
         val nodeVersionInfo = try {
             handleResult(
