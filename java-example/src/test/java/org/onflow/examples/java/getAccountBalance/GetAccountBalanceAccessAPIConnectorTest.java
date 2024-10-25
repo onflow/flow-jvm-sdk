@@ -39,7 +39,7 @@ public class GetAccountBalanceAccessAPIConnectorTest {
     public void testCanFetchBalanceAtSpecificBlockHeight() {
         FlowAddress address = serviceAccount.getFlowAddress();
 
-        FlowAccessApi.AccessApiCallResponse<FlowBlock> latestBlockResponse = accessAPI.getLatestBlock(true);
+        FlowAccessApi.AccessApiCallResponse<FlowBlock> latestBlockResponse = accessAPI.getLatestBlock(true, false);
 
         if (latestBlockResponse instanceof FlowAccessApi.AccessApiCallResponse.Success) {
             FlowBlock latestBlock = ((FlowAccessApi.AccessApiCallResponse.Success<FlowBlock>) latestBlockResponse).getData();
@@ -58,7 +58,7 @@ public class GetAccountBalanceAccessAPIConnectorTest {
         FlowAddress address = serviceAccount.getFlowAddress();
 
         long balanceAtLatest = balanceAPIConnector.getBalanceAtLatestBlock(address);
-        FlowAccessApi.AccessApiCallResponse<FlowBlock> latestBlockResponse = accessAPI.getLatestBlock(true);
+        FlowAccessApi.AccessApiCallResponse<FlowBlock> latestBlockResponse = accessAPI.getLatestBlock(true, false);
 
         if (latestBlockResponse instanceof FlowAccessApi.AccessApiCallResponse.Success) {
             FlowBlock latestBlock = ((FlowAccessApi.AccessApiCallResponse.Success<FlowBlock>) latestBlockResponse).getData();
