@@ -50,6 +50,8 @@ interface FlowAccessApi {
 
     fun getTransactionResultById(id: FlowId): AccessApiCallResponse<FlowTransactionResult>
 
+    fun getTransactionResultByIndex(blockId: FlowId, index: Int): AccessApiCallResponse<FlowTransactionResult>
+
     @Deprecated(
         message = "Behaves identically to getAccountAtLatestBlock",
         replaceWith = ReplaceWith("getAccountAtLatestBlock")
