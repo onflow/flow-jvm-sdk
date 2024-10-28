@@ -90,7 +90,8 @@ class FlowAccessApiImplTest {
         assertResultSuccess(result) { assertEquals(mockAccountKey, it) }
 
         verify(mockApi).getAccountKeyAtLatestBlock(
-            Access.GetAccountKeyAtLatestBlockRequest.newBuilder()
+            Access.GetAccountKeyAtLatestBlockRequest
+                .newBuilder()
                 .setAddress(flowAddress.byteStringValue)
                 .setIndex(keyIndex)
                 .build()
@@ -129,7 +130,8 @@ class FlowAccessApiImplTest {
         assertResultSuccess(result) { assertEquals(mockAccountKey, it) }
 
         verify(mockApi).getAccountKeyAtBlockHeight(
-            Access.GetAccountKeyAtBlockHeightRequest.newBuilder()
+            Access.GetAccountKeyAtBlockHeightRequest
+                .newBuilder()
                 .setAddress(flowAddress.byteStringValue)
                 .setIndex(keyIndex)
                 .setBlockHeight(blockHeight)
@@ -160,7 +162,8 @@ class FlowAccessApiImplTest {
             FlowAccountKey.of(AccountOuterClass.AccountKey.getDefaultInstance()),
             FlowAccountKey.of(AccountOuterClass.AccountKey.getDefaultInstance())
         )
-        val response = Access.AccountKeysResponse.newBuilder()
+        val response = Access.AccountKeysResponse
+            .newBuilder()
             .addAllAccountKeys(mockAccountKeys.map { it.builder().build() })
             .build()
 
@@ -170,7 +173,8 @@ class FlowAccessApiImplTest {
         assertResultSuccess(result) { assertEquals(mockAccountKeys, it) }
 
         verify(mockApi).getAccountKeysAtLatestBlock(
-            Access.GetAccountKeysAtLatestBlockRequest.newBuilder()
+            Access.GetAccountKeysAtLatestBlockRequest
+                .newBuilder()
                 .setAddress(flowAddress.byteStringValue)
                 .build()
         )
@@ -198,7 +202,8 @@ class FlowAccessApiImplTest {
             FlowAccountKey.of(AccountOuterClass.AccountKey.getDefaultInstance()),
             FlowAccountKey.of(AccountOuterClass.AccountKey.getDefaultInstance())
         )
-        val response = Access.AccountKeysResponse.newBuilder()
+        val response = Access.AccountKeysResponse
+            .newBuilder()
             .addAllAccountKeys(mockAccountKeys.map { it.builder().build() })
             .build()
 
@@ -208,7 +213,8 @@ class FlowAccessApiImplTest {
         assertResultSuccess(result) { assertEquals(mockAccountKeys, it) }
 
         verify(mockApi).getAccountKeysAtBlockHeight(
-            Access.GetAccountKeysAtBlockHeightRequest.newBuilder()
+            Access.GetAccountKeysAtBlockHeightRequest
+                .newBuilder()
                 .setAddress(flowAddress.byteStringValue)
                 .setBlockHeight(blockHeight)
                 .build()

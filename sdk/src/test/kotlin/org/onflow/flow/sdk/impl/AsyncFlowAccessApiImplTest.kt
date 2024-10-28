@@ -81,7 +81,10 @@ class AsyncFlowAccessApiImplTest {
         val flowAddress = FlowAddress("01")
         val keyIndex = 0
         val mockAccountKey = FlowAccountKey.of(AccountOuterClass.AccountKey.getDefaultInstance())
-        val response = Access.AccountKeyResponse.newBuilder().setAccountKey(mockAccountKey.builder().build()).build()
+        val response = Access.AccountKeyResponse
+            .newBuilder()
+            .setAccountKey(mockAccountKey.builder().build())
+            .build()
 
         `when`(api.getAccountKeyAtLatestBlock(any())).thenReturn(setupFutureMock(response))
 
@@ -112,7 +115,10 @@ class AsyncFlowAccessApiImplTest {
         val keyIndex = 0
         val blockHeight = HEIGHT
         val mockAccountKey = FlowAccountKey.of(AccountOuterClass.AccountKey.getDefaultInstance())
-        val response = Access.AccountKeyResponse.newBuilder().setAccountKey(mockAccountKey.builder().build()).build()
+        val response = Access.AccountKeyResponse
+            .newBuilder()
+            .setAccountKey(mockAccountKey.builder().build())
+            .build()
 
         `when`(api.getAccountKeyAtBlockHeight(any())).thenReturn(setupFutureMock(response))
 
@@ -145,7 +151,8 @@ class AsyncFlowAccessApiImplTest {
             FlowAccountKey.of(AccountOuterClass.AccountKey.getDefaultInstance()),
             FlowAccountKey.of(AccountOuterClass.AccountKey.getDefaultInstance())
         )
-        val response = Access.AccountKeysResponse.newBuilder()
+        val response = Access.AccountKeysResponse
+            .newBuilder()
             .addAllAccountKeys(mockAccountKeys.map { it.builder().build() })
             .build()
 
@@ -179,7 +186,8 @@ class AsyncFlowAccessApiImplTest {
             FlowAccountKey.of(AccountOuterClass.AccountKey.getDefaultInstance()),
             FlowAccountKey.of(AccountOuterClass.AccountKey.getDefaultInstance())
         )
-        val response = Access.AccountKeysResponse.newBuilder()
+        val response = Access.AccountKeysResponse
+            .newBuilder()
             .addAllAccountKeys(mockAccountKeys.map { it.builder().build() })
             .build()
 
