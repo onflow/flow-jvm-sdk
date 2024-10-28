@@ -61,7 +61,7 @@ class AsyncFlowAccessApiImpl(
                 if (ex != null) {
                     FlowAccessApi.AccessApiCallResponse.Error("Failed to get account key at latest block", ex)
                 } else {
-                    FlowAccessApi.AccessApiCallResponse.Success(FlowAccountKey.of(response.accountKey ))
+                    FlowAccessApi.AccessApiCallResponse.Success(FlowAccountKey.of(response.accountKey))
                 }
             }
         } catch (e: Exception) {
@@ -88,7 +88,7 @@ class AsyncFlowAccessApiImpl(
                 if (ex != null) {
                     FlowAccessApi.AccessApiCallResponse.Error("Failed to get account key at block height", ex)
                 } else {
-                    FlowAccessApi.AccessApiCallResponse.Success(FlowAccountKey.of(response.accountKey ))
+                    FlowAccessApi.AccessApiCallResponse.Success(FlowAccountKey.of(response.accountKey))
                 }
             }
         } catch (e: Exception) {

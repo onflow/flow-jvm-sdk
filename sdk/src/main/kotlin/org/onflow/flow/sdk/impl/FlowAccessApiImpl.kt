@@ -78,7 +78,6 @@ class FlowAccessApiImpl(
             FlowAccessApi.AccessApiCallResponse.Error("Failed to get account keys at latest block", e)
         }
 
-
     override fun getAccountKeysAtBlockHeight(address: FlowAddress, height: Long): FlowAccessApi.AccessApiCallResponse<List<FlowAccountKey>> =
         try {
             val ret = api.getAccountKeysAtBlockHeight(
@@ -92,7 +91,6 @@ class FlowAccessApiImpl(
         } catch (e: Exception) {
             FlowAccessApi.AccessApiCallResponse.Error("Failed to get account keys at block height", e)
         }
-
 
     override fun getLatestBlockHeader(sealed: Boolean): FlowAccessApi.AccessApiCallResponse<FlowBlockHeader> =
         try {
