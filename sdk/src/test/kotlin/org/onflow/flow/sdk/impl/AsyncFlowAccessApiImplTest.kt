@@ -59,6 +59,18 @@ class AsyncFlowAccessApiImplTest {
             ),
             parentView = 1L
         )
+
+        val mockTransactionResultResponse = Access.TransactionResultResponse
+            .newBuilder()
+            .setStatus(TransactionOuterClass.TransactionStatus.SEALED)
+            .setStatusCode(1)
+            .setErrorMessage("message")
+            .setBlockId(ByteString.copyFromUtf8("id"))
+            .setBlockHeight(1L)
+            .setTransactionId(ByteString.copyFromUtf8("id"))
+            .setCollectionId(ByteString.copyFromUtf8("id"))
+            .setComputationUsage(1L)
+            .build()
     }
 
     private fun <T> setupFutureMock(response: T): ListenableFuture<T> {
@@ -461,17 +473,7 @@ class AsyncFlowAccessApiImplTest {
         val flowId = FlowId.of("id".toByteArray())
         val flowTransactionResult = FlowTransactionResult(FlowTransactionStatus.SEALED, 1, "message", emptyList(), flowId, 1L, flowId, flowId, 1L)
 
-        val transactionResultResponse = Access.TransactionResultResponse
-            .newBuilder()
-            .setStatus(TransactionOuterClass.TransactionStatus.SEALED)
-            .setStatusCode(1)
-            .setErrorMessage("message")
-            .setBlockId(ByteString.copyFromUtf8("id"))
-            .setBlockHeight(1L)
-            .setTransactionId(ByteString.copyFromUtf8("id"))
-            .setCollectionId(ByteString.copyFromUtf8("id"))
-            .setComputationUsage(1L)
-            .build()
+        val transactionResultResponse = mockTransactionResultResponse
 
         `when`(api.getTransactionResult(any())).thenReturn(setupFutureMock(transactionResultResponse))
 
@@ -479,6 +481,37 @@ class AsyncFlowAccessApiImplTest {
         assert(result is FlowAccessApi.AccessApiCallResponse.Success)
         result as FlowAccessApi.AccessApiCallResponse.Success
         assertEquals(flowTransactionResult, result.data)
+    }
+
+    @Test
+    fun `test getTransactionResultByIndex success`() {
+        val index = 0
+        val flowId = FlowId.of("id".toByteArray())
+        val flowTransactionResult = FlowTransactionResult(FlowTransactionStatus.SEALED, 1, "message", emptyList(), flowId, 1L, flowId, flowId, 1L)
+
+        val transactionResultResponse = mockTransactionResultResponse
+
+        `when`(api.getTransactionResultByIndex(any())).thenReturn(setupFutureMock(transactionResultResponse))
+
+        val result = asyncFlowAccessApi.getTransactionResultByIndex(flowId, index).get()
+        assert(result is FlowAccessApi.AccessApiCallResponse.Success)
+        result as FlowAccessApi.AccessApiCallResponse.Success
+        assertEquals(flowTransactionResult, result.data)
+    }
+
+    @Test
+    fun `test getTransactionResultByIndex failure`() {
+        val index = 0
+        val flowId = FlowId.of("id".toByteArray())
+        val exception = RuntimeException("Test exception")
+
+        `when`(api.getTransactionResultByIndex(any())).thenThrow(exception)
+
+        val result = asyncFlowAccessApi.getTransactionResultByIndex(flowId, index).get()
+        assert(result is FlowAccessApi.AccessApiCallResponse.Error)
+        result as FlowAccessApi.AccessApiCallResponse.Error
+        assertEquals("Failed to get transaction result by index", result.message)
+        assertEquals(exception, result.throwable)
     }
 
     @Test

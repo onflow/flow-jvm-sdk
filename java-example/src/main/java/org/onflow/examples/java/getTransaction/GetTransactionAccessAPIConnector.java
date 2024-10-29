@@ -31,4 +31,14 @@ public class GetTransactionAccessAPIConnector {
             throw new RuntimeException(errorResponse.getMessage(), errorResponse.getThrowable());
         }
     }
+
+    public FlowTransactionResult getTransactionResultByIndex(FlowId blockId, Integer index) {
+        FlowAccessApi.AccessApiCallResponse<FlowTransactionResult> response = accessAPI.getTransactionResultByIndex(blockId, index);
+        if (response instanceof FlowAccessApi.AccessApiCallResponse.Success) {
+            return ((FlowAccessApi.AccessApiCallResponse.Success<FlowTransactionResult>) response).getData();
+        } else {
+            FlowAccessApi.AccessApiCallResponse.Error errorResponse = (FlowAccessApi.AccessApiCallResponse.Error) response;
+            throw new RuntimeException(errorResponse.getMessage(), errorResponse.getThrowable());
+        }
+    }
 }

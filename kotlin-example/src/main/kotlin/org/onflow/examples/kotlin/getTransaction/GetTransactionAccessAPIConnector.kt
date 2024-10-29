@@ -16,4 +16,10 @@ class GetTransactionAccessAPIConnector(
             is FlowAccessApi.AccessApiCallResponse.Success -> response.data
             is FlowAccessApi.AccessApiCallResponse.Error -> throw Exception(response.message, response.throwable)
         }
+
+    fun getTransactionResultByIndex(blockId: FlowId, index: Int): FlowTransactionResult =
+        when (val response = accessAPI.getTransactionResultByIndex(blockId, index)) {
+            is FlowAccessApi.AccessApiCallResponse.Success -> response.data
+            is FlowAccessApi.AccessApiCallResponse.Error -> throw Exception(response.message, response.throwable)
+        }
 }
