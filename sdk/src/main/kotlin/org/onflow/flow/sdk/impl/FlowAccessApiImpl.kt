@@ -276,7 +276,6 @@ class FlowAccessApiImpl(
             FlowAccessApi.AccessApiCallResponse.Error("Failed to get transaction result by ID", e)
         }
 
-
     override fun getTransactionResultByIndex(blockId: FlowId, index: Int): FlowAccessApi.AccessApiCallResponse<FlowTransactionResult> =
         try {
             val ret = api.getTransactionResultByIndex(
