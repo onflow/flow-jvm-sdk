@@ -265,6 +265,20 @@ class FlowAccessApiTest {
     }
 
     @Test
+    fun `Test getTransactionResultByIndex`() {
+        val flowAccessApi = mock(FlowAccessApi::class.java)
+        val flowId = FlowId("01")
+        val index = 0
+
+        val flowTransactionResult = FlowTransactionResult.of(Access.TransactionResultResponse.getDefaultInstance())
+        `when`(flowAccessApi.getTransactionResultByIndex(flowId, index)).thenReturn(FlowAccessApi.AccessApiCallResponse.Success(flowTransactionResult))
+
+        val result = flowAccessApi.getTransactionResultByIndex(flowId, index)
+
+        assertEquals(FlowAccessApi.AccessApiCallResponse.Success(flowTransactionResult), result)
+    }
+
+    @Test
     fun `Test getAccountAtLatestBlock`() {
         val flowAccessApi = mock(FlowAccessApi::class.java)
         val flowAddress = FlowAddress("01")

@@ -20,6 +20,7 @@ internal class GetTransactionAccessAPIConnectorTest {
     lateinit var accessAPI: FlowAccessApi
 
     private lateinit var connector: GetTransactionAccessAPIConnector
+    private lateinit var block: FlowBlock
     private lateinit var accessAPIConnector: AccessAPIConnector
 
     private lateinit var txID: FlowId
@@ -35,6 +36,11 @@ internal class GetTransactionAccessAPIConnectorTest {
             serviceAccount.flowAddress,
             publicKey
         )
+
+        block = when (val response = accessAPI.getLatestBlock()) {
+            is FlowAccessApi.AccessApiCallResponse.Success -> response.data
+            is FlowAccessApi.AccessApiCallResponse.Error -> throw Exception(response.message, response.throwable)
+        }
     }
 
     @Test
@@ -48,6 +54,14 @@ internal class GetTransactionAccessAPIConnectorTest {
     @Test
     fun `Can fetch a transaction result`() {
         val transactionResult = connector.getTransactionResult(txID)
+
+        assertNotNull(transactionResult, "Transaction result should not be null")
+        assertTrue(transactionResult.status === FlowTransactionStatus.SEALED, "Transaction should be sealed")
+    }
+
+    @Test
+    fun `Can fetch a transaction result by index`() {
+        val transactionResult = connector.getTransactionResultByIndex(block.id, 0)
 
         assertNotNull(transactionResult, "Transaction result should not be null")
         assertTrue(transactionResult.status === FlowTransactionStatus.SEALED, "Transaction should be sealed")

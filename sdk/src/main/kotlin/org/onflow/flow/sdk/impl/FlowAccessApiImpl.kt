@@ -276,6 +276,20 @@ class FlowAccessApiImpl(
             FlowAccessApi.AccessApiCallResponse.Error("Failed to get transaction result by ID", e)
         }
 
+    override fun getTransactionResultByIndex(blockId: FlowId, index: Int): FlowAccessApi.AccessApiCallResponse<FlowTransactionResult> =
+        try {
+            val ret = api.getTransactionResultByIndex(
+                Access.GetTransactionByIndexRequest
+                    .newBuilder()
+                    .setBlockId(blockId.byteStringValue)
+                    .setIndex(index)
+                    .build()
+            )
+            FlowAccessApi.AccessApiCallResponse.Success(FlowTransactionResult.of(ret))
+        } catch (e: Exception) {
+            FlowAccessApi.AccessApiCallResponse.Error("Failed to get transaction result by index", e)
+        }
+
     @Deprecated("Behaves identically to getAccountAtLatestBlock", replaceWith = ReplaceWith("getAccountAtLatestBlock"))
     override fun getAccountByAddress(addresss: FlowAddress): FlowAccessApi.AccessApiCallResponse<FlowAccount> =
         try {

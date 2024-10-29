@@ -162,13 +162,58 @@ class TransactionIntegrationTest {
     }
 
     @Test
+    fun `Can get transaction results`() {
+        val txResult = createAndSubmitAccountCreationTransaction(
+            accessAPI,
+            serviceAccount,
+            "cadence/transaction_creation/transaction_creation_simple_transaction.cdc"
+        )
+        assertThat(txResult).isNotNull
+        assertThat(txResult.status).isEqualTo(FlowTransactionStatus.SEALED)
+
+        val latestBlock = try {
+            handleResult(
+                accessAPI.getLatestBlock(true),
+                "Failed to get latest block"
+            )
+        } catch (e: Exception) {
+            fail("Failed to retrieve latest block: ${e.message}")
+        }
+
+        val txResultById = try {
+            handleResult(
+                accessAPI.getTransactionResultById(txResult.transactionId),
+                "Failed to get tx result by id"
+            )
+        } catch (e: Exception) {
+            fail("Failed to retrieve tx result by id: ${e.message}")
+        }
+
+        assertThat(txResultById).isNotNull
+        assertThat(txResultById.status).isEqualTo(FlowTransactionStatus.SEALED)
+        assertThat(txResultById.transactionId).isEqualTo(txResult.transactionId)
+
+        val txResultByIndex = try {
+            handleResult(
+                accessAPI.getTransactionResultByIndex(latestBlock.id, 0),
+                "Failed to get tx result by index"
+            )
+        } catch (e: Exception) {
+            fail("Failed to retrieve tx result by index: ${e.message}")
+        }
+
+        assertThat(txResultByIndex).isNotNull
+        assertThat(txResultByIndex.status).isEqualTo(FlowTransactionStatus.SEALED)
+        assertThat(txResultByIndex.transactionId).isEqualTo(txResultByIndex.transactionId)
+    }
+
+    @Test
     fun `Can parse events`() {
         val txResult = createAndSubmitAccountCreationTransaction(
             accessAPI,
             serviceAccount,
             "cadence/transaction_creation/transaction_creation_simple_transaction.cdc"
         )
-
         assertThat(txResult).isNotNull
         assertThat(txResult.status).isEqualTo(FlowTransactionStatus.SEALED)
 

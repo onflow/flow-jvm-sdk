@@ -476,6 +476,32 @@ class AsyncFlowAccessApiImpl(
         }
     }
 
+    override fun getTransactionResultByIndex(blockId: FlowId, index: Int): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowTransactionResult>> {
+        return try {
+            completableFuture(
+                try {
+                    api.getTransactionResultByIndex(
+                        Access.GetTransactionByIndexRequest
+                            .newBuilder()
+                            .setBlockId(blockId.byteStringValue)
+                            .setIndex(index)
+                            .build()
+                    )
+                } catch (e: Exception) {
+                    return CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get transaction result by index", e))
+                }
+            ).handle { response, ex ->
+                if (ex != null) {
+                    FlowAccessApi.AccessApiCallResponse.Error("Failed to get transaction result by index", ex)
+                } else {
+                    FlowAccessApi.AccessApiCallResponse.Success(FlowTransactionResult.of(response))
+                }
+            }
+        } catch (e: Exception) {
+            CompletableFuture.completedFuture(FlowAccessApi.AccessApiCallResponse.Error("Failed to get transaction result by index", e))
+        }
+    }
+
     @Deprecated("Behaves identically to getAccountAtLatestBlock", replaceWith = ReplaceWith("getAccountAtLatestBlock"))
     override fun getAccountByAddress(addresss: FlowAddress): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowAccount>> {
         return try {

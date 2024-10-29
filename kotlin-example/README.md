@@ -81,6 +81,7 @@ Below is a list of all Kotlin code examples currently supported in this repo:
 
 - Get transaction 
 - Get transaction result
+- Get transaction result by index
 
 #### Sending Transactions
 

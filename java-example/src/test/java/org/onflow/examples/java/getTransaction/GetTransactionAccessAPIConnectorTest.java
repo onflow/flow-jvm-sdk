@@ -7,14 +7,9 @@ import org.onflow.flow.common.test.FlowEmulatorProjectTest;
 import org.onflow.flow.common.test.FlowServiceAccountCredentials;
 import org.onflow.flow.common.test.FlowTestClient;
 import org.onflow.flow.common.test.TestAccount;
-import org.onflow.flow.sdk.FlowAccessApi;
-import org.onflow.flow.sdk.FlowId;
-import org.onflow.flow.sdk.FlowTransaction;
-import org.onflow.flow.sdk.FlowTransactionResult;
-import org.onflow.flow.sdk.FlowTransactionStatus;
+import org.onflow.flow.sdk.*;
 import org.onflow.flow.sdk.crypto.Crypto;
 import org.onflow.flow.sdk.crypto.PublicKey;
-import org.onflow.flow.sdk.SignatureAlgorithm;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -26,6 +21,7 @@ public class GetTransactionAccessAPIConnectorTest {
     private FlowAccessApi accessAPI;
     private GetTransactionAccessAPIConnector connector;
     private FlowId txID;
+    private FlowBlock block;
 
     @BeforeEach
     public void setup() {
@@ -38,6 +34,14 @@ public class GetTransactionAccessAPIConnectorTest {
                 serviceAccount.getFlowAddress(),
                 publicKey
         );
+
+        FlowAccessApi.AccessApiCallResponse<FlowBlock> response = accessAPI.getLatestBlock(true, false);
+        if (response instanceof FlowAccessApi.AccessApiCallResponse.Success) {
+            block = ((FlowAccessApi.AccessApiCallResponse.Success<FlowBlock>) response).getData();
+        } else {
+            FlowAccessApi.AccessApiCallResponse.Error errorResponse = (FlowAccessApi.AccessApiCallResponse.Error) response;
+            throw new RuntimeException(errorResponse.getMessage(), errorResponse.getThrowable());
+        }
     }
 
     @Test
@@ -51,6 +55,14 @@ public class GetTransactionAccessAPIConnectorTest {
     @Test
     public void canFetchTransactionResult() {
         FlowTransactionResult transactionResult = connector.getTransactionResult(txID);
+
+        assertNotNull(transactionResult, "Transaction result should not be null");
+        assertSame(transactionResult.getStatus(), FlowTransactionStatus.SEALED, "Transaction should be sealed");
+    }
+
+    @Test
+    public void canFetchTransactionResultByIndex() {
+        FlowTransactionResult transactionResult = connector.getTransactionResultByIndex(block.getId(),0);
 
         assertNotNull(transactionResult, "Transaction result should not be null");
         assertSame(transactionResult.getStatus(), FlowTransactionStatus.SEALED, "Transaction should be sealed");
