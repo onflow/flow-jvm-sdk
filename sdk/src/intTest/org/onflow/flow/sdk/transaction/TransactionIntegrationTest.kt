@@ -204,7 +204,7 @@ class TransactionIntegrationTest {
 
         assertThat(txResultByIndex).isNotNull
         assertThat(txResultByIndex.status).isEqualTo(FlowTransactionStatus.SEALED)
-        assertThat(txResultByIndex.transactionId).isEqualTo(txResultByIndex.transactionId)
+        assertThat(txResultByIndex.transactionId).isEqualTo(txResult.transactionId)
     }
 
     @Test

@@ -53,6 +53,10 @@ Below is a list of all Java code examples currently supported in this repo:
 - Get account balance
 - Get account from the latest block
 - Get account from block by height
+- Get account key at latest block
+- Get account keys at latest block
+- Get account key at block height
+- Get account keys at block height
 
 #### Get Events
 
