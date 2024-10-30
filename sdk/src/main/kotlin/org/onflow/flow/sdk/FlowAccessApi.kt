@@ -18,6 +18,14 @@ interface FlowAccessApi {
 
     fun ping(): AccessApiCallResponse<Unit>
 
+    fun getAccountKeyAtLatestBlock(address: FlowAddress, keyIndex: Int): AccessApiCallResponse<FlowAccountKey>
+
+    fun getAccountKeyAtBlockHeight(address: FlowAddress, keyIndex: Int, height: Long): AccessApiCallResponse<FlowAccountKey>
+
+    fun getAccountKeysAtLatestBlock(address: FlowAddress): AccessApiCallResponse<List<FlowAccountKey>>
+
+    fun getAccountKeysAtBlockHeight(address: FlowAddress, height: Long): AccessApiCallResponse<List<FlowAccountKey>>
+
     fun getLatestBlockHeader(sealed: Boolean = true): AccessApiCallResponse<FlowBlockHeader>
 
     fun getBlockHeaderById(id: FlowId): AccessApiCallResponse<FlowBlockHeader>
@@ -27,6 +35,7 @@ interface FlowAccessApi {
     fun getLatestBlock(sealed: Boolean = true, fullBlockResponse: Boolean = false): AccessApiCallResponse<FlowBlock>
 
     fun getBlockById(id: FlowId, fullBlockResponse: Boolean = false): AccessApiCallResponse<FlowBlock>
+
     fun getAccountBalanceAtLatestBlock(address: FlowAddress): AccessApiCallResponse<Long>
 
     fun getAccountBalanceAtBlockHeight(address: FlowAddress, height: Long): AccessApiCallResponse<Long>
@@ -40,6 +49,8 @@ interface FlowAccessApi {
     fun getTransactionById(id: FlowId): AccessApiCallResponse<FlowTransaction>
 
     fun getTransactionResultById(id: FlowId): AccessApiCallResponse<FlowTransactionResult>
+
+    fun getTransactionResultByIndex(blockId: FlowId, index: Int): AccessApiCallResponse<FlowTransactionResult>
 
     @Deprecated(
         message = "Behaves identically to getAccountAtLatestBlock",

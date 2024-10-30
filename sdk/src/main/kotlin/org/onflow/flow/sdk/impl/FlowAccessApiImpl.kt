@@ -36,6 +36,62 @@ class FlowAccessApiImpl(
             FlowAccessApi.AccessApiCallResponse.Error("Failed to ping", e)
         }
 
+    override fun getAccountKeyAtLatestBlock(address: FlowAddress, keyIndex: Int): FlowAccessApi.AccessApiCallResponse<FlowAccountKey> =
+        try {
+            val ret = api.getAccountKeyAtLatestBlock(
+                Access.GetAccountKeyAtLatestBlockRequest
+                    .newBuilder()
+                    .setAddress(address.byteStringValue)
+                    .setIndex(keyIndex)
+                    .build()
+            )
+            FlowAccessApi.AccessApiCallResponse.Success(FlowAccountKey.of(ret.accountKey))
+        } catch (e: Exception) {
+            FlowAccessApi.AccessApiCallResponse.Error("Failed to get account key at latest block", e)
+        }
+
+    override fun getAccountKeyAtBlockHeight(address: FlowAddress, keyIndex: Int, height: Long): FlowAccessApi.AccessApiCallResponse<FlowAccountKey> =
+        try {
+            val ret = api.getAccountKeyAtBlockHeight(
+                Access.GetAccountKeyAtBlockHeightRequest
+                    .newBuilder()
+                    .setAddress(address.byteStringValue)
+                    .setIndex(keyIndex)
+                    .setBlockHeight(height)
+                    .build()
+            )
+            FlowAccessApi.AccessApiCallResponse.Success(FlowAccountKey.of(ret.accountKey))
+        } catch (e: Exception) {
+            FlowAccessApi.AccessApiCallResponse.Error("Failed to get account key at block height", e)
+        }
+
+    override fun getAccountKeysAtLatestBlock(address: FlowAddress): FlowAccessApi.AccessApiCallResponse<List<FlowAccountKey>> =
+        try {
+            val ret = api.getAccountKeysAtLatestBlock(
+                Access.GetAccountKeysAtLatestBlockRequest
+                    .newBuilder()
+                    .setAddress(address.byteStringValue)
+                    .build()
+            )
+            FlowAccessApi.AccessApiCallResponse.Success(ret.accountKeysList.map { FlowAccountKey.of(it) })
+        } catch (e: Exception) {
+            FlowAccessApi.AccessApiCallResponse.Error("Failed to get account keys at latest block", e)
+        }
+
+    override fun getAccountKeysAtBlockHeight(address: FlowAddress, height: Long): FlowAccessApi.AccessApiCallResponse<List<FlowAccountKey>> =
+        try {
+            val ret = api.getAccountKeysAtBlockHeight(
+                Access.GetAccountKeysAtBlockHeightRequest
+                    .newBuilder()
+                    .setAddress(address.byteStringValue)
+                    .setBlockHeight(height)
+                    .build()
+            )
+            FlowAccessApi.AccessApiCallResponse.Success(ret.accountKeysList.map { FlowAccountKey.of(it) })
+        } catch (e: Exception) {
+            FlowAccessApi.AccessApiCallResponse.Error("Failed to get account keys at block height", e)
+        }
+
     override fun getLatestBlockHeader(sealed: Boolean): FlowAccessApi.AccessApiCallResponse<FlowBlockHeader> =
         try {
             val ret = api.getLatestBlockHeader(
@@ -218,6 +274,20 @@ class FlowAccessApiImpl(
             FlowAccessApi.AccessApiCallResponse.Success(FlowTransactionResult.of(ret))
         } catch (e: Exception) {
             FlowAccessApi.AccessApiCallResponse.Error("Failed to get transaction result by ID", e)
+        }
+
+    override fun getTransactionResultByIndex(blockId: FlowId, index: Int): FlowAccessApi.AccessApiCallResponse<FlowTransactionResult> =
+        try {
+            val ret = api.getTransactionResultByIndex(
+                Access.GetTransactionByIndexRequest
+                    .newBuilder()
+                    .setBlockId(blockId.byteStringValue)
+                    .setIndex(index)
+                    .build()
+            )
+            FlowAccessApi.AccessApiCallResponse.Success(FlowTransactionResult.of(ret))
+        } catch (e: Exception) {
+            FlowAccessApi.AccessApiCallResponse.Error("Failed to get transaction result by index", e)
         }
 
     @Deprecated("Behaves identically to getAccountAtLatestBlock", replaceWith = ReplaceWith("getAccountAtLatestBlock"))

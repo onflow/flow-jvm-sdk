@@ -56,6 +56,94 @@ class TransactionIntegrationTest {
     }
 
     @Test
+    fun `Can get account key at latest block`() {
+        val address = serviceAccount.flowAddress
+        val keyIndex = 0
+
+        val accountKey = try {
+            handleResult(
+                accessAPI.getAccountKeyAtLatestBlock(address, keyIndex),
+                "Failed to get account key at latest block"
+            )
+        } catch (e: Exception) {
+            fail("Failed to retrieve account key at latest block: ${e.message}")
+        }
+
+        assertThat(accountKey).isNotNull
+        assertThat(accountKey.sequenceNumber).isEqualTo(keyIndex)
+    }
+
+    @Test
+    fun `Can get account key at block height`() {
+        val address = serviceAccount.flowAddress
+        val keyIndex = 0
+
+        val latestBlock = try {
+            handleResult(
+                accessAPI.getLatestBlock(true),
+                "Failed to get latest block"
+            )
+        } catch (e: Exception) {
+            fail("Failed to retrieve latest block: ${e.message}")
+        }
+
+        val accountKey = try {
+            handleResult(
+                accessAPI.getAccountKeyAtBlockHeight(address, keyIndex, latestBlock.height),
+                "Failed to get account key at block height"
+            )
+        } catch (e: Exception) {
+            fail("Failed to retrieve account key at block height: ${e.message}")
+        }
+
+        assertThat(accountKey).isNotNull
+        assertThat(accountKey.sequenceNumber).isEqualTo(keyIndex)
+    }
+
+    @Test
+    fun `Can get account keys at latest block`() {
+        val address = serviceAccount.flowAddress
+
+        val accountKeys = try {
+            handleResult(
+                accessAPI.getAccountKeysAtLatestBlock(address),
+                "Failed to get account keys at latest block"
+            )
+        } catch (e: Exception) {
+            fail("Failed to retrieve account keys at latest block: ${e.message}")
+        }
+
+        assertThat(accountKeys).isNotNull
+        assertThat(accountKeys).isNotEmpty
+    }
+
+    @Test
+    fun `Can get account keys at block height`() {
+        val address = serviceAccount.flowAddress
+
+        val latestBlock = try {
+            handleResult(
+                accessAPI.getLatestBlock(true),
+                "Failed to get latest block"
+            )
+        } catch (e: Exception) {
+            fail("Failed to retrieve latest block: ${e.message}")
+        }
+
+        val accountKeys = try {
+            handleResult(
+                accessAPI.getAccountKeysAtBlockHeight(address, latestBlock.height),
+                "Failed to get account keys at block height"
+            )
+        } catch (e: Exception) {
+            fail("Failed to retrieve account keys at block height: ${e.message}")
+        }
+
+        assertThat(accountKeys).isNotNull
+        assertThat(accountKeys).isNotEmpty
+    }
+
+    @Test
     fun `Can get node version info`() {
         val nodeVersionInfo = try {
             handleResult(
@@ -74,13 +162,58 @@ class TransactionIntegrationTest {
     }
 
     @Test
+    fun `Can get transaction results`() {
+        val txResult = createAndSubmitAccountCreationTransaction(
+            accessAPI,
+            serviceAccount,
+            "cadence/transaction_creation/transaction_creation_simple_transaction.cdc"
+        )
+        assertThat(txResult).isNotNull
+        assertThat(txResult.status).isEqualTo(FlowTransactionStatus.SEALED)
+
+        val latestBlock = try {
+            handleResult(
+                accessAPI.getLatestBlock(true),
+                "Failed to get latest block"
+            )
+        } catch (e: Exception) {
+            fail("Failed to retrieve latest block: ${e.message}")
+        }
+
+        val txResultById = try {
+            handleResult(
+                accessAPI.getTransactionResultById(txResult.transactionId),
+                "Failed to get tx result by id"
+            )
+        } catch (e: Exception) {
+            fail("Failed to retrieve tx result by id: ${e.message}")
+        }
+
+        assertThat(txResultById).isNotNull
+        assertThat(txResultById.status).isEqualTo(FlowTransactionStatus.SEALED)
+        assertThat(txResultById.transactionId).isEqualTo(txResult.transactionId)
+
+        val txResultByIndex = try {
+            handleResult(
+                accessAPI.getTransactionResultByIndex(latestBlock.id, 0),
+                "Failed to get tx result by index"
+            )
+        } catch (e: Exception) {
+            fail("Failed to retrieve tx result by index: ${e.message}")
+        }
+
+        assertThat(txResultByIndex).isNotNull
+        assertThat(txResultByIndex.status).isEqualTo(FlowTransactionStatus.SEALED)
+        assertThat(txResultByIndex.transactionId).isEqualTo(txResult.transactionId)
+    }
+
+    @Test
     fun `Can parse events`() {
         val txResult = createAndSubmitAccountCreationTransaction(
             accessAPI,
             serviceAccount,
             "cadence/transaction_creation/transaction_creation_simple_transaction.cdc"
         )
-
         assertThat(txResult).isNotNull
         assertThat(txResult.status).isEqualTo(FlowTransactionStatus.SEALED)
 
