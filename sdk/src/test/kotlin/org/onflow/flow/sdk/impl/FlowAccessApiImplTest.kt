@@ -11,6 +11,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.*
+import org.onflow.flow.sdk.impl.AsyncFlowAccessApiImplTest.Companion.testException
 import org.onflow.protobuf.access.Access
 import org.onflow.protobuf.access.AccessAPIGrpc
 import org.onflow.protobuf.entities.*
@@ -898,10 +899,9 @@ class FlowAccessApiImplTest {
     @Test
     fun `Test subscribeExecutionDataByBlockHeight error case`() = runTest {
         val blockHeight = 100L
-        val exception = RuntimeException("Test exception")
 
         `when`(mockExecutionDataApi.subscribeExecutionDataFromStartBlockHeight(any()))
-            .thenAnswer { throw exception }
+            .thenAnswer { throw testException }
 
         val (_, errorChannel) = flowAccessApiImpl.subscribeExecutionDataByBlockHeight(this, blockHeight)
 
@@ -913,7 +913,7 @@ class FlowAccessApiImplTest {
         job.join()
 
         if (receivedException != null) {
-            assertEquals(exception.message, receivedException!!.message)
+            assertEquals(testException.message, receivedException!!.message)
         } else {
             fail("Expected error but got success")
         }
