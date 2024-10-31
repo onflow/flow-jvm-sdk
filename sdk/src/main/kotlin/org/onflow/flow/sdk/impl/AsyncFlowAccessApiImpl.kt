@@ -47,18 +47,18 @@ class AsyncFlowAccessApiImpl(
     override fun ping(): CompletableFuture<FlowAccessApi.AccessApiCallResponse<Unit>> =
         handleApiCall(
             apiCall = { api.ping(Access.PingRequest.newBuilder().build()) },
-            transform = { Unit },
+            transform = { },
             errorMessage = "Failed to ping"
         )
 
     @Deprecated("Behaves identically to getAccountAtLatestBlock", replaceWith = ReplaceWith("getAccountAtLatestBlock"))
-    override fun getAccountByAddress(address: FlowAddress): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowAccount>> =
+    override fun getAccountByAddress(addresss: FlowAddress): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowAccount>> =
         handleApiCall(
             apiCall = {
                 api.getAccount(
                     Access.GetAccountRequest
                         .newBuilder()
-                        .setAddress(address.byteStringValue)
+                        .setAddress(addresss.byteStringValue)
                         .build()
                 )
             },
@@ -66,13 +66,13 @@ class AsyncFlowAccessApiImpl(
             errorMessage = "Failed to get account by address"
         )
 
-    override fun getAccountAtLatestBlock(address: FlowAddress): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowAccount>> =
+    override fun getAccountAtLatestBlock(addresss: FlowAddress): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowAccount>> =
         handleApiCall(
             apiCall = {
                 api.getAccountAtLatestBlock(
                     Access.GetAccountAtLatestBlockRequest
                         .newBuilder()
-                        .setAddress(address.byteStringValue)
+                        .setAddress(addresss.byteStringValue)
                         .build()
                 )
             },
@@ -80,13 +80,13 @@ class AsyncFlowAccessApiImpl(
             errorMessage = "Failed to get account at latest block"
         )
 
-    override fun getAccountByBlockHeight(address: FlowAddress, height: Long): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowAccount>> =
+    override fun getAccountByBlockHeight(addresss: FlowAddress, height: Long): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowAccount>> =
         handleApiCall(
             apiCall = {
                 api.getAccountAtBlockHeight(
                     Access.GetAccountAtBlockHeightRequest
                         .newBuilder()
-                        .setAddress(address.byteStringValue)
+                        .setAddress(addresss.byteStringValue)
                         .setBlockHeight(height)
                         .build()
                 )
@@ -353,12 +353,14 @@ class AsyncFlowAccessApiImpl(
         )
 
     override fun executeScriptAtLatestBlock(
-        script: FlowScript, arguments: Iterable<ByteString>
+        script: FlowScript,
+        arguments: Iterable<ByteString>
     ): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowScriptResponse>> =
         executeScript(
             apiCall = {
                 api.executeScriptAtLatestBlock(
-                    Access.ExecuteScriptAtLatestBlockRequest.newBuilder()
+                    Access.ExecuteScriptAtLatestBlockRequest
+                        .newBuilder()
                         .setScript(script.byteStringValue)
                         .addAllArguments(arguments)
                         .build()
@@ -368,12 +370,15 @@ class AsyncFlowAccessApiImpl(
         )
 
     override fun executeScriptAtBlockId(
-        script: FlowScript, blockId: FlowId, arguments: Iterable<ByteString>
+        script: FlowScript,
+        blockId: FlowId,
+        arguments: Iterable<ByteString>
     ): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowScriptResponse>> =
         executeScript(
             apiCall = {
                 api.executeScriptAtBlockID(
-                    Access.ExecuteScriptAtBlockIDRequest.newBuilder()
+                    Access.ExecuteScriptAtBlockIDRequest
+                        .newBuilder()
                         .setBlockId(blockId.byteStringValue)
                         .setScript(script.byteStringValue)
                         .addAllArguments(arguments)
@@ -384,12 +389,15 @@ class AsyncFlowAccessApiImpl(
         )
 
     override fun executeScriptAtBlockHeight(
-        script: FlowScript, height: Long, arguments: Iterable<ByteString>
+        script: FlowScript,
+        height: Long,
+        arguments: Iterable<ByteString>
     ): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowScriptResponse>> =
         executeScript(
             apiCall = {
                 api.executeScriptAtBlockHeight(
-                    Access.ExecuteScriptAtBlockHeightRequest.newBuilder()
+                    Access.ExecuteScriptAtBlockHeightRequest
+                        .newBuilder()
                         .setBlockHeight(height)
                         .setScript(script.byteStringValue)
                         .addAllArguments(arguments)
@@ -399,8 +407,7 @@ class AsyncFlowAccessApiImpl(
             errorMessage = "Failed to execute script at block height"
         )
 
-
-     override fun getEventsForHeightRange(type: String, range: ClosedRange<Long>): CompletableFuture<FlowAccessApi.AccessApiCallResponse<List<FlowEventResult>>> =
+    override fun getEventsForHeightRange(type: String, range: ClosedRange<Long>): CompletableFuture<FlowAccessApi.AccessApiCallResponse<List<FlowEventResult>>> =
         handleApiCall(
             apiCall = {
                 api.getEventsForHeightRange(

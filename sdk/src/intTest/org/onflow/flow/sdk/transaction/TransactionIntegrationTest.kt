@@ -29,7 +29,6 @@ class TransactionIntegrationTest {
         const val TRANSACTION_RESULT_ERROR = "Failed to get transaction result"
         const val NODE_VERSION_INFO_ERROR = "Failed to get node version info"
         const val ACCOUNT_BALANCE_LATEST_ERROR = "Failed to get account balance at latest block"
-        const val ACCOUNT_BALANCE_BLOCK_HEIGHT_ERROR = "Failed to get account balance at block height"
         const val BLOCK_ID_ERROR = "Failed to get block by ID"
         const val BLOCK_HEIGHT_ERROR = "Failed to get block by height"
         const val ACCOUNT_BY_ADDRESS_ERROR = "Failed to get account by address"
@@ -132,8 +131,8 @@ class TransactionIntegrationTest {
         val latestBlock = getLatestBlock()
 
         val accountKeys = safelyHandle(
-            { Result.success(handleResult(accessAPI.getAccountKeysAtBlockHeight(address, latestBlock.height), "Failed to get account keys at block height")) },
-            "Failed to retrieve account keys at block height"
+            { Result.success(handleResult(accessAPI.getAccountKeysAtBlockHeight(address, latestBlock.height), ACCOUNT_KEYS_ERROR)) },
+            ACCOUNT_KEYS_ERROR
         )
 
         assertThat(accountKeys).isNotNull
@@ -143,8 +142,8 @@ class TransactionIntegrationTest {
     @Test
     fun `Can get node version info`() {
         val nodeVersionInfo = safelyHandle(
-            { Result.success(handleResult(accessAPI.getNodeVersionInfo(), "Failed to get node version info")) },
-            "Failed to retrieve node version info"
+            { Result.success(handleResult(accessAPI.getNodeVersionInfo(), NODE_VERSION_INFO_ERROR)) },
+            NODE_VERSION_INFO_ERROR
         )
 
         assertThat(nodeVersionInfo).isNotNull
@@ -153,7 +152,6 @@ class TransactionIntegrationTest {
         assertThat(nodeVersionInfo.nodeRootBlockHeight).isEqualTo(0)
         assertThat(nodeVersionInfo.compatibleRange).isEqualTo(null)
     }
-
 
     @Test
     fun `Can get transaction results`() {
@@ -243,10 +241,7 @@ class TransactionIntegrationTest {
 
     @Test
     fun `Can get latest block`() {
-        val latestBlock = safelyHandle(
-            { Result.success(handleResult(accessAPI.getLatestBlock(true), LATEST_BLOCK_ERROR)) },
-            LATEST_BLOCK_ERROR
-        )
+        val latestBlock = getLatestBlock()
 
         assertThat(latestBlock).isNotNull
     }
@@ -291,10 +286,7 @@ class TransactionIntegrationTest {
     @Test
     fun `Can get account by address at latest block`() {
         val address = serviceAccount.flowAddress
-        val account = safelyHandle(
-            { Result.success(handleResult(accessAPI.getAccountAtLatestBlock(address), ACCOUNT_AT_LATEST_BLOCK_ERROR)) },
-            ACCOUNT_AT_LATEST_BLOCK_ERROR
-        )
+        val account = getAccountAtLatestBlock(address)
 
         assertThat(account).isNotNull
         assertThat(account.address).isEqualTo(address)
