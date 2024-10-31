@@ -3,7 +3,6 @@ package org.onflow.flow.sdk.impl
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.SettableFuture
 import com.google.protobuf.ByteString
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.jupiter.api.Assertions.assertArrayEquals
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -19,7 +18,6 @@ import org.onflow.protobuf.access.AccessAPIGrpc
 import org.onflow.protobuf.entities.AccountOuterClass
 import org.onflow.protobuf.entities.NodeVersionInfoOuterClass
 import org.onflow.protobuf.entities.TransactionOuterClass
-import java.math.BigDecimal
 import java.time.LocalDateTime
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -85,6 +83,33 @@ class AsyncFlowAccessApiImplTest {
             mockAccountKey
         )
         val testException = RuntimeException("Test exception")
+
+        fun createMockNodeVersionInfo(): Access.GetNodeVersionInfoResponse =
+            Access.GetNodeVersionInfoResponse
+                .newBuilder()
+                .setInfo(
+                    NodeVersionInfoOuterClass.NodeVersionInfo
+                        .newBuilder()
+                        .setSemver("v0.0.1")
+                        .setCommit("123456")
+                        .setSporkId(ByteString.copyFromUtf8("sporkId"))
+                        .setProtocolVersion(5)
+                        .setSporkRootBlockHeight(1000)
+                        .setNodeRootBlockHeight(1001)
+                        .setCompatibleRange(
+                            NodeVersionInfoOuterClass.CompatibleRange
+                                .newBuilder()
+                                .setStartHeight(100)
+                                .setEndHeight(200)
+                                .build()
+                        ).build()
+                ).build()
+
+        fun createTransactionsResponse(transactions: List<FlowTransaction>): Access.TransactionsResponse =
+            Access.TransactionsResponse
+                .newBuilder()
+                .addAllTransactions(transactions.map { it.builder().build() })
+                .build()
     }
 
     private fun <T> setupFutureMock(response: T): ListenableFuture<T> {
@@ -202,12 +227,6 @@ class AsyncFlowAccessApiImplTest {
                 .setReferenceBlockId(ByteString.copyFromUtf8(referenceBlockId))
                 .build()
         )
-
-    private fun createTransactionsResponse(transactions: List<FlowTransaction>): Access.TransactionsResponse =
-        Access.TransactionsResponse
-            .newBuilder()
-            .addAllTransactions(transactions.map { it.builder().build() })
-            .build()
 
     private fun <T> assertSuccess(result: FlowAccessApi.AccessApiCallResponse<T>, expected: T) {
         assert(result is FlowAccessApi.AccessApiCallResponse.Success)
@@ -643,25 +662,4 @@ class AsyncFlowAccessApiImplTest {
         executor.shutdown()
         executor.awaitTermination(2, TimeUnit.SECONDS)
     }
-
-    private fun createMockNodeVersionInfo(): Access.GetNodeVersionInfoResponse =
-        Access.GetNodeVersionInfoResponse
-            .newBuilder()
-            .setInfo(
-                NodeVersionInfoOuterClass.NodeVersionInfo
-                    .newBuilder()
-                    .setSemver("v0.0.1")
-                    .setCommit("123456")
-                    .setSporkId(ByteString.copyFromUtf8("sporkId"))
-                    .setProtocolVersion(5)
-                    .setSporkRootBlockHeight(1000)
-                    .setNodeRootBlockHeight(1001)
-                    .setCompatibleRange(
-                        NodeVersionInfoOuterClass.CompatibleRange
-                            .newBuilder()
-                            .setStartHeight(100)
-                            .setEndHeight(200)
-                            .build()
-                    ).build()
-            ).build()
 }
