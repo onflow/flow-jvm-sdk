@@ -196,6 +196,7 @@ class TransactionIntegrationTest {
         assertThat(blockHeader).isNotNull
         assertThat(blockHeader.height).isEqualTo(latestBlock.height)
     }
+
     @Test
     fun `Can get block header by height`() {
         val latestBlock = getLatestBlock()
@@ -233,7 +234,6 @@ class TransactionIntegrationTest {
         val normalizedBalance = balanceResponse / 100_000_000L
         assertThat(normalizedBalance).isEqualTo(account.balance.toBigInteger().longValueExact())
     }
-
 
     @Test
     fun `Can get latest block`() {
