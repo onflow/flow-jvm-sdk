@@ -3,6 +3,7 @@ package org.onflow.flow.sdk.impl
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.SettableFuture
 import com.google.protobuf.ByteString
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.jupiter.api.Assertions.assertArrayEquals
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -12,6 +13,7 @@ import org.mockito.ArgumentMatchers.eq
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
 import org.onflow.flow.sdk.*
+import org.onflow.flow.sdk.impl.FlowAccessApiImplTest.Companion.createMockAccount
 import org.onflow.protobuf.access.Access
 import org.onflow.protobuf.access.AccessAPIGrpc
 import org.onflow.protobuf.entities.AccountOuterClass
@@ -91,7 +93,16 @@ class AsyncFlowAccessApiImplTest {
         return future
     }
 
-    private object MockResponseFactory {
+    object MockResponseFactory {
+        fun accountResponse(mockAccount: FlowAccount) = Access.AccountResponse
+            .newBuilder()
+            .setAccount(mockAccount.builder().build())
+            .build()
+
+        fun getAccountResponse(mockAccount: FlowAccount) = Access.GetAccountResponse
+            .newBuilder()
+            .setAccount(mockAccount.builder().build())
+            .build()
         fun accountKeyResponse(accountKey: FlowAccountKey) = Access.AccountKeyResponse
             .newBuilder()
             .setAccountKey(accountKey.builder().build())
@@ -435,12 +446,9 @@ class AsyncFlowAccessApiImplTest {
     @Test
     fun `test getAccountByAddress`() {
         val flowAddress = FlowAddress("01")
-        val flowAccount = FlowAccount(flowAddress, BigDecimal.ONE, FlowCode("code".toByteArray()), emptyList(), emptyMap())
-        val accountResponse = Access.GetAccountResponse
-            .newBuilder()
-            .setAccount(flowAccount.builder().build())
-            .build()
-        `when`(api.getAccount(any())).thenReturn(setupFutureMock(accountResponse))
+        val flowAccount = createMockAccount(flowAddress)
+
+        `when`(api.getAccount(any())).thenReturn(setupFutureMock(MockResponseFactory.getAccountResponse(flowAccount)))
 
         val result = asyncFlowAccessApi.getAccountByAddress(flowAddress).get()
         assert(result is FlowAccessApi.AccessApiCallResponse.Success)
@@ -454,12 +462,9 @@ class AsyncFlowAccessApiImplTest {
     @Test
     fun `test getAccountAtLatestBlock`() {
         val flowAddress = FlowAddress("01")
-        val flowAccount = FlowAccount(flowAddress, BigDecimal.ONE, FlowCode("code".toByteArray()), emptyList(), emptyMap())
-        val accountResponse = Access.AccountResponse
-            .newBuilder()
-            .setAccount(flowAccount.builder().build())
-            .build()
-        `when`(api.getAccountAtLatestBlock(any())).thenReturn(setupFutureMock(accountResponse))
+        val flowAccount = createMockAccount(flowAddress)
+
+        `when`(api.getAccountAtLatestBlock(any())).thenReturn(setupFutureMock(MockResponseFactory.accountResponse(flowAccount)))
 
         val result = asyncFlowAccessApi.getAccountAtLatestBlock(flowAddress).get()
         assert(result is FlowAccessApi.AccessApiCallResponse.Success)
@@ -473,13 +478,10 @@ class AsyncFlowAccessApiImplTest {
     @Test
     fun `test getAccountByBlockHeight`() {
         val flowAddress = FlowAddress("01")
-        val flowAccount = FlowAccount(flowAddress, BigDecimal.ONE, FlowCode("code".toByteArray()), emptyList(), emptyMap())
+        val flowAccount = createMockAccount(flowAddress)
         val height = 123L
-        val accountResponse = Access.AccountResponse
-            .newBuilder()
-            .setAccount(flowAccount.builder().build())
-            .build()
-        `when`(api.getAccountAtBlockHeight(any())).thenReturn(setupFutureMock(accountResponse))
+
+        `when`(api.getAccountAtBlockHeight(any())).thenReturn(setupFutureMock(MockResponseFactory.accountResponse(flowAccount)))
 
         val result = asyncFlowAccessApi.getAccountByBlockHeight(flowAddress, height).get()
         assert(result is FlowAccessApi.AccessApiCallResponse.Success)
