@@ -106,7 +106,7 @@ class TransactionIntegrationTest {
         )
 
         assertThat(accountKey).isNotNull
-        assertThat(accountKey!!.sequenceNumber).isEqualTo(0)
+        assertThat(accountKey.sequenceNumber).isEqualTo(0)
     }
 
     @Test

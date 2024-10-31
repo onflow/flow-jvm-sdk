@@ -33,7 +33,11 @@ class AsyncFlowAccessApiImpl(
                 if (ex != null) {
                     FlowAccessApi.AccessApiCallResponse.Error(errorMessage, ex)
                 } else {
-                    FlowAccessApi.AccessApiCallResponse.Success(transform(response))
+                    try {
+                        FlowAccessApi.AccessApiCallResponse.Success(transform(response))
+                    } catch (e: Exception) {
+                        FlowAccessApi.AccessApiCallResponse.Error(errorMessage, e)
+                    }
                 }
             }
         } catch (e: Exception) {
