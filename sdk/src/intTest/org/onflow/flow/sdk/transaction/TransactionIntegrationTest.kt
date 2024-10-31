@@ -19,42 +19,69 @@ class TransactionIntegrationTest {
     @FlowServiceAccountCredentials
     lateinit var serviceAccount: TestAccount
 
+    private companion object {
+        const val LATEST_BLOCK_ERROR = "Failed to get latest block"
+        const val ACCOUNT_ERROR = "Failed to get account"
+        const val ACCOUNT_BALANCE_ERROR = "Failed to get account balance"
+        const val BLOCK_HEADER_ERROR = "Failed to get block header"
+        const val ACCOUNT_KEYS_ERROR = "Failed to get account keys"
+        const val ACCOUNT_KEY_ERROR = "Failed to get account key"
+        const val TRANSACTION_RESULT_ERROR = "Failed to get transaction result"
+        const val NODE_VERSION_INFO_ERROR = "Failed to get node version info"
+        const val ACCOUNT_BALANCE_LATEST_ERROR = "Failed to get account balance at latest block"
+        const val ACCOUNT_BALANCE_BLOCK_HEIGHT_ERROR = "Failed to get account balance at block height"
+        const val BLOCK_ID_ERROR = "Failed to get block by ID"
+        const val BLOCK_HEIGHT_ERROR = "Failed to get block by height"
+        const val ACCOUNT_BY_ADDRESS_ERROR = "Failed to get account by address"
+        const val ACCOUNT_AT_LATEST_BLOCK_ERROR = "Failed to get account at latest block"
+        const val ACCOUNT_BY_BLOCK_HEIGHT_ERROR = "Failed to get account by block height"
+    }
+
     private fun <T> safelyHandle(action: () -> Result<T>, errorMessage: String): T =
         action().getOrElse { e ->
             fail("$errorMessage: ${e.message}")
         }
 
     private fun getLatestBlock(): FlowBlock =
-        safelyHandle({ Result.success(handleResult(accessAPI.getLatestBlock(true), "Failed to get latest block")) }, "Failed to retrieve latest block")
+        safelyHandle({ Result.success(handleResult(accessAPI.getLatestBlock(true), LATEST_BLOCK_ERROR)) }, LATEST_BLOCK_ERROR)
 
     private fun getAccountAtLatestBlock(address: FlowAddress): FlowAccount =
-        safelyHandle({ Result.success(handleResult(accessAPI.getAccountAtLatestBlock(address), "Failed to get account at latest block")) }, "Failed to retrieve account at latest block")
+        safelyHandle({ Result.success(handleResult(accessAPI.getAccountAtLatestBlock(address), ACCOUNT_ERROR)) }, ACCOUNT_ERROR)
 
     private fun getAccountBalanceAtBlockHeight(address: FlowAddress, height: Long): Long =
-        safelyHandle({ Result.success(handleResult(accessAPI.getAccountBalanceAtBlockHeight(address, height), "Failed to get account balance at block height")) }, "Failed to retrieve account balance at block height")
+        safelyHandle({ Result.success(handleResult(accessAPI.getAccountBalanceAtBlockHeight(address, height), ACCOUNT_BALANCE_ERROR)) }, ACCOUNT_BALANCE_ERROR)
 
     private fun getBlockHeaderByHeight(height: Long): FlowBlockHeader =
-        safelyHandle({ Result.success(handleResult(accessAPI.getBlockHeaderByHeight(height), "Failed to get block header by height")) }, "Failed to retrieve block header by height")
+        safelyHandle({ Result.success(handleResult(accessAPI.getBlockHeaderByHeight(height), BLOCK_HEADER_ERROR)) }, BLOCK_HEADER_ERROR)
 
     private fun getAccountKeysAtLatestBlock(address: FlowAddress): List<FlowAccountKey> =
-        safelyHandle({ Result.success(handleResult(accessAPI.getAccountKeysAtLatestBlock(address), "Failed to get account keys at latest block")) }, "Failed to retrieve account keys at latest block")
+        safelyHandle({ Result.success(handleResult(accessAPI.getAccountKeysAtLatestBlock(address), ACCOUNT_KEYS_ERROR)) }, ACCOUNT_KEYS_ERROR)
 
     private fun getAccountKeyAtBlockHeight(address: FlowAddress, keyIndex: Int, height: Long): FlowAccountKey =
-        safelyHandle({ Result.success(handleResult(accessAPI.getAccountKeyAtBlockHeight(address, keyIndex, height), "Failed to get account key at block height")) }, "Failed to retrieve account key at block height")
+        safelyHandle({ Result.success(handleResult(accessAPI.getAccountKeyAtBlockHeight(address, keyIndex, height), ACCOUNT_KEY_ERROR)) }, ACCOUNT_KEY_ERROR)
 
     private fun getBlockHeaderById(blockId: FlowId): FlowBlockHeader =
-        safelyHandle({ Result.success(handleResult(accessAPI.getBlockHeaderById(blockId), "Failed to get block header by ID")) }, "Failed to retrieve block header by ID")
+        safelyHandle({ Result.success(handleResult(accessAPI.getBlockHeaderById(blockId), BLOCK_ID_ERROR)) }, BLOCK_ID_ERROR)
 
     private fun getTransactionResultById(transactionId: FlowId): FlowTransactionResult =
-        safelyHandle({ Result.success(handleResult(accessAPI.getTransactionResultById(transactionId), "Failed to get transaction result by ID")) }, "Failed to retrieve transaction result by ID")
+        safelyHandle({ Result.success(handleResult(accessAPI.getTransactionResultById(transactionId), TRANSACTION_RESULT_ERROR)) }, TRANSACTION_RESULT_ERROR)
 
     private fun getTransactionResultByIndex(blockId: FlowId, index: Int): FlowTransactionResult =
-        safelyHandle({ Result.success(handleResult(accessAPI.getTransactionResultByIndex(blockId, index), "Failed to get transaction result by index")) }, "Failed to retrieve transaction result by index")
-
+        safelyHandle({ Result.success(handleResult(accessAPI.getTransactionResultByIndex(blockId, index), TRANSACTION_RESULT_ERROR)) }, TRANSACTION_RESULT_ERROR)
 
     @Test
     fun `Can connect to emulator and ping access API`() {
-        safelyHandle({ handleResult(accessAPI.ping(), "Failed to ping") }, "Failed to ping emulator")
+        safelyHandle(
+            {
+                try {
+                    accessAPI.ping()
+                    Result.success(Unit)
+                } catch (e: Exception) {
+                    Result.failure(e)
+                }
+            },
+            "Failed to ping emulator"
+        )
 
         val account = getAccountAtLatestBlock(serviceAccount.flowAddress)
         assertThat(account).isNotNull
@@ -64,8 +91,8 @@ class TransactionIntegrationTest {
     @Test
     fun `Can get network parameters`() {
         val networkParams = safelyHandle(
-            { Result.success(handleResult(accessAPI.getNetworkParameters(), "Failed to get network parameters")) },
-            "Failed to retrieve network parameters"
+            { Result.success(handleResult(accessAPI.getNetworkParameters(), NODE_VERSION_INFO_ERROR)) },
+            NODE_VERSION_INFO_ERROR
         )
 
         assertThat(networkParams).isEqualTo(FlowChainId.EMULATOR)
@@ -74,8 +101,8 @@ class TransactionIntegrationTest {
     @Test
     fun `Can get account key at latest block`() {
         val accountKey = safelyHandle(
-            { Result.success(handleResult(accessAPI.getAccountKeyAtLatestBlock(serviceAccount.flowAddress, 0), "Failed to get account key at latest block")) },
-            "Failed to retrieve account key at latest block"
+            { Result.success(handleResult(accessAPI.getAccountKeyAtLatestBlock(serviceAccount.flowAddress, 0), ACCOUNT_KEY_ERROR)) },
+            ACCOUNT_KEY_ERROR
         )
 
         assertThat(accountKey).isNotNull
@@ -190,8 +217,8 @@ class TransactionIntegrationTest {
         val address = serviceAccount.flowAddress
 
         val balanceResponse = safelyHandle(
-            { Result.success(handleResult(accessAPI.getAccountBalanceAtLatestBlock(address), "Failed to get account balance at latest block")) },
-            "Failed to retrieve account balance at latest block"
+            { Result.success(handleResult(accessAPI.getAccountBalanceAtLatestBlock(address), ACCOUNT_BALANCE_LATEST_ERROR)) },
+            ACCOUNT_BALANCE_LATEST_ERROR
         )
 
         val account = getAccountAtLatestBlock(address)
@@ -206,8 +233,8 @@ class TransactionIntegrationTest {
         val balanceResponse = getAccountBalanceAtBlockHeight(serviceAccount.flowAddress, latestBlock.height)
 
         val account = safelyHandle(
-            { Result.success(handleResult(accessAPI.getAccountByBlockHeight(serviceAccount.flowAddress, latestBlock.height), "Failed to get account by block height")) },
-            "Failed to retrieve account by block height"
+            { Result.success(handleResult(accessAPI.getAccountByBlockHeight(serviceAccount.flowAddress, latestBlock.height), ACCOUNT_BY_BLOCK_HEIGHT_ERROR)) },
+            ACCOUNT_BY_BLOCK_HEIGHT_ERROR
         )
 
         val normalizedBalance = balanceResponse / 100_000_000L
@@ -217,8 +244,8 @@ class TransactionIntegrationTest {
     @Test
     fun `Can get latest block`() {
         val latestBlock = safelyHandle(
-            { Result.success(handleResult(accessAPI.getLatestBlock(true), "Failed to get latest block")) },
-            "Failed to retrieve latest block"
+            { Result.success(handleResult(accessAPI.getLatestBlock(true), LATEST_BLOCK_ERROR)) },
+            LATEST_BLOCK_ERROR
         )
 
         assertThat(latestBlock).isNotNull
@@ -229,8 +256,8 @@ class TransactionIntegrationTest {
         val latestBlock = getLatestBlock()
 
         val blockById = safelyHandle(
-            { Result.success(handleResult(accessAPI.getBlockById(latestBlock.id), "Failed to get block by ID")) },
-            "Failed to retrieve block by ID"
+            { Result.success(handleResult(accessAPI.getBlockById(latestBlock.id), BLOCK_ID_ERROR)) },
+            BLOCK_ID_ERROR
         )
 
         assertThat(blockById).isNotNull
@@ -241,8 +268,8 @@ class TransactionIntegrationTest {
     fun `Can get block by height`() {
         val latestBlock = getLatestBlock()
         val blockByHeight = safelyHandle(
-            { Result.success(handleResult(accessAPI.getBlockByHeight(latestBlock.height), "Failed to get block by height")) },
-            "Failed to retrieve block by height"
+            { Result.success(handleResult(accessAPI.getBlockByHeight(latestBlock.height), BLOCK_HEIGHT_ERROR)) },
+            BLOCK_HEIGHT_ERROR
         )
 
         assertThat(blockByHeight).isNotNull
@@ -253,8 +280,8 @@ class TransactionIntegrationTest {
     fun `Can get account by address`() {
         val address = serviceAccount.flowAddress
         val account = safelyHandle(
-            { Result.success(handleResult(accessAPI.getAccountByAddress(address), "Failed to get account by address")) },
-            "Failed to retrieve account by address"
+            { Result.success(handleResult(accessAPI.getAccountByAddress(address), ACCOUNT_BY_ADDRESS_ERROR)) },
+            ACCOUNT_BY_ADDRESS_ERROR
         )
 
         assertThat(account).isNotNull
@@ -265,8 +292,8 @@ class TransactionIntegrationTest {
     fun `Can get account by address at latest block`() {
         val address = serviceAccount.flowAddress
         val account = safelyHandle(
-            { Result.success(handleResult(accessAPI.getAccountAtLatestBlock(address), "Failed to get account at latest block")) },
-            "Failed to retrieve account at latest block"
+            { Result.success(handleResult(accessAPI.getAccountAtLatestBlock(address), ACCOUNT_AT_LATEST_BLOCK_ERROR)) },
+            ACCOUNT_AT_LATEST_BLOCK_ERROR
         )
 
         assertThat(account).isNotNull
@@ -277,8 +304,8 @@ class TransactionIntegrationTest {
     fun `Can get account by block height`() {
         val latestBlock = getLatestBlock()
         val account = safelyHandle(
-            { Result.success(handleResult(accessAPI.getAccountByBlockHeight(serviceAccount.flowAddress, latestBlock.height), "Failed to get account by block height")) },
-            "Failed to retrieve account by block height"
+            { Result.success(handleResult(accessAPI.getAccountByBlockHeight(serviceAccount.flowAddress, latestBlock.height), ACCOUNT_BY_BLOCK_HEIGHT_ERROR)) },
+            ACCOUNT_BY_BLOCK_HEIGHT_ERROR
         )
 
         assertThat(account).isNotNull
