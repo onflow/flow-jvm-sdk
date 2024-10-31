@@ -19,99 +19,103 @@ class TransactionIntegrationTest {
     @FlowServiceAccountCredentials
     lateinit var serviceAccount: TestAccount
 
+    private fun <T> safelyHandle(action: () -> T, errorMessage: String): T =
+        try {
+            action()
+        } catch (e: Exception) {
+            fail("$errorMessage: ${e.message}")
+        }
+
+    private fun getLatestBlock(): FlowBlock =
+        safelyHandle({ handleResult(accessAPI.getLatestBlock(true), "Failed to get latest block") }, "Failed to retrieve latest block")
+
+    private fun getAccountAtLatestBlock(address: FlowAddress): FlowAccount =
+        safelyHandle({ handleResult(accessAPI.getAccountAtLatestBlock(address), "Failed to get account at latest block") }, "Failed to retrieve account at latest block")
+
+    private fun getAccountBalanceAtBlockHeight(address: FlowAddress, height: Long): Long =
+        safelyHandle(
+            { handleResult(accessAPI.getAccountBalanceAtBlockHeight(address, height), "Failed to get account balance at block height") },
+            "Failed to retrieve account balance at block height"
+        )
+
+    private fun getBlockHeaderByHeight(height: Long): FlowBlockHeader =
+        safelyHandle(
+            { handleResult(accessAPI.getBlockHeaderByHeight(height), "Failed to get block header by height") },
+            "Failed to retrieve block header by height"
+        )
+
+    private fun getAccountKeysAtLatestBlock(address: FlowAddress): List<FlowAccountKey> =
+        safelyHandle(
+            { handleResult(accessAPI.getAccountKeysAtLatestBlock(address), "Failed to get account keys at latest block") },
+            "Failed to retrieve account keys at latest block"
+        )
+
+    private fun getAccountKeyAtBlockHeight(address: FlowAddress, keyIndex: Int, height: Long): FlowAccountKey =
+        safelyHandle(
+            { handleResult(accessAPI.getAccountKeyAtBlockHeight(address, keyIndex, height), "Failed to get account key at block height") },
+            "Failed to retrieve account key at block height"
+        )
+
+    private fun getBlockHeaderById(blockId: FlowId): FlowBlockHeader =
+        safelyHandle(
+            { handleResult(accessAPI.getBlockHeaderById(blockId), "Failed to get block header by ID") },
+            "Failed to retrieve block header by ID"
+        )
+
+    private fun getTransactionResultById(transactionId: FlowId): FlowTransactionResult =
+        safelyHandle(
+            { handleResult(accessAPI.getTransactionResultById(transactionId), "Failed to get transaction result by ID") },
+            "Failed to retrieve transaction result by ID"
+        )
+
+    private fun getTransactionResultByIndex(blockId: FlowId, index: Int): FlowTransactionResult =
+        safelyHandle(
+            { handleResult(accessAPI.getTransactionResultByIndex(blockId, index), "Failed to get transaction result by index") },
+            "Failed to retrieve transaction result by index"
+        )
+
     @Test
     fun `Can connect to emulator and ping access API`() {
-        try {
-            handleResult(accessAPI.ping(), "Failed to ping")
-        } catch (e: Exception) {
-            fail("Failed to ping emulator: ${e.message}")
-        }
+        safelyHandle({ handleResult(accessAPI.ping(), "Failed to ping") }, "Failed to ping emulator")
 
-        val address = serviceAccount.flowAddress
-        val account = try {
-            handleResult(
-                accessAPI.getAccountAtLatestBlock(address),
-                "Failed to get account"
-            )
-        } catch (e: Exception) {
-            fail("Failed to retrieve account: ${e.message}")
-        }
-
+        val account = getAccountAtLatestBlock(serviceAccount.flowAddress)
         assertThat(account).isNotNull
         assertThat(account.keys).isNotEmpty()
     }
 
     @Test
     fun `Can get network parameters`() {
-        val networkParams = try {
-            handleResult(
-                accessAPI.getNetworkParameters(),
-                "Failed to get network parameters"
-            )
-        } catch (e: Exception) {
-            fail("Failed to retrieve network parameters: ${e.message}")
-        }
+        val networkParams = safelyHandle(
+            { handleResult(accessAPI.getNetworkParameters(), "Failed to get network parameters") },
+            "Failed to retrieve network parameters"
+        )
 
         assertThat(networkParams).isEqualTo(FlowChainId.EMULATOR)
     }
 
     @Test
     fun `Can get account key at latest block`() {
-        val address = serviceAccount.flowAddress
-        val keyIndex = 0
-
-        val accountKey = try {
-            handleResult(
-                accessAPI.getAccountKeyAtLatestBlock(address, keyIndex),
-                "Failed to get account key at latest block"
-            )
-        } catch (e: Exception) {
-            fail("Failed to retrieve account key at latest block: ${e.message}")
-        }
+        val accountKey = safelyHandle(
+            { handleResult(accessAPI.getAccountKeyAtLatestBlock(serviceAccount.flowAddress, 0), "Failed to get account key at latest block") },
+            "Failed to retrieve account key at latest block"
+        )
 
         assertThat(accountKey).isNotNull
-        assertThat(accountKey.sequenceNumber).isEqualTo(keyIndex)
+        assertThat(accountKey.sequenceNumber).isEqualTo(0)
     }
 
     @Test
     fun `Can get account key at block height`() {
-        val address = serviceAccount.flowAddress
-        val keyIndex = 0
-
-        val latestBlock = try {
-            handleResult(
-                accessAPI.getLatestBlock(true),
-                "Failed to get latest block"
-            )
-        } catch (e: Exception) {
-            fail("Failed to retrieve latest block: ${e.message}")
-        }
-
-        val accountKey = try {
-            handleResult(
-                accessAPI.getAccountKeyAtBlockHeight(address, keyIndex, latestBlock.height),
-                "Failed to get account key at block height"
-            )
-        } catch (e: Exception) {
-            fail("Failed to retrieve account key at block height: ${e.message}")
-        }
+        val latestBlock = getLatestBlock()
+        val accountKey = getAccountKeyAtBlockHeight(serviceAccount.flowAddress, 0, latestBlock.height)
 
         assertThat(accountKey).isNotNull
-        assertThat(accountKey.sequenceNumber).isEqualTo(keyIndex)
+        assertThat(accountKey.sequenceNumber).isEqualTo(0)
     }
 
     @Test
     fun `Can get account keys at latest block`() {
-        val address = serviceAccount.flowAddress
-
-        val accountKeys = try {
-            handleResult(
-                accessAPI.getAccountKeysAtLatestBlock(address),
-                "Failed to get account keys at latest block"
-            )
-        } catch (e: Exception) {
-            fail("Failed to retrieve account keys at latest block: ${e.message}")
-        }
+        val accountKeys = getAccountKeysAtLatestBlock(serviceAccount.flowAddress)
 
         assertThat(accountKeys).isNotNull
         assertThat(accountKeys).isNotEmpty
@@ -120,24 +124,12 @@ class TransactionIntegrationTest {
     @Test
     fun `Can get account keys at block height`() {
         val address = serviceAccount.flowAddress
+        val latestBlock = getLatestBlock()
 
-        val latestBlock = try {
-            handleResult(
-                accessAPI.getLatestBlock(true),
-                "Failed to get latest block"
-            )
-        } catch (e: Exception) {
-            fail("Failed to retrieve latest block: ${e.message}")
-        }
-
-        val accountKeys = try {
-            handleResult(
-                accessAPI.getAccountKeysAtBlockHeight(address, latestBlock.height),
-                "Failed to get account keys at block height"
-            )
-        } catch (e: Exception) {
-            fail("Failed to retrieve account keys at block height: ${e.message}")
-        }
+        val accountKeys = safelyHandle(
+            { handleResult(accessAPI.getAccountKeysAtBlockHeight(address, latestBlock.height), "Failed to get account keys at block height") },
+            "Failed to retrieve account keys at block height"
+        )
 
         assertThat(accountKeys).isNotNull
         assertThat(accountKeys).isNotEmpty
@@ -145,16 +137,12 @@ class TransactionIntegrationTest {
 
     @Test
     fun `Can get node version info`() {
-        val nodeVersionInfo = try {
-            handleResult(
-                accessAPI.getNodeVersionInfo(),
-                "Failed to get network parameters"
-            )
-        } catch (e: Exception) {
-            fail("Failed to retrieve network parameters: ${e.message}")
-        }
+        val nodeVersionInfo = safelyHandle(
+            { handleResult(accessAPI.getNodeVersionInfo(), "Failed to get node version info") },
+            "Failed to retrieve node version info"
+        )
 
-        assertThat(nodeVersionInfo).isNotNull()
+        assertThat(nodeVersionInfo).isNotNull
         assertThat(nodeVersionInfo.protocolVersion).isEqualTo(0)
         assertThat(nodeVersionInfo.sporkRootBlockHeight).isEqualTo(0)
         assertThat(nodeVersionInfo.nodeRootBlockHeight).isEqualTo(0)
@@ -171,37 +159,14 @@ class TransactionIntegrationTest {
         assertThat(txResult).isNotNull
         assertThat(txResult.status).isEqualTo(FlowTransactionStatus.SEALED)
 
-        val latestBlock = try {
-            handleResult(
-                accessAPI.getLatestBlock(true),
-                "Failed to get latest block"
-            )
-        } catch (e: Exception) {
-            fail("Failed to retrieve latest block: ${e.message}")
-        }
+        val latestBlock = getLatestBlock()
 
-        val txResultById = try {
-            handleResult(
-                accessAPI.getTransactionResultById(txResult.transactionId),
-                "Failed to get tx result by id"
-            )
-        } catch (e: Exception) {
-            fail("Failed to retrieve tx result by id: ${e.message}")
-        }
-
+        val txResultById = getTransactionResultById(txResult.transactionId)
         assertThat(txResultById).isNotNull
         assertThat(txResultById.status).isEqualTo(FlowTransactionStatus.SEALED)
         assertThat(txResultById.transactionId).isEqualTo(txResult.transactionId)
 
-        val txResultByIndex = try {
-            handleResult(
-                accessAPI.getTransactionResultByIndex(latestBlock.id, 0),
-                "Failed to get tx result by index"
-            )
-        } catch (e: Exception) {
-            fail("Failed to retrieve tx result by index: ${e.message}")
-        }
-
+        val txResultByIndex = getTransactionResultByIndex(latestBlock.id, 0)
         assertThat(txResultByIndex).isNotNull
         assertThat(txResultByIndex.status).isEqualTo(FlowTransactionStatus.SEALED)
         assertThat(txResultByIndex.transactionId).isEqualTo(txResult.transactionId)
@@ -225,50 +190,16 @@ class TransactionIntegrationTest {
 
     @Test
     fun `Can get block header by id`() {
-        val latestBlock = try {
-            handleResult(
-                accessAPI.getLatestBlock(true),
-                "Failed to get latest block"
-            )
-        } catch (e: Exception) {
-            fail("Failed to retrieve latest block: ${e.message}")
-        }
+        val latestBlock = getLatestBlock()
+        val blockHeader = getBlockHeaderById(latestBlock.id)
 
-        assertThat(latestBlock).isNotNull
-
-        val blockHeaderById = try {
-            handleResult(
-                accessAPI.getBlockHeaderById(latestBlock.id),
-                "Failed to get block header by ID"
-            )
-        } catch (e: Exception) {
-            fail("Failed to retrieve block header by ID: ${e.message}")
-        }
-
-        assertThat(blockHeaderById).isNotNull
+        assertThat(blockHeader).isNotNull
+        assertThat(blockHeader.height).isEqualTo(latestBlock.height)
     }
-
     @Test
     fun `Can get block header by height`() {
-        val latestBlock = try {
-            handleResult(
-                accessAPI.getLatestBlock(true),
-                "Failed to get latest block"
-            )
-        } catch (e: Exception) {
-            fail("Failed to retrieve latest block: ${e.message}")
-        }
-
-        assertThat(latestBlock).isNotNull
-
-        val blockHeader = try {
-            handleResult(
-                accessAPI.getBlockHeaderByHeight(latestBlock.height),
-                "Failed to get block header by height"
-            )
-        } catch (e: Exception) {
-            fail("Failed to retrieve block header by height: ${e.message}")
-        }
+        val latestBlock = getLatestBlock()
+        val blockHeader = getBlockHeaderByHeight(latestBlock.height)
 
         assertThat(blockHeader).isNotNull
         assertThat(blockHeader.height).isEqualTo(latestBlock.height)
@@ -278,26 +209,12 @@ class TransactionIntegrationTest {
     fun `Can get account balance at latest block`() {
         val address = serviceAccount.flowAddress
 
-        val balanceResponse = try {
-            handleResult(
-                accessAPI.getAccountBalanceAtLatestBlock(address),
-                "Failed to get account balance at latest block"
-            )
-        } catch (e: Exception) {
-            fail("Failed to retrieve account balance at latest block: ${e.message}")
-        }
+        val balanceResponse = safelyHandle(
+            { handleResult(accessAPI.getAccountBalanceAtLatestBlock(address), "Failed to get account balance at latest block") },
+            "Failed to retrieve account balance at latest block"
+        )
 
-        assertThat(balanceResponse).isNotNull
-
-        val account = try {
-            handleResult(
-                accessAPI.getAccountAtLatestBlock(address),
-                "Failed to get account at latest block"
-            )
-        } catch (e: Exception) {
-            fail("Failed to retrieve account at latest block: ${e.message}")
-        }
-
+        val account = getAccountAtLatestBlock(address)
         val normalizedBalance = balanceResponse / 100_000_000L
 
         assertThat(normalizedBalance).isEqualTo(account.balance.toBigInteger().longValueExact())
@@ -305,79 +222,37 @@ class TransactionIntegrationTest {
 
     @Test
     fun `Can get account balance at block height`() {
-        val address = serviceAccount.flowAddress
+        val latestBlock = getLatestBlock()
+        val balanceResponse = getAccountBalanceAtBlockHeight(serviceAccount.flowAddress, latestBlock.height)
 
-        val latestBlock = try {
-            handleResult(
-                accessAPI.getLatestBlock(true),
-                "Failed to get latest block"
-            )
-        } catch (e: Exception) {
-            fail("Failed to retrieve latest block: ${e.message}")
-        }
-
-        val height = latestBlock.height
-
-        val balanceResponse = try {
-            handleResult(
-                accessAPI.getAccountBalanceAtBlockHeight(address, height),
-                "Failed to get account balance at block height"
-            )
-        } catch (e: Exception) {
-            fail("Failed to retrieve account balance at block height: ${e.message}")
-        }
-
-        assertThat(balanceResponse).isNotNull
-
-        val account = try {
-            handleResult(
-                accessAPI.getAccountByBlockHeight(address, height),
-                "Failed to get account by block height"
-            )
-        } catch (e: Exception) {
-            fail("Failed to retrieve account by block height: ${e.message}")
-        }
+        val account = safelyHandle(
+            { handleResult(accessAPI.getAccountByBlockHeight(serviceAccount.flowAddress, latestBlock.height), "Failed to get account by block height") },
+            "Failed to retrieve account by block height"
+        )
 
         val normalizedBalance = balanceResponse / 100_000_000L
-
         assertThat(normalizedBalance).isEqualTo(account.balance.toBigInteger().longValueExact())
     }
 
+
     @Test
     fun `Can get latest block`() {
-        val latestBlock = try {
-            handleResult(
-                accessAPI.getLatestBlock(true),
-                "Failed to get latest block"
-            )
-        } catch (e: Exception) {
-            fail("Failed to retrieve latest block: ${e.message}")
-        }
+        val latestBlock = safelyHandle(
+            { handleResult(accessAPI.getLatestBlock(true), "Failed to get latest block") },
+            "Failed to retrieve latest block"
+        )
 
         assertThat(latestBlock).isNotNull
     }
 
     @Test
     fun `Can get block by id`() {
-        val latestBlock = try {
-            handleResult(
-                accessAPI.getLatestBlock(true),
-                "Failed to get latest block"
-            )
-        } catch (e: Exception) {
-            fail("Failed to retrieve latest block: ${e.message}")
-        }
+        val latestBlock = getLatestBlock()
 
-        assertThat(latestBlock).isNotNull
-
-        val blockById = try {
-            handleResult(
-                accessAPI.getBlockById(latestBlock.id),
-                "Failed to get block by ID"
-            )
-        } catch (e: Exception) {
-            fail("Failed to retrieve block by ID: ${e.message}")
-        }
+        val blockById = safelyHandle(
+            { handleResult(accessAPI.getBlockById(latestBlock.id), "Failed to get block by ID") },
+            "Failed to retrieve block by ID"
+        )
 
         assertThat(blockById).isNotNull
         assertThat(blockById.id).isEqualTo(latestBlock.id)
@@ -385,25 +260,11 @@ class TransactionIntegrationTest {
 
     @Test
     fun `Can get block by height`() {
-        val latestBlock = try {
-            handleResult(
-                accessAPI.getLatestBlock(true),
-                "Failed to get latest block"
-            )
-        } catch (e: Exception) {
-            fail("Failed to retrieve latest block: ${e.message}")
-        }
-
-        assertThat(latestBlock).isNotNull
-
-        val blockByHeight = try {
-            handleResult(
-                accessAPI.getBlockByHeight(latestBlock.height),
-                "Failed to get block by height"
-            )
-        } catch (e: Exception) {
-            fail("Failed to retrieve block by height: ${e.message}")
-        }
+        val latestBlock = getLatestBlock()
+        val blockByHeight = safelyHandle(
+            { handleResult(accessAPI.getBlockByHeight(latestBlock.height), "Failed to get block by height") },
+            "Failed to retrieve block by height"
+        )
 
         assertThat(blockByHeight).isNotNull
         assertThat(blockByHeight.height).isEqualTo(latestBlock.height)
@@ -412,14 +273,10 @@ class TransactionIntegrationTest {
     @Test
     fun `Can get account by address`() {
         val address = serviceAccount.flowAddress
-        val account = try {
-            handleResult(
-                accessAPI.getAccountByAddress(address),
-                "Failed to get account by address"
-            )
-        } catch (e: Exception) {
-            fail("Failed to retrieve account by address: ${e.message}")
-        }
+        val account = safelyHandle(
+            { handleResult(accessAPI.getAccountByAddress(address), "Failed to get account by address") },
+            "Failed to retrieve account by address"
+        )
 
         assertThat(account).isNotNull
         assertThat(account.address).isEqualTo(address)
@@ -428,14 +285,10 @@ class TransactionIntegrationTest {
     @Test
     fun `Can get account by address at latest block`() {
         val address = serviceAccount.flowAddress
-        val account = try {
-            handleResult(
-                accessAPI.getAccountAtLatestBlock(address),
-                "Failed to get account at latest block"
-            )
-        } catch (e: Exception) {
-            fail("Failed to retrieve account at latest block: ${e.message}")
-        }
+        val account = safelyHandle(
+            { handleResult(accessAPI.getAccountAtLatestBlock(address), "Failed to get account at latest block") },
+            "Failed to retrieve account at latest block"
+        )
 
         assertThat(account).isNotNull
         assertThat(account.address).isEqualTo(address)
@@ -443,35 +296,13 @@ class TransactionIntegrationTest {
 
     @Test
     fun `Can get account by block height`() {
-        val latestBlock = try {
-            handleResult(
-                accessAPI.getLatestBlock(true),
-                "Failed to get latest block"
-            )
-        } catch (e: Exception) {
-            fail("Failed to retrieve latest block: ${e.message}")
-        }
-
-        val blockHeader = try {
-            handleResult(
-                accessAPI.getBlockHeaderByHeight(latestBlock.height),
-                "Failed to get block header by height"
-            )
-        } catch (e: Exception) {
-            fail("Failed to retrieve block header by height: ${e.message}")
-        }
-
-        val address = serviceAccount.flowAddress
-        val account = try {
-            handleResult(
-                accessAPI.getAccountByBlockHeight(address, blockHeader.height),
-                "Failed to get account by block height"
-            )
-        } catch (e: Exception) {
-            fail("Failed to retrieve account by block height: ${e.message}")
-        }
+        val latestBlock = getLatestBlock()
+        val account = safelyHandle(
+            { handleResult(accessAPI.getAccountByBlockHeight(serviceAccount.flowAddress, latestBlock.height), "Failed to get account by block height") },
+            "Failed to retrieve account by block height"
+        )
 
         assertThat(account).isNotNull
-        assertThat(account.address).isEqualTo(address)
+        assertThat(account.address).isEqualTo(serviceAccount.flowAddress)
     }
 }
