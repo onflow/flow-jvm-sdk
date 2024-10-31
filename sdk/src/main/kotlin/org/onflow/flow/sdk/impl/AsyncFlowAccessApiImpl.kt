@@ -338,54 +338,65 @@ class AsyncFlowAccessApiImpl(
             errorMessage = "Failed to get transaction result by index"
         )
 
-    override fun executeScriptAtLatestBlock(script: FlowScript, arguments: Iterable<ByteString>): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowScriptResponse>> =
+    private fun executeScript(
+        apiCall: () -> ListenableFuture<Access.ExecuteScriptResponse>,
+        errorMessage: String
+    ): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowScriptResponse>> =
         handleApiCall(
+            apiCall = apiCall,
+            transform = { FlowScriptResponse(it.value.toByteArray()) },
+            errorMessage = errorMessage
+        )
+
+    override fun executeScriptAtLatestBlock(
+        script: FlowScript, arguments: Iterable<ByteString>
+    ): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowScriptResponse>> =
+        executeScript(
             apiCall = {
                 api.executeScriptAtLatestBlock(
-                    Access.ExecuteScriptAtLatestBlockRequest
-                        .newBuilder()
+                    Access.ExecuteScriptAtLatestBlockRequest.newBuilder()
                         .setScript(script.byteStringValue)
                         .addAllArguments(arguments)
                         .build()
                 )
             },
-            transform = { FlowScriptResponse(it.value.toByteArray()) },
             errorMessage = "Failed to execute script at latest block"
         )
 
-    override fun executeScriptAtBlockId(script: FlowScript, blockId: FlowId, arguments: Iterable<ByteString>): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowScriptResponse>> =
-        handleApiCall(
+    override fun executeScriptAtBlockId(
+        script: FlowScript, blockId: FlowId, arguments: Iterable<ByteString>
+    ): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowScriptResponse>> =
+        executeScript(
             apiCall = {
                 api.executeScriptAtBlockID(
-                    Access.ExecuteScriptAtBlockIDRequest
-                        .newBuilder()
+                    Access.ExecuteScriptAtBlockIDRequest.newBuilder()
                         .setBlockId(blockId.byteStringValue)
                         .setScript(script.byteStringValue)
                         .addAllArguments(arguments)
                         .build()
                 )
             },
-            transform = { FlowScriptResponse(it.value.toByteArray()) },
             errorMessage = "Failed to execute script at block ID"
         )
 
-    override fun executeScriptAtBlockHeight(script: FlowScript, height: Long, arguments: Iterable<ByteString>): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowScriptResponse>> =
-        handleApiCall(
+    override fun executeScriptAtBlockHeight(
+        script: FlowScript, height: Long, arguments: Iterable<ByteString>
+    ): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowScriptResponse>> =
+        executeScript(
             apiCall = {
                 api.executeScriptAtBlockHeight(
-                    Access.ExecuteScriptAtBlockHeightRequest
-                        .newBuilder()
+                    Access.ExecuteScriptAtBlockHeightRequest.newBuilder()
                         .setBlockHeight(height)
                         .setScript(script.byteStringValue)
                         .addAllArguments(arguments)
                         .build()
                 )
             },
-            transform = { FlowScriptResponse(it.value.toByteArray()) },
             errorMessage = "Failed to execute script at block height"
         )
 
-    override fun getEventsForHeightRange(type: String, range: ClosedRange<Long>): CompletableFuture<FlowAccessApi.AccessApiCallResponse<List<FlowEventResult>>> =
+
+     override fun getEventsForHeightRange(type: String, range: ClosedRange<Long>): CompletableFuture<FlowAccessApi.AccessApiCallResponse<List<FlowEventResult>>> =
         handleApiCall(
             apiCall = {
                 api.getEventsForHeightRange(
