@@ -32,7 +32,6 @@ class TransactionIntegrationTest {
         const val BLOCK_ID_ERROR = "Failed to get block by ID"
         const val BLOCK_HEIGHT_ERROR = "Failed to get block by height"
         const val ACCOUNT_BY_ADDRESS_ERROR = "Failed to get account by address"
-        const val ACCOUNT_AT_LATEST_BLOCK_ERROR = "Failed to get account at latest block"
         const val ACCOUNT_BY_BLOCK_HEIGHT_ERROR = "Failed to get account by block height"
     }
 
