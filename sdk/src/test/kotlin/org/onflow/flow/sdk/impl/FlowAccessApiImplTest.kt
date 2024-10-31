@@ -878,6 +878,4 @@ class FlowAccessApiImplTest {
             is FlowAccessApi.AccessApiCallResponse.Error -> throw IllegalStateException("Request failed: ${result.message}", result.throwable)
         }
     }
-
-
 }
