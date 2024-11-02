@@ -594,6 +594,24 @@ class AsyncFlowAccessApiImplTest {
     }
 
     @Test
+    fun `test getProtocolStateSnapshotByBlockId`() {
+        val mockFlowSnapshot = FlowSnapshot("test_serialized_snapshot".toByteArray())
+        `when`(api.getProtocolStateSnapshotByBlockID(any())).thenReturn(setupFutureMock(MockResponseFactory.protocolStateSnapshotResponse()))
+
+        val result = asyncFlowAccessApi.getProtocolStateSnapshotByBlockId(blockId).get()
+        assertSuccess(result, mockFlowSnapshot)
+    }
+
+    @Test
+    fun `test getProtocolStateSnapshotByHeight`() {
+        val mockFlowSnapshot = FlowSnapshot("test_serialized_snapshot".toByteArray())
+        `when`(api.getProtocolStateSnapshotByHeight(any())).thenReturn(setupFutureMock(MockResponseFactory.protocolStateSnapshotResponse()))
+
+        val result = asyncFlowAccessApi.getProtocolStateSnapshotByHeight(HEIGHT).get()
+        assertSuccess(result, mockFlowSnapshot)
+    }
+
+    @Test
     fun `test getNodeVersionInfo`() {
         val mockNodeVersionInfo = createMockNodeVersionInfo()
         `when`(api.getNodeVersionInfo(any())).thenReturn(setupFutureMock(mockNodeVersionInfo))

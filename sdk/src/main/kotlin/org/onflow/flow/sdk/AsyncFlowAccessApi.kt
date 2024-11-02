@@ -64,6 +64,10 @@ interface AsyncFlowAccessApi {
 
     fun getLatestProtocolStateSnapshot(): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowSnapshot>>
 
+    fun getProtocolStateSnapshotByBlockId(blockId: FlowId): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowSnapshot>>
+
+    fun getProtocolStateSnapshotByHeight(height: Long): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowSnapshot>>
+
     fun getNodeVersionInfo(): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowNodeVersionInfo>>
 
     fun getTransactionsByBlockId(id: FlowId): CompletableFuture<FlowAccessApi.AccessApiCallResponse<List<FlowTransaction>>>

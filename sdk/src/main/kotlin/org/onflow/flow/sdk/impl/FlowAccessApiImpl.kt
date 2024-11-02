@@ -441,6 +441,32 @@ class FlowAccessApiImpl(
             FlowAccessApi.AccessApiCallResponse.Error("Failed to get latest protocol state snapshot", e)
         }
 
+    override fun getProtocolStateSnapshotByBlockId(blockId: FlowId): FlowAccessApi.AccessApiCallResponse<FlowSnapshot> =
+        try {
+            val ret = api.getProtocolStateSnapshotByBlockID(
+                Access.GetProtocolStateSnapshotByBlockIDRequest
+                    .newBuilder()
+                    .setBlockId(blockId.byteStringValue)
+                    .build()
+            )
+            FlowAccessApi.AccessApiCallResponse.Success(FlowSnapshot(ret.serializedSnapshot.toByteArray()))
+        } catch (e: Exception) {
+            FlowAccessApi.AccessApiCallResponse.Error("Failed to get protocol state snapshot by block ID", e)
+        }
+
+    override fun getProtocolStateSnapshotByHeight(height: Long): FlowAccessApi.AccessApiCallResponse<FlowSnapshot> =
+        try {
+            val ret = api.getProtocolStateSnapshotByHeight(
+                Access.GetProtocolStateSnapshotByHeightRequest
+                    .newBuilder()
+                    .setBlockHeight(height)
+                    .build()
+            )
+            FlowAccessApi.AccessApiCallResponse.Success(FlowSnapshot(ret.serializedSnapshot.toByteArray()))
+        } catch (e: Exception) {
+            FlowAccessApi.AccessApiCallResponse.Error("Failed to get protocol state snapshot by height", e)
+        }
+
     override fun getNodeVersionInfo(): FlowAccessApi.AccessApiCallResponse<FlowNodeVersionInfo> =
         try {
             val ret = api.getNodeVersionInfo(
