@@ -454,14 +454,28 @@ class AsyncFlowAccessApiImpl(
 
     override fun getProtocolStateSnapshotByHeight(height: Long): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowSnapshot>> =
         handleApiCall(
-            apiCall = { api.getProtocolStateSnapshotByHeight(Access.GetProtocolStateSnapshotByHeightRequest.newBuilder().setBlockHeight(height).build()) },
+            apiCall = {
+                api.getProtocolStateSnapshotByHeight(
+                    Access.GetProtocolStateSnapshotByHeightRequest
+                        .newBuilder()
+                        .setBlockHeight(height)
+                        .build()
+                )
+            },
             transform = { FlowSnapshot(it.serializedSnapshot.toByteArray()) },
             errorMessage = "Failed to get protocol state snapshot by height"
         )
 
     override fun getProtocolStateSnapshotByBlockId(blockId: FlowId): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowSnapshot>> =
         handleApiCall(
-            apiCall = { api.getProtocolStateSnapshotByBlockID(Access.GetProtocolStateSnapshotByBlockIDRequest.newBuilder().setBlockId(blockId.byteStringValue).build()) },
+            apiCall = {
+                api.getProtocolStateSnapshotByBlockID(
+                    Access.GetProtocolStateSnapshotByBlockIDRequest
+                        .newBuilder()
+                        .setBlockId(blockId.byteStringValue)
+                        .build()
+                )
+            },
             transform = { FlowSnapshot(it.serializedSnapshot.toByteArray()) },
             errorMessage = "Failed to get protocol state snapshot by block ID"
         )

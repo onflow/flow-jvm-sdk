@@ -30,7 +30,6 @@ internal class GetProtocolStateAccessAPIConnectorTest {
 
     @Test
     fun `Can get protocol state snapshot by blockId`() {
-
         block = when (val response = accessAPI.getLatestBlock()) {
             is FlowAccessApi.AccessApiCallResponse.Success -> response.data
             is FlowAccessApi.AccessApiCallResponse.Error -> throw Exception(response.message, response.throwable)
@@ -42,7 +41,6 @@ internal class GetProtocolStateAccessAPIConnectorTest {
 
     @Test
     fun `Can get protocol state snapshot by height`() {
-
         block = when (val response = accessAPI.getLatestBlock()) {
             is FlowAccessApi.AccessApiCallResponse.Success -> response.data
             is FlowAccessApi.AccessApiCallResponse.Error -> throw Exception(response.message, response.throwable)

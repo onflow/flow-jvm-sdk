@@ -581,7 +581,14 @@ class FlowAccessApiImplTest {
     fun `Test getProtocolStateSnapshotByBlockId`() {
         val mockFlowSnapshot = FlowSnapshot("test_serialized_snapshot".toByteArray())
 
-        `when`(mockApi.getProtocolStateSnapshotByBlockID(Access.GetProtocolStateSnapshotByBlockIDRequest.newBuilder().setBlockId(blockId.byteStringValue).build())).thenReturn(AsyncFlowAccessApiImplTest.MockResponseFactory.protocolStateSnapshotResponse())
+        `when`(
+            mockApi.getProtocolStateSnapshotByBlockID(
+                Access.GetProtocolStateSnapshotByBlockIDRequest
+                    .newBuilder()
+                    .setBlockId(blockId.byteStringValue)
+                    .build()
+            )
+        ).thenReturn(AsyncFlowAccessApiImplTest.MockResponseFactory.protocolStateSnapshotResponse())
 
         val result = flowAccessApiImpl.getProtocolStateSnapshotByBlockId(blockId)
         assertResultSuccess(result) { assertEquals(mockFlowSnapshot, it) }
@@ -591,7 +598,14 @@ class FlowAccessApiImplTest {
     fun `Test getProtocolStateSnapshotByHeight`() {
         val mockFlowSnapshot = FlowSnapshot("test_serialized_snapshot".toByteArray())
 
-        `when`(mockApi.getProtocolStateSnapshotByHeight(Access.GetProtocolStateSnapshotByHeightRequest.newBuilder().setBlockHeight(HEIGHT).build())).thenReturn(AsyncFlowAccessApiImplTest.MockResponseFactory.protocolStateSnapshotResponse())
+        `when`(
+            mockApi.getProtocolStateSnapshotByHeight(
+                Access.GetProtocolStateSnapshotByHeightRequest
+                    .newBuilder()
+                    .setBlockHeight(HEIGHT)
+                    .build()
+            )
+        ).thenReturn(AsyncFlowAccessApiImplTest.MockResponseFactory.protocolStateSnapshotResponse())
 
         val result = flowAccessApiImpl.getProtocolStateSnapshotByHeight(HEIGHT)
         assertResultSuccess(result) { assertEquals(mockFlowSnapshot, it) }
