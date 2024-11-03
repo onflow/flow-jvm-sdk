@@ -33,6 +33,9 @@ class TransactionIntegrationTest {
         const val BLOCK_HEIGHT_ERROR = "Failed to get block by height"
         const val ACCOUNT_BY_ADDRESS_ERROR = "Failed to get account by address"
         const val ACCOUNT_BY_BLOCK_HEIGHT_ERROR = "Failed to get account by block height"
+        const val PROTOCOL_STATE_HEIGHT_ERROR = "Failed to get protocol state snapshot by height"
+        const val PROTOCOL_STATE_BLOCK_ERROR = "Failed to get protocol state snapshot by block ID"
+        const val PROTOCOL_STATE_LATEST_ERROR = "Failed to get latest protocol state snapshot"
     }
 
     private fun <T> safelyHandle(action: () -> Result<T>, errorMessage: String): T =
@@ -84,6 +87,35 @@ class TransactionIntegrationTest {
         val account = getAccountAtLatestBlock(serviceAccount.flowAddress)
         assertThat(account).isNotNull
         assertThat(account.keys).isNotEmpty()
+    }
+
+    @Test
+    fun `Can get latest protocol state snapshot`() {
+        val snapshot = safelyHandle(
+            { Result.success(handleResult(accessAPI.getLatestProtocolStateSnapshot(), PROTOCOL_STATE_LATEST_ERROR)) },
+            PROTOCOL_STATE_LATEST_ERROR
+        )
+        assertThat(snapshot).isNotNull
+    }
+
+    @Test
+    fun `Can get protocol state snapshot by blockId`() {
+        val latestBlock = getLatestBlock()
+        val snapshot = safelyHandle(
+            { Result.success(handleResult(accessAPI.getProtocolStateSnapshotByBlockId(latestBlock.id), PROTOCOL_STATE_HEIGHT_ERROR)) },
+            PROTOCOL_STATE_BLOCK_ERROR
+        )
+        assertThat(snapshot).isNotNull
+    }
+
+    @Test
+    fun `Can get protocol state snapshot by height`() {
+        val latestBlock = getLatestBlock()
+        val snapshot = safelyHandle(
+            { Result.success(handleResult(accessAPI.getProtocolStateSnapshotByHeight(latestBlock.height), PROTOCOL_STATE_HEIGHT_ERROR)) },
+            PROTOCOL_STATE_HEIGHT_ERROR
+        )
+        assertThat(snapshot).isNotNull
     }
 
     @Test
