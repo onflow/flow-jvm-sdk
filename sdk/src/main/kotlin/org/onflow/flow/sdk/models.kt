@@ -1295,24 +1295,6 @@ data class FlowCollection(
         .addAllTransactionIds(transactionIds.map { it.byteStringValue })
 }
 
-data class FlowFullCollection(
-    val id: FlowId,
-    val transactionIds: List<FlowId>
-) : Serializable {
-    companion object {
-        @JvmStatic
-        fun of(value: CollectionOuterClass.Collection) = FlowCollection(
-            id = FlowId.of(value.id.toByteArray()),
-            transactionIds = value.transactionIdsList.map { FlowId.of(it.toByteArray()) }
-        )
-    }
-
-    @JvmOverloads
-    fun builder(builder: CollectionOuterClass.Collection.Builder = CollectionOuterClass.Collection.newBuilder()): CollectionOuterClass.Collection.Builder = builder
-        .setId(id.byteStringValue)
-        .addAllTransactionIds(transactionIds.map { it.byteStringValue })
-}
-
 interface BytesHolder {
     val bytes: ByteArray
     val base16Value: String get() = bytes.bytesToHex()
