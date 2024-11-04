@@ -233,6 +233,19 @@ class FlowAccessApiImpl(
             FlowAccessApi.AccessApiCallResponse.Error("Failed to get collection by ID", e)
         }
 
+    override fun getFullCollectionById(id: FlowId): FlowAccessApi.AccessApiCallResponse<List<FlowTransaction>> =
+        try {
+            val ret = api.getFullCollectionByID(
+                Access.GetFullCollectionByIDRequest
+                    .newBuilder()
+                    .setId(id.byteStringValue)
+                    .build()
+            )
+            FlowAccessApi.AccessApiCallResponse.Success(ret.transactionsList.map { FlowTransaction.of(it) })
+        } catch (e: Exception) {
+            FlowAccessApi.AccessApiCallResponse.Error("Failed to get full collection by ID", e)
+        }
+
     override fun sendTransaction(transaction: FlowTransaction): FlowAccessApi.AccessApiCallResponse<FlowId> =
         try {
             val ret = api.sendTransaction(
