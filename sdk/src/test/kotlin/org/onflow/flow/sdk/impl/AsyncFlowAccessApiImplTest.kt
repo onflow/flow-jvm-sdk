@@ -158,6 +158,11 @@ class AsyncFlowAccessApiImplTest {
             .setCollection(mockCollection.builder().build())
             .build()
 
+        fun fullCollectionResponse(transactions: List<FlowTransaction>) = Access.FullCollectionResponse
+            .newBuilder()
+            .addAllTransactions(transactions.map { it.builder().build() })
+            .build()
+
         fun executionResultResponse(mockExecutionResult: FlowExecutionResult) = Access.ExecutionResultByIDResponse
             .newBuilder()
             .setExecutionResult(mockExecutionResult.builder().build())
@@ -411,6 +416,16 @@ class AsyncFlowAccessApiImplTest {
 
         val result = asyncFlowAccessApi.getCollectionById(collectionId).get()
         assertSuccess(result, mockCollection)
+    }
+
+    @Test
+    fun `test getFullCollectionById`() {
+        val collectionId = FlowId("01")
+        val mockTransaction = FlowTransaction(FlowScript("script"), emptyList(), FlowId.of("01".toByteArray()), 123L, FlowTransactionProposalKey(FlowAddress("02"), 1, 123L), FlowAddress("02"), emptyList())
+        `when`(api.getFullCollectionByID(any())).thenReturn(setupFutureMock(MockResponseFactory.fullCollectionResponse(listOf(mockTransaction))))
+
+        val result = asyncFlowAccessApi.getFullCollectionById(collectionId).get()
+        assertSuccess(result, listOf(mockTransaction))
     }
 
     @Test
