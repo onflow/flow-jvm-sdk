@@ -12,12 +12,12 @@ import org.mockito.ArgumentMatchers.eq
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
 import org.onflow.flow.sdk.*
+import org.onflow.flow.sdk.impl.FlowAccessApiImplTest.Companion.createMockAccount
 import org.onflow.protobuf.access.Access
 import org.onflow.protobuf.access.AccessAPIGrpc
 import org.onflow.protobuf.entities.AccountOuterClass
 import org.onflow.protobuf.entities.NodeVersionInfoOuterClass
 import org.onflow.protobuf.entities.TransactionOuterClass
-import java.math.BigDecimal
 import java.time.LocalDateTime
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -83,6 +83,33 @@ class AsyncFlowAccessApiImplTest {
             mockAccountKey
         )
         val testException = RuntimeException("Test exception")
+
+        fun createMockNodeVersionInfo(): Access.GetNodeVersionInfoResponse =
+            Access.GetNodeVersionInfoResponse
+                .newBuilder()
+                .setInfo(
+                    NodeVersionInfoOuterClass.NodeVersionInfo
+                        .newBuilder()
+                        .setSemver("v0.0.1")
+                        .setCommit("123456")
+                        .setSporkId(ByteString.copyFromUtf8("sporkId"))
+                        .setProtocolVersion(5)
+                        .setSporkRootBlockHeight(1000)
+                        .setNodeRootBlockHeight(1001)
+                        .setCompatibleRange(
+                            NodeVersionInfoOuterClass.CompatibleRange
+                                .newBuilder()
+                                .setStartHeight(100)
+                                .setEndHeight(200)
+                                .build()
+                        ).build()
+                ).build()
+
+        fun createTransactionsResponse(transactions: List<FlowTransaction>): Access.TransactionsResponse =
+            Access.TransactionsResponse
+                .newBuilder()
+                .addAllTransactions(transactions.map { it.builder().build() })
+                .build()
     }
 
     private fun <T> setupFutureMock(response: T): ListenableFuture<T> {
@@ -91,7 +118,16 @@ class AsyncFlowAccessApiImplTest {
         return future
     }
 
-    private object MockResponseFactory {
+    object MockResponseFactory {
+        fun accountResponse(mockAccount: FlowAccount) = Access.AccountResponse
+            .newBuilder()
+            .setAccount(mockAccount.builder().build())
+            .build()
+
+        fun getAccountResponse(mockAccount: FlowAccount) = Access.GetAccountResponse
+            .newBuilder()
+            .setAccount(mockAccount.builder().build())
+            .build()
         fun accountKeyResponse(accountKey: FlowAccountKey) = Access.AccountKeyResponse
             .newBuilder()
             .setAccountKey(accountKey.builder().build())
@@ -120,6 +156,11 @@ class AsyncFlowAccessApiImplTest {
         fun collectionResponse(mockCollection: FlowCollection) = Access.CollectionResponse
             .newBuilder()
             .setCollection(mockCollection.builder().build())
+            .build()
+
+        fun fullCollectionResponse(transactions: List<FlowTransaction>) = Access.FullCollectionResponse
+            .newBuilder()
+            .addAllTransactions(transactions.map { it.builder().build() })
             .build()
 
         fun executionResultResponse(mockExecutionResult: FlowExecutionResult) = Access.ExecutionResultByIDResponse
@@ -191,12 +232,6 @@ class AsyncFlowAccessApiImplTest {
                 .setReferenceBlockId(ByteString.copyFromUtf8(referenceBlockId))
                 .build()
         )
-
-    private fun createTransactionsResponse(transactions: List<FlowTransaction>): Access.TransactionsResponse =
-        Access.TransactionsResponse
-            .newBuilder()
-            .addAllTransactions(transactions.map { it.builder().build() })
-            .build()
 
     private fun <T> assertSuccess(result: FlowAccessApi.AccessApiCallResponse<T>, expected: T) {
         assert(result is FlowAccessApi.AccessApiCallResponse.Success)
@@ -384,6 +419,16 @@ class AsyncFlowAccessApiImplTest {
     }
 
     @Test
+    fun `test getFullCollectionById`() {
+        val collectionId = FlowId("01")
+        val mockTransaction = FlowTransaction(FlowScript("script"), emptyList(), FlowId.of("01".toByteArray()), 123L, FlowTransactionProposalKey(FlowAddress("02"), 1, 123L), FlowAddress("02"), emptyList())
+        `when`(api.getFullCollectionByID(any())).thenReturn(setupFutureMock(MockResponseFactory.fullCollectionResponse(listOf(mockTransaction))))
+
+        val result = asyncFlowAccessApi.getFullCollectionById(collectionId).get()
+        assertSuccess(result, listOf(mockTransaction))
+    }
+
+    @Test
     fun `test sendTransaction`() {
         val mockTransaction = FlowTransaction(FlowScript("script"), emptyList(), FlowId.of("01".toByteArray()), 123L, FlowTransactionProposalKey(FlowAddress("02"), 1, 123L), FlowAddress("02"), emptyList())
         `when`(api.sendTransaction(any())).thenReturn(setupFutureMock(MockResponseFactory.sendTransactionResponse()))
@@ -435,12 +480,9 @@ class AsyncFlowAccessApiImplTest {
     @Test
     fun `test getAccountByAddress`() {
         val flowAddress = FlowAddress("01")
-        val flowAccount = FlowAccount(flowAddress, BigDecimal.ONE, FlowCode("code".toByteArray()), emptyList(), emptyMap())
-        val accountResponse = Access.GetAccountResponse
-            .newBuilder()
-            .setAccount(flowAccount.builder().build())
-            .build()
-        `when`(api.getAccount(any())).thenReturn(setupFutureMock(accountResponse))
+        val flowAccount = createMockAccount(flowAddress)
+
+        `when`(api.getAccount(any())).thenReturn(setupFutureMock(MockResponseFactory.getAccountResponse(flowAccount)))
 
         val result = asyncFlowAccessApi.getAccountByAddress(flowAddress).get()
         assert(result is FlowAccessApi.AccessApiCallResponse.Success)
@@ -454,12 +496,9 @@ class AsyncFlowAccessApiImplTest {
     @Test
     fun `test getAccountAtLatestBlock`() {
         val flowAddress = FlowAddress("01")
-        val flowAccount = FlowAccount(flowAddress, BigDecimal.ONE, FlowCode("code".toByteArray()), emptyList(), emptyMap())
-        val accountResponse = Access.AccountResponse
-            .newBuilder()
-            .setAccount(flowAccount.builder().build())
-            .build()
-        `when`(api.getAccountAtLatestBlock(any())).thenReturn(setupFutureMock(accountResponse))
+        val flowAccount = createMockAccount(flowAddress)
+
+        `when`(api.getAccountAtLatestBlock(any())).thenReturn(setupFutureMock(MockResponseFactory.accountResponse(flowAccount)))
 
         val result = asyncFlowAccessApi.getAccountAtLatestBlock(flowAddress).get()
         assert(result is FlowAccessApi.AccessApiCallResponse.Success)
@@ -473,13 +512,10 @@ class AsyncFlowAccessApiImplTest {
     @Test
     fun `test getAccountByBlockHeight`() {
         val flowAddress = FlowAddress("01")
-        val flowAccount = FlowAccount(flowAddress, BigDecimal.ONE, FlowCode("code".toByteArray()), emptyList(), emptyMap())
+        val flowAccount = createMockAccount(flowAddress)
         val height = 123L
-        val accountResponse = Access.AccountResponse
-            .newBuilder()
-            .setAccount(flowAccount.builder().build())
-            .build()
-        `when`(api.getAccountAtBlockHeight(any())).thenReturn(setupFutureMock(accountResponse))
+
+        `when`(api.getAccountAtBlockHeight(any())).thenReturn(setupFutureMock(MockResponseFactory.accountResponse(flowAccount)))
 
         val result = asyncFlowAccessApi.getAccountByBlockHeight(flowAddress, height).get()
         assert(result is FlowAccessApi.AccessApiCallResponse.Success)
@@ -573,6 +609,24 @@ class AsyncFlowAccessApiImplTest {
     }
 
     @Test
+    fun `test getProtocolStateSnapshotByBlockId`() {
+        val mockFlowSnapshot = FlowSnapshot("test_serialized_snapshot".toByteArray())
+        `when`(api.getProtocolStateSnapshotByBlockID(any())).thenReturn(setupFutureMock(MockResponseFactory.protocolStateSnapshotResponse()))
+
+        val result = asyncFlowAccessApi.getProtocolStateSnapshotByBlockId(blockId).get()
+        assertSuccess(result, mockFlowSnapshot)
+    }
+
+    @Test
+    fun `test getProtocolStateSnapshotByHeight`() {
+        val mockFlowSnapshot = FlowSnapshot("test_serialized_snapshot".toByteArray())
+        `when`(api.getProtocolStateSnapshotByHeight(any())).thenReturn(setupFutureMock(MockResponseFactory.protocolStateSnapshotResponse()))
+
+        val result = asyncFlowAccessApi.getProtocolStateSnapshotByHeight(HEIGHT).get()
+        assertSuccess(result, mockFlowSnapshot)
+    }
+
+    @Test
     fun `test getNodeVersionInfo`() {
         val mockNodeVersionInfo = createMockNodeVersionInfo()
         `when`(api.getNodeVersionInfo(any())).thenReturn(setupFutureMock(mockNodeVersionInfo))
@@ -641,25 +695,4 @@ class AsyncFlowAccessApiImplTest {
         executor.shutdown()
         executor.awaitTermination(2, TimeUnit.SECONDS)
     }
-
-    private fun createMockNodeVersionInfo(): Access.GetNodeVersionInfoResponse =
-        Access.GetNodeVersionInfoResponse
-            .newBuilder()
-            .setInfo(
-                NodeVersionInfoOuterClass.NodeVersionInfo
-                    .newBuilder()
-                    .setSemver("v0.0.1")
-                    .setCommit("123456")
-                    .setSporkId(ByteString.copyFromUtf8("sporkId"))
-                    .setProtocolVersion(5)
-                    .setSporkRootBlockHeight(1000)
-                    .setNodeRootBlockHeight(1001)
-                    .setCompatibleRange(
-                        NodeVersionInfoOuterClass.CompatibleRange
-                            .newBuilder()
-                            .setStartHeight(100)
-                            .setEndHeight(200)
-                            .build()
-                    ).build()
-            ).build()
 }

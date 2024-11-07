@@ -8,10 +8,7 @@ import org.onflow.flow.common.test.FlowEmulatorProjectTest
 import org.onflow.flow.common.test.FlowServiceAccountCredentials
 import org.onflow.flow.common.test.FlowTestClient
 import org.onflow.flow.common.test.TestAccount
-import org.onflow.flow.sdk.FlowAccessApi
-import org.onflow.flow.sdk.FlowCollection
-import org.onflow.flow.sdk.FlowId
-import org.onflow.flow.sdk.SignatureAlgorithm
+import org.onflow.flow.sdk.*
 import org.onflow.flow.sdk.crypto.Crypto
 
 @FlowEmulatorProjectTest(flowJsonLocation = "../flow/flow.json")
@@ -52,5 +49,17 @@ class GetCollectionAccessAPIConnectorTest {
 
         assertNotNull(collection, "Collection should not be null")
         assertEquals(collectionId, collection.id, "Collection ID should match the fetched collection ID")
+    }
+
+    @Test
+    fun `Can fetch full collection by ID`() {
+        val collectionTransactions: List<FlowTransaction> = connector.getFullCollectionById(collectionId)
+
+        assertNotNull(collectionTransactions, "Collection transactions should not be null")
+        assertTrue(collectionTransactions.isNotEmpty(), "Collection transactions should not be empty")
+
+        val firstTransaction = collectionTransactions.first()
+        assertNotNull(firstTransaction.id, "Transaction ID should not be null")
+        assertNotNull(firstTransaction.script, "Transaction script should not be null")
     }
 }

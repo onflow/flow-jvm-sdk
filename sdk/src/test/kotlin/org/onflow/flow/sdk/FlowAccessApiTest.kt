@@ -9,6 +9,8 @@ import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.*
+import org.onflow.flow.sdk.impl.AsyncFlowAccessApiImplTest.Companion.HEIGHT
+import org.onflow.flow.sdk.impl.AsyncFlowAccessApiImplTest.Companion.blockId
 import org.onflow.protobuf.access.Access
 import org.onflow.protobuf.entities.AccountOuterClass
 import org.onflow.protobuf.entities.BlockExecutionDataOuterClass
@@ -229,6 +231,18 @@ class FlowAccessApiTest {
     }
 
     @Test
+    fun `Test getFullCollectionById`() {
+        val flowAccessApi = mock(FlowAccessApi::class.java)
+        val flowId = FlowId("01")
+        val flowTransaction = FlowTransaction.of(TransactionOuterClass.Transaction.getDefaultInstance())
+        `when`(flowAccessApi.getFullCollectionById(flowId)).thenReturn(FlowAccessApi.AccessApiCallResponse.Success(listOf(flowTransaction)))
+
+        val result = flowAccessApi.getFullCollectionById(flowId)
+
+        assertEquals(FlowAccessApi.AccessApiCallResponse.Success(listOf(flowTransaction)), result)
+    }
+
+    @Test
     fun `Test sendTransaction`() {
         val flowAccessApi = mock(FlowAccessApi::class.java)
         val flowTransaction = FlowTransaction.of(TransactionOuterClass.Transaction.getDefaultInstance())
@@ -388,6 +402,28 @@ class FlowAccessApiTest {
         `when`(flowAccessApi.getLatestProtocolStateSnapshot()).thenReturn(FlowAccessApi.AccessApiCallResponse.Success(snapshot))
 
         val result = flowAccessApi.getLatestProtocolStateSnapshot()
+
+        assertEquals(FlowAccessApi.AccessApiCallResponse.Success(snapshot), result)
+    }
+
+    @Test
+    fun `Test getProtocolStateSnapshotByBlockId`() {
+        val flowAccessApi = mock(FlowAccessApi::class.java)
+        val snapshot = FlowSnapshot("snapshot".toByteArray())
+        `when`(flowAccessApi.getProtocolStateSnapshotByBlockId(blockId)).thenReturn(FlowAccessApi.AccessApiCallResponse.Success(snapshot))
+
+        val result = flowAccessApi.getProtocolStateSnapshotByBlockId(blockId)
+
+        assertEquals(FlowAccessApi.AccessApiCallResponse.Success(snapshot), result)
+    }
+
+    @Test
+    fun `Test getProtocolStateSnapshotByHeight`() {
+        val flowAccessApi = mock(FlowAccessApi::class.java)
+        val snapshot = FlowSnapshot("snapshot".toByteArray())
+        `when`(flowAccessApi.getProtocolStateSnapshotByHeight(HEIGHT)).thenReturn(FlowAccessApi.AccessApiCallResponse.Success(snapshot))
+
+        val result = flowAccessApi.getProtocolStateSnapshotByHeight(HEIGHT)
 
         assertEquals(FlowAccessApi.AccessApiCallResponse.Success(snapshot), result)
     }
