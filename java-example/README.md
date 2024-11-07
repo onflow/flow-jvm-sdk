@@ -70,6 +70,9 @@ Below is a list of all Java code examples currently supported in this repo:
 
 [Get collections by ID.](src/main/java/org/onflow/examples/java/getCollection/GetCollectionAccessAPIConnector.java)
 
+- Get collection by id
+- Get full collection by id (returns all transactions in collection response)
+
 #### Get Execution Data
 
 [Get execution data by block ID.](src/main/java/org/onflow/examples/java/getExecutionData/GetExecutionDataAccessAPIConnector.java)

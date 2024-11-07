@@ -158,6 +158,11 @@ class AsyncFlowAccessApiImplTest {
             .setCollection(mockCollection.builder().build())
             .build()
 
+        fun fullCollectionResponse(transactions: List<FlowTransaction>) = Access.FullCollectionResponse
+            .newBuilder()
+            .addAllTransactions(transactions.map { it.builder().build() })
+            .build()
+
         fun executionResultResponse(mockExecutionResult: FlowExecutionResult) = Access.ExecutionResultByIDResponse
             .newBuilder()
             .setExecutionResult(mockExecutionResult.builder().build())
@@ -414,6 +419,16 @@ class AsyncFlowAccessApiImplTest {
     }
 
     @Test
+    fun `test getFullCollectionById`() {
+        val collectionId = FlowId("01")
+        val mockTransaction = FlowTransaction(FlowScript("script"), emptyList(), FlowId.of("01".toByteArray()), 123L, FlowTransactionProposalKey(FlowAddress("02"), 1, 123L), FlowAddress("02"), emptyList())
+        `when`(api.getFullCollectionByID(any())).thenReturn(setupFutureMock(MockResponseFactory.fullCollectionResponse(listOf(mockTransaction))))
+
+        val result = asyncFlowAccessApi.getFullCollectionById(collectionId).get()
+        assertSuccess(result, listOf(mockTransaction))
+    }
+
+    @Test
     fun `test sendTransaction`() {
         val mockTransaction = FlowTransaction(FlowScript("script"), emptyList(), FlowId.of("01".toByteArray()), 123L, FlowTransactionProposalKey(FlowAddress("02"), 1, 123L), FlowAddress("02"), emptyList())
         `when`(api.sendTransaction(any())).thenReturn(setupFutureMock(MockResponseFactory.sendTransactionResponse()))
@@ -590,6 +605,24 @@ class AsyncFlowAccessApiImplTest {
         `when`(api.getLatestProtocolStateSnapshot(any())).thenReturn(setupFutureMock(MockResponseFactory.protocolStateSnapshotResponse()))
 
         val result = asyncFlowAccessApi.getLatestProtocolStateSnapshot().get()
+        assertSuccess(result, mockFlowSnapshot)
+    }
+
+    @Test
+    fun `test getProtocolStateSnapshotByBlockId`() {
+        val mockFlowSnapshot = FlowSnapshot("test_serialized_snapshot".toByteArray())
+        `when`(api.getProtocolStateSnapshotByBlockID(any())).thenReturn(setupFutureMock(MockResponseFactory.protocolStateSnapshotResponse()))
+
+        val result = asyncFlowAccessApi.getProtocolStateSnapshotByBlockId(blockId).get()
+        assertSuccess(result, mockFlowSnapshot)
+    }
+
+    @Test
+    fun `test getProtocolStateSnapshotByHeight`() {
+        val mockFlowSnapshot = FlowSnapshot("test_serialized_snapshot".toByteArray())
+        `when`(api.getProtocolStateSnapshotByHeight(any())).thenReturn(setupFutureMock(MockResponseFactory.protocolStateSnapshotResponse()))
+
+        val result = asyncFlowAccessApi.getProtocolStateSnapshotByHeight(HEIGHT).get()
         assertSuccess(result, mockFlowSnapshot)
     }
 

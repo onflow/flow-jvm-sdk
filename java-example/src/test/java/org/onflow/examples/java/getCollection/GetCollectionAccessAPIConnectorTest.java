@@ -11,6 +11,8 @@ import org.onflow.flow.sdk.*;
 import org.onflow.flow.sdk.crypto.Crypto;
 import org.onflow.flow.sdk.crypto.PublicKey;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 @FlowEmulatorProjectTest(flowJsonLocation = "../flow/flow.json")
@@ -50,5 +52,17 @@ public class GetCollectionAccessAPIConnectorTest {
 
         assertNotNull(collection, "Collection should not be null");
         assertEquals(collectionId, collection.getId(), "Collection ID should match the fetched collection ID");
+    }
+
+    @Test
+    public void canFetchFullCollectionById() {
+        List<FlowTransaction> fullCollectionResponse = connector.getFullCollectionById(collectionId);
+
+        assertNotNull(fullCollectionResponse, "Collection transactions should not be null");
+        assertFalse(fullCollectionResponse.isEmpty(), "Collection transactions should not be empty");
+
+        FlowTransaction firstTransaction = fullCollectionResponse.get(0);
+        assertNotNull(firstTransaction.getId(), "Transaction ID should not be null");
+        assertNotNull(firstTransaction.getScript(), "Transaction script should not be null");
     }
 }

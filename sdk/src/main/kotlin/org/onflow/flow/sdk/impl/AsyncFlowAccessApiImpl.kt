@@ -285,6 +285,20 @@ class AsyncFlowAccessApiImpl(
             errorMessage = "Failed to get collection by ID"
         )
 
+    override fun getFullCollectionById(id: FlowId): CompletableFuture<FlowAccessApi.AccessApiCallResponse<List<FlowTransaction>>> =
+        handleApiCall(
+            apiCall = {
+                api.getFullCollectionByID(
+                    Access.GetFullCollectionByIDRequest
+                        .newBuilder()
+                        .setId(id.byteStringValue)
+                        .build()
+                )
+            },
+            transform = { fullCollectionResponse -> fullCollectionResponse.transactionsList.map { FlowTransaction.of(it) } },
+            errorMessage = "Failed to get full collection by ID"
+        )
+
     override fun sendTransaction(transaction: FlowTransaction): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowId>> =
         handleApiCall(
             apiCall = {
@@ -450,6 +464,34 @@ class AsyncFlowAccessApiImpl(
             apiCall = { api.getLatestProtocolStateSnapshot(Access.GetLatestProtocolStateSnapshotRequest.newBuilder().build()) },
             transform = { FlowSnapshot(it.serializedSnapshot.toByteArray()) },
             errorMessage = "Failed to get latest protocol state snapshot"
+        )
+
+    override fun getProtocolStateSnapshotByHeight(height: Long): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowSnapshot>> =
+        handleApiCall(
+            apiCall = {
+                api.getProtocolStateSnapshotByHeight(
+                    Access.GetProtocolStateSnapshotByHeightRequest
+                        .newBuilder()
+                        .setBlockHeight(height)
+                        .build()
+                )
+            },
+            transform = { FlowSnapshot(it.serializedSnapshot.toByteArray()) },
+            errorMessage = "Failed to get protocol state snapshot by height"
+        )
+
+    override fun getProtocolStateSnapshotByBlockId(blockId: FlowId): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowSnapshot>> =
+        handleApiCall(
+            apiCall = {
+                api.getProtocolStateSnapshotByBlockID(
+                    Access.GetProtocolStateSnapshotByBlockIDRequest
+                        .newBuilder()
+                        .setBlockId(blockId.byteStringValue)
+                        .build()
+                )
+            },
+            transform = { FlowSnapshot(it.serializedSnapshot.toByteArray()) },
+            errorMessage = "Failed to get protocol state snapshot by block ID"
         )
 
     override fun getNodeVersionInfo(): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowNodeVersionInfo>> =

@@ -32,6 +32,8 @@ interface AsyncFlowAccessApi {
 
     fun getCollectionById(id: FlowId): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowCollection?>>
 
+    fun getFullCollectionById(id: FlowId): CompletableFuture<FlowAccessApi.AccessApiCallResponse<List<FlowTransaction>>>
+
     fun sendTransaction(transaction: FlowTransaction): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowId>>
 
     fun getTransactionById(id: FlowId): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowTransaction?>>
@@ -63,6 +65,10 @@ interface AsyncFlowAccessApi {
     fun getNetworkParameters(): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowChainId>>
 
     fun getLatestProtocolStateSnapshot(): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowSnapshot>>
+
+    fun getProtocolStateSnapshotByBlockId(blockId: FlowId): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowSnapshot>>
+
+    fun getProtocolStateSnapshotByHeight(height: Long): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowSnapshot>>
 
     fun getNodeVersionInfo(): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowNodeVersionInfo>>
 
