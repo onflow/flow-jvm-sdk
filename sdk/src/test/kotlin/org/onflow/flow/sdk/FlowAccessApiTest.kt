@@ -231,6 +231,18 @@ class FlowAccessApiTest {
     }
 
     @Test
+    fun `Test getFullCollectionById`() {
+        val flowAccessApi = mock(FlowAccessApi::class.java)
+        val flowId = FlowId("01")
+        val flowTransaction = FlowTransaction.of(TransactionOuterClass.Transaction.getDefaultInstance())
+        `when`(flowAccessApi.getFullCollectionById(flowId)).thenReturn(FlowAccessApi.AccessApiCallResponse.Success(listOf(flowTransaction)))
+
+        val result = flowAccessApi.getFullCollectionById(flowId)
+
+        assertEquals(FlowAccessApi.AccessApiCallResponse.Success(listOf(flowTransaction)), result)
+    }
+
+    @Test
     fun `Test sendTransaction`() {
         val flowAccessApi = mock(FlowAccessApi::class.java)
         val flowTransaction = FlowTransaction.of(TransactionOuterClass.Transaction.getDefaultInstance())

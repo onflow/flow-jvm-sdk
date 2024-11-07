@@ -340,6 +340,17 @@ class FlowAccessApiImplTest {
     }
 
     @Test
+    fun `Test getFullCollectionById`() {
+        val collectionId = FlowId("01")
+        val mockTransaction = createMockTransaction()
+
+        `when`(mockApi.getFullCollectionByID(any())).thenReturn(AsyncFlowAccessApiImplTest.MockResponseFactory.fullCollectionResponse(listOf(mockTransaction)))
+
+        val result = flowAccessApiImpl.getFullCollectionById(collectionId)
+        assertResultSuccess(result) { assertEquals(listOf(mockTransaction), it) }
+    }
+
+    @Test
     fun `Test sendTransaction`() {
         val mockTransaction = createMockTransaction()
 

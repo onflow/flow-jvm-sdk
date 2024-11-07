@@ -285,6 +285,20 @@ class AsyncFlowAccessApiImpl(
             errorMessage = "Failed to get collection by ID"
         )
 
+    override fun getFullCollectionById(id: FlowId): CompletableFuture<FlowAccessApi.AccessApiCallResponse<List<FlowTransaction>>> =
+        handleApiCall(
+            apiCall = {
+                api.getFullCollectionByID(
+                    Access.GetFullCollectionByIDRequest
+                        .newBuilder()
+                        .setId(id.byteStringValue)
+                        .build()
+                )
+            },
+            transform = { fullCollectionResponse -> fullCollectionResponse.transactionsList.map { FlowTransaction.of(it) } },
+            errorMessage = "Failed to get full collection by ID"
+        )
+
     override fun sendTransaction(transaction: FlowTransaction): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowId>> =
         handleApiCall(
             apiCall = {

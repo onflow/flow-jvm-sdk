@@ -71,6 +71,9 @@ Below is a list of all Kotlin code examples currently supported in this repo:
 
 [Get collections by ID.](src/main/kotlin/org/onflow/examples/kotlin/getCollection/GetCollectionAccessAPIConnector.kt)
 
+- Get collection by id
+- Get full collection by id (returns all transactions in collection response)
+
 #### Get Execution Data
 
 [Get execution data by block ID.](src/main/kotlin/org/onflow/examples/kotlin/getExecutionData/GetExecutionDataAccessAPIConnector.kt)
