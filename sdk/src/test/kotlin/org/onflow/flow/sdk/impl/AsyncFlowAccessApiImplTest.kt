@@ -466,6 +466,14 @@ class AsyncFlowAccessApiImplTest {
     }
 
     @Test
+    fun `test getSystemTransaction failure`() {
+        `when`(api.getSystemTransaction(any())).thenThrow(testException)
+
+        val result = asyncFlowAccessApi.getSystemTransaction(flowId).get()
+        assertFailure(result, "Failed to get system transaction by block ID", testException)
+    }
+
+    @Test
     fun `test getSystemTransactionResult`() {
         val flowTransactionResult = FlowTransactionResult(FlowTransactionStatus.SEALED, 1, "message", emptyList(), flowId, HEIGHT, flowId, flowId, 1L)
 
@@ -473,6 +481,14 @@ class AsyncFlowAccessApiImplTest {
 
         val result = asyncFlowAccessApi.getSystemTransactionResult(flowId).get()
         assertSuccess(result, flowTransactionResult)
+    }
+
+    @Test
+    fun `test getSystemTransactionResult failure`() {
+        `when`(api.getSystemTransactionResult(any())).thenThrow(testException)
+
+        val result = asyncFlowAccessApi.getSystemTransactionResult(flowId).get()
+        assertFailure(result, "Failed to get system transaction result by block ID", testException)
     }
 
     @Test
