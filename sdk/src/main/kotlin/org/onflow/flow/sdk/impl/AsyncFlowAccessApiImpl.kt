@@ -356,6 +356,34 @@ class AsyncFlowAccessApiImpl(
             errorMessage = "Failed to get transaction result by index"
         )
 
+    override fun getSystemTransaction(blockId: FlowId): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowTransaction?>> =
+        handleApiCall(
+            apiCall = {
+                api.getSystemTransaction(
+                    Access.GetSystemTransactionRequest
+                        .newBuilder()
+                        .setBlockId(blockId.byteStringValue)
+                        .build()
+                )
+            },
+            transform = { if (it.hasTransaction()) FlowTransaction.of(it.transaction) else null },
+            errorMessage = "Failed to get system transaction by block ID"
+        )
+
+    override fun getSystemTransactionResult(blockId: FlowId): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowTransactionResult?>> =
+        handleApiCall(
+            apiCall = {
+                api.getSystemTransactionResult(
+                    Access.GetSystemTransactionResultRequest
+                        .newBuilder()
+                        .setBlockId(blockId.byteStringValue)
+                        .build()
+                )
+            },
+            transform = { FlowTransactionResult.of(it) },
+            errorMessage = "Failed to get system transaction result by block ID"
+        )
+
     private fun executeScript(
         apiCall: () -> ListenableFuture<Access.ExecuteScriptResponse>,
         errorMessage: String

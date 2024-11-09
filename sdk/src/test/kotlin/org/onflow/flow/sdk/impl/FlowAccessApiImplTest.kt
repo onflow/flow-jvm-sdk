@@ -383,6 +383,28 @@ class FlowAccessApiImplTest {
     }
 
     @Test
+    fun `Test getSystemTransaction`() {
+        val flowId = FlowId("01")
+        val flowTransaction = createMockTransaction(flowId)
+
+        `when`(mockApi.getSystemTransaction(any())).thenReturn(AsyncFlowAccessApiImplTest.MockResponseFactory.transactionResponse(flowTransaction))
+
+        val result = flowAccessApiImpl.getSystemTransaction(flowId)
+        assertResultSuccess(result) { assertEquals(flowTransaction, it) }
+    }
+
+    @Test
+    fun `Test getSystemTransactionResult`() {
+        val flowId = FlowId.of("id".toByteArray())
+        val flowTransactionResult = FlowTransactionResult(FlowTransactionStatus.SEALED, 1, "message", emptyList(), flowId, 1L, flowId, flowId, 1L)
+
+        `when`(mockApi.getSystemTransactionResult(any())).thenReturn(mockTransactionResponse)
+
+        val result = flowAccessApiImpl.getSystemTransactionResult(flowId)
+        assertResultSuccess(result) { assertEquals(flowTransactionResult, it) }
+    }
+
+    @Test
     fun `Test getTransactionResultByIndex`() {
         val index = 0
         val flowId = FlowId.of("id".toByteArray())

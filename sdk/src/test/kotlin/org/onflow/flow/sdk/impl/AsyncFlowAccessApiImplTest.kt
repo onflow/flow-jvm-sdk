@@ -457,6 +457,25 @@ class AsyncFlowAccessApiImplTest {
     }
 
     @Test
+    fun `test getSystemTransaction`() {
+        val flowTransaction = FlowTransaction(FlowScript("script"), emptyList(), flowId, 123L, FlowTransactionProposalKey(FlowAddress("02"), 1, 123L), FlowAddress("02"), emptyList())
+        `when`(api.getSystemTransaction(any())).thenReturn(setupFutureMock(MockResponseFactory.transactionResponse(flowTransaction)))
+
+        val result = asyncFlowAccessApi.getSystemTransaction(flowId).get()
+        assertSuccess(result, flowTransaction)
+    }
+
+    @Test
+    fun `test getSystemTransactionResult`() {
+        val flowTransactionResult = FlowTransactionResult(FlowTransactionStatus.SEALED, 1, "message", emptyList(), flowId, HEIGHT, flowId, flowId, 1L)
+
+        `when`(api.getSystemTransactionResult(any())).thenReturn(setupFutureMock(MockResponseFactory.transactionResultResponse()))
+
+        val result = asyncFlowAccessApi.getSystemTransactionResult(flowId).get()
+        assertSuccess(result, flowTransactionResult)
+    }
+
+    @Test
     fun `test getTransactionResultByIndex success`() {
         val index = 0
         val flowTransactionResult = FlowTransactionResult(FlowTransactionStatus.SEALED, 1, "message", emptyList(), flowId, HEIGHT, flowId, flowId, 1L)

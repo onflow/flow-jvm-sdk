@@ -303,6 +303,36 @@ class FlowAccessApiImpl(
             FlowAccessApi.AccessApiCallResponse.Error("Failed to get transaction result by index", e)
         }
 
+    override fun getSystemTransaction(blockId: FlowId): FlowAccessApi.AccessApiCallResponse<FlowTransaction> =
+        try {
+            val ret = api.getSystemTransaction(
+                Access.GetSystemTransactionRequest
+                    .newBuilder()
+                    .setBlockId(blockId.byteStringValue)
+                    .build()
+            )
+            if (ret.hasTransaction()) {
+                FlowAccessApi.AccessApiCallResponse.Success(FlowTransaction.of(ret.transaction))
+            } else {
+                FlowAccessApi.AccessApiCallResponse.Error("System transaction not found")
+            }
+        } catch (e: Exception) {
+            FlowAccessApi.AccessApiCallResponse.Error("Failed to get system transaction by block ID", e)
+        }
+
+    override fun getSystemTransactionResult(blockId: FlowId): FlowAccessApi.AccessApiCallResponse<FlowTransactionResult> =
+        try {
+            val ret = api.getSystemTransactionResult(
+                Access.GetSystemTransactionResultRequest
+                    .newBuilder()
+                    .setBlockId(blockId.byteStringValue)
+                    .build()
+            )
+            FlowAccessApi.AccessApiCallResponse.Success(FlowTransactionResult.of(ret))
+        } catch (e: Exception) {
+            FlowAccessApi.AccessApiCallResponse.Error("Failed to get system transaction result by block ID", e)
+        }
+
     @Deprecated("Behaves identically to getAccountAtLatestBlock", replaceWith = ReplaceWith("getAccountAtLatestBlock"))
     override fun getAccountByAddress(addresss: FlowAddress): FlowAccessApi.AccessApiCallResponse<FlowAccount> =
         try {

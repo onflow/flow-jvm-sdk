@@ -11,8 +11,20 @@ class GetTransactionAccessAPIConnector(
             is FlowAccessApi.AccessApiCallResponse.Error -> throw Exception(response.message, response.throwable)
         }
 
+    fun getSystemTransaction(blockId: FlowId): FlowTransaction =
+        when (val response = accessAPI.getSystemTransaction(blockId)) {
+            is FlowAccessApi.AccessApiCallResponse.Success -> response.data
+            is FlowAccessApi.AccessApiCallResponse.Error -> throw Exception(response.message, response.throwable)
+        }
+
     fun getTransactionResult(txID: FlowId): FlowTransactionResult =
         when (val response = accessAPI.getTransactionResultById(txID)) {
+            is FlowAccessApi.AccessApiCallResponse.Success -> response.data
+            is FlowAccessApi.AccessApiCallResponse.Error -> throw Exception(response.message, response.throwable)
+        }
+
+    fun getSystemTransactionResult(blockId: FlowId): FlowTransactionResult =
+        when (val response = accessAPI.getSystemTransactionResult(blockId)) {
             is FlowAccessApi.AccessApiCallResponse.Success -> response.data
             is FlowAccessApi.AccessApiCallResponse.Error -> throw Exception(response.message, response.throwable)
         }

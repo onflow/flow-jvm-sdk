@@ -52,6 +52,10 @@ interface FlowAccessApi {
 
     fun getTransactionResultById(id: FlowId): AccessApiCallResponse<FlowTransactionResult>
 
+    fun getSystemTransaction(blockId: FlowId): AccessApiCallResponse<FlowTransaction>
+
+    fun getSystemTransactionResult(blockId: FlowId): AccessApiCallResponse<FlowTransactionResult>
+
     fun getTransactionResultByIndex(blockId: FlowId, index: Int): AccessApiCallResponse<FlowTransactionResult>
 
     @Deprecated(

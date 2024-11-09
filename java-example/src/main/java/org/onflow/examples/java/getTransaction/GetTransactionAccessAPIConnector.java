@@ -22,8 +22,28 @@ public class GetTransactionAccessAPIConnector {
         }
     }
 
+    public FlowTransaction getSystemTransaction(FlowId blockId) {
+        FlowAccessApi.AccessApiCallResponse<FlowTransaction> response = accessAPI.getSystemTransaction(blockId);
+        if (response instanceof FlowAccessApi.AccessApiCallResponse.Success) {
+            return ((FlowAccessApi.AccessApiCallResponse.Success<FlowTransaction>) response).getData();
+        } else {
+            FlowAccessApi.AccessApiCallResponse.Error errorResponse = (FlowAccessApi.AccessApiCallResponse.Error) response;
+            throw new RuntimeException(errorResponse.getMessage(), errorResponse.getThrowable());
+        }
+    }
+
     public FlowTransactionResult getTransactionResult(FlowId txID) {
         FlowAccessApi.AccessApiCallResponse<FlowTransactionResult> response = accessAPI.getTransactionResultById(txID);
+        if (response instanceof FlowAccessApi.AccessApiCallResponse.Success) {
+            return ((FlowAccessApi.AccessApiCallResponse.Success<FlowTransactionResult>) response).getData();
+        } else {
+            FlowAccessApi.AccessApiCallResponse.Error errorResponse = (FlowAccessApi.AccessApiCallResponse.Error) response;
+            throw new RuntimeException(errorResponse.getMessage(), errorResponse.getThrowable());
+        }
+    }
+
+    public FlowTransactionResult getSystemTransactionResult(FlowId blockId) {
+        FlowAccessApi.AccessApiCallResponse<FlowTransactionResult> response = accessAPI.getSystemTransactionResult(blockId);
         if (response instanceof FlowAccessApi.AccessApiCallResponse.Success) {
             return ((FlowAccessApi.AccessApiCallResponse.Success<FlowTransactionResult>) response).getData();
         } else {

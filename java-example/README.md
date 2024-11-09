@@ -86,7 +86,9 @@ Below is a list of all Java code examples currently supported in this repo:
 [Get transactions.](src/main/java/org/onflow/examples/java/getTransaction/GetTransactionAccessAPIConnector.java)
 
 - Get transaction
+- Get system transaction
 - Get transaction result
+- Get system transaction result
 - Get transaction result by index
 
 #### Sending Transactions
