@@ -572,24 +572,22 @@ class FlowAccessApiImpl(
             FlowAccessApi.AccessApiCallResponse.Error("Failed to get execution result by block ID", e)
         }
 
-    override fun subscribeExecutionDataByBlockId(
+    private fun <T, R, M> subscribeGeneric(
         scope: CoroutineScope,
-        blockId: FlowId
-    ): Triple<ReceiveChannel<FlowBlockExecutionData>, ReceiveChannel<Throwable>, Job> {
-        val responseChannel = Channel<FlowBlockExecutionData>(Channel.UNLIMITED)
+        requestBuilder: () -> T,
+        responseHandler: (T) -> Iterator<R>,
+        responseMapper: (R) -> M
+    ): Triple<ReceiveChannel<M>, ReceiveChannel<Throwable>, Job> {
+        val responseChannel = Channel<M>(Channel.UNLIMITED)
         val errorChannel = Channel<Throwable>(Channel.UNLIMITED)
 
         val job = scope.launch {
             try {
-                val request = Executiondata.SubscribeExecutionDataFromStartBlockIDRequest
-                    .newBuilder()
-                    .setStartBlockId(blockId.byteStringValue)
-                    .build()
-
-                val responseIterator = executionDataApi.subscribeExecutionDataFromStartBlockID(request)
+                val request = requestBuilder()
+                val responseIterator = responseHandler(request)
 
                 for (response in responseIterator) {
-                    responseChannel.send(FlowBlockExecutionData.of(response.blockExecutionData))
+                    responseChannel.send(responseMapper(response))
                 }
             } catch (e: Exception) {
                 errorChannel.send(e)
@@ -598,97 +596,70 @@ class FlowAccessApiImpl(
                 errorChannel.close()
             }
         }
-
         return Triple(responseChannel, errorChannel, job)
     }
+
+    override fun subscribeExecutionDataByBlockId(
+        scope: CoroutineScope,
+        blockId: FlowId
+    ): Triple<ReceiveChannel<FlowBlockExecutionData>, ReceiveChannel<Throwable>, Job> =
+        subscribeGeneric(
+            scope,
+            requestBuilder = {
+                Executiondata.SubscribeExecutionDataFromStartBlockIDRequest
+                    .newBuilder()
+                    .setStartBlockId(blockId.byteStringValue)
+                    .build()
+            },
+            responseHandler = { executionDataApi.subscribeExecutionDataFromStartBlockID(it) },
+            responseMapper = { FlowBlockExecutionData.of(it.blockExecutionData) }
+        )
 
     override fun subscribeExecutionDataByBlockHeight(
         scope: CoroutineScope,
         height: Long
-    ): Triple<ReceiveChannel<FlowBlockExecutionData>, ReceiveChannel<Throwable>, Job> {
-        val responseChannel = Channel<FlowBlockExecutionData>(Channel.UNLIMITED)
-        val errorChannel = Channel<Throwable>(Channel.UNLIMITED)
-
-        val job = scope.launch {
-            try {
-                val request = Executiondata.SubscribeExecutionDataFromStartBlockHeightRequest
+    ): Triple<ReceiveChannel<FlowBlockExecutionData>, ReceiveChannel<Throwable>, Job> =
+        subscribeGeneric(
+            scope,
+            requestBuilder = {
+                Executiondata.SubscribeExecutionDataFromStartBlockHeightRequest
                     .newBuilder()
                     .setStartBlockHeight(height)
                     .build()
-
-                val responseIterator = executionDataApi.subscribeExecutionDataFromStartBlockHeight(request)
-
-                for (response in responseIterator) {
-                    responseChannel.send(FlowBlockExecutionData.of(response.blockExecutionData))
-                }
-            } catch (e: Exception) {
-                errorChannel.send(e)
-            } finally {
-                responseChannel.close()
-                errorChannel.close()
-            }
-        }
-
-        return Triple(responseChannel, errorChannel, job)
-    }
+            },
+            responseHandler = { executionDataApi.subscribeExecutionDataFromStartBlockHeight(it) },
+            responseMapper = { FlowBlockExecutionData.of(it.blockExecutionData) }
+        )
 
     override fun subscribeEventsByBlockId(
         scope: CoroutineScope,
         blockId: FlowId
-    ): Triple<ReceiveChannel<List<FlowEvent>>, ReceiveChannel<Throwable>, Job> {
-        val responseChannel = Channel<List<FlowEvent>>(Channel.UNLIMITED)
-        val errorChannel = Channel<Throwable>(Channel.UNLIMITED)
-
-        val job = scope.launch {
-            try {
-                val request = Executiondata.SubscribeEventsFromStartBlockIDRequest
+    ): Triple<ReceiveChannel<List<FlowEvent>>, ReceiveChannel<Throwable>, Job> =
+        subscribeGeneric(
+            scope,
+            requestBuilder = {
+                Executiondata.SubscribeEventsFromStartBlockIDRequest
                     .newBuilder()
                     .setStartBlockId(blockId.byteStringValue)
                     .build()
-
-                val responseIterator = executionDataApi.subscribeEventsFromStartBlockID(request)
-
-                for (response in responseIterator) {
-                    responseChannel.send(response.eventsList.map { FlowEvent.of(it) })
-                }
-            } catch (e: Exception) {
-                errorChannel.send(e)
-            } finally {
-                responseChannel.close()
-                errorChannel.close()
-            }
-        }
-
-        return Triple(responseChannel, errorChannel, job)
-    }
+            },
+            responseHandler = { executionDataApi.subscribeEventsFromStartBlockID(it) },
+            responseMapper = { it.eventsList.map { event -> FlowEvent.of(event) } }
+        )
 
     override fun subscribeEventsByBlockHeight(
         scope: CoroutineScope,
         height: Long
-    ): Triple<ReceiveChannel<List<FlowEvent>>, ReceiveChannel<Throwable>, Job> {
-        val responseChannel = Channel<List<FlowEvent>>(Channel.UNLIMITED)
-        val errorChannel = Channel<Throwable>(Channel.UNLIMITED)
-
-        val job = scope.launch {
-            try {
-                val request = Executiondata.SubscribeEventsFromStartHeightRequest
+    ): Triple<ReceiveChannel<List<FlowEvent>>, ReceiveChannel<Throwable>, Job> =
+        subscribeGeneric(
+            scope,
+            requestBuilder = {
+                Executiondata.SubscribeEventsFromStartHeightRequest
                     .newBuilder()
                     .setStartBlockHeight(height)
                     .build()
-
-                val responseIterator = executionDataApi.subscribeEventsFromStartHeight(request)
-
-                for (response in responseIterator) {
-                    responseChannel.send(response.eventsList.map { FlowEvent.of(it) })
-                }
-            } catch (e: Exception) {
-                errorChannel.send(e)
-            } finally {
-                responseChannel.close()
-                errorChannel.close()
-            }
-        }
-
-        return Triple(responseChannel, errorChannel, job)
-    }
+            },
+            responseHandler = { executionDataApi.subscribeEventsFromStartHeight(it) },
+            responseMapper = { it.eventsList.map { event -> FlowEvent.of(event) } }
+        )
 }
