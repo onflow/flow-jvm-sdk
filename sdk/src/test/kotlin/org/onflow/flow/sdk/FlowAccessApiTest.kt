@@ -1,7 +1,6 @@
 package org.onflow.flow.sdk
 
 import com.google.protobuf.ByteString
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.consumeEach
@@ -32,6 +31,10 @@ class FlowAccessApiTest {
     private val expectedBalance = 1000L
     private val account = createMockAccount(address)
     private val transaction = createMockTransaction()
+    private val script = FlowScript("script")
+    private val arguments = listOf(ByteString.copyFromUtf8("argument1"))
+    private val response = FlowScriptResponse("response".toByteArray())
+    private val snapshot = FlowSnapshot("snapshot".toByteArray())
 
     @BeforeEach
     fun setUp() {
@@ -284,9 +287,6 @@ class FlowAccessApiTest {
 
     @Test
     fun `Test executeScriptAtLatestBlock`() {
-        val script = FlowScript("script")
-        val arguments = listOf(ByteString.copyFromUtf8("argument1"))
-        val response = FlowScriptResponse("response".toByteArray())
         `when`(flowAccessApi.executeScriptAtLatestBlock(script, arguments)).thenReturn(FlowAccessApi.AccessApiCallResponse.Success(response))
 
         val result = flowAccessApi.executeScriptAtLatestBlock(script, arguments)
@@ -296,9 +296,6 @@ class FlowAccessApiTest {
 
     @Test
     fun `Test executeScriptAtBlockId`() {
-        val script = FlowScript("script")
-        val arguments = listOf(ByteString.copyFromUtf8("argument1"))
-        val response = FlowScriptResponse("response".toByteArray())
         `when`(flowAccessApi.executeScriptAtBlockId(script, blockId, arguments)).thenReturn(FlowAccessApi.AccessApiCallResponse.Success(response))
 
         val result = flowAccessApi.executeScriptAtBlockId(script, blockId, arguments)
@@ -308,9 +305,6 @@ class FlowAccessApiTest {
 
     @Test
     fun `Test executeScriptAtBlockHeight`() {
-        val script = FlowScript("script")
-        val arguments = listOf(ByteString.copyFromUtf8("argument1"))
-        val response = FlowScriptResponse("response".toByteArray())
         `when`(flowAccessApi.executeScriptAtBlockHeight(script, height, arguments)).thenReturn(FlowAccessApi.AccessApiCallResponse.Success(response))
 
         val result = flowAccessApi.executeScriptAtBlockHeight(script, height, arguments)
@@ -354,7 +348,6 @@ class FlowAccessApiTest {
 
     @Test
     fun `Test getLatestProtocolStateSnapshot`() {
-        val snapshot = FlowSnapshot("snapshot".toByteArray())
         `when`(flowAccessApi.getLatestProtocolStateSnapshot()).thenReturn(FlowAccessApi.AccessApiCallResponse.Success(snapshot))
 
         val result = flowAccessApi.getLatestProtocolStateSnapshot()
@@ -364,7 +357,6 @@ class FlowAccessApiTest {
 
     @Test
     fun `Test getProtocolStateSnapshotByBlockId`() {
-        val snapshot = FlowSnapshot("snapshot".toByteArray())
         `when`(flowAccessApi.getProtocolStateSnapshotByBlockId(blockId)).thenReturn(FlowAccessApi.AccessApiCallResponse.Success(snapshot))
 
         val result = flowAccessApi.getProtocolStateSnapshotByBlockId(blockId)
@@ -374,7 +366,6 @@ class FlowAccessApiTest {
 
     @Test
     fun `Test getProtocolStateSnapshotByHeight`() {
-        val snapshot = FlowSnapshot("snapshot".toByteArray())
         `when`(flowAccessApi.getProtocolStateSnapshotByHeight(HEIGHT)).thenReturn(FlowAccessApi.AccessApiCallResponse.Success(snapshot))
 
         val result = flowAccessApi.getProtocolStateSnapshotByHeight(HEIGHT)
@@ -430,7 +421,7 @@ class FlowAccessApiTest {
             1,
             "message1",
             emptyList(),
-            flowId,
+            blockId,
             1L,
             flowId,
             flowId,
@@ -442,7 +433,7 @@ class FlowAccessApiTest {
             2,
             "message2",
             emptyList(),
-            flowId,
+            blockId,
             1L,
             flowId,
             flowId,
