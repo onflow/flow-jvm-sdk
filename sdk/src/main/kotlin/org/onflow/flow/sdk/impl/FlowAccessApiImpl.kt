@@ -24,13 +24,12 @@ class FlowAccessApiImpl(
         }
     }
 
-    private fun <T> executeWithResponse(action: () -> T, errorMessage: String): FlowAccessApi.AccessApiCallResponse<T> {
-        return try {
+    private fun <T> executeWithResponse(action: () -> T, errorMessage: String): FlowAccessApi.AccessApiCallResponse<T> =
+        try {
             FlowAccessApi.AccessApiCallResponse.Success(action())
         } catch (e: Exception) {
             FlowAccessApi.AccessApiCallResponse.Error(errorMessage, e)
         }
-    }
 
     override fun ping(): FlowAccessApi.AccessApiCallResponse<Unit> =
         executeWithResponse(
@@ -145,7 +144,6 @@ class FlowAccessApiImpl(
             errorMessage = "Failed to get block header by height"
         )
 
-
     override fun getLatestBlock(sealed: Boolean, fullBlockResponse: Boolean): FlowAccessApi.AccessApiCallResponse<FlowBlock> =
         executeWithResponse(
             action = {
@@ -189,7 +187,6 @@ class FlowAccessApiImpl(
             },
             errorMessage = "Failed to get account balance at block height"
         )
-
 
     override fun getBlockById(id: FlowId, fullBlockResponse: Boolean): FlowAccessApi.AccessApiCallResponse<FlowBlock> =
         executeWithResponse(
@@ -277,7 +274,6 @@ class FlowAccessApiImpl(
             errorMessage = "Failed to get transaction by ID"
         )
 
-
     override fun getTransactionResultById(id: FlowId): FlowAccessApi.AccessApiCallResponse<FlowTransactionResult> =
         executeWithResponse(
             action = {
@@ -334,7 +330,6 @@ class FlowAccessApiImpl(
             },
             errorMessage = "Failed to get system transaction result by block ID"
         )
-
 
     @Deprecated("Behaves identically to getAccountAtLatestBlock", replaceWith = ReplaceWith("getAccountAtLatestBlock"))
     override fun getAccountByAddress(address: FlowAddress): FlowAccessApi.AccessApiCallResponse<FlowAccount> =
