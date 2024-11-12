@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.onflow.examples.kotlin.AccessAPIConnector
-import org.onflow.examples.kotlin.AccessAPIConnectorTest
 import org.onflow.flow.common.test.FlowEmulatorProjectTest
 import org.onflow.flow.common.test.FlowServiceAccountCredentials
 import org.onflow.flow.common.test.FlowTestClient
@@ -68,7 +67,7 @@ internal class GetTransactionAccessAPIConnectorTest {
     }
 
     companion object {
-        fun fetchLatestBlockWithRetries(accessAPI : FlowAccessApi, retries: Int = 5, delayMillis: Long = 500): FlowBlock {
+        fun fetchLatestBlockWithRetries(accessAPI: FlowAccessApi, retries: Int = 5, delayMillis: Long = 500): FlowBlock {
             repeat(retries) { attempt ->
                 when (val response = accessAPI.getLatestBlock()) {
                     is FlowAccessApi.AccessApiCallResponse.Success -> return response.data

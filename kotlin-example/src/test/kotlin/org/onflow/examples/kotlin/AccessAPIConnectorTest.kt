@@ -15,7 +15,6 @@ import java.math.BigDecimal
 
 @FlowEmulatorProjectTest(flowJsonLocation = "../flow/flow.json")
 internal class AccessAPIConnectorTest {
-
     // user key pairs using all supported signing algorithms
     private val userKeyPairs = arrayOf(
         Crypto.generateKeyPair(SignatureAlgorithm.ECDSA_P256),
@@ -62,7 +61,6 @@ internal class AccessAPIConnectorTest {
         val accessAPIConnector = AccessAPIConnector(senderKey, accessAPI)
         accessAPIConnector.transferTokens(sender, to, amount)
     }
-
 
     @Test
     fun `Can transfer tokens to other account`() {

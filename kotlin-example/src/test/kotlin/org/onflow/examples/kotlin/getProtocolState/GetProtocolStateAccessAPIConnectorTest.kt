@@ -38,7 +38,6 @@ internal class GetProtocolStateAccessAPIConnectorTest {
 
     @Test
     fun `Can get protocol state snapshot by height`() {
-
         val latestSnapshot: FlowSnapshot = protocolStateConnector.getProtocolStateSnapshotByHeight(block.height)
         assertNotNull(latestSnapshot, ("Snapshot should not be null"))
     }
