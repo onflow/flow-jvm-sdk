@@ -487,7 +487,7 @@ class AsyncFlowAccessApiImplTest {
     fun `test getSystemTransactionResult failure`() {
         `when`(api.getSystemTransactionResult(any())).thenThrow(testException)
 
-        val result = asyncFlowAccessApi.getSystemTransactionResult(flowId).get()
+        val result = asyncFlowAccessApi.getSystemTransactionResult(FlowId.of("id_failure".toByteArray())).get()
         assertFailure(result, "Failed to get system transaction result by block ID", testException)
     }
 
