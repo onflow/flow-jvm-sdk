@@ -488,7 +488,8 @@ class AsyncFlowAccessApiImplTest {
         )
 
         val successFlowId = FlowId.of("id_success".toByteArray())
-        val successRequest = Access.GetSystemTransactionResultRequest.newBuilder()
+        val successRequest = Access.GetSystemTransactionResultRequest
+            .newBuilder()
             .setBlockId(successFlowId.byteStringValue)
             .build()
 
@@ -502,7 +503,8 @@ class AsyncFlowAccessApiImplTest {
     @Test
     fun `test getSystemTransactionResult failure`() {
         val failureFlowId = FlowId.of("id_failure".toByteArray())
-        val failureRequest = Access.GetSystemTransactionResultRequest.newBuilder()
+        val failureRequest = Access.GetSystemTransactionResultRequest
+            .newBuilder()
             .setBlockId(failureFlowId.byteStringValue)
             .build()
 
