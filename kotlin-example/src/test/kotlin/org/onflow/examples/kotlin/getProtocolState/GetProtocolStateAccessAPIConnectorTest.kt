@@ -3,6 +3,7 @@ package org.onflow.examples.kotlin.getProtocolState
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.onflow.examples.kotlin.getTransaction.GetTransactionAccessAPIConnectorTest
 import org.onflow.flow.common.test.FlowEmulatorProjectTest
 import org.onflow.flow.common.test.FlowTestClient
 import org.onflow.flow.sdk.FlowAccessApi
@@ -20,6 +21,7 @@ internal class GetProtocolStateAccessAPIConnectorTest {
     @BeforeEach
     fun setup() {
         protocolStateConnector = GetProtocolStateAccessAPIConnector(accessAPI)
+        block = GetTransactionAccessAPIConnectorTest.fetchLatestBlockWithRetries(accessAPI)
     }
 
     @Test
@@ -30,21 +32,12 @@ internal class GetProtocolStateAccessAPIConnectorTest {
 
     @Test
     fun `Can get protocol state snapshot by blockId`() {
-        block = when (val response = accessAPI.getLatestBlock()) {
-            is FlowAccessApi.AccessApiCallResponse.Success -> response.data
-            is FlowAccessApi.AccessApiCallResponse.Error -> throw Exception(response.message, response.throwable)
-        }
-
         val latestSnapshot: FlowSnapshot = protocolStateConnector.getProtocolStateSnapshotByBlockId(block.id)
         assertNotNull(latestSnapshot, ("Snapshot should not be null"))
     }
 
     @Test
     fun `Can get protocol state snapshot by height`() {
-        block = when (val response = accessAPI.getLatestBlock()) {
-            is FlowAccessApi.AccessApiCallResponse.Success -> response.data
-            is FlowAccessApi.AccessApiCallResponse.Error -> throw Exception(response.message, response.throwable)
-        }
 
         val latestSnapshot: FlowSnapshot = protocolStateConnector.getProtocolStateSnapshotByHeight(block.height)
         assertNotNull(latestSnapshot, ("Snapshot should not be null"))
