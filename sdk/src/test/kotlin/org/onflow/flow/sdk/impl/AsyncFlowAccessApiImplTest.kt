@@ -475,19 +475,42 @@ class AsyncFlowAccessApiImplTest {
 
     @Test
     fun `test getSystemTransactionResult`() {
-        val flowTransactionResult = FlowTransactionResult(FlowTransactionStatus.SEALED, 1, "message", emptyList(), flowId, HEIGHT, flowId, flowId, 1L)
+        val flowTransactionResult = FlowTransactionResult(
+            FlowTransactionStatus.SEALED,
+            1,
+            "message",
+            emptyList(),
+            flowId,
+            HEIGHT,
+            flowId,
+            flowId,
+            1L
+        )
 
-        `when`(api.getSystemTransactionResult(any())).thenReturn(setupFutureMock(MockResponseFactory.transactionResultResponse()))
+        val successFlowId = FlowId.of("id_success".toByteArray())
+        val successRequest = Access.GetSystemTransactionResultRequest
+            .newBuilder()
+            .setBlockId(successFlowId.byteStringValue)
+            .build()
 
-        val result = asyncFlowAccessApi.getSystemTransactionResult(flowId).get()
+        `when`(api.getSystemTransactionResult(eq(successRequest)))
+            .thenReturn(setupFutureMock(MockResponseFactory.transactionResultResponse()))
+
+        val result = asyncFlowAccessApi.getSystemTransactionResult(successFlowId).get()
         assertSuccess(result, flowTransactionResult)
     }
 
     @Test
     fun `test getSystemTransactionResult failure`() {
-        `when`(api.getSystemTransactionResult(any())).thenThrow(testException)
+        val failureFlowId = FlowId.of("id_failure".toByteArray())
+        val failureRequest = Access.GetSystemTransactionResultRequest
+            .newBuilder()
+            .setBlockId(failureFlowId.byteStringValue)
+            .build()
 
-        val result = asyncFlowAccessApi.getSystemTransactionResult(flowId).get()
+        `when`(api.getSystemTransactionResult(eq(failureRequest))).thenThrow(testException)
+
+        val result = asyncFlowAccessApi.getSystemTransactionResult(failureFlowId).get()
         assertFailure(result, "Failed to get system transaction result by block ID", testException)
     }
 
