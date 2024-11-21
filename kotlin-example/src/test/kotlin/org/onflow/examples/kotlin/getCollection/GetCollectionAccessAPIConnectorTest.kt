@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.onflow.examples.kotlin.AccessAPIConnector
+import org.onflow.examples.kotlin.getTransaction.GetTransactionAccessAPIConnectorTest
 import org.onflow.flow.common.test.FlowEmulatorProjectTest
 import org.onflow.flow.common.test.FlowServiceAccountCredentials
 import org.onflow.flow.common.test.FlowTestClient
@@ -23,6 +24,7 @@ class GetCollectionAccessAPIConnectorTest {
     private lateinit var accessAPIConnector: AccessAPIConnector
 
     private lateinit var collectionId: FlowId
+    lateinit var block: FlowBlock
 
     @BeforeEach
     fun setup() {
@@ -36,10 +38,7 @@ class GetCollectionAccessAPIConnectorTest {
             publicKey
         )
 
-        val block = when (val response = accessAPI.getLatestBlock()) {
-            is FlowAccessApi.AccessApiCallResponse.Success -> response.data
-            is FlowAccessApi.AccessApiCallResponse.Error -> throw Exception(response.message, response.throwable)
-        }
+        block = GetTransactionAccessAPIConnectorTest.fetchLatestBlockWithRetries(accessAPI)
         collectionId = block.collectionGuarantees.first().id
     }
 
