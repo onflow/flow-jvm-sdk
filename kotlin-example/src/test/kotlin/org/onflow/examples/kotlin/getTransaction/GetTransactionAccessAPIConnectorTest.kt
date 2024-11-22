@@ -1,5 +1,7 @@
 package org.onflow.examples.kotlin.getTransaction
 
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -37,10 +39,7 @@ internal class GetTransactionAccessAPIConnectorTest {
             publicKey
         )
 
-        block = when (val response = accessAPI.getLatestBlock()) {
-            is FlowAccessApi.AccessApiCallResponse.Success -> response.data
-            is FlowAccessApi.AccessApiCallResponse.Error -> throw Exception(response.message, response.throwable)
-        }
+        block = fetchLatestBlockWithRetries(accessAPI)
     }
 
     @Test
@@ -65,5 +64,20 @@ internal class GetTransactionAccessAPIConnectorTest {
 
         assertNotNull(transactionResult, "Transaction result should not be null")
         assertTrue(transactionResult.status === FlowTransactionStatus.SEALED, "Transaction should be sealed")
+    }
+
+    companion object {
+        fun fetchLatestBlockWithRetries(accessAPI: FlowAccessApi, retries: Int = 5, delayMillis: Long = 500): FlowBlock {
+            repeat(retries) { attempt ->
+                when (val response = accessAPI.getLatestBlock()) {
+                    is FlowAccessApi.AccessApiCallResponse.Success -> return response.data
+                    is FlowAccessApi.AccessApiCallResponse.Error -> {
+                        println("Attempt ${attempt + 1} failed: ${response.message}. Retrying...")
+                        runBlocking { delay(delayMillis) }
+                    }
+                }
+            }
+            throw Exception("Failed to retrieve the latest block after $retries attempts.")
+        }
     }
 }

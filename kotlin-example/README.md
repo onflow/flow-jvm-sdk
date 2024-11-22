@@ -87,7 +87,9 @@ Below is a list of all Kotlin code examples currently supported in this repo:
 [Get transactions.](src/main/kotlin/org/onflow/examples/kotlin/getTransaction/GetTransactionAccessAPIConnector.kt)
 
 - Get transaction 
+- Get system transaction
 - Get transaction result
+- Get system transaction result
 - Get transaction result by index
 
 #### Sending Transactions

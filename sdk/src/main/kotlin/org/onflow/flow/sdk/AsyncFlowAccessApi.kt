@@ -40,6 +40,10 @@ interface AsyncFlowAccessApi {
 
     fun getTransactionResultById(id: FlowId): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowTransactionResult?>>
 
+    fun getSystemTransaction(blockId: FlowId): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowTransaction?>>
+
+    fun getSystemTransactionResult(blockId: FlowId): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowTransactionResult?>>
+
     fun getTransactionResultByIndex(blockId: FlowId, index: Int): CompletableFuture<FlowAccessApi.AccessApiCallResponse<FlowTransactionResult>>
 
     @Deprecated(

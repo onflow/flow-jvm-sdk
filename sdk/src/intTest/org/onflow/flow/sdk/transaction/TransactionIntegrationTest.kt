@@ -1,5 +1,7 @@
 package org.onflow.flow.sdk.transaction
 
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import org.onflow.flow.sdk.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -43,8 +45,22 @@ class TransactionIntegrationTest {
             fail("$errorMessage: ${e.message}")
         }
 
-    private fun getLatestBlock(): FlowBlock =
-        safelyHandle({ Result.success(handleResult(accessAPI.getLatestBlock(true), LATEST_BLOCK_ERROR)) }, LATEST_BLOCK_ERROR)
+    private fun getLatestBlock(retries: Int = 5, delayMillis: Long = 500): FlowBlock {
+        repeat(retries) { attempt ->
+            try {
+                return safelyHandle(
+                    { Result.success(handleResult(accessAPI.getLatestBlock(true), LATEST_BLOCK_ERROR)) },
+                    LATEST_BLOCK_ERROR
+                )
+            } catch (e: Exception) {
+                if (attempt == retries - 1) {
+                    throw Exception("$LATEST_BLOCK_ERROR after $retries attempts", e)
+                }
+                runBlocking { delay(delayMillis) }
+            }
+        }
+        throw Exception(LATEST_BLOCK_ERROR)
+    }
 
     private fun getAccountAtLatestBlock(address: FlowAddress): FlowAccount =
         safelyHandle({ Result.success(handleResult(accessAPI.getAccountAtLatestBlock(address), ACCOUNT_ERROR)) }, ACCOUNT_ERROR)
